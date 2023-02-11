@@ -1,22 +1,67 @@
 {
-  "name": "echo",
+  "name": "fronted-viteelectron-damo",
   "private": true,
   "version": "0.0.0",
-  "main": "dist-electron/main.js",
+  "main": "dist/main/index.js",
   "scripts": {
-    "dev": "vite",
-    "build": "vue-tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "dev:render": "vite",
+    "build:render": "vue-tsc && vite build",
+    "dev:electron": "npm run build:electron && electron .",
+    "build:electron": "npm run build:preload && tsc -p ./src/main",
+    "build:preload": "tsc -p ./src/preload",
+    "dev": "concurrently \"npm run dev:render\" \"npm run dev:electron\"",
+    "build": "npm run build:render && npm run build:electron",
+    "dist": "electron-builder"
   },
   "dependencies": {
     "vue": "^3.2.41"
   },
   "devDependencies": {
+    "@types/node": "^18.13.0",
     "@vitejs/plugin-vue": "^3.2.0",
-    "electron": "^22.0.0",
+    "concurrently": "^7.6.0",
+    "electron": "^23.0.0",
+    "electron-builder": "^23.6.0",
     "typescript": "^4.6.4",
     "vite": "^3.2.3",
-    "vite-plugin-electron": "^0.10.4",
     "vue-tsc": "^1.0.9"
+  },
+  "description": "像浏览网站一样,浏览本地文件",
+  "author": {
+    "email": "Sorceresssis@gmail.com",
+    "name": "何骏涛"
+  },
+  "build": {
+    "productName": "Echo",
+    "copyright": "Copyright © 2022 myElectron",
+    "directories": {
+      "output": "release/${version}"
+    },
+    "files": [
+      "dist"
+    ],
+    "mac": {
+      "artifactName": "${productName}_${version}.${ext}",
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}_${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "deleteAppDataOnUninstall": false
+    }
   }
 }

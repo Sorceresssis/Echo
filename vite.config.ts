@@ -1,10 +1,18 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import electron from 'vite-plugin-electron'
+import { defineConfig } from "vite";
+import type { BuildOptions } from "vite";
+import vue from "@vitejs/plugin-vue";
+import { resolve } from "path";
 
-// https://vitejs.dev/config/
-export default defineConfig({
-  plugins: [vue(), electron({
-    entry: 'electron/main.ts',
-  })]
-})
+export default defineConfig(({ mode }) => {
+  const build: BuildOptions = {
+    outDir: resolve(__dirname, "./dist/render")
+  };
+
+  return {
+    base: "./",
+    // 修改vue入口路径
+    root: resolve(__dirname, "./src/render"),
+    build,
+    plugins: [vue()]
+  }
+});
