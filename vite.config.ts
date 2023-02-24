@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: "./",
-    // 修改vue入口路径
+    // 修改vue渲染入口路径
     root: resolve(__dirname, "./src/render"),
     build,
     plugins: [vue()]

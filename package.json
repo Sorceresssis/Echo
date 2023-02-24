@@ -1,21 +1,23 @@
 {
-  "name": "fronted-viteelectron-damo",
+  "name": "echo",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "main": "dist/main/index.js",
   "scripts": {
     "preview": "vite preview",
     "dev:render": "vite",
     "build:render": "vue-tsc && vite build",
+    "build:preload": "tsc -p ./src/preload",
     "dev:electron": "npm run build:electron && electron .",
     "build:electron": "npm run build:preload && tsc -p ./src/main",
-    "build:preload": "tsc -p ./src/preload",
     "dev": "concurrently \"npm run dev:render\" \"npm run dev:electron\"",
     "build": "npm run build:render && npm run build:electron",
     "dist": "electron-builder"
   },
   "dependencies": {
-    "vue": "^3.2.41"
+    "sqlite3": "^5.1.4",
+    "vue": "^3.2.41",
+    "vue-i18n": "^9.2.2"
   },
   "devDependencies": {
     "@types/node": "^18.13.0",
@@ -33,21 +35,18 @@
     "name": "何骏涛"
   },
   "build": {
+    "appId": "com.sorceresssis.${name}",
     "productName": "Echo",
-    "copyright": "Copyright © 2022 myElectron",
+    "copyright": "Copyright © 2023 ${author}",
     "directories": {
       "output": "release/${version}"
     },
     "files": [
       "dist"
     ],
-    "mac": {
-      "artifactName": "${productName}_${version}.${ext}",
-      "target": [
-        "dmg"
-      ]
-    },
     "win": {
+      "icon": null,
+      "artifactName": "${productName}_${version}.${ext}",
       "target": [
         {
           "target": "nsis",
@@ -55,11 +54,12 @@
             "x64"
           ]
         }
-      ],
-      "artifactName": "${productName}_${version}.${ext}"
+      ]
     },
     "nsis": {
-      "oneClick": true,
+      "oneClick": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
       "perMachine": false,
       "deleteAppDataOnUninstall": false
     }

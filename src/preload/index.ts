@@ -1,14 +1,20 @@
 // index.ts
-import { contextBridge, ipcRenderer } from "electron";
-const sayHello = () => {
-    console.log("hello");
-};
+import { contextBridge, ipcRenderer } from "electron"
 
-const apis = {
-    sayHello: sayHello
-};
+contextBridge.exposeInMainWorld('electronAPI', {
+    getAllDatabase: () => ipcRenderer.invoke('getAllDatabase'),
+    openFile: () => ipcRenderer.invoke('dialog:openFile')
+})
 
-export type Apis = typeof apis;
+contextBridge.exposeInMainWorld('NodeAPI', {
 
-contextBridge.exposeInMainWorld("ipcRenderer", ipcRenderer);
-contextBridge.exposeInMainWorld("Main", apis);
+})
+
+contextBridge.exposeInMainWorld('versions', {
+    node: () => process.versions.node,
+    chrome: () => process.versions.chrome,
+    electron: () => process.versions.electron,
+    ping: () => ipcRenderer.invoke('ping'),
+})
+
+contextBridge.exposeInMainWorld("ipcRenderer", ipcRenderer)
