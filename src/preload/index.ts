@@ -3,7 +3,12 @@ import { contextBridge, ipcRenderer } from "electron"
 
 contextBridge.exposeInMainWorld('electronAPI', {
     getAllDatabase: () => ipcRenderer.invoke('getAllDatabase'),
-    openFile: () => ipcRenderer.invoke('dialog:openFile')
+    openFile: () => ipcRenderer.invoke('dialog:openFile'),
+
+    windowMinmize: () => ipcRenderer.invoke('window:windowMinmize'),
+    windowMaxmize: () => ipcRenderer.invoke('window:windowMaxmize'),
+    windowAcceptIsMaxmize: (callback: () => void) => ipcRenderer.on('window:windowIsMaxmize', callback),
+    windowClose: () => ipcRenderer.invoke('window:windowClose')
 })
 
 contextBridge.exposeInMainWorld('NodeAPI', {

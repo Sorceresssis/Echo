@@ -35,9 +35,9 @@
     "name": "何骏涛"
   },
   "build": {
-    "appId": "com.sorceresssis.${name}",
+    "appId": "com.sorceresssis.echo",
     "productName": "Echo",
-    "copyright": "Copyright © 2023 ${author}",
+    "copyright": "Copyright © 2023 何骏涛",
     "directories": {
       "output": "release/${version}"
     },
