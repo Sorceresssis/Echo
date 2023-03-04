@@ -6,23 +6,24 @@
                 <div class="menuTitle">工作台</div>
                 <div>
                     <ul>
-                        <li :class="{ active: activeId == -1 }" class="menuItem " @click="setActive(-1)">稍后再看</li>
-                        <li :class="{ active: activeId == -2 }" class="menuItem " @click="setActive(-2)">反对法</li>
+                        <li :class="{ active: activeDatabaseId == -1 }" class="menuItem " @click="openDatabase(-1)">稍后再看
+                        </li>
+                        <li :class="{ active: activeDatabaseId == -2 }" class="menuItem " @click="openDatabase(-2)">反对法</li>
                     </ul>
                 </div>
             </div>
             <div>
-                <div class="menuTitle spaceBetween"> <span>创建的组</span> <span class="iconfont" @click="">&#xe68c;</span>
+                <div class="menuTitle spaceBetween"><span>创建的组</span> <span class="iconfont" @click="">&#xe68c;</span>
                 </div>
                 <div>
                     <ul>
-                        <li v-for="(group, index) in Alldatabase" :draggable="true" @click="showHide(index)">
-                            <div class="menuItem "><span></span>{{ group.name }}</div>
-                            <div class="contant">
+                        <li v-for="(group, index) in Alldatabase" :draggable="true">
+                            <div class="menuItem" @click="toggleExend(index)">{{ group.name }}</div>
+                            <div class="contant" v-show="group.isOpen == 1">
                                 <ul>
-                                    <li :draggable="true" class="menuItem " :class="{ active: activeId == database.ID }"
-                                        @click.stop="setActive(database.ID)"
-                                        v-for="(database, index) in group.databaseList">
+                                    <li v-for="(database, index) in group.databases" :draggable="true" class="menuItem "
+                                        :class="{ active: activeDatabaseId == database.id }"
+                                        @click.stop="openDatabase(database.id)">
                                         {{ database.name }}
                                     </li>
                                 </ul>
@@ -36,222 +37,26 @@
 </template>
 
 <script setup lang='ts'>
-import { locStub } from '@vue/compiler-core';
 import { ref } from 'vue';
-
-let Alldatabase = [
-    {
-        ID: 1,
-        order: 1,
-        name: 'group1',
-        databaseList: [
-            {
-                ID: 1,
-                order: 1,
-                name: '反季节1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: '反季节2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: '反季节3'
-            }
-        ]
-    },
-    {
-        ID: 2,
-        order: 2,
-        name: 'group2',
-        反季节List: [
-            {
-                ID: 1,
-                order: 1,
-                name: 'database1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: 'database2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: 'database3'
-            }
-        ]
-    },
-    {
-        ID: 3,
-        order: 3,
-        name: 'group3',
-        databaseList: [
-            {
-                ID: 1,
-                order: 1,
-                name: 'database1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: 'database2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: 'database3'
-            }
-        ]
-    },
-    {
-        ID: 3,
-        order: 3,
-        name: 'group3',
-        databaseList: [
-            {
-                ID: 1,
-                order: 1,
-                name: 'database1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: 'database2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: 'database3'
-            }
-        ]
-    },
-    {
-        ID: 3,
-        order: 3,
-        name: 'group3',
-        databaseList: [
-            {
-                ID: 1,
-                order: 1,
-                name: 'database1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: 'database2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: 'database3'
-            }
-        ]
-    },
-    {
-        ID: 3,
-        order: 3,
-        name: 'group3',
-        databaseList: [
-            {
-                ID: 1,
-                order: 1,
-                name: 'database1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: 'database2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: 'database3'
-            }
-        ]
-    },
-    {
-        ID: 3,
-        order: 3,
-        name: 'group3',
-        databaseList: [
-            {
-                ID: 1,
-                order: 1,
-                name: 'database1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: 'database2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: 'database3'
-            }
-        ]
-    },
-    {
-        ID: 3,
-        order: 3,
-        name: 'group3',
-        databaseList: [
-            {
-                ID: 1,
-                order: 1,
-                name: 'datdfffffffffffffffffffffffffffffffffffffffffffffffabase1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: 'database2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: 'database3'
-            }
-        ]
-    },
-    {
-        ID: 3,
-        order: 3,
-        name: 'group3',
-        databaseList: [
-            {
-                ID: 1,
-                order: 1,
-                name: 'database1'
-            },
-            {
-                ID: 2,
-                order: 2,
-                name: 'database2'
-            },
-            {
-                ID: 3,
-                order: 3,
-                name: 'database3'
-            }
-        ]
-    }
-]
-let activeId = ref()
-
-function setActive(index: number) {
-    activeId.value = index
-}
-
-function showHide(index: number) {    //点击展开收起
-    let contant: HTMLDivElement = <HTMLDivElement>document.getElementsByClassName('contant')[index];    //这里我们通过参数index来让浏览器判断你点击的是哪一个列表   
-    // let height = contant.getBoundingClientRect().height;    //获取页面元素的当前高度
-
+// 获得数据库数据
+const Alldatabase = ref<any>([])
+async function getAllDatabase() {
+    Alldatabase.value.push(...(await window.electronAPI.getAllDatabase()))
+    console.log(Alldatabase.value);
 
 }
+getAllDatabase()
 
+function toggleExend(index: number) {
+    Alldatabase.value[index].isOpen = Alldatabase.value[index].isOpen === 1 ? 0 : 1
+}
+
+let activeDatabaseId = ref(1)
+function openDatabase(databaseID: number) {
+    activeDatabaseId.value = databaseID
+    // 加载数据库
+
+}
 </script>
 
 <style scoped>

@@ -2,7 +2,7 @@
 import { contextBridge, ipcRenderer } from "electron"
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    getAllDatabase: () => ipcRenderer.invoke('getAllDatabase'),
+    getAllDatabase: () => ipcRenderer.invoke('userData:getAllDatabase'),
     openFile: () => ipcRenderer.invoke('dialog:openFile'),
 
     windowMinmize: () => ipcRenderer.invoke('window:windowMinmize'),
