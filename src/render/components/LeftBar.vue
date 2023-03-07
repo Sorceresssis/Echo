@@ -42,8 +42,6 @@ import { ref } from 'vue';
 const Alldatabase = ref<any>([])
 async function getAllDatabase() {
     Alldatabase.value.push(...(await window.electronAPI.getAllDatabase()))
-    console.log(Alldatabase.value);
-
 }
 getAllDatabase()
 
@@ -55,7 +53,6 @@ let activeDatabaseId = ref(1)
 function openDatabase(databaseID: number) {
     activeDatabaseId.value = databaseID
     // 加载数据库
-
 }
 </script>
 

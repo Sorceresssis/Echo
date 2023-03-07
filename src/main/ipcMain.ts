@@ -1,13 +1,32 @@
-import { app, ipcMain, BrowserWindow, dialog } from "electron";
-import internal from "stream";
+import { ipcMain, BrowserWindow, dialog } from "electron";
 import Sqlite from './Sqlite'
+import { config } from './config'
+const fs = require('fs')
 const path = require('path');
 
 
 export function IPCMainHandle() {
     ipcMain.handle('userData:getAllDatabase', async () => {
+        const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
         const db = Sqlite.getInstance()
-        await db.connect(path.resolve(path.dirname(app.getPath('exe')), "database/group.db"))
+        if (!fs.existsSync(groupDBPath)) {
+            await db.connect(groupDBPath)
+            await db.run(`CREATE TABLE 'group'(
+                group_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                group_name VARCHAR(255)  NOT NULL,
+                group_order INT,
+                group_isOpen BOOLEAN NOT NULL
+                );`)
+            await db.run(`
+                CREATE TABLE 'database'(
+                database_id INTEGER PRIMARY KEY AUTOINCREMENT,
+                database_name VARCHAR(255) NOT NULL,
+                database_order INT,
+                group_id INTEGER NOT NULL
+                );`)
+        } else {
+            await db.connect(groupDBPath)
+        }
         const response = await db.all(`SELECT t1.group_id, t1.group_name, t1.group_isOpen, t2.database_id, t2.database_name
         FROM "group" t1
         JOIN "database" t2 ON t1.group_id = t2.group_id
@@ -44,22 +63,28 @@ export function IPCMainHandle() {
                 data.push(new group(item.group_id, item.group_name, item.group_isOpen, [new database(item.database_id, item.database_name)]))
             }
         })
-
         return data;
     })
 
+    ipcMain.handle('userData:addGroup', (event, args) => {
+
+    })
+
+    ipcMain.handle('usreData:addDatabase', (event, args) => {
+        return true
+
+    })
     // ipcMain.handle('data:getDatabase', async (e, args) => {
 
     // })
 
-    // ipcMain.handle('config:userDataPath', (e, args) => {
-
-    // })
+    ipcMain.handle('userData:getConfig', () => {
+        return config
+    })
     ipcMain.handle('dialog:selectFile', handleFileOpen)
 
-    ipcMain.handle('dialog:selectFolder', () => {
 
-    })
+
 
     ipcMain.handle('window:windowMinmize', (e) => {
         BrowserWindow.fromId(e.sender.id)?.minimize()
@@ -81,7 +106,6 @@ export function IPCMainHandle() {
         BrowserWindow.fromId(e.sender.id)?.close()
     })
 }
-
 
 async function handleFileOpen() {
     const { canceled, filePaths } = await dialog.showOpenDialog()

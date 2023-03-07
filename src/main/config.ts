@@ -13,16 +13,18 @@ const configPath: string = path.resolve(path.dirname(app.getPath('exe')), "confi
 export let config: any;
 
 export function readConfig() {
-    fs.readFile(configPath, 'utf8', (err: any, data: any) => {
-        if (err?.code === "ENOENT") {
+    try {
+        let data = fs.readFileSync(configPath, 'utf8')
+        config = JSON.parse(data)
+    }
+    catch (err: any) {
+        if (err.code === "ENOENT") {
             _writeConfig(defaultConfig)
             config = defaultConfig
         }
-        else {
-            config = JSON.parse(data)
-        }
-    })
+    }
 }
+
 
 export function setConfig() {
 
