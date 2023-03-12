@@ -1,7 +1,17 @@
 import { createApp } from 'vue'
+// css重置
 import './assets/css/reset.css'
+// iconfont
 import './assets/css/font.css'
-import App from './App.vue'
+// 国际化
 import i18n from './locales/index'
+// elementPlus
+import ElementPlus from 'element-plus'
+import 'element-plus/dist/index.css'
 
-createApp(App).use(i18n).mount('#app')
+import App from './App.vue'
+
+const app = createApp(App)
+app.use(i18n)
+app.use(ElementPlus)
+app.mount('#app')

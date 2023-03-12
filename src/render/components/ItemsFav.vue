@@ -1,5 +1,5 @@
 <template>
-    <div>efef</div>
+    <div>最爱</div>
 </template>
 
 <script setup lang='ts'>

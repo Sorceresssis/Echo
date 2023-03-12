@@ -1,5 +1,5 @@
 <template>
-    <div></div>
+    <div>作者</div>
 </template>
 
 <script setup lang='ts'>

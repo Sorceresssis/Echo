@@ -8,7 +8,8 @@
                     <ul>
                         <li :class="{ active: activeDatabaseId == -1 }" class="menuItem " @click="openDatabase(-1)">稍后再看
                         </li>
-                        <li :class="{ active: activeDatabaseId == -2 }" class="menuItem " @click="openDatabase(-2)">反对法</li>
+                        <li :class="{ active: activeDatabaseId == -2 }" class="menuItem " @click="openDatabase(-2)">反对法
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -18,12 +19,15 @@
                 <div>
                     <ul>
                         <li v-for="(group, index) in Alldatabase" :draggable="true">
-                            <div class="menuItem" @click="toggleExend(index)">{{ group.name }}</div>
+                            <div class="menuItem" @click="toggleExend(index)">
+                                <span class="iconfont">&#xe60a;</span>
+                                {{ group.name }}
+                            </div>
                             <div class="contant" v-show="group.isOpen == 1">
                                 <ul>
                                     <li v-for="(database, index) in group.databases" :draggable="true" class="menuItem "
                                         :class="{ active: activeDatabaseId == database.id }"
-                                        @click.stop="openDatabase(database.id)">
+                                        @click.stop="openDatabase(database.id)" style="text-indent: 2em;">
                                         {{ database.name }}
                                     </li>
                                 </ul>
@@ -58,11 +62,12 @@ function openDatabase(databaseID: number) {
 
 <style scoped>
 .leftBar {
-    display: flex;
-    width: 230px;
+    width: 200px;
     height: 100%;
+    display: flex;
     flex-direction: column;
     background-color: #f0f0f0;
+    overflow: hidden;
 }
 
 #logo {
@@ -76,9 +81,10 @@ function openDatabase(databaseID: number) {
 }
 
 #menuWrapper {
-    height: 100%;
+    flex: 1;
+    width: 170px;
     padding: 0 15px;
-    overflow-y: auto;
+    overflow-y: scroll;
 }
 
 #menuWrapper::-webkit-scrollbar {
@@ -92,7 +98,7 @@ function openDatabase(databaseID: number) {
 }
 
 .menuTitle {
-    margin-top: 40px;
+    margin-top: 20px;
     font-size: 13px;
     color: #787878;
 }
@@ -105,6 +111,7 @@ function openDatabase(databaseID: number) {
     font-size: 13px;
     font-weight: 700;
     line-height: 16px;
+    margin-right: 5px;
 }
 
 .spaceBetween {
@@ -113,7 +120,7 @@ function openDatabase(databaseID: number) {
 }
 
 .contant {
-    transition: height 0.3s;
+    background-color: #f0f0f0;
 }
 
 .menuItem {

@@ -7,7 +7,7 @@ export function createWindow(): BrowserWindow {
     const win = new BrowserWindow({
         width: 1025,
         height: 634,
-        minWidth: 756,
+        minWidth: 853,
         minHeight: 454,
         // 取消默认的标题栏
         frame: false,
@@ -24,8 +24,9 @@ export function createWindow(): BrowserWindow {
     } else {
         win?.loadFile(resolve(__dirname, "../render/index.html"));
         // 虽然菜单栏消失了，但是依然可以通过快捷键进行菜单操作，比如ctrl+shift+i打开开发者工具，为避免这种情况，我们需要去掉菜单栏window.removeMenu();
-        // window.removeMenu();
+        win.removeMenu();
     }
+
     win.on("unmaximize", () => {
         win.webContents.send('window:windowIsMaxmize', false)
     })

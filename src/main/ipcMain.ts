@@ -66,14 +66,14 @@ export function IPCMainHandle() {
         return data;
     })
 
-    ipcMain.handle('userData:addGroup', (event, args) => {
+    // ipcMain.handle('userData:addGroup', (event, args) => {
 
-    })
+    // })
 
-    ipcMain.handle('usreData:addDatabase', (event, args) => {
-        return true
+    // ipcMain.handle('usreData:addDatabase', (event, args) => {
+    //     return true
 
-    })
+    // })
     // ipcMain.handle('data:getDatabase', async (e, args) => {
 
     // })

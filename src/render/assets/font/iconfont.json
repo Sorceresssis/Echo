@@ -6,6 +6,111 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "2154470",
+      "name": "44_点点点",
+      "font_class": "diandiandianshu",
+      "unicode": "e679",
+      "unicode_decimal": 59001
+    },
+    {
+      "icon_id": "1517569",
+      "name": "点点",
+      "font_class": "diandian",
+      "unicode": "e653",
+      "unicode_decimal": 58963
+    },
+    {
+      "icon_id": "135538",
+      "name": "clock",
+      "font_class": "clock",
+      "unicode": "e6bb",
+      "unicode_decimal": 59067
+    },
+    {
+      "icon_id": "141556",
+      "name": "clock",
+      "font_class": "clock1",
+      "unicode": "e6d2",
+      "unicode_decimal": 59090
+    },
+    {
+      "icon_id": "594056",
+      "name": "CLOCK",
+      "font_class": "clock2",
+      "unicode": "e643",
+      "unicode_decimal": 58947
+    },
+    {
+      "icon_id": "1433682",
+      "name": "clock",
+      "font_class": "clock3",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "348221",
+      "name": "angle-right",
+      "font_class": "angleright",
+      "unicode": "e9bf",
+      "unicode_decimal": 59839
+    },
+    {
+      "icon_id": "835880",
+      "name": "angle-right",
+      "font_class": "angleright1",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "1311734",
+      "name": "angle-right",
+      "font_class": "angle-right",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "1433622",
+      "name": "angle-right",
+      "font_class": "angle-right1",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "7735841",
+      "name": "angle-right",
+      "font_class": "angle-right2",
+      "unicode": "e8c9",
+      "unicode_decimal": 59593
+    },
+    {
+      "icon_id": "16678285",
+      "name": "angle-right",
+      "font_class": "angle-right3",
+      "unicode": "e651",
+      "unicode_decimal": 58961
+    },
+    {
+      "icon_id": "1082712",
+      "name": "angle-down",
+      "font_class": "angledown2",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "20302843",
+      "name": "angle-down",
+      "font_class": "angle-down2",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "705476",
+      "name": "window-close",
+      "font_class": "windowclose",
+      "unicode": "ebbf",
+      "unicode_decimal": 60351
+    },
+    {
       "icon_id": "252290",
       "name": "add",
       "font_class": "add",
@@ -90,20 +195,6 @@
       "unicode_decimal": 59014
     },
     {
-      "icon_id": "12865693",
-      "name": "setting",
-      "font_class": "setting1",
-      "unicode": "e6f0",
-      "unicode_decimal": 59120
-    },
-    {
-      "icon_id": "7538862",
-      "name": "窗口-最大化_line",
-      "font_class": "window-max_line",
-      "unicode": "e695",
-      "unicode_decimal": 59029
-    },
-    {
       "icon_id": "18309134",
       "name": "window-maximize",
       "font_class": "window-maximize",
@@ -118,53 +209,11 @@
       "unicode_decimal": 58889
     },
     {
-      "icon_id": "18365388",
-      "name": "window-maximize",
-      "font_class": "window-maximize1",
-      "unicode": "e669",
-      "unicode_decimal": 58985
-    },
-    {
-      "icon_id": "18365394",
-      "name": "window-minimize",
-      "font_class": "window-minimize2",
-      "unicode": "e66a",
-      "unicode_decimal": 58986
-    },
-    {
-      "icon_id": "18366458",
-      "name": "window-maximize",
-      "font_class": "window-maximize2",
-      "unicode": "e679",
-      "unicode_decimal": 59001
-    },
-    {
-      "icon_id": "122691",
-      "name": "close",
-      "font_class": "close",
-      "unicode": "e69a",
-      "unicode_decimal": 59034
-    },
-    {
       "icon_id": "14341983",
       "name": "maximize",
       "font_class": "maximize",
       "unicode": "e7bf",
       "unicode_decimal": 59327
-    },
-    {
-      "icon_id": "12721170",
-      "name": "window-minimize",
-      "font_class": "window-minimize",
-      "unicode": "e748",
-      "unicode_decimal": 59208
-    },
-    {
-      "icon_id": "7541676",
-      "name": "窗口-最小化_line",
-      "font_class": "window-min_line",
-      "unicode": "e697",
-      "unicode_decimal": 59031
     }
   ]
 }

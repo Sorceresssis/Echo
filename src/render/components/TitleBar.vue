@@ -2,16 +2,17 @@
     <div class="titleBar">
         <span class="iconfont" @click="">&#xe657;</span>
         <i>|</i>
-        <span class="iconfont" @click="windowMinmize()">&#xe66a;</span>
-        <span v-show="isMaxmize" class="iconfont" @click="windowMaxmize()">fdf</span>
-        <span v-show="!isMaxmize" class="iconfont" @click="windowMaxmize()">&#xe695;</span>
-        <span class="iconfont" @click="windowClose()">&#xe69a;</span>
+        <span class="iconfont" @click="windowMinmize()">&#xe609;</span>
+        <span v-show="isMaxmize" class="iconfont" @click="windowMaxmize()">&#xe7bf;</span>
+        <span v-show="!isMaxmize" class="iconfont" @click="windowMaxmize()">&#xe606;</span>
+        <span class="iconfont" @click="windowClose()">&#xebbf;</span>
     </div>
 </template>
 
 <script setup lang='ts'>
 import { ref } from 'vue'
 let isMaxmize = ref<boolean>();
+
 // 监听窗口是否最大化
 window.electronAPI.windowAcceptIsMaxmize((e: any, value: any) => {
     isMaxmize.value = value
@@ -38,7 +39,8 @@ function openSetting() {
     justify-content: right;
     align-items: center;
     line-height: 40px;
-    padding: 0 12px;
+    padding: 0 8px;
+    background-color: #fff;
     -webkit-app-region: drag;
 }
 
