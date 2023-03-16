@@ -2,66 +2,147 @@
     <div class="mainContainer">
         <div id="menu">
             <div id="leftMenu">
-                <div v-for="(item, index) in componentData" :class="[active == index ? 'active' : '']" class="leftMenuItem"
-                    @click="switchComponent(index)">{{
-                        item.name
-                    }}</div>
+                <div v-for="(item, index) in componentData"
+                     :class="[componentActive == index ? 'componentActive' : '']"
+                     class="leftMenuItem"
+                     @click="switchComponent(index)">{{
+                         item.name
+                     }}</div>
             </div>
             <div id="rightMenu">
+                <div class="rightMenuItem">
+                    <el-input ref="InputRef"
+                              v-model="inputValue"
+                              class="keywordInput"
+                              size="small"
+                              @keyup.enter="handleInputConfirm"
+                              @blur="handleInputConfirm" />
+                </div>
+                <div class="rightMenuItem">
+                    <span class="iconfont">&#xe6e6;</span>
+                </div>
                 <el-dropdown trigger="click">
-                    <span class="el-dropdown-link">
-                        Dropdown List
-                        <el-icon class="el-icon--right">
-                            <arrow-down />
-                        </el-icon>
+                    <span class="el-dropdown-link iconfont">
+                        &#xe686;筛选
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item class="a">Action 1</el-dropdown-item>
-                            <el-dropdown-item>Action 2</el-dropdown-item>
-                            <el-dropdown-item>Action 3</el-dropdown-item>
-                            <el-dropdown-item disabled>Action 4</el-dropdown-item>
-                            <el-dropdown-item divided>Action 5</el-dropdown-item>
+                            <el-dropdown-item class="a">有链接</el-dropdown-item>
+                            <el-dropdown-item>有文件夹</el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <div class="rightMenuItem">搜索</div>
-                <div class="rightMenuItem">筛选</div>
-                <div class="rightMenuItem">添加</div>
-                <div class="rightMenuItem">排序</div>
-                <div class="rightMenuItem">视图</div>
+                <el-dropdown trigger="click">
+                    <span class="el-dropdown-link">
+                        <span class="iconfont">&#xe81f;</span>排序
+                    </span>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item>标题</el-dropdown-item>
+                            <el-dropdown-item class="a">点击量</el-dropdown-item>
+                            <el-dropdown-item>时间</el-dropdown-item>
+                            ——————
+                            <el-dropdown-item>升序</el-dropdown-item>
+                            <el-dropdown-item>降序</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+                <el-dropdown trigger="click">
+                    <span class="el-dropdown-link">
+                        <span class="iconfont">&#xe7f4;</span>视图
+                    </span>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item class="a">缩略图</el-dropdown-item>
+                            <el-dropdown-item>列表</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
             </div>
         </div>
-        <div id="keywordList">
-            <div class="keyword"></div>
+        <div id="keywordList"
+             v-show="dynamicTags.length != 0 && componentID != TagList">
+            <!-- 输入框 -->
+            <el-input v-if="inputVisible"
+                      ref="InputRef"
+                      v-model="inputValue"
+                      class="keywordInput"
+                      size="small"
+                      @keyup.enter="handleInputConfirm"
+                      @blur="handleInputConfirm" />
+            <!-- 添加按钮 -->
+            <el-button v-else
+                       class="button-new-tag ml-1 input"
+                       size="small"
+                       @click="showInput">
+                + New Tag
+            </el-button>
+            <!-- Tag列表 -->
+            <el-tag v-for="tag in dynamicTags"
+                    :key="tag"
+                    class="keyword"
+                    closable
+                    round
+                    @close="handleClose(tag)">
+                {{ tag }}
+            </el-tag>
         </div>
-        <component id="Items" :is="componentID"></component>
+        <component id="Items"
+                   :is="componentID"></component>
     </div>
 </template>
   
 <script lang="ts" setup>
-import { ref, shallowReactive, shallowRef } from 'vue';
-import { ArrowDown } from '@element-plus/icons-vue'
+/* 组件 */
 import Items from './Items.vue'
 import ItemsAuthor from './ItemsAuthor.vue'
 import ItemsFav from './ItemsFav.vue'
 import TagList from './TagList.vue'
+/* vue */
+import { nextTick, ref, shallowReactive, shallowRef } from 'vue';
+/* elementplus */
+import { ElInput } from 'element-plus'
 
+/* 组件切换 */
+const componentID = shallowRef(Items)
+const componentActive = ref(0)
 const componentData = shallowReactive([
     { name: '资源', component: Items },
     { name: '作者', component: ItemsAuthor },
     { name: '喜欢', component: ItemsFav },
     { name: '标签列表', component: TagList }
 ])
-const componentID = shallowRef(Items)
-const active = ref(0)
-
 function switchComponent(index: number) {
     componentID.value = componentData[index].component
-    active.value = index
+    componentActive.value = index
 }
 
+/* Keyword List */
+const dynamicTags = shallowReactive(['Tag 1', 'Tag 2', 'Tag 3'])
+const inputValue = ref('')
+const inputVisible = ref(false)
+const InputRef = ref<InstanceType<typeof ElInput>>()
 
+const handleClose = (tag: string) => {
+    dynamicTags.splice(dynamicTags.indexOf(tag), 1)
+}
+
+const showInput = () => {
+    inputVisible.value = true
+    nextTick(() => {
+        InputRef.value!.input!.focus()
+    })
+}
+
+const handleInputConfirm = () => {
+    if (inputValue.value) {
+        dynamicTags.push(inputValue.value)
+    }
+    inputVisible.value = false
+    inputValue.value = ''
+    // 跟新 items
+
+}
 </script>
   
 <style scoped>
@@ -75,10 +156,10 @@ function switchComponent(index: number) {
     overflow: hidden;
 }
 
-
 #menu {
     display: flex;
     margin: 10px;
+    line-height: 34px;
     justify-content: space-between;
 }
 
@@ -93,7 +174,12 @@ function switchComponent(index: number) {
 }
 
 .leftMenuItem:hover {
-    color: #1ecd9a;
+    color: #9e94f7;
+}
+
+.componentActive {
+    color: #9e94f7;
+    border-bottom: solid 4px #9e94f7;
 }
 
 #rightMenu {
@@ -101,28 +187,43 @@ function switchComponent(index: number) {
     justify-content: right;
 }
 
-:deep(.a) {
-    color: pink;
-}
-
-
-.active {
-    color: #1ecd9a;
-    border-bottom: solid 4px #1ecd9a;
-}
-
 .rightMenuItem {
     margin-left: 10px;
     cursor: pointer;
 }
 
-#keywordList {
+.keywordInput {
+    width: 100px;
+    height: 24px;
+    font-size: 14px;
+    margin: 5px 8px 5px 0;
+}
 
-    margin: 10px;
+.keywordInput :deep(.el-input__wrapper) {
+    border-radius: 12px;
+    font-size: 14px;
+    background-color: #f0f0f0;
+}
+
+.input {
+    height: 24px;
+    border-radius: 12px;
+    width: 100px;
+    margin: 5px 8px 5px 0;
+    background-color: #f0f0f0;
+}
+
+#keywordList {
+    display: flex;
+    justify-content: left;
+    margin: 5px 10px;
+    flex-wrap: wrap;
 }
 
 .keyword {
-    background-color: #fff;
-    padding: 2px 5px;
+    background-color: #9e94f7;
+    font-size: 14px;
+    margin: 5px 8px;
+    color: #fff;
 }
 </style>

@@ -1,5 +1,6 @@
 <template>
     <div id="Items">
+        <!-- 有20条信息 -->
         <div class="item">1</div>
         <div class="item">2</div>
         <div class="item">3</div>
@@ -14,10 +15,6 @@
         <div class="item">12</div>
         <div class="item">13</div>
         <div class="item">14</div>
-        <div class="item">14</div>
-        <div class="item">14</div>
-        <div class="item">14</div>
-        <div class="item">14</div>
     </div>
 </template>
 
@@ -28,12 +25,12 @@ import { ref, reactive } from 'vue'
 
 <style scoped>
 #Items {
-    flex: 1;
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, 180px);
     justify-content: space-around;
-    align-content: flex-start;
-    align-items: center;
+    grid-gap: 20px;
+    column-gap: 20px;
+    padding: 10px;
     overflow-y: auto;
 }
 
@@ -50,7 +47,6 @@ import { ref, reactive } from 'vue'
 .item {
     width: 180px;
     height: 150px;
-    margin: 10px;
     background-color: pink;
     cursor: pointer;
 }

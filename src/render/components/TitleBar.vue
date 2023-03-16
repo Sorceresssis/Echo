@@ -1,11 +1,18 @@
 <template>
     <div class="titleBar">
-        <span class="iconfont" @click="">&#xe657;</span>
+        <span class="iconfont"
+              @click="">&#xe657;</span>
         <i>|</i>
-        <span class="iconfont" @click="windowMinmize()">&#xe609;</span>
-        <span v-show="isMaxmize" class="iconfont" @click="windowMaxmize()">&#xe7bf;</span>
-        <span v-show="!isMaxmize" class="iconfont" @click="windowMaxmize()">&#xe606;</span>
-        <span class="iconfont" @click="windowClose()">&#xebbf;</span>
+        <span class="iconfont"
+              @click="windowMinmize()">&#xe609;</span>
+        <span v-show="isMaxmize"
+              class="iconfont"
+              @click="windowMaxmize()">&#xe7bf;</span>
+        <span v-show="!isMaxmize"
+              class="iconfont"
+              @click="windowMaxmize()">&#xe606;</span>
+        <span class="iconfont"
+              @click="windowClose()">&#xebbf;</span>
     </div>
 </template>
 
@@ -64,6 +71,5 @@ span {
 }
 
 span:hover {
-    color: #1ecc94;
-}
-</style>
+    color: #887cf7;
+}</style>

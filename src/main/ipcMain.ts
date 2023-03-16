@@ -29,7 +29,7 @@ export function IPCMainHandle() {
         }
         const response = await db.all(`SELECT t1.group_id, t1.group_name, t1.group_isOpen, t2.database_id, t2.database_name
         FROM "group" t1
-        JOIN "database" t2 ON t1.group_id = t2.group_id
+        LEFT JOIN "database" t2 ON t1.group_id = t2.group_id
         ORDER BY t1.group_order, t2.database_order;`)
         db.close()
         // 分组数据
@@ -60,15 +60,30 @@ export function IPCMainHandle() {
                 data[data.length - 1].databases.push(new database(item.database_id, item.database_name))
             } else {
                 groupIDMap.set(item.group_id, item.group_id);
-                data.push(new group(item.group_id, item.group_name, item.group_isOpen, [new database(item.database_id, item.database_name)]))
+                // 因为时左连接，要判断group没有database
+                data.push(new group(item.group_id, item.group_name, item.group_isOpen, item.database_id == null ? [] : [new database(item.database_id, item.database_name)]))
             }
         })
         return data;
     })
 
-    // ipcMain.handle('userData:addGroup', (event, args) => {
-
-    // })
+    ipcMain.handle('userData:addGroup', async (event, groupName) => {
+        const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
+        const db = Sqlite.getInstance()
+        // 添加是否成功
+        let flag: boolean = true
+        try {
+            await db.connect(groupDBPath)
+            await db.run(`INSERT INTO 'group'(group_name, group_isOpen)VALUES ('${groupName}', 0);`)
+        } catch (err) {
+            // 添加错误
+            flag = false
+        } finally {
+            // 关闭数据库
+            db.close()
+        }
+        return flag
+    })
 
     // ipcMain.handle('usreData:addDatabase', (event, args) => {
     //     return true

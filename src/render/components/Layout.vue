@@ -6,7 +6,9 @@
         <div id="slideTrack">
             <div></div>
             <div>
-                <span @click="flag = !flag" id="slideButton" class="iconfont">&#xe653;</span>
+                <span @click="flag = !flag"
+                      id="slideButton"
+                      class="iconfont">&#xe653;</span>
             </div>
         </div>
         <div class="rightContainer">
@@ -56,7 +58,7 @@ const flag = ref<boolean>(true)
 }
 
 #slideButton:hover {
-    color: #1ecd9a;
+    color: #887cf7;
 }
 
 .slide-enter-from,
