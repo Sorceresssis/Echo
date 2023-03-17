@@ -10,20 +10,15 @@
                      }}</div>
             </div>
             <div id="rightMenu">
-                <div class="rightMenuItem">
-                    <el-input ref="InputRef"
-                              v-model="inputValue"
-                              class="keywordInput"
-                              size="small"
-                              @keyup.enter="handleInputConfirm"
-                              @blur="handleInputConfirm" />
-                </div>
-                <div class="rightMenuItem">
-                    <span class="iconfont">&#xe6e6;</span>
-                </div>
+                <el-input ref="InputSearchRef"
+                          v-model="inputValue"
+                          class="inputSearch"
+                          size="small"
+                          @keyup.enter="handleInputConfirm"
+                          @blur="handleInputConfirm" />
                 <el-dropdown trigger="click">
-                    <span class="el-dropdown-link iconfont">
-                        &#xe686;筛选
+                    <span class=" rightMenuItem iconfont">
+                        &#xe686;
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -33,8 +28,8 @@
                     </template>
                 </el-dropdown>
                 <el-dropdown trigger="click">
-                    <span class="el-dropdown-link">
-                        <span class="iconfont">&#xe81f;</span>排序
+                    <span class=" rightMenuItem iconfont">
+                        <span class="iconfont">&#xe81f;</span>
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -48,8 +43,8 @@
                     </template>
                 </el-dropdown>
                 <el-dropdown trigger="click">
-                    <span class="el-dropdown-link">
-                        <span class="iconfont">&#xe7f4;</span>视图
+                    <span class=" rightMenuItem iconfont">
+                        <span class="iconfont">&#xe7f4;</span>
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -66,7 +61,7 @@
             <el-input v-if="inputVisible"
                       ref="InputRef"
                       v-model="inputValue"
-                      class="keywordInput"
+                      class="inputSearch"
                       size="small"
                       @keyup.enter="handleInputConfirm"
                       @blur="handleInputConfirm" />
@@ -88,7 +83,8 @@
             </el-tag>
         </div>
         <component id="Items"
-                   :is="componentID"></component>
+                   :is="componentID">
+        </component>
     </div>
 </template>
   
@@ -159,7 +155,6 @@ const handleInputConfirm = () => {
 #menu {
     display: flex;
     margin: 10px;
-    line-height: 34px;
     justify-content: space-between;
 }
 
@@ -184,22 +179,27 @@ const handleInputConfirm = () => {
 
 #rightMenu {
     display: flex;
+    width: 50%;
     justify-content: right;
+    align-items: center;
 }
 
 .rightMenuItem {
-    margin-left: 10px;
+    font-size: 14px;
+    margin-left: 8px;
     cursor: pointer;
 }
 
-.keywordInput {
-    width: 100px;
+.inputSearch {
+    width: 60%;
+    min-width: 130px;
+    max-width: 250px;
     height: 24px;
     font-size: 14px;
     margin: 5px 8px 5px 0;
 }
 
-.keywordInput :deep(.el-input__wrapper) {
+.inputSearch :deep(.el-input__wrapper) {
     border-radius: 12px;
     font-size: 14px;
     background-color: #f0f0f0;

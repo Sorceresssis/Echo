@@ -72,4 +72,5 @@ span {
 
 span:hover {
     color: #887cf7;
-}</style>
+}
+</style>
