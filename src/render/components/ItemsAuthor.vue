@@ -1,27 +1,38 @@
 <template>
-    <el-row class="demo-autocomplete">
-        <el-col :span="12">
-            <div class="sub-title my-2 text-sm text-gray-600">
-                list suggestions when activated
-            </div>
-            <el-autocomplete v-model="state1"
-                             :fetch-suggestions="querySearch"
-                             clearable
-                             class="inline-input w-50"
-                             placeholder="Please Input" />
-        </el-col>
-        <el-col :span="12">
-            <div class="sub-title my-2 text-sm text-gray-600">
-                list suggestions on input
-            </div>
-            <el-autocomplete v-model="state2"
-                             :fetch-suggestions="querySearch"
-                             :trigger-on-focus="false"
-                             clearable
-                             class="inline-input w-50"
-                             placeholder="Please Input" />
-        </el-col>
-    </el-row>
+    <div>
+        <ul>
+            <li>"fdfdf"</li>
+            <li>"fdfdf"</li>
+            <li>"fdfdf"</li>
+            <li>"fdfdf"</li>
+            <li>"fdfdf"</li>
+            <li>"fdfdf"</li>
+            <li>"fdfdf"</li>
+        </ul>
+        <el-row class="demo-autocomplete">
+            <el-col :span="12">
+                <div class="sub-title my-2 text-sm text-gray-600">
+                    list suggestions when activated
+                </div>
+                <el-autocomplete v-model="state1"
+                                 :fetch-suggestions="querySearch"
+                                 clearable
+                                 class="inline-input w-50"
+                                 placeholder="Please Input" />
+            </el-col>
+            <el-col :span="12">
+                <div class="sub-title my-2 text-sm text-gray-600">
+                    list suggestions on input
+                </div>
+                <el-autocomplete v-model="state2"
+                                 :fetch-suggestions="querySearch"
+                                 :trigger-on-focus="false"
+                                 clearable
+                                 class="inline-input w-50"
+                                 placeholder="Please Input" />
+            </el-col>
+        </el-row>
+    </div>
 </template>
   
 <script lang="ts" setup>

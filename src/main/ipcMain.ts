@@ -5,6 +5,7 @@ const fs = require('fs')
 const path = require('path');
 
 
+
 export function IPCMainHandle() {
     ipcMain.handle('userData:getAllDatabase', async () => {
         const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
@@ -67,7 +68,7 @@ export function IPCMainHandle() {
         return data;
     })
 
-    ipcMain.handle('userData:addGroup', async (event, groupName) => {
+    ipcMain.handle('userData:addGroup', async (e, groupName) => {
         const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
         const db = Sqlite.getInstance()
         // 添加是否成功
@@ -84,21 +85,41 @@ export function IPCMainHandle() {
         }
         return flag
     })
+    ipcMain.handle('userData:renameGroup', async (e, groupID, rename) => {
+        const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
+        const db = Sqlite.getInstance()
+        let flag = true
+        await db.connect(groupDBPath)
+        try {
+            await db.run(`UPDATE 'group' SET group_name = '${rename}' WHERE group_id = ${groupID};`)
+        } catch (er) {
+            flag = false
+        }
+        finally {
+            db.close()
+        }
+        return flag
+    })
+    ipcMain.handle('userData:renameDatabase', async (e, databaseID, rename) => {
+        const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
+        const db = Sqlite.getInstance()
+        let flag = true
+        await db.connect(groupDBPath)
+        try {
+            await db.run(`UPDATE 'database' SET database_name = '${rename}' WHERE database_id = ${databaseID};`)
+        } catch (er) {
+            flag = false
+        } finally {
+            db.close()
+        }
+        return flag
+    })
 
-    // ipcMain.handle('usreData:addDatabase', (event, args) => {
-    //     return true
-
-    // })
-    // ipcMain.handle('data:getDatabase', async (e, args) => {
-
-    // })
 
     ipcMain.handle('userData:getConfig', () => {
         return config
     })
     ipcMain.handle('dialog:selectFile', handleFileOpen)
-
-
 
 
     ipcMain.handle('window:windowMinmize', (e) => {
@@ -113,9 +134,6 @@ export function IPCMainHandle() {
         else {
             win?.maximize()
         }
-    })
-    ipcMain.handle('window:windowIsMaxmize', (e) => {
-        return BrowserWindow.fromId(e.sender.id)?.isMaximized()
     })
     ipcMain.handle('window:windowClose', (e) => {
         BrowserWindow.fromId(e.sender.id)?.close()

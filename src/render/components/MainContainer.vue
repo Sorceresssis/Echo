@@ -1,5 +1,6 @@
 <template>
     <div class="mainContainer">
+        <div id="DBName">{{ valueOpenDB.name }}</div>
         <div id="menu">
             <div id="leftMenu">
                 <div v-for="(item, index) in componentData"
@@ -14,8 +15,16 @@
                           v-model="inputValue"
                           class="inputSearch"
                           size="small"
+                          placeholder="通用搜索"
                           @keyup.enter="handleInputConfirm"
                           @blur="handleInputConfirm" />
+
+                <span class="iconfont rightMenuItem ">
+                    &#xe66b;
+                </span>
+                <span class="iconfont rightMenuItem ">
+                    &#xe68c;
+                </span>
                 <el-dropdown trigger="click">
                     <span class=" rightMenuItem iconfont">
                         &#xe686;
@@ -89,15 +98,18 @@
 </template>
   
 <script lang="ts" setup>
-/* 组件 */
 import Items from './Items.vue'
 import ItemsAuthor from './ItemsAuthor.vue'
 import ItemsFav from './ItemsFav.vue'
 import TagList from './TagList.vue'
-/* vue */
 import { nextTick, ref, shallowReactive, shallowRef } from 'vue';
-/* elementplus */
 import { ElInput } from 'element-plus'
+
+const props = defineProps<{
+    valueOpenDB: database
+}>()
+
+
 
 /* 组件切换 */
 const componentID = shallowRef(Items)
@@ -152,6 +164,12 @@ const handleInputConfirm = () => {
     overflow: hidden;
 }
 
+#DBName {
+    margin: 0 10px;
+    font-size: 30px;
+    font-weight: 700;
+}
+
 #menu {
     display: flex;
     margin: 10px;
@@ -161,9 +179,11 @@ const handleInputConfirm = () => {
 #leftMenu {
     display: flex;
     justify-content: left;
+    align-items: center;
 }
 
 .leftMenuItem {
+    height: 22px;
     margin-right: 30px;
     cursor: pointer;
 }
@@ -174,7 +194,7 @@ const handleInputConfirm = () => {
 
 .componentActive {
     color: #9e94f7;
-    border-bottom: solid 4px #9e94f7;
+    border-bottom: solid 3px #9e94f7;
 }
 
 #rightMenu {
@@ -185,18 +205,23 @@ const handleInputConfirm = () => {
 }
 
 .rightMenuItem {
-    font-size: 14px;
-    margin-left: 8px;
+    font-size: 18px;
+    padding: 4px;
     cursor: pointer;
+    border-radius: 3px;
+}
+
+.rightMenuItem:hover {
+    background-color: #d9d9d9;
 }
 
 .inputSearch {
-    width: 60%;
+    width: 50%;
     min-width: 130px;
     max-width: 250px;
     height: 24px;
     font-size: 14px;
-    margin: 5px 8px 5px 0;
+    margin: 5px 20px 5px 0;
 }
 
 .inputSearch :deep(.el-input__wrapper) {

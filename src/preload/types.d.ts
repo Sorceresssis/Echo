@@ -4,6 +4,11 @@ import path from "path"
 export interface IElectronAPI {
     getAllDatabase: () => Promise<any>
     addGroup: (groupName: string) => Promise<any>
+    renameGroup: (groupID: number, rename: string) => Promise<boolean>
+
+
+    addDatabase: () => Promise<any>
+    renameDatabase: (databaseID: number, rename: string) => Promise<boolean>
 
     openFile: () => Promise<any>
 

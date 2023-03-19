@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3790846 */
-  src: url('iconfont.woff2?t=1678607379355') format('woff2'),
-       url('iconfont.woff?t=1678607379355') format('woff'),
-       url('iconfont.ttf?t=1678607379355') format('truetype');
+  src: url('iconfont.woff2?t=1679074855998') format('woff2'),
+       url('iconfont.woff?t=1679074855998') format('woff'),
+       url('iconfont.ttf?t=1679074855998') format('truetype');
 }
 
 .iconfont {
@@ -13,8 +13,32 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-diandiandianshu:before {
-  content: "\e679";
+.icon-icons-:before {
+  content: "\e66b";
+}
+
+.icon-form_search:before {
+  content: "\e617";
+}
+
+.icon-search_list:before {
+  content: "\e683";
+}
+
+.icon-search_list1:before {
+  content: "\e61b";
+}
+
+.icon-huishouzhan:before {
+  content: "\e61a";
+}
+
+.icon-huishouzhan1:before {
+  content: "\e636";
+}
+
+.icon-huishouzhan2:before {
+  content: "\e7f2";
 }
 
 .icon-diandian:before {
@@ -25,48 +49,12 @@
   content: "\e6bb";
 }
 
-.icon-clock1:before {
-  content: "\e6d2";
-}
-
-.icon-clock2:before {
-  content: "\e643";
-}
-
-.icon-clock3:before {
-  content: "\e625";
-}
-
-.icon-angleright:before {
-  content: "\e9bf";
-}
-
 .icon-angleright1:before {
   content: "\e616";
 }
 
-.icon-angle-right:before {
-  content: "\e604";
-}
-
 .icon-angle-right1:before {
   content: "\e608";
-}
-
-.icon-angle-right2:before {
-  content: "\e8c9";
-}
-
-.icon-angle-right3:before {
-  content: "\e651";
-}
-
-.icon-angledown2:before {
-  content: "\e60d";
-}
-
-.icon-angle-down2:before {
-  content: "\e60a";
 }
 
 .icon-windowclose:before {

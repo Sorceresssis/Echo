@@ -1,5 +1,5 @@
 <template>
-    <div class="leftBar">
+    <div id="leftBar">
         <div id="logo">Echo</div>
         <div id="menuWrapper">
             <div>
@@ -8,13 +8,15 @@
                     <ul>
                         <li :class="{ active: activeDatabaseId == -1 }"
                             class="menuItem "
-                            @click="openDatabase(-1)">
+                            @click="openDatabase({ id: -1, name: '稍后再看' })">
                             <span class="iconfont">&#xe6bb;</span>
                             稍后再看
                         </li>
                         <li :class="{ active: activeDatabaseId == -2 }"
                             class="menuItem "
-                            @click="openDatabase(-2)">回收站
+                            @click="openDatabase({ id: -2, name: '回收站' })">
+                            <span class="iconfont">&#xe61a;</span>
+                            回收站
                         </li>
                     </ul>
                 </div>
@@ -25,19 +27,35 @@
                 </div>
                 <div>
                     <ul>
+                        <!-- 添加Group输入框 -->
                         <li>
-                            <input v-show="inputAddGroupVisible"
-                                   v-model="inputGroupName"
-                                   type="text"
-                                   class="input"
-                                   v-focus="inputAddGroupVisible"
-                                   @keyup.enter="($event.target as HTMLInputElement)?.blur()"
-                                   @blur="handleInput"
-                                   onfocus="this.select()">
+                            <div class="input-wrapper"
+                                 v-if="inputAddGroupVisible">
+                                <input v-model="inputGroupName"
+                                       type="text"
+                                       maxlength="255"
+                                       v-focus="inputAddGroupVisible"
+                                       @keyup.enter="($event.target as HTMLInputElement)?.blur()"
+                                       @blur="handleInput"
+                                       onfocus="this.select()">
+                            </div>
                         </li>
                         <li v-for="(group, indexGP) in Alldatabase"
                             :key="group.id">
-                            <div class="menuItem"
+                            <!-- 重命名输入框 -->
+                            <div v-if="inputRenameIDGP == group.id"
+                                 class="input-wrapper">
+                                <span :class="{ rotateZ: group.isOpen == 1 }"
+                                      class="iconfont angle">&#xe608;</span>
+                                <input type="text"
+                                       v-model="group.name"
+                                       onfocus="this.select()"
+                                       v-focus="inputRenameIDGP == group.id"
+                                       @keyup.enter="($event.target as HTMLInputElement)?.blur()"
+                                       @blur="inputRenameHandleGP(group.id, group.name)">
+                            </div>
+                            <div v-else
+                                 class="menuItem"
                                  @contextmenu="contextMenuOpenGP($event, indexGP)"
                                  @click="toggleExend(indexGP)"
                                  :draggable="true"
@@ -53,31 +71,35 @@
                             <div class="contant"
                                  v-show="group.isOpen == 1">
                                 <ul>
+                                    <!-- 添加database输入框 -->
                                     <li>
-                                        <input v-show=false
-                                               v-model="inputNameDB"
-                                               type="text"
-                                               class="input"
-                                               onfocus="this.select()">
+                                        <div v-if=false
+                                             class="input-wrapper ">
+                                            <input v-model="inputNameDB"
+                                                   type="text"
+                                                   class="input inputTemp"
+                                                   onfocus="this.select()">
+                                        </div>
                                     </li>
                                     <li v-for="(database, indexDB) in group.databases"
                                         :key="database.id">
-                                        <div v-if="inputRenameIDDB === database.id">
-                                            <input v-show=true
-                                                   v-focus="inputRenameIDDB === database.id"
-                                                   v-model="database.name"
+                                        <!-- 重命名输入框 -->
+                                        <div v-if="inputRenameIDDB == database.id"
+                                             class="input-wrapper">
+                                            <input v-model="database.name"
+                                                   onfocus="this.select()"
                                                    type="text"
                                                    class="input"
+                                                   v-focus="inputRenameIDDB == database.id"
                                                    @keyup.enter="($event.target as HTMLInputElement)?.blur()"
-                                                   @blur="inputRenameHandleDB"
-                                                   onfocus="this.select()">
+                                                   @blur="inputRenameHandleDB(database.id, database.name)">
                                         </div>
                                         <div v-else
                                              @contextmenu="contextMenuOpenDB($event, indexGP, indexDB)"
-                                             class="menuItem "
+                                             class="menuItem"
                                              :class="{ active: activeDatabaseId == database.id }"
                                              style="text-indent: 2em;"
-                                             @click.stop="openDatabase(database.id)"
+                                             @click.stop="openDatabase(database)"
                                              :draggable="true"
                                              @dragstart="dragstartDB(indexGP, indexDB)"
                                              @dragend="dragendDB()"
@@ -99,28 +121,32 @@
             <context-menu-item label="添加数据库"
                                @click="" />
             <context-menu-item label="重命名"
-                               @click="" />
+                               @click="inputRenameIDGP = Alldatabase[contextMenuIndexGP].id" />
             <context-menu-item label="删除"
+                               @click="">
+                <template #icon>
+                    <span class="iconfont">&#xe61a;</span>
+                </template>
+            </context-menu-item>
+            <context-menu-item label="刷新"
                                @click="" />
         </context-menu>
         <context-menu v-model:show="contextMenushowDB"
                       :options="contextMenuOptions">
-            <context-menu-item label="打开"
-                               @click="openDatabase(Alldatabase[contextMenuIndexGP].databases[contextMenuIndexDB].id)" />
             <context-menu-item label="在新窗口中打开"
-                               @click="openDatabaseNewWindow(Alldatabase[contextMenuIndexGP].databases[contextMenuIndexDB].id)" />
+                               @click="openDatabaseNewWindow(Alldatabase[contextMenuIndexGP].databases[contextMenuIndexDB])" />
+            <context-menu-item label="刷新"
+                               @click="" />
             <context-menu-item label="重命名"
                                @click="inputRenameIDDB = Alldatabase[contextMenuIndexGP].databases[contextMenuIndexDB].id" />
             <context-menu-item label="删除"
-                               @click="" />
-            <context-menu-sperator />
-            <context-menu-item label="添加记录"
                                @click="">
                 <template #icon>
-                    <span class="iconfont"
-                          style="width:20px;height:20px">&#xe6e6;</span>
+                    <span class="iconfont">&#xe61a;</span>
                 </template>
             </context-menu-item>
+            <context-menu-sperator />
+
             <context-menu-group label="移动到">
                 <context-menu-item v-for="(group, index) in Alldatabase"
                                    :key="index"
@@ -128,6 +154,7 @@
                                    @click="" />
             </context-menu-group>
         </context-menu>
+
     </div>
 </template>
 
@@ -135,8 +162,13 @@
 <script setup lang='ts'>
 import { ref } from 'vue';
 import type { Directive } from 'vue';
-import { ContextMenu, ContextMenuItem, ContextMenuGroup } from '@imengyu/vue3-context-menu';
-import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
+import { ElMessage } from 'element-plus'
+
+
+/******************** 组件传参 ********************/
+const emit = defineEmits<{
+    (e: "openDB", DB: database): void
+}>()
 
 
 /******************** 获得数据库数据 ********************/
@@ -168,22 +200,34 @@ getAllDatabase()
 
 
 /******************** 打开和展示 ********************/
+// 获取要打开的databaseID 1.electron发送,2.pinia读取
+// openDatabase()
+
+
+
 /* GP */
 // 展开group
 function toggleExend(index: number) {
     Alldatabase.value[index].isOpen = Alldatabase.value[index].isOpen === 1 ? 0 : 1
 }
 /* DB */
-let activeDatabaseId = ref(1)
-// 普通打开
-function openDatabase(databaseID: number) {
-    // 改样式
-    activeDatabaseId.value = databaseID
-    // 传递数据获得数据
-}
+const activeDatabaseId = ref(1)
+// 普通打开, 闭包记录上一次打开的数据库
+const openDatabase = (function () {
+    let lastOpen: database | null = null
+    return function (DB: database) {
+        if (DB != lastOpen) {
+            lastOpen = DB
+            activeDatabaseId.value = DB.id
+            emit("openDB", DB)
+            // 写入pinia
+        }
+    }
+})()
+
 // 新建窗口打开数据库
-function openDatabaseNewWindow(databaseID: number) {
-    console.log("新建窗口", databaseID);
+function openDatabaseNewWindow(DB: database) {
+
 }
 
 
@@ -214,7 +258,7 @@ const contextMenuOpenDB = (e: MouseEvent, indexGP: number, indexDB: number) => {
 
 
 /******************** 添加组和数据库 ********************/
-// 添加v-focus指令，自动聚焦到input
+// 添加v-focus指令，自动聚焦到input，注意！，v-focus要写在onfocus="this.select()"下面，先全选再聚焦
 const vFocus: Directive = (el, bingding) => {
     if (bingding) {
         el.focus()
@@ -227,13 +271,10 @@ const addGroup = async (groupName: string) => {
     if (groupName === "") return
     // 写入数据库
     let flag: any = await window.electronAPI.addGroup(groupName)
-
     // Alldatabase.value.unshift(new group(2, inputGroupName.value, 0, []))
     // 改顺序
-
     // 重新获取数据
     getAllDatabase()
-
     // 发出提示
     console.log(flag);
 }
@@ -255,26 +296,32 @@ const inputNameDB = ref("新建数据库")
 
 
 
-
 /******************** 重命名 ********************/
 /* 重命名GP */
 const inputRenameIDGP = ref(0)
-
-
-
+const inputRenameHandleGP = async (groupID: number, rename: string) => {
+    inputRenameIDGP.value = 0
+    // 写入数据库
+    if (await window.electronAPI.renameGroup(groupID, rename)) {
+        ElMessage.success('重命名成功')
+    }
+    else {
+        ElMessage.error('重命名失败')
+    }
+}
 /* 重命名DB */
 const inputRenameIDDB = ref(0)
-const inputRenameHandleDB = () => {
+const inputRenameHandleDB = async (databaseID: number, rename: string) => {
     // 取消显示
-    let tmpID = inputRenameIDDB.value
     inputRenameIDDB.value = 0
     // 写入数据库
-
+    if (await window.electronAPI.renameDatabase(databaseID, rename)) {
+        ElMessage.success('重命名成功')
+    }
+    else {
+        ElMessage.error('重命名失败')
+    }
 }
-
-
-
-
 
 /******************** 拖动排序 ********************/
 let dragIndexGP: number
@@ -345,8 +392,8 @@ const dragleaveDB = (e: any) => {
 </script>
 
 <style scoped>
-.leftBar {
-    width: 200px;
+#leftBar {
+    width: 230px;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -366,7 +413,7 @@ const dragleaveDB = (e: any) => {
 
 #menuWrapper {
     flex: 1;
-    width: 170px;
+    width: 200px;
     padding: 0 15px;
     overflow-y: scroll;
 }
@@ -394,7 +441,7 @@ const dragleaveDB = (e: any) => {
 .iconfont {
     font-size: 13px;
     font-weight: 700;
-    line-height: 16px;
+    /* line-height: 16px; */
     margin-right: 5px;
 }
 
@@ -408,15 +455,7 @@ const dragleaveDB = (e: any) => {
     background-color: #f0f0f0;
 }
 
-.input {
-    height: 30px;
-    width: 144px;
-    margin-top: 10px;
-    padding: 0 10px;
-    font-size: 13px;
-    border: solid 1px #767676;
-    outline: none;
-}
+
 
 .angle {
     display: inline-block;
@@ -426,6 +465,22 @@ const dragleaveDB = (e: any) => {
 
 .rotateZ {
     transform: rotateZ(90deg);
+}
+
+.input-wrapper {
+    display: flex;
+    height: 30px;
+    margin: 10px 0;
+    padding: 0 10px;
+    font-size: 13px;
+    line-height: 30px;
+    border: 1px solid #929292;
+    background-color: #fff;
+}
+
+.input-wrapper input {
+    border: none;
+    outline: none;
 }
 
 .menuItem {

@@ -3,7 +3,20 @@ import { contextBridge, ipcRenderer } from "electron"
 
 contextBridge.exposeInMainWorld('electronAPI', {
     getAllDatabase: () => ipcRenderer.invoke('userData:getAllDatabase'),
+    // group
     addGroup: (groupName: string) => ipcRenderer.invoke('userData:addGroup', groupName),
+    renameGroup: (groupID: number, rename: string) => ipcRenderer.invoke('userData:renameGroup', groupID, rename),
+    deleteGroup: (groupID: number) => ipcRenderer.invoke('userData:deleteGroup', groupID),
+    updataOrderGroup: () => ipcRenderer.invoke('userData:'),
+    // database
+    addDatabase: (groupID: number) => ipcRenderer.invoke('userData:addDatabase', groupID),
+    renameDatabase: (databaseID: number, rename: string) => ipcRenderer.invoke('userData:renameDatabase', databaseID, rename),
+    moveDatabase: () => ipcRenderer.invoke('userData:'),
+    deleteDatabase: () => ipcRenderer.invoke('userData:'),
+    updataOrderDatabase: () => ipcRenderer.invoke('userData:'),
+
+
+
 
     openFile: () => ipcRenderer.invoke('dialog:openFile'),
 
@@ -23,5 +36,3 @@ contextBridge.exposeInMainWorld('versions', {
     electron: () => process.versions.electron,
     ping: () => ipcRenderer.invoke('ping'),
 })
-
-contextBridge.exposeInMainWorld("ipcRenderer", ipcRenderer)

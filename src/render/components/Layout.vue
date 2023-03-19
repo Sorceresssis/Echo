@@ -1,19 +1,20 @@
 <template>
     <div class="layout">
         <Transition name="slide">
-            <LeftBar v-show="flag"></LeftBar>
+            <LeftBar @openDB="handleOpenDB"
+                     v-show="isOpenSideBar"></LeftBar>
         </Transition>
         <div id="slideTrack">
             <div></div>
             <div>
-                <span @click="flag = !flag"
+                <span @click="isOpenSideBar = !isOpenSideBar"
                       id="slideButton"
                       class="iconfont">&#xe653;</span>
             </div>
         </div>
         <div class="rightContainer">
             <TitleBar></TitleBar>
-            <MainContainer></MainContainer>
+            <MainContainer :valueOpenDB="valueOpenDB"></MainContainer>
         </div>
     </div>
 </template>
@@ -24,7 +25,14 @@ import LeftBar from './LeftBar.vue'
 import TitleBar from './TitleBar.vue';
 import MainContainer from './MainContainer.vue';
 
-const flag = ref<boolean>(true)
+/* 组件传参 */
+const valueOpenDB = ref({ id: 2, name: "fdf" })
+const handleOpenDB = (DB: database) => {
+    valueOpenDB.value = DB
+}
+
+/* 侧边开关 */
+const isOpenSideBar = ref<boolean>(true)
 </script>
 
 <style scoped>
@@ -73,7 +81,7 @@ const flag = ref<boolean>(true)
 
 .slide-enter-to,
 .slide-leave-from {
-    width: 200px;
+    width: 230px;
 }
 
 .rightContainer {
