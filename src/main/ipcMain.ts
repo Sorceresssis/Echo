@@ -1,72 +1,16 @@
 import { ipcMain, BrowserWindow, dialog } from "electron";
 import Sqlite from './Sqlite'
 import { config } from './config'
+import { createWindow } from './mainWindow'
+import { getGroups } from './database'
 const fs = require('fs')
 const path = require('path');
 
 
+export function IPCMain() {
+    ipcMain.handle('userData:getGroups', getGroups)
 
-export function IPCMainHandle() {
-    ipcMain.handle('userData:getAllDatabase', async () => {
-        const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
-        const db = Sqlite.getInstance()
-        if (!fs.existsSync(groupDBPath)) {
-            await db.connect(groupDBPath)
-            await db.run(`CREATE TABLE 'group'(
-                group_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                group_name VARCHAR(255)  NOT NULL,
-                group_order INT,
-                group_isOpen BOOLEAN NOT NULL
-                );`)
-            await db.run(`
-                CREATE TABLE 'database'(
-                database_id INTEGER PRIMARY KEY AUTOINCREMENT,
-                database_name VARCHAR(255) NOT NULL,
-                database_order INT,
-                group_id INTEGER NOT NULL
-                );`)
-        } else {
-            await db.connect(groupDBPath)
-        }
-        const response = await db.all(`SELECT t1.group_id, t1.group_name, t1.group_isOpen, t2.database_id, t2.database_name
-        FROM "group" t1
-        LEFT JOIN "database" t2 ON t1.group_id = t2.group_id
-        ORDER BY t1.group_order, t2.database_order;`)
-        db.close()
-        // 分组数据
-        class group {
-            id: number
-            name: string
-            isOpen: number
-            databases: database[]
-            constructor(id: number, name: string, isOpen: number, databases: database[]) {
-                this.id = id
-                this.name = name
-                this.isOpen = isOpen
-                this.databases = databases
-            }
-        }
-        class database {
-            id: number
-            name: string
-            constructor(id: number, name: string) {
-                this.id = id
-                this.name = name
-            }
-        }
-        let groupIDMap: Map<number, number> = new Map()
-        let data: group[] = []
-        response.forEach((item: any) => {
-            if (groupIDMap.has(item.group_id)) {
-                data[data.length - 1].databases.push(new database(item.database_id, item.database_name))
-            } else {
-                groupIDMap.set(item.group_id, item.group_id);
-                // 因为时左连接，要判断group没有database
-                data.push(new group(item.group_id, item.group_name, item.group_isOpen, item.database_id == null ? [] : [new database(item.database_id, item.database_name)]))
-            }
-        })
-        return data;
-    })
+
 
     ipcMain.handle('userData:addGroup', async (e, groupName) => {
         const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
@@ -116,18 +60,47 @@ export function IPCMainHandle() {
     })
 
 
+
+
     ipcMain.handle('userData:getConfig', () => {
         return config
     })
+
+
     ipcMain.handle('dialog:selectFile', handleFileOpen)
 
 
-    ipcMain.handle('window:windowMinmize', (e) => {
-        BrowserWindow.fromId(e.sender.id)?.minimize()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    ipcMain.handle('window:createMainWindow', (e, library: library) => {
+        createWindow(library)
     })
 
-    ipcMain.handle('window:windowMaxmize', (e) => {
-        let win = BrowserWindow.fromId(e.sender.id)
+    /*
+    e.sender.id 是webContents实例的唯一，每一个BrowserView实例都有两个webContents实例，一个是主webContents,另一个是创建子窗口或浏览器视图的webContents
+    所以BrowserView的实例id和webContents的实例id存在关系，1-1,2 ; 2-3,4 ; 3-5,6
+    综上，BrowserView实例id和对应webContents实例id的关系为  BrowserView.id = Math.floor((webContent.id - 1) / 2) + 1
+    */
+    ipcMain.handle('window:minmize', (e) => {
+        BrowserWindow.fromId(Math.floor((e.sender.id - 1) / 2) + 1)?.minimize()
+    })
+
+    ipcMain.handle('window:maxmize', (e) => {
+        let win = BrowserWindow.fromId(Math.floor((e.sender.id - 1) / 2) + 1)
         if (win?.isMaximized()) {
             win.restore()
         }
@@ -135,8 +108,8 @@ export function IPCMainHandle() {
             win?.maximize()
         }
     })
-    ipcMain.handle('window:windowClose', (e) => {
-        BrowserWindow.fromId(e.sender.id)?.close()
+    ipcMain.handle('window:close', (e) => {
+        BrowserWindow.fromId(Math.floor((e.sender.id - 1) / 2) + 1)?.close()
     })
 }
 

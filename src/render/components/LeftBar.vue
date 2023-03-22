@@ -1,20 +1,21 @@
 <template>
-    <div id="leftBar">
+    <!-- 不能用id="" 否则Transition无效 -->
+    <div class="leftBar">
         <div id="logo">Echo</div>
         <div id="menuWrapper">
             <div>
                 <div class="menuTitle">工作台</div>
                 <div>
                     <ul>
-                        <li :class="{ active: activeDatabaseId == -1 }"
+                        <li :class="{ active: activeLibrary.id == -1 }"
                             class="menuItem "
-                            @click="openDatabase({ id: -1, name: '稍后再看' })">
+                            @click="openLibrary({ id: -1, name: '稍后再看' })">
                             <span class="iconfont">&#xe6bb;</span>
                             稍后再看
                         </li>
-                        <li :class="{ active: activeDatabaseId == -2 }"
+                        <li :class="{ active: activeLibrary.id == -2 }"
                             class="menuItem "
-                            @click="openDatabase({ id: -2, name: '回收站' })">
+                            @click="openLibrary({ id: -2, name: '回收站' })">
                             <span class="iconfont">&#xe61a;</span>
                             回收站
                         </li>
@@ -23,7 +24,7 @@
             </div>
             <div>
                 <div class="menuTitle spaceBetween"><span>创建的组</span> <span class="iconfont"
-                          @click="showInput">&#xe68c;</span>
+                          @click="showAddGroupInput">&#xe68c;</span>
                 </div>
                 <div>
                     <ul>
@@ -36,16 +37,16 @@
                                        maxlength="255"
                                        v-focus="inputAddGroupVisible"
                                        @keyup.enter="($event.target as HTMLInputElement)?.blur()"
-                                       @blur="handleInput"
+                                       @blur="handleAddGroupInput"
                                        onfocus="this.select()">
                             </div>
                         </li>
-                        <li v-for="(group, indexGP) in Alldatabase"
+                        <li v-for="(group, groupIndex) in groups"
                             :key="group.id">
                             <!-- 重命名输入框 -->
                             <div v-if="inputRenameIDGP == group.id"
                                  class="input-wrapper">
-                                <span :class="{ rotateZ: group.isOpen == 1 }"
+                                <span :class="{ rotateZ: isExpandGroup[groupIndex] }"
                                       class="iconfont angle">&#xe608;</span>
                                 <input type="text"
                                        v-model="group.name"
@@ -56,20 +57,20 @@
                             </div>
                             <div v-else
                                  class="menuItem"
-                                 @contextmenu="contextMenuOpenGP($event, indexGP)"
-                                 @click="toggleExend(indexGP)"
+                                 @contextmenu="openCtm($event, userMenuEnum.group, groupIndex)"
+                                 @click="isExpandGroup[groupIndex] = !isExpandGroup[groupIndex]"
                                  :draggable="true"
-                                 @dragstart="dragstartGP(indexGP)"
+                                 @dragstart="dragstartGP(groupIndex)"
                                  @dragend="dragendGP()"
-                                 @dragenter="dragenterGP($event, indexGP)"
+                                 @dragenter="dragenterGP($event, groupIndex)"
                                  @dragleave="dragleaveGP($event)"
                                  @drop="dragleaveGP($event)">
-                                <span :class="{ rotateZ: group.isOpen == 1 }"
+                                <span :class="{ rotateZ: isExpandGroup[groupIndex] }"
                                       class="iconfont angle">&#xe608;</span>
                                 {{ group.name }}
                             </div>
                             <div class="contant"
-                                 v-show="group.isOpen == 1">
+                                 v-show="isExpandGroup[groupIndex]">
                                 <ul>
                                     <!-- 添加database输入框 -->
                                     <li>
@@ -81,32 +82,32 @@
                                                    onfocus="this.select()">
                                         </div>
                                     </li>
-                                    <li v-for="(database, indexDB) in group.databases"
-                                        :key="database.id">
+                                    <li v-for="(library, libraryIndex) in group.librarys"
+                                        :key="library.id">
                                         <!-- 重命名输入框 -->
-                                        <div v-if="inputRenameIDDB == database.id"
+                                        <div v-if="inputRenameIDDB == library.id"
                                              class="input-wrapper">
-                                            <input v-model="database.name"
+                                            <input v-model="library.name"
                                                    onfocus="this.select()"
                                                    type="text"
                                                    class="input"
-                                                   v-focus="inputRenameIDDB == database.id"
+                                                   v-focus="inputRenameIDDB == library.id"
                                                    @keyup.enter="($event.target as HTMLInputElement)?.blur()"
-                                                   @blur="inputRenameHandleDB(database.id, database.name)">
+                                                   @blur="inputRenameHandleDB(library.id, library.name)">
                                         </div>
                                         <div v-else
-                                             @contextmenu="contextMenuOpenDB($event, indexGP, indexDB)"
+                                             @contextmenu="openCtm($event, userMenuEnum.library, groupIndex, libraryIndex)"
                                              class="menuItem"
-                                             :class="{ active: activeDatabaseId == database.id }"
+                                             :class="{ active: activeLibrary.id == library.id }"
                                              style="text-indent: 2em;"
-                                             @click.stop="openDatabase(database)"
+                                             @click.stop="openLibrary(library)"
                                              :draggable="true"
-                                             @dragstart="dragstartDB(indexGP, indexDB)"
+                                             @dragstart="dragstartDB(groupIndex, libraryIndex)"
                                              @dragend="dragendDB()"
-                                             @dragenter="dragenterDB($event, indexGP, indexDB)"
+                                             @dragenter="dragenterDB($event, groupIndex, libraryIndex)"
                                              @dragleave="dragleaveDB($event)"
                                              @drop="dragleaveDB($event)">
-                                            {{ database.name }}
+                                            {{ library.name }}
                                         </div>
                                     </li>
                                 </ul>
@@ -116,12 +117,12 @@
                 </div>
             </div>
         </div>
-        <context-menu v-model:show="contextMenushowGP"
+        <context-menu v-model:show="isVisibleCtmGroup"
                       :options="contextMenuOptions">
             <context-menu-item label="添加数据库"
                                @click="" />
             <context-menu-item label="重命名"
-                               @click="inputRenameIDGP = Alldatabase[contextMenuIndexGP].id" />
+                               @click="inputRenameIDGP = groups[focusGroupIndex].id" />
             <context-menu-item label="删除"
                                @click="">
                 <template #icon>
@@ -131,14 +132,12 @@
             <context-menu-item label="刷新"
                                @click="" />
         </context-menu>
-        <context-menu v-model:show="contextMenushowDB"
+        <context-menu v-model:show="isVisibleCtmLibrary"
                       :options="contextMenuOptions">
             <context-menu-item label="在新窗口中打开"
-                               @click="openDatabaseNewWindow(Alldatabase[contextMenuIndexGP].databases[contextMenuIndexDB])" />
-            <context-menu-item label="刷新"
-                               @click="" />
+                               @click="openLibraryNewWindow(groups[focusGroupIndex].librarys[focusLibraryIndex])" />
             <context-menu-item label="重命名"
-                               @click="inputRenameIDDB = Alldatabase[contextMenuIndexGP].databases[contextMenuIndexDB].id" />
+                               @click="inputRenameIDDB = groups[contextMenuIndexGP].librarys[contextMenuIndexDB].id" />
             <context-menu-item label="删除"
                                @click="">
                 <template #icon>
@@ -146,114 +145,127 @@
                 </template>
             </context-menu-item>
             <context-menu-sperator />
-
             <context-menu-group label="移动到">
-                <context-menu-item v-for="(group, index) in Alldatabase"
-                                   :key="index"
+                <context-menu-item v-for="(group, groupIndex) in groups"
+                                   :key="group.id"
                                    :label="group.name"
-                                   @click="" />
+                                   @click="moveDB(groupIndex)" />
             </context-menu-group>
         </context-menu>
-
     </div>
 </template>
 
-
 <script setup lang='ts'>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import type { Directive } from 'vue';
+import { debounce } from '../util/debounce'
 import { ElMessage } from 'element-plus'
 
 
 /******************** 组件传参 ********************/
 const emit = defineEmits<{
-    (e: "openDB", DB: database): void
+    (e: "openLibrary", library: library): void
 }>()
 
 
-/******************** 获得数据库数据 ********************/
-class group {
+/******************** 启动准备 ********************/
+enum userMenuEnum { group, library }
+interface group {
     id: number
     name: string
-    isOpen: number
-    databases: database[]
-    constructor(id: number, name: string, isOpen: number, databases: database[]) {
-        this.id = id
-        this.name = name
-        this.isOpen = isOpen
-        this.databases = databases
-    }
+    librarys: library[]
 }
-class database {
+interface library {
     id: number
     name: string
-    constructor(id: number, name: string) {
-        this.id = id
-        this.name = name
+}
+// 用户group和library的全部信息
+const groups = ref<group[]>([])
+// group的展开情况
+const isExpandGroup = ref<boolean[]>([])
+// 正在打开的Library
+const activeLibrary = ref<library>({ id: 0, name: "" })
+// 获取后台要求打开的library(新建窗口打开)
+function getStartOpenDB() {
+    return new Promise<library | null>((resolve) => {
+        window.electronAPI.startOpenDB((e: any, library: library) => {
+            if (library) {
+                resolve(library);
+            }
+            else {
+                resolve(null)
+            }
+        })
+    })
+}
+async function startPreparation() {
+    // 获取group是否展开数据，
+    isExpandGroup.value = JSON.parse(window.localStorage.getItem('isExpandGroup') || "[]")
+    // 获取groups
+    groups.value.push(... await window.electronAPI.getGroups())
+    // 检查isExpandGroup和groups的对应情况,少就补上false,
+    while (isExpandGroup.value.length < groups.value.length) {
+        isExpandGroup.value.push(false)
+    }
+    // 获取并打开要打开的library; 后台要求打开的(新建窗口打开) --> 上一次打开的library --> id=0 不打开任何library
+    openLibrary((await getStartOpenDB()) || JSON.parse(window.localStorage.getItem('lastActiveLibrary') || `{"id":0,"name":""}`))
+}
+startPreparation()
+
+/******************** 监听保存到localStorage ********************/
+watch(isExpandGroup, debounce((newValue) => {
+    window.localStorage.setItem('isExpandGroup', JSON.stringify(newValue))
+}, 200), {
+    deep: true
+})
+watch(activeLibrary, debounce((newValue) => {
+    window.localStorage.setItem('lastActiveLibrary', JSON.stringify(newValue))
+}, 200))
+
+
+/******************** 打开Library ********************/
+const openLibrary = function (library: library) {
+    if (library != activeLibrary.value) {
+        activeLibrary.value = library
+        emit("openLibrary", library)
     }
 }
-const Alldatabase = ref<group[]>([])
-async function getAllDatabase() {
-    Alldatabase.value = [...(await window.electronAPI.getAllDatabase())]
-}
-getAllDatabase()
-
-
-/******************** 打开和展示 ********************/
-// 获取要打开的databaseID 1.electron发送,2.pinia读取
-// openDatabase()
-
-
-
-/* GP */
-// 展开group
-function toggleExend(index: number) {
-    Alldatabase.value[index].isOpen = Alldatabase.value[index].isOpen === 1 ? 0 : 1
-}
-/* DB */
-const activeDatabaseId = ref(1)
-// 普通打开, 闭包记录上一次打开的数据库
-const openDatabase = (function () {
-    let lastOpen: database | null = null
-    return function (DB: database) {
-        if (DB != lastOpen) {
-            lastOpen = DB
-            activeDatabaseId.value = DB.id
-            emit("openDB", DB)
-            // 写入pinia
-        }
-    }
-})()
-
 // 新建窗口打开数据库
-function openDatabaseNewWindow(DB: database) {
-
+function openLibraryNewWindow(library: library) {
+    /* electron的ipcRenderer.invoke直接接受 JS对象会报错Uncaught Error: An object could not be cloned.
+    原因：
+    https://github.com/electron/electron/issues/26338
+    https://www.electronjs.org/docs/latest/api/ipc-renderer#ipcrenderersendchannel-args
+    发送非标准的 JavaScript 类型，例如 DOM 对象或特殊的 Electron 对象将抛出异常。
+    解决方法：ipcRenderer 传入JSON.stringifing()，再用JSON.parse()解出来
+    */
+    window.electronAPI.createMainWindow(JSON.parse(JSON.stringify(library)))
 }
 
 
-/******************** 右键菜单 ********************/
-const contextMenushowGP = ref(false)
-const contextMenushowDB = ref(false)
-const contextMenuIndexGP = ref(0)
-const contextMenuIndexDB = ref(0)
+const focusGroupIndex = ref<number>(-1)
+const focusLibraryIndex = ref<number>(-1)
+/******************** 右键菜单Ctm ********************/
+// Ctm是ContextMenu
+const isVisibleCtmGroup = ref(false)
+const isVisibleCtmLibrary = ref(false)
 const contextMenuOptions = {
     zIndex: 3,
     minWidth: 300,
     x: 500,
     y: 200
 }
-const contextMenuOpenGP = (e: MouseEvent, indexGP: number) => {
+const openCtm = (e: MouseEvent, userMenu: number, groupIndex: number, libraryIndex: number = -1) => {
     contextMenuOptions.x = e.x
     contextMenuOptions.y = e.y
-    contextMenushowGP.value = true
-    contextMenuIndexGP.value = indexGP
-}
-const contextMenuOpenDB = (e: MouseEvent, indexGP: number, indexDB: number) => {
-    contextMenuOptions.x = e.x
-    contextMenuOptions.y = e.y
-    contextMenushowDB.value = true
-    contextMenuIndexGP.value = indexGP
-    contextMenuIndexDB.value = indexDB
+    if (userMenu == userMenuEnum.group) {
+        isVisibleCtmGroup.value = true
+    }
+    else {
+        isVisibleCtmLibrary.value = true
+    }
+    focusGroupIndex.value = groupIndex
+    focusLibraryIndex.value = libraryIndex
 }
 
 
@@ -265,34 +277,53 @@ const vFocus: Directive = (el, bingding) => {
     }
 }
 /* 添加GP */
-const inputAddGroupVisible = ref(false)
-const inputGroupName = ref("新建组")
+const isVisibleInputAddGroup = ref(false)
+const inputModelAddGroup = ref("新建组")
+const showAddInput = async (userMenu: number) => {
+    inputModelAddGroup.value = "新建组"
+    // 如果输入框已经打开且输入框里不为空就加入group
+    if (isVisibleInputAddGroup.value && inputModelAddGroup.value != "") {
+        let flag: any = await window.electronAPI.addGroup(inputModelAddGroup.value)
+        console.log(flag);
+    }
+    else {
+        inputAddGroupVisible.value = true
+    }
+    inputModelAddGroup.value = "新建组"
+}
+const handleAddInput = (userMenu: number) => {
+
+}
+
+
 const addGroup = async (groupName: string) => {
     if (groupName === "") return
     // 写入数据库
-    let flag: any = await window.electronAPI.addGroup(groupName)
-    // Alldatabase.value.unshift(new group(2, inputGroupName.value, 0, []))
+    // groups.value.unshift(new group(2, inputGroupName.value, 0, []))
     // 改顺序
     // 重新获取数据
-    getAllDatabase()
     // 发出提示
-    console.log(flag);
 }
-const showInput = () => {
+const inputAddGroupVisible = ref(false)
+const inputGroupName = ref("新建组")
+const showAddGroupInput = () => {
     inputGroupName.value = "新建组"
     if (!inputAddGroupVisible.value) {
-        inputAddGroupVisible.value = true
     }
     else {
         addGroup(inputGroupName.value)
     }
 }
-const handleInput = () => {
+const handleAddGroupInput = () => {
     addGroup(inputGroupName.value)
     inputAddGroupVisible.value = false
 }
 /* 添加DB */
 const inputNameDB = ref("新建数据库")
+const addDBGroupIndex = ref(false)
+const addDB = async (DBName: string) => {
+
+}
 
 
 
@@ -323,7 +354,7 @@ const inputRenameHandleDB = async (databaseID: number, rename: string) => {
     }
 }
 
-/******************** 拖动排序 ********************/
+/******************** 拖动，移动和排序 ********************/
 let dragIndexGP: number
 let dragIndexDB: number
 let enterIndexGP: number
@@ -387,12 +418,36 @@ const dragleaveDB = (e: any) => {
     e.currentTarget.style.borderBottom = ""
 }
 
+const moveDB = (indexGP: number) => {
+    if (dragTimeout != null) {
+        clearTimeout(dragTimeout)
+    }
+    dragTimeout = setTimeout(() => {
+        const source: database = Alldatabase.value[dragIndexGP].databases[dragIndexDB]
+        // 删除拖动元素
+        Alldatabase.value[dragIndexGP].databases.splice(dragIndexDB, 1)
+        // 添加到拖到的位置
+        Alldatabase.value[indexGP].databases.splice(0, 0, source)
+        dragIndexDB = enterIndexDB
+    }, 100)
+}
+
 /* 顺序写入数据库 */
+
+
+
+
+
+
+
+// 删除library时 要注意 是不是正在被打开
+    //FIXME 要注意删除的library 要去掉
+
 
 </script>
 
 <style scoped>
-#leftBar {
+.leftBar {
     width: 230px;
     height: 100%;
     display: flex;
@@ -454,8 +509,6 @@ const dragleaveDB = (e: any) => {
     transform: all 0.3s;
     background-color: #f0f0f0;
 }
-
-
 
 .angle {
     display: inline-block;

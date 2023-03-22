@@ -1,7 +1,7 @@
 // index.ts
 import { BrowserWindow, app } from "electron";
 import { createWindow } from "./mainWindow";
-import { IPCMainHandle } from './ipcMain'
+import { IPCMain } from './ipcMain'
 import { readConfig, writeConfig } from './config'
 import { checkDir } from './checkDir'
 async function bootstrap() {
@@ -11,14 +11,16 @@ async function bootstrap() {
         // 检查文件夹
         checkDir()
         // 开启监听
-        IPCMainHandle()
+        IPCMain()
         // 启动窗口
-        createWindow()
+        createWindow(null)
         app.on('activate', () => {
-            if (BrowserWindow.getAllWindows().length === 0) createWindow()
+            if (BrowserWindow.getAllWindows().length === 0) createWindow(null)
         })
     });
 }
+bootstrap();
+
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         // 写入配置信息
@@ -26,6 +28,3 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
-
-bootstrap();

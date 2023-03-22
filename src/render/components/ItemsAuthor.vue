@@ -1,5 +1,6 @@
 <template>
     <div>
+        <button @click="newWinodw">fdf</button>
         <ul>
             <li>"fdfdf"</li>
             <li>"fdfdf"</li>
@@ -37,6 +38,10 @@
   
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue'
+
+const newWinodw = () => {
+    window.electronAPI.newWinodw()
+}
 
 interface RestaurantItem {
     value: string

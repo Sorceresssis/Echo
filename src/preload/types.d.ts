@@ -2,19 +2,28 @@ import type { ipcRenderer } from "electron"
 import path from "path"
 
 export interface IElectronAPI {
-    getAllDatabase: () => Promise<any>
+    /******************** 开始准备 ********************/
+    getGroups: () => Promise<group[]>
+    startOpenDB: (callback: (e: any, value: database) => void) => Promise<any>,
+
+
+
     addGroup: (groupName: string) => Promise<any>
     renameGroup: (groupID: number, rename: string) => Promise<boolean>
-
-
     addDatabase: () => Promise<any>
     renameDatabase: (databaseID: number, rename: string) => Promise<boolean>
 
+
+    /******************** 对话框 ********************/
     openFile: () => Promise<any>
 
+
+    /******************** 窗口 ********************/
+    createMainWindow: (library: library) => Promise<any>
+    createItemWinodw: () => Promise<any>
     windowMinmize: () => Promise<any>
     windowMaxmize: () => Promise<any>
-    windowAcceptIsMaxmize: (callback: (e: any, value: any) => void) => Promise<any>
+    windowIsMaxmize: (callback: (e: any, value: any) => void) => Promise<any>
     windowClose: () => Promise<any>
 }
 
@@ -23,24 +32,13 @@ declare global {
         electronAPI: IElectronAPI
         NodeAPI: INodeAPI
     }
-    class group {
+    interface group {
         id: number
         name: string
-        isOpen: number
-        databases: database[]
-        constructor(id: number, name: string, isOpen: number, databases: database[]) {
-            this.id = id
-            this.name = name
-            this.isOpen = isOpen
-            this.databases = databases
-        }
+        librarys: library[]
     }
-    class database {
+    interface library {
         id: number
         name: string
-        constructor(id: number, name: string) {
-            this.id = id
-            this.name = name
-        }
     }
 }

@@ -1,7 +1,7 @@
 <template>
     <div class="layout">
         <Transition name="slide">
-            <LeftBar @openDB="handleOpenDB"
+            <LeftBar @openLibrary="handleOpenLibrary"
                      v-show="isOpenSideBar"></LeftBar>
         </Transition>
         <div id="slideTrack">
@@ -14,7 +14,7 @@
         </div>
         <div class="rightContainer">
             <TitleBar></TitleBar>
-            <MainContainer :valueOpenDB="valueOpenDB"></MainContainer>
+            <MainContainer :activeLibrary="activeLibrary"></MainContainer>
         </div>
     </div>
 </template>
@@ -26,13 +26,14 @@ import TitleBar from './TitleBar.vue';
 import MainContainer from './MainContainer.vue';
 
 /* 组件传参 */
-const valueOpenDB = ref({ id: 2, name: "fdf" })
-const handleOpenDB = (DB: database) => {
-    valueOpenDB.value = DB
+const activeLibrary = ref({ id: 0, name: "" })
+const handleOpenLibrary = (library: library) => {
+    activeLibrary.value = library
 }
 
 /* 侧边开关 */
 const isOpenSideBar = ref<boolean>(true)
+
 </script>
 
 <style scoped>

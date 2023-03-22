@@ -10,6 +10,7 @@ export function checkDir() {
     mkdirsSync(path.resolve(config.userDataPath, "coverImage"))
 }
 
+
 /**
  * 通过路径递归的创建多层文件夹
  * @param dirPath  路径

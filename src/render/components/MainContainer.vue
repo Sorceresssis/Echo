@@ -1,6 +1,6 @@
 <template>
     <div class="mainContainer">
-        <div id="DBName">{{ valueOpenDB.name }}</div>
+        <div id="libraryName">{{ activeLibrary.name }}</div>
         <div id="menu">
             <div id="leftMenu">
                 <div v-for="(item, index) in componentData"
@@ -106,8 +106,9 @@ import { nextTick, ref, shallowReactive, shallowRef } from 'vue';
 import { ElInput } from 'element-plus'
 
 const props = defineProps<{
-    valueOpenDB: database
+    activeLibrary: library
 }>()
+
 
 
 
@@ -164,7 +165,7 @@ const handleInputConfirm = () => {
     overflow: hidden;
 }
 
-#DBName {
+#libraryName {
     margin: 0 10px;
     font-size: 30px;
     font-weight: 700;

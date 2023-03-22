@@ -21,11 +21,11 @@ import { ref } from 'vue'
 let isMaxmize = ref<boolean>();
 
 // 监听窗口是否最大化
-window.electronAPI.windowAcceptIsMaxmize((e: any, value: any) => {
+window.electronAPI.windowIsMaxmize((e: any, value: boolean) => {
     isMaxmize.value = value
 })
-function windowMinmize() {
-    window.electronAPI.windowMinmize()
+async function windowMinmize() {
+    console.log(await window.electronAPI.windowMinmize())
 }
 function windowMaxmize() {
     window.electronAPI.windowMaxmize()
