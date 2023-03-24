@@ -5,6 +5,7 @@ import { resolve } from "path";
 
 export default defineConfig(({ mode }) => {
   const build: BuildOptions = {
+    minify: true,
     outDir: resolve(__dirname, "./dist/render")
   };
 

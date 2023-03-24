@@ -4,20 +4,20 @@ import { contextBridge, ipcRenderer } from "electron"
 contextBridge.exposeInMainWorld('electronAPI', {
     /******************** 开始准备 ********************/
     getGroups: () => ipcRenderer.invoke('userData:getGroups'),
-    startOpenDB: (callback: (e: any, value: any) => void) => ipcRenderer.on('startOpenDB', callback),
+    startOpenDB: (callback: (e: any, value: library) => void) => ipcRenderer.on('startOpenDB', callback),
 
+    /******************** group ********************/
+    addGroup: (groupName: string) => ipcRenderer.invoke('group:add', groupName),
+    updataOrderGroup: (groupsId: number[]) => ipcRenderer.invoke('group:updataOrder', groupsId),
+    renameGroup: (groupID: number, rename: string) => ipcRenderer.invoke('group:rename', groupID, rename),
+    deleteGroup: (groupID: number) => ipcRenderer.invoke('group:delete', groupID),
 
-    // group
-    addGroup: (groupName: string) => ipcRenderer.invoke('userData:addGroup', groupName),
-    renameGroup: (groupID: number, rename: string) => ipcRenderer.invoke('userData:renameGroup', groupID, rename),
-    deleteGroup: (groupID: number) => ipcRenderer.invoke('userData:deleteGroup', groupID),
-    updataOrderGroup: () => ipcRenderer.invoke('userData:'),
-    // database
-    addDatabase: (groupID: number) => ipcRenderer.invoke('userData:addDatabase', groupID),
-    renameDatabase: (databaseID: number, rename: string) => ipcRenderer.invoke('userData:renameDatabase', databaseID, rename),
-    moveDatabase: () => ipcRenderer.invoke('userData:'),
-    deleteDatabase: () => ipcRenderer.invoke('userData:'),
-    updataOrderDatabase: () => ipcRenderer.invoke('userData:'),
+    /******************** library ********************/
+    addLibrary: (groupID: number, LibraryName: string) => ipcRenderer.invoke('library:add', groupID, LibraryName),
+    updataOrderLibrary: (groupID: number, librarysId: number[]) => ipcRenderer.invoke('library:updataOrder', groupID, librarysId),
+    renameLibrary: (LibraryID: number, rename: string) => ipcRenderer.invoke('library:rename', LibraryID, rename),
+    deleteLibrary: (LibraryID: number) => ipcRenderer.invoke('library:delete', LibraryID),
+    moveLibrary: (toGroupId: number, moveLibraryId: number) => ipcRenderer.invoke('library:move', toGroupId, moveLibraryId),
 
     /******************** 对话框 ********************/
     openFile: () => ipcRenderer.invoke('dialog:openFile'),

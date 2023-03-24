@@ -102,14 +102,13 @@ import Items from './Items.vue'
 import ItemsAuthor from './ItemsAuthor.vue'
 import ItemsFav from './ItemsFav.vue'
 import TagList from './TagList.vue'
-import { nextTick, ref, shallowReactive, shallowRef } from 'vue';
+import { nextTick, ref, shallowReactive, shallowRef, watch } from 'vue';
 import { ElInput } from 'element-plus'
 
 const props = defineProps<{
     activeLibrary: library
 }>()
-
-
+// FIXME 检查library是否被删除 提示。
 
 
 /* 组件切换 */

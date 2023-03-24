@@ -39,7 +39,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你致性别为蒙娜丽莎的你致性别为蒙娜丽莎的你致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef,fdfdfd,fdfdfdf,fdfdfd,fdfdfsfs",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -52,7 +52,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -65,7 +65,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -78,7 +78,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -91,7 +91,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -104,7 +104,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -117,7 +117,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -131,20 +131,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
-    },
-    {
-        id: 2,
-        title: "致性别为蒙娜丽莎的你",
-        authors: "tah,fdf",
-        tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/屏幕截图 2022-11-08 192954.png",
-    }, {
-        id: 1,
-        title: "致性别为蒙娜丽莎的你",
-        authors: "tah,fdf",
-        tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -157,7 +144,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -170,7 +157,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -183,7 +170,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -196,7 +183,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -209,7 +196,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -222,7 +209,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -235,7 +222,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -248,7 +235,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -261,7 +248,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -274,7 +261,20 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
+    },
+    {
+        id: 2,
+        title: "致性别为蒙娜丽莎的你",
+        authors: "tah,fdf",
+        tags: "fdfdf,fefe,efef,feffefe,fefef",
+        coverImage: "../assets/images/屏幕截图 2022-11-08 192954.png",
+    }, {
+        id: 1,
+        title: "致性别为蒙娜丽莎的你",
+        authors: "tah,fdf",
+        tags: "fdfdf,fefe,efef,feffefe,fefef",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -287,7 +287,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "tah,fdf",
         tags: "",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -300,7 +300,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "",
         tags: "",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,
@@ -313,7 +313,7 @@ const items = reactive([
         title: "致性别为蒙娜丽莎的你",
         authors: "",
         tags: "fdfdf,fefe,efef,feffefe,fefef",
-        coverImage: "../assets/images/1.jpg",
+        coverImage: "../assets/images/2.jpg",
     },
     {
         id: 2,

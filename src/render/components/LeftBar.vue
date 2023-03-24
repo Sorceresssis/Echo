@@ -24,47 +24,47 @@
             </div>
             <div>
                 <div class="menuTitle spaceBetween"><span>创建的组</span> <span class="iconfont"
-                          @click="showAddGroupInput">&#xe68c;</span>
+                          @click="showInputAddGroup">&#xe68c;</span>
                 </div>
                 <div>
                     <ul>
                         <!-- 添加Group输入框 -->
                         <li>
                             <div class="input-wrapper"
-                                 v-if="inputAddGroupVisible">
-                                <input v-model="inputGroupName"
+                                 v-if="isVisibleInputAddGroup">
+                                <input v-model="inputModelAddGroup"
                                        type="text"
                                        maxlength="255"
-                                       v-focus="inputAddGroupVisible"
+                                       v-focus="isVisibleInputAddGroup"
                                        @keyup.enter="($event.target as HTMLInputElement)?.blur()"
-                                       @blur="handleAddGroupInput"
+                                       @blur="handleInputAddGroup"
                                        onfocus="this.select()">
                             </div>
                         </li>
                         <li v-for="(group, groupIndex) in groups"
                             :key="group.id">
                             <!-- 重命名输入框 -->
-                            <div v-if="inputRenameIDGP == group.id"
+                            <div v-if="inputRenameGroupId == group.id"
                                  class="input-wrapper">
                                 <span :class="{ rotateZ: isExpandGroup[groupIndex] }"
                                       class="iconfont angle">&#xe608;</span>
                                 <input type="text"
                                        v-model="group.name"
                                        onfocus="this.select()"
-                                       v-focus="inputRenameIDGP == group.id"
+                                       v-focus="inputRenameGroupId == group.id"
                                        @keyup.enter="($event.target as HTMLInputElement)?.blur()"
-                                       @blur="inputRenameHandleGP(group.id, group.name)">
+                                       @blur="renameGroup(group.id, group.name)">
                             </div>
                             <div v-else
                                  class="menuItem"
-                                 @contextmenu="openCtm($event, userMenuEnum.group, groupIndex)"
+                                 @contextmenu="openCtm($event, groupIndex)"
                                  @click="isExpandGroup[groupIndex] = !isExpandGroup[groupIndex]"
                                  :draggable="true"
-                                 @dragstart="dragstartGP(groupIndex)"
-                                 @dragend="dragendGP()"
-                                 @dragenter="dragenterGP($event, groupIndex)"
-                                 @dragleave="dragleaveGP($event)"
-                                 @drop="dragleaveGP($event)">
+                                 @dragstart="dragstart(groupIndex)"
+                                 @dragend="dragend()"
+                                 @dragenter="dragenter($event, groupIndex)"
+                                 @dragleave="dragleave($event)"
+                                 @drop="dragleave($event)">
                                 <span :class="{ rotateZ: isExpandGroup[groupIndex] }"
                                       class="iconfont angle">&#xe608;</span>
                                 {{ group.name }}
@@ -72,41 +72,43 @@
                             <div class="contant"
                                  v-show="isExpandGroup[groupIndex]">
                                 <ul>
-                                    <!-- 添加database输入框 -->
+                                    <!-- 添加library输入框 -->
                                     <li>
-                                        <div v-if=false
+                                        <div v-if="addLibraryGroupIndex == groupIndex"
                                              class="input-wrapper ">
-                                            <input v-model="inputNameDB"
-                                                   type="text"
-                                                   class="input inputTemp"
-                                                   onfocus="this.select()">
+                                            <input type="text"
+                                                   v-model="inputModelAddLibrary"
+                                                   v-focus="addLibraryGroupIndex == groupIndex"
+                                                   onfocus="this.select()"
+                                                   @keyup.enter="($event.target as HTMLInputElement)?.blur()"
+                                                   @blur="handleInputAddLibrary(group.id)">
                                         </div>
                                     </li>
                                     <li v-for="(library, libraryIndex) in group.librarys"
                                         :key="library.id">
                                         <!-- 重命名输入框 -->
-                                        <div v-if="inputRenameIDDB == library.id"
+                                        <div v-if="inputRenameLibraryId == library.id"
                                              class="input-wrapper">
                                             <input v-model="library.name"
                                                    onfocus="this.select()"
                                                    type="text"
                                                    class="input"
-                                                   v-focus="inputRenameIDDB == library.id"
+                                                   v-focus="inputRenameLibraryId == library.id"
                                                    @keyup.enter="($event.target as HTMLInputElement)?.blur()"
-                                                   @blur="inputRenameHandleDB(library.id, library.name)">
+                                                   @blur="renameLibrary(library.id, library.name)">
                                         </div>
                                         <div v-else
-                                             @contextmenu="openCtm($event, userMenuEnum.library, groupIndex, libraryIndex)"
+                                             @contextmenu="openCtm($event, groupIndex, libraryIndex)"
                                              class="menuItem"
                                              :class="{ active: activeLibrary.id == library.id }"
                                              style="text-indent: 2em;"
                                              @click.stop="openLibrary(library)"
                                              :draggable="true"
-                                             @dragstart="dragstartDB(groupIndex, libraryIndex)"
-                                             @dragend="dragendDB()"
-                                             @dragenter="dragenterDB($event, groupIndex, libraryIndex)"
-                                             @dragleave="dragleaveDB($event)"
-                                             @drop="dragleaveDB($event)">
+                                             @dragstart="dragstart(groupIndex, libraryIndex)"
+                                             @dragend="dragend()"
+                                             @dragenter="dragenter($event, groupIndex, libraryIndex)"
+                                             @dragleave="dragleave($event)"
+                                             @drop="dragleave($event)">
                                             {{ library.name }}
                                         </div>
                                     </li>
@@ -119,27 +121,27 @@
         </div>
         <context-menu v-model:show="isVisibleCtmGroup"
                       :options="contextMenuOptions">
-            <context-menu-item label="添加数据库"
-                               @click="" />
+            <context-menu-item label="添加库"
+                               @click="showInputAddLibrary" />
             <context-menu-item label="重命名"
-                               @click="inputRenameIDGP = groups[focusGroupIndex].id" />
+                               @click="inputRenameGroupId = groups[_FocusGroupIndex].id" />
             <context-menu-item label="删除"
-                               @click="">
+                               @click="deleteGroup">
                 <template #icon>
                     <span class="iconfont">&#xe61a;</span>
                 </template>
             </context-menu-item>
-            <context-menu-item label="刷新"
-                               @click="" />
+            <context-menu-item label="刷新菜单"
+                               @click="startPreparation()" />
         </context-menu>
         <context-menu v-model:show="isVisibleCtmLibrary"
                       :options="contextMenuOptions">
             <context-menu-item label="在新窗口中打开"
-                               @click="openLibraryNewWindow(groups[focusGroupIndex].librarys[focusLibraryIndex])" />
+                               @click="openLibraryNewWindow(groups[_FocusGroupIndex].librarys[_FocusLibraryIndex])" />
             <context-menu-item label="重命名"
-                               @click="inputRenameIDDB = groups[contextMenuIndexGP].librarys[contextMenuIndexDB].id" />
+                               @click="inputRenameLibraryId = groups[_FocusGroupIndex].librarys[_FocusLibraryIndex].id" />
             <context-menu-item label="删除"
-                               @click="">
+                               @click="deleteLibrary">
                 <template #icon>
                     <span class="iconfont">&#xe61a;</span>
                 </template>
@@ -149,7 +151,7 @@
                 <context-menu-item v-for="(group, groupIndex) in groups"
                                    :key="group.id"
                                    :label="group.name"
-                                   @click="moveDB(groupIndex)" />
+                                   @click="moveLibrary(groupIndex)" />
             </context-menu-group>
         </context-menu>
     </div>
@@ -169,7 +171,6 @@ const emit = defineEmits<{
 
 
 /******************** 启动准备 ********************/
-enum userMenuEnum { group, library }
 interface group {
     id: number
     name: string
@@ -202,7 +203,7 @@ async function startPreparation() {
     // 获取group是否展开数据，
     isExpandGroup.value = JSON.parse(window.localStorage.getItem('isExpandGroup') || "[]")
     // 获取groups
-    groups.value.push(... await window.electronAPI.getGroups())
+    groups.value = await window.electronAPI.getGroups()
     // 检查isExpandGroup和groups的对应情况,少就补上false,
     while (isExpandGroup.value.length < groups.value.length) {
         isExpandGroup.value.push(false)
@@ -243,8 +244,10 @@ function openLibraryNewWindow(library: library) {
 }
 
 
-const focusGroupIndex = ref<number>(-1)
-const focusLibraryIndex = ref<number>(-1)
+let _FocusGroupIndex = -1
+let _FocusLibraryIndex = -1
+let _ToGroupIndex = -1
+let _ToLibraryIndex = -1
 /******************** 右键菜单Ctm ********************/
 // Ctm是ContextMenu
 const isVisibleCtmGroup = ref(false)
@@ -255,195 +258,196 @@ const contextMenuOptions = {
     x: 500,
     y: 200
 }
-const openCtm = (e: MouseEvent, userMenu: number, groupIndex: number, libraryIndex: number = -1) => {
+const openCtm = (e: MouseEvent, groupIndex: number, libraryIndex: number = -1) => {
     contextMenuOptions.x = e.x
     contextMenuOptions.y = e.y
-    if (userMenu == userMenuEnum.group) {
+    if (libraryIndex == -1) {
         isVisibleCtmGroup.value = true
     }
     else {
         isVisibleCtmLibrary.value = true
     }
-    focusGroupIndex.value = groupIndex
-    focusLibraryIndex.value = libraryIndex
+    _FocusGroupIndex = groupIndex
+    _FocusLibraryIndex = libraryIndex
 }
 
 
-/******************** 添加组和数据库 ********************/
+/******************** 输入框 ********************/
 // 添加v-focus指令，自动聚焦到input，注意！，v-focus要写在onfocus="this.select()"下面，先全选再聚焦
 const vFocus: Directive = (el, bingding) => {
     if (bingding) {
         el.focus()
     }
 }
-/* 添加GP */
+/* group添加 */
 const isVisibleInputAddGroup = ref(false)
 const inputModelAddGroup = ref("新建组")
-const showAddInput = async (userMenu: number) => {
+const showInputAddGroup = () => {
     inputModelAddGroup.value = "新建组"
-    // 如果输入框已经打开且输入框里不为空就加入group
-    if (isVisibleInputAddGroup.value && inputModelAddGroup.value != "") {
-        let flag: any = await window.electronAPI.addGroup(inputModelAddGroup.value)
-        console.log(flag);
-    }
-    else {
-        inputAddGroupVisible.value = true
-    }
-    inputModelAddGroup.value = "新建组"
+    isVisibleInputAddGroup.value = true
 }
-const handleAddInput = (userMenu: number) => {
-
-}
-
-
-const addGroup = async (groupName: string) => {
-    if (groupName === "") return
+const handleInputAddGroup = async () => {
+    // 关闭输入框
+    isVisibleInputAddGroup.value = false
     // 写入数据库
-    // groups.value.unshift(new group(2, inputGroupName.value, 0, []))
-    // 改顺序
-    // 重新获取数据
-    // 发出提示
-}
-const inputAddGroupVisible = ref(false)
-const inputGroupName = ref("新建组")
-const showAddGroupInput = () => {
-    inputGroupName.value = "新建组"
-    if (!inputAddGroupVisible.value) {
-    }
-    else {
-        addGroup(inputGroupName.value)
-    }
-}
-const handleAddGroupInput = () => {
-    addGroup(inputGroupName.value)
-    inputAddGroupVisible.value = false
-}
-/* 添加DB */
-const inputNameDB = ref("新建数据库")
-const addDBGroupIndex = ref(false)
-const addDB = async (DBName: string) => {
-
-}
-
-
-
-/******************** 重命名 ********************/
-/* 重命名GP */
-const inputRenameIDGP = ref(0)
-const inputRenameHandleGP = async (groupID: number, rename: string) => {
-    inputRenameIDGP.value = 0
-    // 写入数据库
-    if (await window.electronAPI.renameGroup(groupID, rename)) {
-        ElMessage.success('重命名成功')
-    }
-    else {
-        ElMessage.error('重命名失败')
-    }
-}
-/* 重命名DB */
-const inputRenameIDDB = ref(0)
-const inputRenameHandleDB = async (databaseID: number, rename: string) => {
-    // 取消显示
-    inputRenameIDDB.value = 0
-    // 写入数据库
-    if (await window.electronAPI.renameDatabase(databaseID, rename)) {
-        ElMessage.success('重命名成功')
-    }
-    else {
-        ElMessage.error('重命名失败')
-    }
-}
-
-/******************** 拖动，移动和排序 ********************/
-let dragIndexGP: number
-let dragIndexDB: number
-let enterIndexGP: number
-let enterIndexDB: number
-let dragTimeout: any = null
-/* 拖动group */
-const dragstartGP = (index: number) => {
-    dragIndexGP = index
-}
-const dragendGP = () => {
-    if (dragTimeout != null) {
-        clearTimeout(dragTimeout)
-    }
-    dragTimeout = setTimeout(() => {
-        if (dragIndexGP != enterIndexGP) {
-            const source: group = Alldatabase.value[dragIndexGP]
-            // 删除拖动元素
-            Alldatabase.value.splice(dragIndexGP, 1)
-            // 添加到拖到的位置
-            Alldatabase.value.splice(enterIndexGP, 0, source)
-            dragIndexGP = enterIndexGP
+    if (inputModelAddGroup.value === "") return
+    let newGroupId: number | null = await window.electronAPI.addGroup(inputModelAddGroup.value)
+    if (newGroupId) {
+        // 发出提示
+        ElMessage.success('添加组成功')
+        groups.value.unshift({ id: newGroupId, name: inputModelAddGroup.value, librarys: [] })
+        if (isExpandGroup.value.length < groups.value.length) {
+            isExpandGroup.value.unshift(false)
         }
-    }, 100)
-}
-const dragenterGP = (e: any, index: number) => {
-    e.preventDefault()
-    enterIndexGP = index
-    // 当DB进入GP时,DB添加到该GP的第一位
-    enterIndexDB = 0
-    e.currentTarget.style.borderBottom = "3px solid #f77c7c"
-}
-const dragleaveGP = (e: any) => {
-    e.currentTarget.style.borderBottom = ""
-}
-
-/* 拖动DB */
-const dragstartDB = (indexGP: number, indexDB: number) => {
-    dragIndexGP = indexGP
-    dragIndexDB = indexDB
-}
-const dragendDB = () => {
-    if (dragTimeout != null) {
-        clearTimeout(dragTimeout)
+        // 重新写入顺序
+        updataGroupOrder()
     }
-    dragTimeout = setTimeout(() => {
-        const source: database = Alldatabase.value[dragIndexGP].databases[dragIndexDB]
-        // 删除拖动元素
-        Alldatabase.value[dragIndexGP].databases.splice(dragIndexDB, 1)
-        // 添加到拖到的位置
-        Alldatabase.value[enterIndexGP].databases.splice(enterIndexDB, 0, source)
-        dragIndexDB = enterIndexDB
-    }, 100)
-}
-const dragenterDB = (e: any, indexGP: number, indexDB: number) => {
-    e.preventDefault()
-    enterIndexGP = indexGP
-    enterIndexDB = indexDB
-    e.currentTarget.style.borderBottom = "3px solid #7cccf7"
-}
-const dragleaveDB = (e: any) => {
-    e.currentTarget.style.borderBottom = ""
-}
-
-const moveDB = (indexGP: number) => {
-    if (dragTimeout != null) {
-        clearTimeout(dragTimeout)
+    else {
+        ElMessage.error('添加组失败')
     }
-    dragTimeout = setTimeout(() => {
-        const source: database = Alldatabase.value[dragIndexGP].databases[dragIndexDB]
-        // 删除拖动元素
-        Alldatabase.value[dragIndexGP].databases.splice(dragIndexDB, 1)
-        // 添加到拖到的位置
-        Alldatabase.value[indexGP].databases.splice(0, 0, source)
-        dragIndexDB = enterIndexDB
-    }, 100)
+}
+/* group重命名 */
+const inputRenameGroupId = ref<number>(0)
+const renameGroup = async (groupId: number, rename: string) => {
+    // 取消显示
+    inputRenameGroupId.value = 0
+    // 写入数据库
+    if (await window.electronAPI.renameGroup(groupId, rename)) {
+        ElMessage.success('重命名成功')
+    }
+    else {
+        ElMessage.error('重命名失败')
+    }
+}
+/* library添加 */
+const addLibraryGroupIndex = ref(-1)
+const inputModelAddLibrary = ref("新建库")
+const showInputAddLibrary = () => {
+    // 先展开group
+    inputModelAddLibrary.value = "新建库"
+    isExpandGroup.value[_FocusGroupIndex] = true
+    addLibraryGroupIndex.value = _FocusGroupIndex
+}
+const handleInputAddLibrary = async (groupId: number) => {
+    let addGroupIndex = addLibraryGroupIndex.value
+    // 关闭输入框
+    addLibraryGroupIndex.value = -1
+    if (inputModelAddLibrary.value === "") return
+    let newlibraryId: number | null = await window.electronAPI.addLibrary(groupId, inputModelAddLibrary.value)
+    if (newlibraryId) {
+        ElMessage.success('添加库成功')
+        groups.value[addGroupIndex].librarys.unshift({ id: newlibraryId, name: inputModelAddLibrary.value })
+        // 重新写入顺序
+        updataLibraryOrder(addGroupIndex)
+    } else {
+        ElMessage.error('添加库失败')
+    }
+}
+/* library重命名 */
+const inputRenameLibraryId = ref<number>(0)
+const renameLibrary = async (libraryId: number, rename: string) => {
+    inputRenameLibraryId.value = 0
+    if (await window.electronAPI.renameLibrary(libraryId, rename)) {
+        ElMessage.success('重命名成功')
+    }
+    else {
+        ElMessage.error('重命名失败')
+    }
 }
 
-/* 顺序写入数据库 */
+/******************** 设置group ********************/
+const updataGroupOrder = debounce(async () => {
+    let groupsId: number[] = []
+    groups.value.forEach(element => {
+        groupsId.push(element.id)
+    });
+    await window.electronAPI.updataOrderGroup(groupsId);
+}, 200)
+const deleteGroup = () => {
+    // 弹框 输入完整的group名字才能删除
+    console.log("deleteGroup");
+    // window.electronAPI.deleteGroup()
+}
+/******************** 设置library ********************/
+const updataLibraryOrder = debounce(async (groupIndex: number) => {
+    let librarysId: number[] = []
+    groups.value[groupIndex].librarys.forEach(element => {
+        librarysId.push(element.id)
+    })
+    await window.electronAPI.updataOrderLibrary(groups.value[groupIndex].id, librarysId)
+}, 200)
+const deleteLibrary = () => {
+    console.log("deleteLibrary")
+    // 删除的library如果是正在被打开的，就传一个{id:0,name:""}
 
 
-
-
-
-
-
-// 删除library时 要注意 是不是正在被打开
-    //FIXME 要注意删除的library 要去掉
-
-
+    // window.electronAPI.deleteLibrary()
+}
+const moveLibrary = async (groupIndex: number) => {
+    if (groupIndex == _FocusGroupIndex) {
+        ElMessage.error('已在该组')
+        return
+    }
+    // 删除拖动元素,添加到group第一个的位置
+    let sourceLibrary: library = groups.value[_FocusGroupIndex].librarys.splice(_FocusLibraryIndex, 1)[0]
+    groups.value[groupIndex].librarys.unshift(sourceLibrary)
+    _FocusLibraryIndex = _ToLibraryIndex
+    await window.electronAPI.moveLibrary(groups.value[groupIndex].id, sourceLibrary.id)
+    updataLibraryOrder(groupIndex)
+}
+/******************** 拖动，移动和排序 ********************/
+let dragenterStyle: string | null
+const dragstart = (groupIndex: number, libraryIndex: number = -1) => {
+    _FocusGroupIndex = groupIndex
+    _FocusLibraryIndex = libraryIndex
+    // 拖动的是group提示红色，library提示蓝色
+    dragenterStyle = libraryIndex == -1 ? "3px solid #f77c7c" : "3px solid #7cccf7"
+}
+const dragend = async () => {
+    // true/false 拖动的是group/library
+    if (_FocusLibraryIndex == -1) {
+        if (_ToLibraryIndex == -1 && _FocusGroupIndex != _ToGroupIndex) {
+            // group改顺序,isExpandGroup顺序也要改
+            isExpandGroup.value.splice(_ToGroupIndex, 0, ...isExpandGroup.value.splice(_FocusGroupIndex, 1))
+            // 删除拖动元素,添加到拖到的位置
+            groups.value.splice(_ToGroupIndex, 0, ...groups.value.splice(_FocusGroupIndex, 1))
+            updataGroupOrder()
+        }
+    }
+    else {
+        const sourceLibrary: library = groups.value[_FocusGroupIndex].librarys[_FocusLibraryIndex]
+        // true/false 进入的是group/library
+        if (_ToLibraryIndex == -1) {
+            if (_FocusGroupIndex == _ToGroupIndex) {
+                ElMessage.error('已在该组')
+                return
+            }
+            else {
+                groups.value[_FocusGroupIndex].librarys.splice(_FocusLibraryIndex, 1)
+                groups.value[_ToGroupIndex].librarys.splice(0, 0, sourceLibrary)
+                isExpandGroup.value[_ToGroupIndex] = true
+            }
+        }
+        else {
+            groups.value[_FocusGroupIndex].librarys.splice(_FocusLibraryIndex, 1)
+            groups.value[_ToGroupIndex].librarys.splice(_ToLibraryIndex, 0, sourceLibrary)
+        }
+        // 先移动后删除
+        await window.electronAPI.moveLibrary(groups.value[_ToGroupIndex].id, sourceLibrary.id)
+        updataLibraryOrder(_ToGroupIndex)
+    }
+}
+const dragenter = (e: any, groupIndex: number, libraryIndex: number = -1) => {
+    e.preventDefault()
+    _ToGroupIndex = groupIndex
+    _ToLibraryIndex = libraryIndex
+    // group托入library不显示样式
+    if (_FocusLibraryIndex == -1 && _ToLibraryIndex != -1) return
+    e.currentTarget.style.borderBottom = dragenterStyle
+}
+const dragleave = (e: MouseEvent) => {
+    (e.currentTarget as HTMLDivElement).style.borderBottom = ""
+}
 </script>
 
 <style scoped>
