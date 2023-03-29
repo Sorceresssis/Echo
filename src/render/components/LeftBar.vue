@@ -78,7 +78,7 @@
                                              class="input-wrapper ">
                                             <input type="text"
                                                    v-model="inputModelAddLibrary"
-                                                   v-focus="addLibraryGroupIndex == groupIndex"
+                                                   v-focus="true"
                                                    onfocus="this.select()"
                                                    @keyup.enter="($event.target as HTMLInputElement)?.blur()"
                                                    @blur="handleInputAddLibrary(group.id)">
@@ -126,7 +126,7 @@
             <context-menu-item label="重命名"
                                @click="inputRenameGroupId = groups[_FocusGroupIndex].id" />
             <context-menu-item label="删除"
-                               @click="deleteGroup">
+                               @click="openDeleteDialog">
                 <template #icon>
                     <span class="iconfont">&#xe61a;</span>
                 </template>
@@ -141,7 +141,7 @@
             <context-menu-item label="重命名"
                                @click="inputRenameLibraryId = groups[_FocusGroupIndex].librarys[_FocusLibraryIndex].id" />
             <context-menu-item label="删除"
-                               @click="deleteLibrary">
+                               @click="openDeleteDialog">
                 <template #icon>
                     <span class="iconfont">&#xe61a;</span>
                 </template>
@@ -153,7 +153,28 @@
                                    :label="group.name"
                                    @click="moveLibrary(groupIndex)" />
             </context-menu-group>
+            <context-menu-item label="导出" />
         </context-menu>
+        <el-dialog v-model="deleteDialogInfo.isVisibleDialog"
+                   align-center
+                   title="你确定要这样做吗"
+                   width="350px"
+                   class="deleteDialog">
+            <p>此操作<span style="font-weight: 700;">无法</span>撤销。这将永久删除数据
+            </p>
+            <p>请输入 <span style="font-weight: 700; user-select: text;">{{ deleteDialogInfo.deleteItemName }}</span> 进行确认。</p>
+            <el-input class="diaglog-input"
+                      v-model="deleteDialogInfo.confirmInputName"></el-input>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button type="primary"
+                               :class="{ 'confirmed': deleteDialogInfo.confirmInputName == deleteDialogInfo.deleteItemName }"
+                               @click="handleDeleteDialog">
+                        我明白后果，确认删除这个{{ deleteDialogInfo.deleteType }}
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -355,7 +376,7 @@ const renameLibrary = async (libraryId: number, rename: string) => {
     }
 }
 
-/******************** 设置group ********************/
+/******************** 在数据库更新顺序 ********************/
 const updataGroupOrder = debounce(async () => {
     let groupsId: number[] = []
     groups.value.forEach(element => {
@@ -363,12 +384,7 @@ const updataGroupOrder = debounce(async () => {
     });
     await window.electronAPI.updataOrderGroup(groupsId);
 }, 200)
-const deleteGroup = () => {
-    // 弹框 输入完整的group名字才能删除
-    console.log("deleteGroup");
-    // window.electronAPI.deleteGroup()
-}
-/******************** 设置library ********************/
+
 const updataLibraryOrder = debounce(async (groupIndex: number) => {
     let librarysId: number[] = []
     groups.value[groupIndex].librarys.forEach(element => {
@@ -376,13 +392,53 @@ const updataLibraryOrder = debounce(async (groupIndex: number) => {
     })
     await window.electronAPI.updataOrderLibrary(groups.value[groupIndex].id, librarysId)
 }, 200)
-const deleteLibrary = () => {
-    console.log("deleteLibrary")
-    // 删除的library如果是正在被打开的，就传一个{id:0,name:""}
 
-
-    // window.electronAPI.deleteLibrary()
+/******************** 删除group和library ********************/
+const deleteDialogInfo = ref({
+    isVisibleDialog: false,
+    deleteType: "",
+    deleteItemName: "",
+    confirmInputName: "",
+})
+const openDeleteDialog = () => {
+    // 删除旧数据
+    deleteDialogInfo.value.confirmInputName = ""
+    deleteDialogInfo.value.isVisibleDialog = true
+    if (_FocusLibraryIndex == -1) {
+        deleteDialogInfo.value.deleteType = "组Group"
+        deleteDialogInfo.value.deleteItemName = groups.value[_FocusGroupIndex].name
+    }
+    else {
+        deleteDialogInfo.value.deleteType = "库Library"
+        deleteDialogInfo.value.deleteItemName = groups.value[_FocusGroupIndex].librarys[_FocusLibraryIndex].name
+    }
 }
+const handleDeleteDialog = async () => {
+    // 输入完整的名字才能删除
+    if (deleteDialogInfo.value.confirmInputName != deleteDialogInfo.value.deleteItemName) return
+    // 删除的library如果是正在被打开的，就传一个{id:0,name:""}
+    if (_FocusLibraryIndex == -1) {
+        groups.value[_FocusGroupIndex].librarys.forEach(element => {
+            if (element.id == activeLibrary.value.id) {
+                emit("openLibrary", { id: 0, name: "" })
+            }
+        });
+        if (await window.electronAPI.deleteGroup(groups.value[_FocusGroupIndex].id)) {
+            groups.value.splice(_FocusGroupIndex, 1)
+            isExpandGroup.value.splice(_FocusGroupIndex, 1)
+        }
+
+    } else {
+        if (groups.value[_FocusGroupIndex].librarys[_FocusLibraryIndex].id == activeLibrary.value.id) {
+            emit("openLibrary", { id: 0, name: "" })
+        }
+        if (await window.electronAPI.deleteLibrary(groups.value[_FocusGroupIndex].librarys[_FocusLibraryIndex].id)) {
+            groups.value[_FocusGroupIndex].librarys.splice(_FocusLibraryIndex, 1)
+        }
+    }
+    deleteDialogInfo.value.isVisibleDialog = false
+}
+/******************** 右键菜单移动library ********************/
 const moveLibrary = async (groupIndex: number) => {
     if (groupIndex == _FocusGroupIndex) {
         ElMessage.error('已在该组')
@@ -395,6 +451,7 @@ const moveLibrary = async (groupIndex: number) => {
     await window.electronAPI.moveLibrary(groups.value[groupIndex].id, sourceLibrary.id)
     updataLibraryOrder(groupIndex)
 }
+
 /******************** 拖动，移动和排序 ********************/
 let dragenterStyle: string | null
 const dragstart = (groupIndex: number, libraryIndex: number = -1) => {
@@ -560,5 +617,45 @@ const dragleave = (e: MouseEvent) => {
 .active {
     background-color: #887cf7;
     color: #fff;
+}
+
+:deep(.diaglog-input .is-focus) {
+    box-shadow: 0 0 0 1px #9e94f7 inset;
+}
+
+.dialog-footer {
+    display: flex;
+    justify-content: center;
+}
+
+.dialog-footer button {
+    width: 100%;
+    background-color: #f6f8fa;
+    border-color: #d5d8da;
+    color: #e68d94;
+}
+
+.dialog-footer .confirmed {
+    color: #cf222e;
+}
+
+.dialog-footer .confirmed:hover {
+    background-color: #a40e26;
+    color: #fff;
+}
+</style>
+<style>
+.deleteDialog .el-dialog__body {
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.deleteDialog .el-dialog__body p {
+    color: #24292f;
+    margin: 5px 0;
+}
+
+.deleteDialog .el-dialog__body .el-input {
+    margin-top: 5px;
 }
 </style>

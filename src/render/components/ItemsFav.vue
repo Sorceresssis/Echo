@@ -1,11 +1,6 @@
-<template>
-    <div>最爱
-
-    </div>
-</template>
-
-<script setup lang='ts'>
-import { ref, reactive } from 'vue'
+<template></template>
+  
+<script lang="ts" setup>
 
 </script>
 <style scoped></style>

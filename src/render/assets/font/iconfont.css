@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3790846 */
-  src: url('iconfont.woff2?t=1679074855998') format('woff2'),
-       url('iconfont.woff?t=1679074855998') format('woff'),
-       url('iconfont.ttf?t=1679074855998') format('truetype');
+  src: url('iconfont.woff2?t=1680086901427') format('woff2'),
+       url('iconfont.woff?t=1680086901427') format('woff'),
+       url('iconfont.ttf?t=1680086901427') format('truetype');
 }
 
 .iconfont {
@@ -13,20 +13,96 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-dian:before {
+  content: "\e60a";
+}
+
+.icon-dian1:before {
+  content: "\ec1e";
+}
+
+.icon-dian2:before {
+  content: "\e7a5";
+}
+
+.icon-lianjie:before {
+  content: "\e646";
+}
+
+.icon-lianjie1:before {
+  content: "\e6c8";
+}
+
+.icon-liulanqi:before {
+  content: "\e605";
+}
+
+.icon-lianjie2:before {
+  content: "\e620";
+}
+
+.icon-lianjie3:before {
+  content: "\e89c";
+}
+
+.icon-yunlianjie:before {
+  content: "\e8a4";
+}
+
+.icon-shuaxin:before {
+  content: "\e782";
+}
+
+.icon-shuaxin1:before {
+  content: "\e650";
+}
+
+.icon-xuexiao:before {
+  content: "\e632";
+}
+
+.icon-shuaxin2:before {
+  content: "\e629";
+}
+
+.icon-shuaxin3:before {
+  content: "\e612";
+}
+
+.icon-piliangguanli:before {
+  content: "\e670";
+}
+
+.icon-shuaxin4:before {
+  content: "\e61f";
+}
+
+.icon-ziyuanxhdpi:before {
+  content: "\e64c";
+}
+
+.icon-batch:before {
+  content: "\e62c";
+}
+
+.icon-piliangxuanze:before {
+  content: "\e622";
+}
+
+.icon-piliangchuli:before {
+  content: "\e61b";
+}
+
+.icon-rename:before {
+  content: "\e62a";
+}
+
+.icon-icon_rename:before {
+  content: "\e658";
+}
+
 .icon-icons-:before {
   content: "\e66b";
-}
-
-.icon-form_search:before {
-  content: "\e617";
-}
-
-.icon-search_list:before {
-  content: "\e683";
-}
-
-.icon-search_list1:before {
-  content: "\e61b";
 }
 
 .icon-huishouzhan:before {
@@ -35,10 +111,6 @@
 
 .icon-huishouzhan1:before {
   content: "\e636";
-}
-
-.icon-huishouzhan2:before {
-  content: "\e7f2";
 }
 
 .icon-diandian:before {

@@ -121,7 +121,9 @@ export async function deleteGroup(e: IpcMainInvokeEvent, groupId: number) {
     let flag = true
     await dbLibrary.connect(groupDBPath)
     try {
+        // 删除数据库数据
         await dbLibrary.exec(`DELETE FROM library WHERE group_id = ${groupId}; DELETE FROM 'group' WHERE group_id = ${groupId};`)
+        // TODO 删除文件
     } catch (err) {
         flag = false
     } finally {
@@ -182,6 +184,7 @@ export async function deleteLibrary(e: IpcMainInvokeEvent, libraryId: number) {
     await dbLibrary.connect(groupDBPath)
     try {
         await dbLibrary.run(`DELETE FROM library WHERE library_id = ${libraryId};`)
+        // TODO 删除文件
     } catch (err) {
         flag = false
     } finally {

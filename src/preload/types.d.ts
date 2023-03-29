@@ -19,6 +19,10 @@ export interface IElectronAPI {
     deleteLibrary: (LibraryID: number) => Promise<boolean>
     moveLibrary: (toGroupId: number, moveLibraryId: number) => Promise<boolean>
 
+    /******************** Item ********************/
+    searchSuggest: () => Promise<string[]>
+    getAttributeItem: (LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) => Promise<string[]>
+
     /******************** 对话框 ********************/
     openFile: () => Promise<any>
 

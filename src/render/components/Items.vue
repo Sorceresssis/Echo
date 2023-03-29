@@ -32,7 +32,16 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
+
+const props = defineProps<{
+    activeLibrary: library
+}>()
+watch(() => [props.activeLibrary], (newValue) => {
+    // console.log(newValue);
+})
+
+
 const items = reactive([
     {
         id: 1,
@@ -329,6 +338,7 @@ const items = reactive([
 
 <style scoped>
 #Items {
+    flex: 1;
     display: grid;
     grid-template-columns: repeat(auto-fill, 220px);
     justify-content: space-around;

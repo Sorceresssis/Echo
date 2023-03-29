@@ -1,7 +1,7 @@
 <template>
     <div class="titleBar">
         <span class="iconfont"
-              @click="">&#xe657;</span>
+              @click="isVisibleSetting = true">&#xe657;</span>
         <i>|</i>
         <span class="iconfont"
               @click="windowMinmize()">&#xe609;</span>
@@ -13,6 +13,22 @@
               @click="windowMaxmize()">&#xe606;</span>
         <span class="iconfont"
               @click="windowClose()">&#xebbf;</span>
+        <el-dialog v-model="isVisibleSetting"
+                   align-center
+                   width="500px"
+                   title="设置">
+            <div>
+            </div>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button @click="isVisibleSetting = false">Cancel</el-button>
+                    <el-button type="primary"
+                               @click="isVisibleSetting = false">
+                        Confirm
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
 
@@ -24,8 +40,8 @@ let isMaxmize = ref<boolean>();
 window.electronAPI.windowIsMaxmize((e: any, value: boolean) => {
     isMaxmize.value = value
 })
-async function windowMinmize() {
-    console.log(await window.electronAPI.windowMinmize())
+function windowMinmize() {
+    window.electronAPI.windowMinmize()
 }
 function windowMaxmize() {
     window.electronAPI.windowMaxmize()
@@ -34,9 +50,9 @@ function windowClose() {
     window.electronAPI.windowClose()
 }
 
-function openSetting() {
 
-}
+/******************** Dailog ********************/
+const isVisibleSetting = ref<boolean>(false)
 </script>
 
 <style scoped>

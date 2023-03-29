@@ -1,8 +1,9 @@
-import { ipcMain, BrowserWindow, dialog } from "electron";
+import { ipcMain, BrowserWindow, dialog, IpcMainInvokeEvent } from "electron";
 import { config } from './config'
 import { createWindow } from './mainWindow'
 import { getGroups, addGroup, updataOrderGroup, renameGroup, renameLibrary, updataOrderLibrary, addLibrary, moveLibrary, deleteGroup, deleteLibrary } from './dbGroup'
-import { } from './dbLibrary'
+import { DBLibrary } from './dbLibrary'
+const path = require('path');
 
 export function IPCMain() {
     ipcMain.handle('userData:getGroups', getGroups)
@@ -21,6 +22,22 @@ export function IPCMain() {
     ipcMain.handle('library:move', moveLibrary)
 
     /******************** Item ********************/
+    ipcMain.handle('library:searchSuggest', () => {
+        return [
+            "何骏马", "bb", "cc", "dd", "eee"
+        ]
+    })
+
+    ipcMain.handle('library:getAttribute', async (e: IpcMainInvokeEvent, LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) => {
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
+        return await library.getAttribute(attribute, pageno, pagesize, filterWords)
+    })
+
+
+
+
+
+
 
 
 
