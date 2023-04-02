@@ -18,12 +18,14 @@
                                  v-model="searchWord"
                                  value-key="suggest"
                                  :trigger-on-focus="false"
-                                 :fetch-suggestions="querySearchAsync" />
-
-                <span class="iconfont rightMenuItem ">
+                                 :fetch-suggestions="querySearchAsync"
+                                 @keyup.enter="search"
+                                 onfocus="this.select()" />
+                <span class="iconfont rightMenuItem">
                     &#xe66b;
                 </span>
-                <span class="iconfont rightMenuItem ">
+                <span class="iconfont rightMenuItem"
+                      @click="isVisibleDialogAdd = true">
                     &#xe68c;
                 </span>
                 <el-dropdown trigger="click"
@@ -33,22 +35,31 @@
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="itemSelect.filter[0] = !itemSelect.filter[0]">
-                                <span v-if="itemSelect.filter[0]"
+                            <el-dropdown-item @click="">
+                                <span v-if="true"
+                                      class="iconfont">&#xe60a;</span>
+                                <span v-else
+                                      class="iconfont"></span>
+                                全部
+                            </el-dropdown-item>
+                            <!-- TODO 全部是不筛选， 其他的是并级关系 -->
+                            <el-dropdown-item divided
+                                              @click="getItemsInfo.Itemfilter[0] = !getItemsInfo.Itemfilter[0]">
+                                <span v-if="getItemsInfo.Itemfilter[0]"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 有链接
                             </el-dropdown-item>
-                            <el-dropdown-item @click="itemSelect.filter[1] = !itemSelect.filter[1]">
-                                <span v-if="itemSelect.filter[1]"
+                            <el-dropdown-item @click="getItemsInfo.Itemfilter[1] = !getItemsInfo.Itemfilter[1]">
+                                <span v-if="getItemsInfo.Itemfilter[1]"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                有源文件
+                                有源文件的
                             </el-dropdown-item>
-                            <el-dropdown-item @click="itemSelect.filter[2] = !itemSelect.filter[2]">
-                                <span v-if="itemSelect.filter[2]"
+                            <el-dropdown-item @click="getItemsInfo.Itemfilter[2] = !getItemsInfo.Itemfilter[2]">
+                                <span v-if="getItemsInfo.Itemfilter[2]"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
@@ -64,36 +75,36 @@
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="itemSelect.orderBy = OrderBy.title">
-                                <span v-if="itemSelect.orderBy == OrderBy.title"
+                            <el-dropdown-item @click="getItemsInfo.orderBy = OrderBy.title">
+                                <span v-if="getItemsInfo.orderBy == OrderBy.title"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 标题
                             </el-dropdown-item>
-                            <el-dropdown-item @click="itemSelect.orderBy = OrderBy.clickCount">
-                                <span v-if="itemSelect.orderBy == OrderBy.clickCount"
+                            <el-dropdown-item @click="getItemsInfo.orderBy = OrderBy.clickCount">
+                                <span v-if="getItemsInfo.orderBy == OrderBy.clickCount"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 点击量
                             </el-dropdown-item>
-                            <el-dropdown-item @click="itemSelect.orderBy = OrderBy.Date">
-                                <span v-if="itemSelect.orderBy == OrderBy.Date"
+                            <el-dropdown-item @click="getItemsInfo.orderBy = OrderBy.Date">
+                                <span v-if="getItemsInfo.orderBy == OrderBy.Date"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 时间
                             </el-dropdown-item>
                             <el-dropdown-item divided
-                                              @click="itemSelect.ascending = 0">
-                                <span v-if="itemSelect.ascending == 0"
+                                              @click="getItemsInfo.ascending = 0">
+                                <span v-if="getItemsInfo.ascending == 0"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 降序 </el-dropdown-item>
-                            <el-dropdown-item @click="itemSelect.ascending = 1">
-                                <span v-if="itemSelect.ascending == 1"
+                            <el-dropdown-item @click="getItemsInfo.ascending = 1">
+                                <span v-if="getItemsInfo.ascending == 1"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
@@ -128,20 +139,10 @@
         </div>
         <div id="keywordList"
              v-show="dynamicTags.length != 0 && componentID != InfoList">
-            <!-- 输入框 -->
-            <el-input v-if="inputVisible"
-                      ref="InputRef"
-                      v-model="inputValue"
-                      class="inputSearch"
-                      size="small"
-                      @keyup.enter="handleInputConfirm"
-                      @blur="handleInputConfirm" />
-            <!-- 添加按钮 -->
-            <el-button v-else
-                       class="button-new-tag ml-1 input"
+            <el-button class="button-new-tag ml-1 input"
                        size="small"
-                       @click="showInput">
-                + New Tag
+                       @click="dynamicTags.splice(0)">
+                清空
             </el-button>
             <!-- Tag列表 -->
             <el-tag v-for="tag in dynamicTags"
@@ -155,9 +156,24 @@
         </div>
         <component :is="componentID"
                    :activeLibrary="activeLibrary"
-                   :itemSelect="itemSelect"
+                   :getItemsInfo="getItemsInfo"
                    :viewInfo="viewInfo">
         </component>
+        <el-dialog v-model="isVisibleDialogAdd"
+                   align-center
+                   title="添加"
+                   width="500px"
+                   class="dialog">
+            <DialogAdd></DialogAdd>
+            <template #footer>
+                <span class="dialog-footer">
+                    <el-button type="primary"
+                               :class="{}"
+                               @click="isVisibleDialogAdd = false">
+                    </el-button>
+                </span>
+            </template>
+        </el-dialog>
     </div>
 </template>
   
@@ -166,12 +182,14 @@ import Items from './Items.vue'
 import ItemsAuthor from './ItemsAuthor.vue'
 import ItemsFav from './ItemsFav.vue'
 import InfoList from './InfoList.vue'
+import DialogAdd from './DialogAdd.vue'
 import { nextTick, ref, shallowReactive, shallowRef, watch } from 'vue';
 import { ElInput } from 'element-plus'
 
 const props = defineProps<{
     activeLibrary: library
 }>()
+
 
 
 /* 组件切换 */
@@ -188,7 +206,6 @@ function switchComponent(index: number) {
     componentActive.value = index
 }
 
-
 /******************** 通用搜索 ********************/
 enum AttributeItem {
     // ALL 不包含folder_path
@@ -196,16 +213,25 @@ enum AttributeItem {
 }
 const searchWord = ref('')
 const querySearchAsync = (queryString: string, cb: any) => {
-    window.electronAPI.getAttributeItem(1, AttributeItem.All, 0, 12, queryString.split(' ')).then((a) => {
+    window.electronAPI.getAttributeItem(1, AttributeItem.All, 0, 12, queryString.trim().split(/\s+/)).then((a) => {
         cb(a)
     })
 }
-
+const search = async () => {
+    if (searchWord.value != '') {
+        dynamicTags.splice(0, dynamicTags.length, ...searchWord.value.trim().split(/\s+/))
+    }
+}
 
 /******************** Items的筛选和展示方式 ********************/
 enum OrderBy { title, clickCount, Date }
-const itemSelect = ref({
-    filter: [false, false, false],
+const getItemsInfo = ref({
+    UniversalFilter: "",
+    titleFilter: "",
+    authorFilter: "",
+    tagFilter: "",
+    // 有链接，文件夹
+    Itemfilter: [false, false, false],
     orderBy: OrderBy.title,
     ascending: 0
 })
@@ -213,9 +239,12 @@ const itemSelect = ref({
 enum View { extended, thumbnail }
 const viewInfo = ref(View.extended)
 
+/******************** 对话框 ********************/
+const isVisibleDialogAdd = ref(false)
+
 
 /******************** keywords列表 ********************/
-const dynamicTags = shallowReactive(['Tag 1', 'Tag 2', 'Tag 3'])
+let dynamicTags = shallowReactive<string[]>([])
 const inputValue = ref('')
 const inputVisible = ref(false)
 const InputRef = ref<InstanceType<typeof ElInput>>()
@@ -238,6 +267,7 @@ const handleInputConfirm = () => {
     // 跟新 items
 
 }
+
 </script>
   
 <style scoped>
@@ -306,7 +336,7 @@ const handleInputConfirm = () => {
 :deep(.inputSearch) {
     width: 50%;
     min-width: 130px;
-    max-width: 250px;
+    max-width: 320px;
     height: 24px;
     font-size: 14px;
     margin: 5px 20px 5px 0;

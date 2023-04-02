@@ -6,7 +6,13 @@ import { resolve } from "path";
 export default defineConfig(({ mode }) => {
   const build: BuildOptions = {
     minify: true,
-    outDir: resolve(__dirname, "./dist/render")
+    outDir: resolve(__dirname, "./dist/render"),
+    rollupOptions: {
+      input: {
+        index: resolve(__dirname, './src/render/index.html'),
+        itemDisplay: resolve(__dirname, './src/render/itemDisplay.html')
+      }
+    }
   };
 
   return {

@@ -22,10 +22,10 @@ export interface IElectronAPI {
     /******************** Item ********************/
     searchSuggest: () => Promise<string[]>
     getAttributeItem: (LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) => Promise<string[]>
-
+    getItems: (libraryID: number) => Promise<item[]>
     /******************** 对话框 ********************/
     openFile: () => Promise<any>
-
+    getConfig: () => Promise<any>
 
     /******************** 窗口 ********************/
     createMainWindow: (library: library) => Promise<any>
@@ -34,6 +34,10 @@ export interface IElectronAPI {
     windowMaxmize: () => Promise<any>
     windowIsMaxmize: (callback: (e: any, value: any) => void) => Promise<any>
     windowClose: () => Promise<any>
+}
+
+export interface INodeAPI {
+
 }
 
 declare global {
@@ -49,5 +53,16 @@ declare global {
     interface library {
         id: number
         name: string
+    }
+    interface item {
+        id: number
+        title: string
+        isFav: number
+        hyperlink: string
+        flieName: string
+        folder_id: number
+        tags: string
+        authorsID: string
+        authors: string
     }
 }

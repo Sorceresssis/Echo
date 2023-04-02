@@ -159,7 +159,7 @@
                    align-center
                    title="你确定要这样做吗"
                    width="350px"
-                   class="deleteDialog">
+                   class="dialog">
             <p>此操作<span style="font-weight: 700;">无法</span>撤销。这将永久删除数据
             </p>
             <p>请输入 <span style="font-weight: 700; user-select: text;">{{ deleteDialogInfo.deleteItemName }}</span> 进行确认。</p>
@@ -645,17 +645,17 @@ const dragleave = (e: MouseEvent) => {
 }
 </style>
 <style>
-.deleteDialog .el-dialog__body {
+.dialog .el-dialog__body {
     padding-top: 0;
     padding-bottom: 0;
 }
 
-.deleteDialog .el-dialog__body p {
+.dialog .el-dialog__body p {
     color: #24292f;
     margin: 5px 0;
 }
 
-.deleteDialog .el-dialog__body .el-input {
+.dialog .el-dialog__body .el-input {
     margin-top: 5px;
 }
 </style>

@@ -1,12 +1,13 @@
 // index.ts
 import { contextBridge, ipcRenderer } from "electron"
+import path from "path"
 
 contextBridge.exposeInMainWorld('electronAPI', {
     /******************** 开始准备 ********************/
-    getGroups: () => ipcRenderer.invoke('userData:getGroups'),
     startOpenDB: (callback: (e: any, value: library) => void) => ipcRenderer.on('startOpenDB', callback),
 
     /******************** group ********************/
+    getGroups: () => ipcRenderer.invoke('group:getGroups'),
     addGroup: (groupName: string) => ipcRenderer.invoke('group:add', groupName),
     updataOrderGroup: (groupsId: number[]) => ipcRenderer.invoke('group:updataOrder', groupsId),
     renameGroup: (groupID: number, rename: string) => ipcRenderer.invoke('group:rename', groupID, rename),
@@ -19,16 +20,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteLibrary: (LibraryID: number) => ipcRenderer.invoke('library:delete', LibraryID),
     moveLibrary: (toGroupId: number, moveLibraryId: number) => ipcRenderer.invoke('library:move', toGroupId, moveLibraryId),
 
-
     /******************** Items ********************/
     searchSuggest: () => ipcRenderer.invoke('library:searchSuggest'),
     getAttributeItem: (LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) =>
         ipcRenderer.invoke('library:getAttribute', LibraryID, attribute, pageno, pagesize, filterWords),
-
+    getItems: (libraryID: number) => ipcRenderer.invoke('library:getItems', libraryID),
 
     /******************** 对话框 ********************/
     openFile: () => ipcRenderer.invoke('dialog:openFile'),
 
+    getConfig: () => ipcRenderer.invoke('config'),
 
     /******************** 窗口 ********************/
     createMainWindow: (library: library) => ipcRenderer.invoke('window:createMainWindow', library),

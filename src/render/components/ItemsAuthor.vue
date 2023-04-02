@@ -9,7 +9,7 @@
                             <div class="profile">
                                 <img class="coverImage"
                                      :src="author.profile"
-                                     @error="($event.target as HTMLImageElement).src = '../assets/images/2.jpg'">
+                                     @error="($event.target as HTMLImageElement).src = '../assets/images/profile.png'">
                             </div>
                             <div class="authorText">
                                 <div class="authorName">{{ author.name }}</div>
@@ -30,7 +30,7 @@
                             </div>
                             <div class="worksItem">
                                 <img class="coverImage"
-                                     src="../assets/images/屏幕截图 2022-11-08 192954.png"
+                                     src=""
                                      alt="gf">
                             </div>
                         </div>

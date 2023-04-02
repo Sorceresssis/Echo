@@ -2,13 +2,12 @@ import { ipcMain, BrowserWindow, dialog, IpcMainInvokeEvent } from "electron";
 import { config } from './config'
 import { createWindow } from './mainWindow'
 import { getGroups, addGroup, updataOrderGroup, renameGroup, renameLibrary, updataOrderLibrary, addLibrary, moveLibrary, deleteGroup, deleteLibrary } from './dbGroup'
-import { DBLibrary } from './dbLibrary'
+import { DBLibrary, checkImageDir } from './dbLibrary'
 const path = require('path');
 
 export function IPCMain() {
-    ipcMain.handle('userData:getGroups', getGroups)
-
     /******************** group ********************/
+    ipcMain.handle('group:getGroups', getGroups)
     ipcMain.handle('group:add', addGroup)
     ipcMain.handle('group:updataOrder', updataOrderGroup)
     ipcMain.handle('group:rename', renameGroup)
@@ -22,28 +21,38 @@ export function IPCMain() {
     ipcMain.handle('library:move', moveLibrary)
 
     /******************** Item ********************/
-    ipcMain.handle('library:searchSuggest', () => {
-        return [
-            "何骏马", "bb", "cc", "dd", "eee"
-        ]
-    })
-
     ipcMain.handle('library:getAttribute', async (e: IpcMainInvokeEvent, LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) => {
         let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
         return await library.getAttribute(attribute, pageno, pagesize, filterWords)
     })
 
+    ipcMain.handle('library:getItems', (e: IpcMainInvokeEvent, LibraryID: number) => {
+        checkImageDir(LibraryID)
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
+        return library.getItems("Fd", "fd", "fd", "Fd", 0,)
+    })
+
+    ipcMain.handle('library:getItemsByAuthor', (e: IpcMainInvokeEvent, LibraryID: number) => {
+
+    })
+
+    ipcMain.handle('library:getItemsOfNoAuthor', (e: IpcMainInvokeEvent, LibraryID: number) => {
+
+    })
+
+    ipcMain.handle('library:getAuthorList', (e: IpcMainInvokeEvent, LibraryID: number) => {
+
+    })
 
 
 
 
 
-
-
-
-    ipcMain.handle('userData:getConfig', () => {
+    /******************** 其他 ********************/
+    ipcMain.handle('config', () => {
         return config
     })
+
     ipcMain.handle('dialog:selectFile', handleFileOpen)
 
 
