@@ -19,7 +19,8 @@
     "element-plus": "^2.2.36",
     "sqlite3": "^5.1.4",
     "vue": "^3.2.41",
-    "vue-i18n": "^9.2.2"
+    "vue-i18n": "^9.2.2",
+    "vue-router": "^4.1.6"
   },
   "devDependencies": {
     "@types/node": "^18.13.0",

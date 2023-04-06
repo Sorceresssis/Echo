@@ -179,16 +179,11 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, watch } from 'vue';
+import { Ref, inject, ref, watch } from 'vue';
 import type { Directive } from 'vue';
+import { useRouter } from 'vue-router'
 import { debounce } from '../util/debounce'
 import { ElMessage } from 'element-plus'
-
-
-/******************** 组件传参 ********************/
-const emit = defineEmits<{
-    (e: "openLibrary", library: library): void
-}>()
 
 
 /******************** 启动准备 ********************/
@@ -206,7 +201,7 @@ const groups = ref<group[]>([])
 // group的展开情况
 const isExpandGroup = ref<boolean[]>([])
 // 正在打开的Library
-const activeLibrary = ref<library>({ id: 0, name: "" })
+const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 // 获取后台要求打开的library(新建窗口打开)
 function getStartOpenDB() {
     return new Promise<library | null>((resolve) => {
@@ -246,10 +241,13 @@ watch(activeLibrary, debounce((newValue) => {
 
 
 /******************** 打开Library ********************/
+const router = useRouter()
 const openLibrary = function (library: library) {
-    if (library != activeLibrary.value) {
+    if (library != activeLibrary?.value) {
+        // 改网页标题
+        document.title = library.name == '' ? 'Echo' : library.name + " - Echo";
         activeLibrary.value = library
-        emit("openLibrary", library)
+        router.push('/')
     }
 }
 // 新建窗口打开数据库
@@ -420,7 +418,6 @@ const handleDeleteDialog = async () => {
     if (_FocusLibraryIndex == -1) {
         groups.value[_FocusGroupIndex].librarys.forEach(element => {
             if (element.id == activeLibrary.value.id) {
-                emit("openLibrary", { id: 0, name: "" })
             }
         });
         if (await window.electronAPI.deleteGroup(groups.value[_FocusGroupIndex].id)) {
@@ -430,7 +427,6 @@ const handleDeleteDialog = async () => {
 
     } else {
         if (groups.value[_FocusGroupIndex].librarys[_FocusLibraryIndex].id == activeLibrary.value.id) {
-            emit("openLibrary", { id: 0, name: "" })
         }
         if (await window.electronAPI.deleteLibrary(groups.value[_FocusGroupIndex].librarys[_FocusLibraryIndex].id)) {
             groups.value[_FocusGroupIndex].librarys.splice(_FocusLibraryIndex, 1)
@@ -513,8 +509,9 @@ const dragleave = (e: MouseEvent) => {
     height: 100%;
     display: flex;
     flex-direction: column;
-    background-color: #f0f0f0;
+    background-color: #fff;
     overflow: hidden;
+    border-right: 2px solid #eeeeed;
 }
 
 #logo {
@@ -557,7 +554,6 @@ const dragleave = (e: MouseEvent) => {
 .iconfont {
     font-size: 13px;
     font-weight: 700;
-    /* line-height: 16px; */
     margin-right: 5px;
 }
 
@@ -568,7 +564,6 @@ const dragleave = (e: MouseEvent) => {
 
 .contant {
     transform: all 0.3s;
-    background-color: #f0f0f0;
 }
 
 .angle {

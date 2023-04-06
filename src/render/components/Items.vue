@@ -1,6 +1,6 @@
 <template>
     <div class="fullBox"
-         v-loading="isVisibleLoading">
+         id="itemsWrapper">
         <!-- 没有一个item -->
         <div v-if="items.length == 0"
              id="emptyLibrary"
@@ -14,8 +14,7 @@
                  :key="item.id"
                  class="item">
                 <!-- 屏障 -->
-                <div>
-                </div>
+                <!-- <div></div> -->
                 <!-- 内容 -->
                 <div>
                     <div class="img-wrapper">
@@ -41,51 +40,32 @@
                 </div>
             </div>
         </div>
+        <el-backtop target="#Items"
+                    :bottom="50">
+            <div style=" height: 100%;width: 100%;line-height: 40px;color: #1989fa; ">
+                UP
+            </div>
+        </el-backtop>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, watch } from 'vue'
-import { debounce } from '../util/debounce'
+import { ref, Ref, inject } from 'vue'
 
 const props = defineProps<{
-    activeLibrary: library
-
+    items: item[]
 }>()
-
-const isVisibleLoading = ref<boolean>(false)
-watch(() => [props.activeLibrary], debounce(async (newValue) => {
-    // 改网页标题
-    document.title = newValue[0].name == '' ? 'Echo' : newValue[0].name + " - Echo";
-    isVisibleLoading.value = true
-    items.value = await window.electronAPI.getItems(newValue[0].id);
-    isVisibleLoading.value = false
-}, 200))
+const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 
 // let a: string = (await window.electronAPI.getConfig()).userDataPath
 // console.log(a.replaceAll("\\", "/") + `/image/${1}/coverImage/${1}.jpg`)
-interface item {
-    id: number
-    title: string
-    isFav: number
-    hyperlink: string | null
-    flieName: string | null
-    folder_id: number
-    tags: string | null
-    authorsID: string | null
-    authors: string | null
-}
-
-const items = ref<item[]>([])
-
 
 </script>
 
 <style scoped>
 .fullBox {
     display: flex;
-    width: 100%;
-    height: 100%;
+    flex: 1;
     overflow: hidden;
 }
 
@@ -118,7 +98,6 @@ const items = ref<item[]>([])
 }
 
 .item {
-    /* height: 240px; */
     cursor: pointer;
     user-select: text;
 }
@@ -168,6 +147,4 @@ const items = ref<item[]>([])
     color: pink;
     border-radius: 4px;
 }
-
-.tagItem:hover {}
 </style>

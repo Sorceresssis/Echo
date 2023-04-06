@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import './assets/css/reset.css'
 import './assets/css/font.css'
+import router from './router/index'
 import i18n from './locales/index'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
@@ -11,6 +12,7 @@ import ContextMenu from '@imengyu/vue3-context-menu'
 
 
 const app = createApp(App)
+app.use(router)
 app.use(i18n)
 app.use(ElementPlus)
 app.use(ContextMenu)

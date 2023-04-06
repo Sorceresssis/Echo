@@ -1,42 +1,47 @@
 <template>
     <div class="titleBar">
-        <span class="iconfont"
-              @click="isVisibleSetting = true">&#xe657;</span>
-        <i>|</i>
-        <span class="iconfont"
-              @click="windowMinmize()">&#xe609;</span>
-        <span v-show="isMaxmize"
-              class="iconfont"
-              @click="windowMaxmize()">&#xe7bf;</span>
-        <span v-show="!isMaxmize"
-              class="iconfont"
-              @click="windowMaxmize()">&#xe606;</span>
-        <span class="iconfont"
-              @click="windowClose()">&#xebbf;</span>
-        <el-dialog v-model="isVisibleSetting"
-                   align-center
-                   width="500px"
-                   title="设置">
-            <div>
-            </div>
-            <template #footer>
-                <span class="dialog-footer">
-                    <el-button @click="isVisibleSetting = false">Cancel</el-button>
-                    <el-button type="primary"
-                               @click="isVisibleSetting = false">
-                        Confirm
-                    </el-button>
-                </span>
-            </template>
-        </el-dialog>
+        <div>
+            <span class="iconfont"
+                  @click="historyGo(-1)">&#xe66d;</span>
+            <span class="iconfont"
+                  @click="historyGo(1)">&#xe66c;</span>
+        </div>
+        <div>
+            <span class="iconfont"
+                  @click="toPage('/setting')">&#xe657;</span>
+            <i>|</i>
+            <span class="iconfont"
+                  @click="windowMinmize()">&#xe609;</span>
+            <span v-show="isMaxmize"
+                  class="iconfont"
+                  @click="windowMaxmize()">&#xe7bf;</span>
+            <span v-show="!isMaxmize"
+                  class="iconfont"
+                  @click="windowMaxmize()">&#xe606;</span>
+            <span class="iconfont"
+                  @click="windowClose()">&#xebbf;</span>
+
+        </div>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref } from 'vue'
-let isMaxmize = ref<boolean>();
+import { inject, ref, Ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-// 监听窗口是否最大化
+const router = useRouter()
+const historyGo = (steps: number) => {
+    router.go(steps)
+}
+/******************** Setting ********************/
+const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
+const toPage = (url: string) => {
+    activeLibrary.value = { id: 0, name: '' }
+    router.push(url)
+}
+
+/******************** 窗口 ********************/
+let isMaxmize = ref<boolean>();
 window.electronAPI.windowIsMaxmize((e: any, value: boolean) => {
     isMaxmize.value = value
 })
@@ -49,26 +54,21 @@ function windowMaxmize() {
 function windowClose() {
     window.electronAPI.windowClose()
 }
-
-
-/******************** Dailog ********************/
-const isVisibleSetting = ref<boolean>(false)
 </script>
 
 <style scoped>
 .titleBar {
     display: flex;
-    height: 40px;
-    justify-content: right;
+    height: 50px;
+    justify-content: space-between;
     align-items: center;
     line-height: 40px;
     padding: 0 8px;
-    background-color: #fff;
+    background-color: #f6f6f8;
     -webkit-app-region: drag;
 }
 
 .iconfont {
-    font-weight: 700;
     color: #7b7b7b
 }
 
@@ -81,7 +81,7 @@ i {
 
 span {
     height: 30px;
-    margin: 0 7px;
+    margin-right: 14px;
     padding: 0 5px;
     -webkit-app-region: no-drag;
 }

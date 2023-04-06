@@ -1,10 +1,10 @@
 <template>
     <div class="mainContainer">
-        <div id="libraryName">{{ activeLibrary.name }}</div>
+        <div id="libraryName">{{ activeLibrary?.name }}</div>
         <div id="menu">
             <div id="leftMenu">
                 <div v-for="(item, index) in componentData"
-                     :class="[componentActive == index ? 'componentActive' : '']"
+                     :class="[componentActiveIndex == index ? 'componentActiveIndex' : '']"
                      class="leftMenuItem"
                      @click="switchComponent(index)">{{
                          item.name
@@ -28,10 +28,14 @@
                       @click="isVisibleDialogAdd = true">
                     &#xe68c;
                 </span>
+                <span class="iconfont rightMenuItem"
+                      @click="">
+                    &#xe8e2;
+                </span>
                 <el-dropdown trigger="click"
                              popper-class="dropdown">
                     <span class=" rightMenuItem iconfont">
-                        &#xe686;
+                        &#xe7e6;
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -138,7 +142,7 @@
             </div>
         </div>
         <div id="keywordList"
-             v-show="dynamicTags.length != 0 && componentID != InfoList">
+             v-show="dynamicTags.length != 0 && componentActive != ItemsInfoList">
             <el-button class="button-new-tag ml-1 input"
                        size="small"
                        @click="dynamicTags.splice(0)">
@@ -154,11 +158,13 @@
                 {{ tag }}
             </el-tag>
         </div>
-        <component :is="componentID"
-                   :activeLibrary="activeLibrary"
-                   :getItemsInfo="getItemsInfo"
-                   :viewInfo="viewInfo">
-        </component>
+        <Suspense>
+            <component id="ItemsContainer"
+                       :is="componentActive"
+                       :getItemsInfo="getItemsInfo"
+                       :viewInfo="viewInfo">
+            </component>
+        </Suspense>
         <el-dialog v-model="isVisibleDialogAdd"
                    align-center
                    title="添加"
@@ -178,32 +184,28 @@
 </template>
   
 <script lang="ts" setup>
-import Items from './Items.vue'
-import ItemsAuthor from './ItemsAuthor.vue'
-import ItemsFav from './ItemsFav.vue'
-import InfoList from './InfoList.vue'
-import DialogAdd from './DialogAdd.vue'
-import { nextTick, ref, shallowReactive, shallowRef, watch } from 'vue';
+import { inject, nextTick, ref, Ref, shallowReactive, shallowRef, watch } from 'vue';
 import { ElInput } from 'element-plus'
+import ItemsContainerCommon from './ItemsContainerCommon.vue'
+import ItemsContainerByAuthor from './ItemsContainerByAuthor.vue'
+import ItemsContainerOfFav from './ItemsContainerOfFav.vue'
+import ItemsInfoList from './ItemsInfoList.vue'
+import DialogAdd from './DialogAdd.vue';
 
-const props = defineProps<{
-    activeLibrary: library
-}>()
-
-
+const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 
 /* 组件切换 */
-const componentID = shallowRef<any>(Items)
-const componentActive = ref(0)
+const componentActive = shallowRef<any>(ItemsContainerCommon)
+const componentActiveIndex = ref(0)
 const componentData = shallowReactive([
-    { name: '资源', component: Items },
-    { name: '作者', component: ItemsAuthor },
-    { name: '喜欢', component: ItemsFav },
-    { name: '信息列表', component: InfoList }
+    { name: '资源', component: ItemsContainerCommon },
+    { name: '作者', component: ItemsContainerByAuthor },
+    { name: '喜欢', component: ItemsContainerOfFav },
+    { name: '信息列表', component: ItemsInfoList }
 ])
 function switchComponent(index: number) {
-    componentID.value = componentData[index].component
-    componentActive.value = index
+    componentActive.value = componentData[index].component
+    componentActiveIndex.value = index
 }
 
 /******************** 通用搜索 ********************/
@@ -265,7 +267,6 @@ const handleInputConfirm = () => {
     inputVisible.value = false
     inputValue.value = ''
     // 跟新 items
-
 }
 
 </script>
@@ -277,7 +278,7 @@ const handleInputConfirm = () => {
     flex-direction: column;
     font-size: 14px;
     padding-right: 16px;
-    background-color: #fff;
+    background-color: #f6f6f8;
     overflow: hidden;
 }
 
@@ -309,7 +310,7 @@ const handleInputConfirm = () => {
     color: #9e94f7;
 }
 
-.componentActive {
+.componentActiveIndex {
     color: #9e94f7;
     border-bottom: solid 3px #9e94f7;
 }
@@ -372,6 +373,12 @@ const handleInputConfirm = () => {
     font-size: 14px;
     margin: 5px 8px;
     color: #fff;
+}
+
+#ItemsContainer {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
 }
 </style>
 

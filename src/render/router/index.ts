@@ -1,0 +1,25 @@
+import { ro } from 'element-plus/es/locale'
+import { createRouter, createWebHashHistory, RouteRecord, RouteRecordRaw } from 'vue-router'
+
+
+const routes: Array<RouteRecordRaw> = [
+    {
+        path: "/",
+        component: () => import('../components/MainContainer.vue'),
+    },
+    {
+        path: "/setting",
+        component: () => import('../components/Setting.vue')
+    },
+    {
+        path: "/author",
+        component: () => import('../components/Author.vue')
+    }
+]
+
+const router = createRouter({
+    history: createWebHashHistory(),
+    routes
+})
+
+export default router

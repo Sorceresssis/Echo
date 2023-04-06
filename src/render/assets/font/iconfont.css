@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3790846 */
-  src: url('iconfont.woff2?t=1680086901427') format('woff2'),
-       url('iconfont.woff?t=1680086901427') format('woff'),
-       url('iconfont.ttf?t=1680086901427') format('truetype');
+  src: url('iconfont.woff2?t=1680700290609') format('woff2'),
+       url('iconfont.woff?t=1680700290609') format('woff'),
+       url('iconfont.ttf?t=1680700290609') format('truetype');
 }
 
 .iconfont {
@@ -13,16 +13,76 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-iconfontangleleft:before {
+  content: "\e615";
+}
+
+.icon-iconfontangleright:before {
+  content: "\e617";
+}
+
+.icon-triangleLineRight_1:before {
+  content: "\e66c";
+}
+
+.icon-triangleLineLeft_1:before {
+  content: "\e66d";
+}
+
+.icon-angle-right:before {
+  content: "\e84e";
+}
+
+.icon-angle-left:before {
+  content: "\e84f";
+}
+
+.icon-jianhao:before {
+  content: "\e729";
+}
+
+.icon-filter1:before {
+  content: "\e692";
+}
+
+.icon-jian:before {
+  content: "\e621";
+}
+
+.icon-jian1:before {
+  content: "\e8e2";
+}
+
+.icon-jian2:before {
+  content: "\e60b";
+}
+
+.icon-jianhao1:before {
+  content: "\eaf5";
+}
+
+.icon-jianhao_o:before {
+  content: "\eb79";
+}
+
+.icon-jian_sekuai:before {
+  content: "\ed21";
+}
+
+.icon-jian3:before {
+  content: "\e634";
+}
+
+.icon-filter_list:before {
+  content: "\e7e6";
+}
+
+.icon-filter-alt:before {
+  content: "\e600";
+}
+
 .icon-dian:before {
   content: "\e60a";
-}
-
-.icon-dian1:before {
-  content: "\ec1e";
-}
-
-.icon-dian2:before {
-  content: "\e7a5";
 }
 
 .icon-lianjie:before {

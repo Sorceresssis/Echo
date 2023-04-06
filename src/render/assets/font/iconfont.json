@@ -6,25 +6,130 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "561887",
+      "name": "iconfont-angle-left",
+      "font_class": "iconfontangleleft",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "561888",
+      "name": "iconfont-angle-right",
+      "font_class": "iconfontangleright",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    },
+    {
+      "icon_id": "34436751",
+      "name": "triangleLineRight_1",
+      "font_class": "triangleLineRight_1",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "34436753",
+      "name": "triangleLineLeft_1",
+      "font_class": "triangleLineLeft_1",
+      "unicode": "e66d",
+      "unicode_decimal": 58989
+    },
+    {
+      "icon_id": "6151396",
+      "name": "angle-right",
+      "font_class": "angle-right",
+      "unicode": "e84e",
+      "unicode_decimal": 59470
+    },
+    {
+      "icon_id": "6151456",
+      "name": "angle-left",
+      "font_class": "angle-left",
+      "unicode": "e84f",
+      "unicode_decimal": 59471
+    },
+    {
+      "icon_id": "577315",
+      "name": "减号",
+      "font_class": "jianhao",
+      "unicode": "e729",
+      "unicode_decimal": 59177
+    },
+    {
+      "icon_id": "736693",
+      "name": "filter",
+      "font_class": "filter1",
+      "unicode": "e692",
+      "unicode_decimal": 59026
+    },
+    {
+      "icon_id": "1304875",
+      "name": "减",
+      "font_class": "jian",
+      "unicode": "e621",
+      "unicode_decimal": 58913
+    },
+    {
+      "icon_id": "1727513",
+      "name": "302减",
+      "font_class": "jian1",
+      "unicode": "e8e2",
+      "unicode_decimal": 59618
+    },
+    {
+      "icon_id": "1920284",
+      "name": "减",
+      "font_class": "jian2",
+      "unicode": "e60b",
+      "unicode_decimal": 58891
+    },
+    {
+      "icon_id": "5387532",
+      "name": "减号",
+      "font_class": "jianhao1",
+      "unicode": "eaf5",
+      "unicode_decimal": 60149
+    },
+    {
+      "icon_id": "5387869",
+      "name": "减号_o",
+      "font_class": "jianhao_o",
+      "unicode": "eb79",
+      "unicode_decimal": 60281
+    },
+    {
+      "icon_id": "7956835",
+      "name": "减_色块",
+      "font_class": "jian_sekuai",
+      "unicode": "ed21",
+      "unicode_decimal": 60705
+    },
+    {
+      "icon_id": "14151849",
+      "name": "减",
+      "font_class": "jian3",
+      "unicode": "e634",
+      "unicode_decimal": 58932
+    },
+    {
+      "icon_id": "18072094",
+      "name": "filter_list",
+      "font_class": "filter_list",
+      "unicode": "e7e6",
+      "unicode_decimal": 59366
+    },
+    {
+      "icon_id": "18442488",
+      "name": "filter-alt",
+      "font_class": "filter-alt",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
       "icon_id": "1920286",
       "name": "点",
       "font_class": "dian",
       "unicode": "e60a",
       "unicode_decimal": 58890
-    },
-    {
-      "icon_id": "4933869",
-      "name": "点",
-      "font_class": "dian1",
-      "unicode": "ec1e",
-      "unicode_decimal": 60446
-    },
-    {
-      "icon_id": "5354181",
-      "name": "点",
-      "font_class": "dian2",
-      "unicode": "e7a5",
-      "unicode_decimal": 59301
     },
     {
       "icon_id": "629317",

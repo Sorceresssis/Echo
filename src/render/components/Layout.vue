@@ -1,8 +1,7 @@
 <template>
     <div class="layout">
         <Transition name="slide">
-            <LeftBar @openLibrary="handleOpenLibrary"
-                     v-show="isOpenSideBar"></LeftBar>
+            <LeftBar v-show="isOpenSideBar"></LeftBar>
         </Transition>
         <div id="slideTrack">
             <div></div>
@@ -14,26 +13,22 @@
         </div>
         <div class="rightContainer">
             <TitleBar></TitleBar>
-            <MainContainer :activeLibrary="activeLibrary"></MainContainer>
+            <router-view></router-view>
         </div>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref } from 'vue'
-import LeftBar from './LeftBar.vue'
+import { provide, ref } from 'vue'
+import LeftBar from './SideBar.vue'
 import TitleBar from './TitleBar.vue';
-import MainContainer from './MainContainer.vue';
 
-/* 组件传参 */
-const activeLibrary = ref({ id: 0, name: "" })
-const handleOpenLibrary = (library: library) => {
-    activeLibrary.value = library
-}
+/* 正在打开的Library */
+const activeLibrary = ref<library>({ id: 0, name: '' })
+provide('activeLibrary', activeLibrary)
 
 /* 侧边开关 */
 const isOpenSideBar = ref<boolean>(true)
-
 </script>
 
 <style scoped>
@@ -46,7 +41,7 @@ const isOpenSideBar = ref<boolean>(true)
 #slideTrack {
     display: flex;
     flex-direction: column;
-    background-color: #fff;
+    background-color: #f6f6f8;
 }
 
 #slideTrack>div:nth-child(1) {
@@ -89,5 +84,6 @@ const isOpenSideBar = ref<boolean>(true)
     flex: 1;
     display: flex;
     flex-direction: column;
+    background-color: #f6f6f8;
 }
 </style>

@@ -143,3 +143,12 @@ table {
     border-collapse: collapse;
     border-spacing: 0;
 }
+
+/******************** element-plus ********************/
+.el-loading-mask {
+    background-color: #f6f6f8 !important;
+}
+
+.el-overlay {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
