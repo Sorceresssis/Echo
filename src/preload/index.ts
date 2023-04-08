@@ -27,13 +27,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getItems: (libraryID: number) => ipcRenderer.invoke('library:getItems', libraryID),
 
     /******************** 对话框 ********************/
-    openFile: () => ipcRenderer.invoke('dialog:openFile'),
+    openFile: () => ipcRenderer.invoke('dialog:selectFile'),
 
     getConfig: () => ipcRenderer.invoke('config'),
 
+    /******************** 系统 ********************/
+    openUrlExternal: (url: string) => ipcRenderer.invoke('shell:openUrlExternal', url),
+    showItemInFolder: (fulllPath: string) => ipcRenderer.invoke('shell:showItemInFolder', fulllPath),
+
     /******************** 窗口 ********************/
     createMainWindow: (library: library) => ipcRenderer.invoke('window:createMainWindow', library),
-    createItemWindow: () => ipcRenderer.invoke('window:createItemWindow'),
+    createItemWinodw: (libraryID: number, itemID: number) => ipcRenderer.invoke('window:createItemWindow', libraryID, itemID),
     windowMinmize: () => ipcRenderer.invoke('window:minmize'),
     windowMaxmize: () => ipcRenderer.invoke('window:maxmize'),
     windowIsMaxmize: (callback: (e: any, value: boolean) => void) => ipcRenderer.on('window:isMaxmize', callback),

@@ -4,7 +4,7 @@
             <ul>
                 <li>
                     <div class="author">
-                        <div>无作者</div>
+                        <div class="author__name"></div>
                     </div>
                 </li>
                 <li v-for="(author ) in authors"

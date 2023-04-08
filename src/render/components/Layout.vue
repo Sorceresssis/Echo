@@ -13,7 +13,7 @@
         </div>
         <div class="rightContainer">
             <TitleBar></TitleBar>
-            <router-view></router-view>
+            <router-view class="manContainer"></router-view>
         </div>
     </div>
 </template>
@@ -85,5 +85,15 @@ const isOpenSideBar = ref<boolean>(true)
     display: flex;
     flex-direction: column;
     background-color: #f6f6f8;
+}
+
+.manContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    font-size: 14px;
+    padding-right: 16px;
+    background-color: #f6f6f8;
+    overflow: hidden;
 }
 </style>

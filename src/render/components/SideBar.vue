@@ -185,6 +185,7 @@ import { useRouter } from 'vue-router'
 import { debounce } from '../util/debounce'
 import { ElMessage } from 'element-plus'
 
+const router = useRouter()
 
 /******************** 启动准备 ********************/
 interface group {
@@ -241,13 +242,18 @@ watch(activeLibrary, debounce((newValue) => {
 
 
 /******************** 打开Library ********************/
-const router = useRouter()
 const openLibrary = function (library: library) {
     if (library != activeLibrary?.value) {
         // 改网页标题
         document.title = library.name == '' ? 'Echo' : library.name + " - Echo";
         activeLibrary.value = library
-        router.push('/')
+        router.push({
+            path: '/',
+            query: {
+                id: library.id,
+                name: library.name
+            }
+        })
     }
 }
 // 新建窗口打开数据库

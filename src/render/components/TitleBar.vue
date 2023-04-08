@@ -36,8 +36,9 @@ const historyGo = (steps: number) => {
 /******************** Setting ********************/
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 const toPage = (url: string) => {
-    activeLibrary.value = { id: 0, name: '' }
     router.push(url)
+    activeLibrary.value = { id: 0, name: "" }
+    document.title = `${'设置'} - Echo`;
 }
 
 /******************** 窗口 ********************/

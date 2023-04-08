@@ -2,6 +2,7 @@
     <div>
         <div class="list">
             <h3>Tag</h3>
+            <ElInput></ElInput>
             <div>
                 <ul>
                     <li></li>
@@ -10,6 +11,7 @@
         </div>
         <div class="list">
             <h3>folder</h3>
+            <ElInput></ElInput>
         </div>
     </div>
 </template>

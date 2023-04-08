@@ -6,8 +6,7 @@ const configPath: string = path.resolve(path.dirname(app.getPath('exe')), "confi
 const defaultConfig = {
     userDataPath: path.resolve(path.dirname(app.getPath('exe')), "userData"),
     photoPlayerPath: null,
-    videoPlayerPath: null,
-    lastOpenDatabase: null,
+    videoPlayerPath: null
 }
 
 

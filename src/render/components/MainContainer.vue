@@ -1,13 +1,13 @@
 <template>
-    <div class="mainContainer">
-        <div id="libraryName">{{ activeLibrary?.name }}</div>
+    <div>
+        <div id="libraryName">{{ route.query.name }}</div>
         <div id="menu">
             <div id="leftMenu">
-                <div v-for="(item, index) in componentData"
-                     :class="[componentActiveIndex == index ? 'componentActiveIndex' : '']"
+                <div v-for="(component, index) in componentData"
+                     :class="[componentActiveIndex == index ? 'componentActive' : '']"
                      class="leftMenuItem"
                      @click="switchComponent(index)">{{
-                         item.name
+                         component.name
                      }}</div>
             </div>
             <div id="rightMenu">
@@ -17,6 +17,7 @@
                                  clearable
                                  v-model="searchWord"
                                  value-key="suggest"
+                                 :disabled="componentActiveIndex == 3"
                                  :trigger-on-focus="false"
                                  :fetch-suggestions="querySearchAsync"
                                  @keyup.enter="search"
@@ -142,7 +143,7 @@
             </div>
         </div>
         <div id="keywordList"
-             v-show="dynamicTags.length != 0 && componentActive != ItemsInfoList">
+             v-show="dynamicTags.length != 0 && componentActiveIndex != 3">
             <el-button class="button-new-tag ml-1 input"
                        size="small"
                        @click="dynamicTags.splice(0)">
@@ -184,7 +185,8 @@
 </template>
   
 <script lang="ts" setup>
-import { inject, nextTick, ref, Ref, shallowReactive, shallowRef, watch } from 'vue';
+import { inject, nextTick, ref, Ref, shallowReactive, shallowRef, watch, watchEffect } from 'vue';
+import { useRoute } from 'vue-router'
 import { ElInput } from 'element-plus'
 import ItemsContainerCommon from './ItemsContainerCommon.vue'
 import ItemsContainerByAuthor from './ItemsContainerByAuthor.vue'
@@ -192,6 +194,12 @@ import ItemsContainerOfFav from './ItemsContainerOfFav.vue'
 import ItemsInfoList from './ItemsInfoList.vue'
 import DialogAdd from './DialogAdd.vue';
 
+const route = useRoute()
+watch(() => route.query.id, (newValue) => {
+    activeLibrary.value = { id: parseInt(route.query.id as string), name: route.query.name as string }
+    switchComponent(0)
+    // TODO 清空搜索词
+})
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 
 /* 组件切换 */
@@ -272,16 +280,6 @@ const handleInputConfirm = () => {
 </script>
   
 <style scoped>
-.mainContainer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    font-size: 14px;
-    padding-right: 16px;
-    background-color: #f6f6f8;
-    overflow: hidden;
-}
-
 #libraryName {
     margin: 0 10px;
     font-size: 30px;
@@ -310,7 +308,7 @@ const handleInputConfirm = () => {
     color: #9e94f7;
 }
 
-.componentActiveIndex {
+.componentActive {
     color: #9e94f7;
     border-bottom: solid 3px #9e94f7;
 }

@@ -1,6 +1,7 @@
-import { ipcMain, BrowserWindow, dialog, IpcMainInvokeEvent } from "electron";
+import { ipcMain, BrowserWindow, dialog, IpcMainInvokeEvent, shell } from "electron";
 import { config } from './config'
 import { createWindow } from './mainWindow'
+import { createItemWindow } from './itemWindow'
 import { getGroups, addGroup, updataOrderGroup, renameGroup, renameLibrary, updataOrderLibrary, addLibrary, moveLibrary, deleteGroup, deleteLibrary } from './dbGroup'
 import { DBLibrary, checkImageDir } from './dbLibrary'
 const path = require('path');
@@ -52,16 +53,36 @@ export function IPCMain() {
     ipcMain.handle('config', () => {
         return config
     })
+    ipcMain.handle('dialog:selectFile', async () => {
+        const { canceled, filePaths } = await dialog.showOpenDialog()
+        if (canceled) {
+            return
+        } else {
+            return filePaths[0]
+        }
+    })
 
-    ipcMain.handle('dialog:selectFile', handleFileOpen)
+    /******************** 系统 ********************/
 
+    ipcMain.handle('shell:showItemInFolder', async (e: IpcMainInvokeEvent, fulllPath: string) => {
+        // 先判断路径合法
+        await shell.openPath(path.join(fulllPath))
+        return path.join(fulllPath)
+    })
+
+    ipcMain.handle('shell:openUrlExternal', (e: IpcMainInvokeEvent, url: string) => {
+        shell.openExternal('https://www.bilibili.com/video/BV1Yv411z7QM/?spm_id_from=333.788.recommend_more_video.-1&vd_source=dd4f8fa595f89999daf10908d21ade29')
+    })
+    ipcMain.handle('system:openApp', () => {
+
+    })
 
     /******************** 窗口 ********************/
     ipcMain.handle('window:createMainWindow', (e, library: library) => {
         createWindow(library)
     })
-    ipcMain.handle('window:createItemWindow', (e) => {
-
+    ipcMain.handle('window:createItemWindow', (e, libraryID, itemID) => {
+        createItemWindow()
     })
     /*
     e.sender.id 是webContents实例的唯一，每一个BrowserView实例都有两个webContents实例，一个是主webContents,另一个是创建子窗口或浏览器视图的webContents
@@ -83,13 +104,4 @@ export function IPCMain() {
     ipcMain.handle('window:close', (e) => {
         BrowserWindow.fromId(Math.floor((e.sender.id - 1) / 2) + 1)?.close()
     })
-}
-
-async function handleFileOpen() {
-    const { canceled, filePaths } = await dialog.showOpenDialog()
-    if (canceled) {
-        return
-    } else {
-        return filePaths[0]
-    }
 }

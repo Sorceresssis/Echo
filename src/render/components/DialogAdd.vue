@@ -14,6 +14,7 @@
 
 <script setup lang='ts'>
 import { ref, reactive } from 'vue'
+// 管理 添加， 删除， 检查  自检提供，勾选，查丢失，查多出。
 const menuItems = ['添加', '批量添加', '添加作者', '添加标签', '']
 
 

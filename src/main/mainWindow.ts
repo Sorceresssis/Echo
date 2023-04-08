@@ -18,7 +18,7 @@ export function createWindow(library: library | null): BrowserWindow {
     });
 
     if (isDev) {
-        win?.loadURL(`http://localhost:${process.env.PORT || 5173}/index.html`);
+        win?.loadURL(`http://localhost:${process.env.PORT || 5173}`);
         win.webContents.openDevTools();
     } else {
         win?.loadFile(resolve(__dirname, "../render/index.html"));

@@ -1,3 +1,4 @@
+import { promises } from "dns"
 import type { ipcRenderer } from "electron"
 import path from "path"
 
@@ -23,13 +24,18 @@ export interface IElectronAPI {
     searchSuggest: () => Promise<string[]>
     getAttributeItem: (LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) => Promise<string[]>
     getItems: (libraryID: number) => Promise<item[]>
+
     /******************** 对话框 ********************/
     openFile: () => Promise<any>
     getConfig: () => Promise<any>
 
+    /******************** 系统 ********************/
+    openUrlExternal: (url: string) => Promise<void>
+    showItemInFolder: (fullPath: string) => Promise<string>
+
     /******************** 窗口 ********************/
     createMainWindow: (library: library) => Promise<any>
-    createItemWinodw: () => Promise<any>
+    createItemWinodw: (libraryID: number, itemID: number) => Promise<any>
     windowMinmize: () => Promise<any>
     windowMaxmize: () => Promise<any>
     windowIsMaxmize: (callback: (e: any, value: any) => void) => Promise<any>
