@@ -76,10 +76,11 @@
                                     <li>
                                         <div v-if="addLibraryGroupIndex == groupIndex"
                                              class="input-wrapper ">
+                                            <!-- onfocus写在v-focus前面  -->
                                             <input type="text"
                                                    v-model="inputModelAddLibrary"
-                                                   v-focus="true"
                                                    onfocus="this.select()"
+                                                   v-focus="true"
                                                    @keyup.enter="($event.target as HTMLInputElement)?.blur()"
                                                    @blur="handleInputAddLibrary(group.id)">
                                         </div>

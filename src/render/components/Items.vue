@@ -16,7 +16,7 @@
                 <!-- 屏障 -->
                 <!-- <div></div> -->
                 <!-- 内容 -->
-                <div>
+                <div @contextmenu="openCtm">
                     <div class="item__img-wrapper">
                         <div class="item__open">
                             <div @click="openItem(item.id)"><span class="iconfont">&#xe6e6;</span></div>
@@ -64,6 +64,21 @@
                 <span class="iconfont">&#xe616;</span>
             </el-backtop>
         </div>
+        <context-menu v-model:show="isVisibleCtmItem"
+                      :options="contextMenuOptions">
+            <context-menu-item label="在新窗口中打开"
+                               @click="" />
+            <context-menu-item label="删除"
+                               @click="">
+                <template #icon>
+                    <span class="iconfont">&#xe61a;</span>
+                </template>
+            </context-menu-item>
+            <context-menu-sperator />
+            <context-menu-group label="移动到">
+            </context-menu-group>
+            <context-menu-item label="导出" />
+        </context-menu>
     </div>
 </template>
 
@@ -101,6 +116,20 @@ const handleMouseMove = (event: MouseEvent) => {
 document.addEventListener('mouseup', () => {
     isMouseDown.value = false
 })
+
+
+const isVisibleCtmItem = ref(false)
+const contextMenuOptions = {
+    zIndex: 3,
+    minWidth: 300,
+    x: 500,
+    y: 200
+}
+const openCtm = (e: MouseEvent) => {
+    contextMenuOptions.x = e.x
+    contextMenuOptions.y = e.y
+    isVisibleCtmItem.value = true
+}
 </script>
 
 <style scoped>

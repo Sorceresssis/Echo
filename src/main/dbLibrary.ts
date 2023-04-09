@@ -87,6 +87,8 @@ export class DBLibrary {
     }
 
     async getItems(u: string, title: string, author: string, tag: string, ascending: number): Promise<item[]> {
+
+        //TODO 文件存在但是读取错误，删除文件，重新创建
         //TODO 检查文件夹image/1/authorProfile coverimage
         return await this.dbLibrary.all(`SELECT t1.item_id AS id, t1.item_title AS title, t1.item_isFav AS isFav,
         t1.item_hyperlink AS hyperlink, t1.item_flieName AS flieName, t1.folder_id AS folder_id,

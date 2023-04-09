@@ -2,13 +2,13 @@
     <div class="titleBar">
         <div>
             <span class="iconfont"
-                  @click="historyGo(-1)">&#xe66d;</span>
+                  @click="router.go(-1)">&#xe66d;</span>
             <span class="iconfont"
-                  @click="historyGo(1)">&#xe66c;</span>
+                  @click="router.go(1)">&#xe66c;</span>
         </div>
         <div>
             <span class="iconfont"
-                  @click="toPage('/setting')">&#xe657;</span>
+                  @click="router.push('/setting')">&#xe657;</span>
             <i>|</i>
             <span class="iconfont"
                   @click="windowMinmize()">&#xe609;</span>
@@ -26,20 +26,10 @@
 </template>
 
 <script setup lang='ts'>
-import { inject, ref, Ref } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-const historyGo = (steps: number) => {
-    router.go(steps)
-}
-/******************** Setting ********************/
-const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
-const toPage = (url: string) => {
-    router.push(url)
-    activeLibrary.value = { id: 0, name: "" }
-    document.title = `${'设置'} - Echo`;
-}
 
 /******************** 窗口 ********************/
 let isMaxmize = ref<boolean>();

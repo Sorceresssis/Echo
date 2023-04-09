@@ -26,7 +26,7 @@
                             <div v-for="(work) in author.works"
                                  class="author__work">
                                 <img class="image--cover"
-                                     src="../assets/images/1.jpg"
+                                     src="../assets/images/2.jpg"
                                      @error="($event.target as HTMLImageElement).src = '../assets/images/nodata.png'">
                             </div>
                         </div>
@@ -40,9 +40,15 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, watch, inject } from 'vue'
+import { ref, Ref, watch, inject, onMounted } from 'vue'
 import Items from './Items.vue'
 import { debounce } from '../util/debounce'
+
+const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
+const items = ref<item[]>([])
+onMounted(async () => {
+})
+items.value = await window.electronAPI.getItems(activeLibrary.value.id)
 
 type author = {
     id: number,
@@ -52,21 +58,18 @@ type author = {
     works: string[],
 }
 
-const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 const isVisibleLoading = ref<boolean>(false)
-const items = ref<item[]>([])
 const authors = ref<author[]>([
-    { id: 1, name: "吉号f复", intro: "fdf丰富的地方反对", profile: "../assets/images/1.jpg", works: ["../assets/images/1.jpg", "../assets/images/2.jpg", "../assets/images/屏幕截图 2022-11-08 192954.png"] },
+    { id: 1, name: "吉号f复", intro: "fdf丰富的地方反对", profile: "../assets/images/2.jpg", works: ["../assets/images/2.jpg", "../assets/images/2.jpg", "../assets/images/屏幕截图 2022-11-08 192954.png"] },
     { id: 1, name: "她她她", intro: "hfnvoojeohjf8909", profile: "../assets/images/4.jpg", works: [] },
-    { id: 3, name: "obhoio", intro: "fdffjl", profile: "../assets/images/1.jpg", works: [] },
-    { id: 5, name: "吉号好好", intro: "fdf丰富的地方反对法反对", profile: "../assets/images/1.jpg", works: ["../assets/images/1.jpg"] },
-    { id: 6, name: "她她她", intro: "hfnvoojeohjf8909", profile: "../assets/images/1.jpg", works: [] },
-    { id: 7, name: "obhoio", intro: "fdffjl", profile: "../assets/images/1.jpg", works: [] },
-    { id: 8, name: "吉号好好", intro: "fdf丰富的地方反对法反对", profile: "../assets/images/1.jpg", works: ["../assets/images/1.jpg"] },
-    { id: 9, name: "她她她", intro: "hfnvoojeohjf8909", profile: "../assets/images/1.jpg", works: [] },
-    { id: 10, name: "obhoio", intro: "fdffjl", profile: "../assets/images/1.jpg", works: [] }
+    { id: 3, name: "obhoio", intro: "fdffjl", profile: "../assets/images/2.jpg", works: [] },
+    { id: 5, name: "吉号好好", intro: "fdf丰富的地方反对法反对", profile: "../assets/images/2.jpg", works: ["../assets/images/2.jpg"] },
+    { id: 6, name: "她她她", intro: "hfnvoojeohjf8909", profile: "../assets/images/2.jpg", works: [] },
+    { id: 7, name: "obhoio", intro: "fdffjl", profile: "../assets/images/2.jpg", works: [] },
+    { id: 8, name: "吉号好好", intro: "fdf丰富的地方反对法反对", profile: "../assets/images/2.jpg", works: ["../assets/images/2.jpg"] },
+    { id: 9, name: "她她她", intro: "hfnvoojeohjf8909", profile: "../assets/images/2.jpg", works: [] },
+    { id: 10, name: "obhoio", intro: "fdffjl", profile: "../assets/images/2.jpg", works: [] }
 ])
-items.value = await window.electronAPI.getItems(activeLibrary.value.id)
 watch([activeLibrary], debounce(async (newValue) => {
     isVisibleLoading.value = true
     items.value = await window.electronAPI.getItems(newValue[0].id);

@@ -28,7 +28,7 @@ export async function createDBGroup() {
     const DBgroupPath = path.resolve(config.userDataPath, "database/group.db")
     const dbGroup = Sqlite.getInstance()
     await dbGroup.connect(DBgroupPath)
-    await dbGroup.run(`CREATE TABLE 'GROUP' (
+    await dbGroup.run(`CREATE TABLE 'group' (
         group_id INTEGER PRIMARY KEY AUTOINCREMENT,
         group_name VARCHAR ( 255 ) NOT NULL,
         group_order INT );`)
@@ -44,24 +44,32 @@ export async function getGroups() {
     const dbGroup = Sqlite.getInstance()
     let groups: group[] = []
     if (!fs.existsSync(DBgroupPath)) {
-        createDBGroup()
+        // 一定要是同步的
+        await createDBGroup()
     }
     else {
-        await dbGroup.connect(DBgroupPath)
-        const response = await dbGroup.all(`SELECT t1.group_id, t1.group_name, t2.library_id, t2.library_name 
-        FROM 'group' t1
-        LEFT JOIN library t2 ON t1.group_id = t2.group_id 
-        ORDER BY t1.group_order, t2.library_order;`)
-        let groupIDMap: Map<number, number> = new Map()
-        response.forEach((resp: any) => {
-            if (groupIDMap.has(resp.group_id)) {
-                groups[groups.length - 1].librarys.push(new library(resp.library_id, resp.library_name))
-            } else {
-                groupIDMap.set(resp.group_id, resp.group_id);
-                // 因为时左连接，要判断group没有library
-                groups.push(new group(resp.group_id, resp.group_name, resp.library_id == null ? [] : [new library(resp.library_id, resp.library_name)]))
-            }
-        })
+        try {
+            await dbGroup.connect(DBgroupPath)
+            const response = await dbGroup.all(`
+                SELECT t1.group_id, t1.group_name, t2.library_id, t2.library_name 
+                FROM 'group' t1
+                LEFT JOIN library t2 ON t1.group_id = t2.group_id 
+                ORDER BY t1.group_order, t2.library_order;`)
+            let groupIDMap: Map<number, number> = new Map()
+            response.forEach((resp: any) => {
+                if (groupIDMap.has(resp.group_id)) {
+                    groups[groups.length - 1].librarys.push(new library(resp.library_id, resp.library_name))
+                } else {
+                    groupIDMap.set(resp.group_id, resp.group_id);
+                    // 因为时左连接，要判断group没有library
+                    groups.push(new group(resp.group_id, resp.group_name, resp.library_id == null ? [] : [new library(resp.library_id, resp.library_name)]))
+                }
+            })
+        } catch (err) {
+            // 文件存在但是读取错误，删除文件，重新创建
+            fs.unlinkSync(DBgroupPath);
+            await createDBGroup()
+        }
     }
     dbGroup.close()
     return groups;

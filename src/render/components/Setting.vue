@@ -15,12 +15,19 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, shallowReactive, shallowRef } from 'vue'
+import { onMounted, shallowReactive, shallowRef, inject, Ref } from 'vue'
 import SettingSponsor from './SettingSponsor.vue';
 import SettingTutorial from './SettingTutorial.vue';
 import SettingGeneral from './SettingGeneral.vue';
 import SettingData from './SettingData.vue';
 import SettingAbout from './SettingAbout.vue';
+
+
+const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
+onMounted(() => {
+    activeLibrary.value = { id: 0, name: "" }
+    document.title = `${'设置'} - Echo`;
+})
 
 const componentActive = shallowRef(SettingSponsor)
 const componentData = shallowReactive([

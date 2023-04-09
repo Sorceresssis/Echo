@@ -2,7 +2,7 @@
 import { BrowserWindow, app } from "electron";
 import { createWindow } from "./mainWindow";
 import { IPCMain } from './ipcMain'
-import { readConfig, writeConfig } from './config'
+import { readConfig } from './config'
 import { checkBootDir } from './checkDir'
 async function bootstrap() {
     app.on("ready", () => {
@@ -23,8 +23,6 @@ bootstrap();
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
-        // 写入配置信息
-        writeConfig()
         app.quit();
     }
 });

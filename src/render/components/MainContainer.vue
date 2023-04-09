@@ -160,11 +160,13 @@
             </el-tag>
         </div>
         <Suspense>
-            <component id="ItemsContainer"
-                       :is="componentActive"
-                       :getItemsInfo="getItemsInfo"
-                       :viewInfo="viewInfo">
-            </component>
+            <KeepAlive>
+                <component id="ItemsContainer"
+                           :is="componentActive"
+                           :getItemsInfo="getItemsInfo"
+                           :viewInfo="viewInfo">
+                </component>
+            </KeepAlive>
         </Suspense>
         <el-dialog v-model="isVisibleDialogAdd"
                    align-center
@@ -185,7 +187,7 @@
 </template>
   
 <script lang="ts" setup>
-import { inject, nextTick, ref, Ref, shallowReactive, shallowRef, watch, watchEffect } from 'vue';
+import { inject, nextTick, ref, Ref, shallowReactive, shallowRef, watch, watchEffect, onMounted } from 'vue';
 import { useRoute } from 'vue-router'
 import { ElInput } from 'element-plus'
 import ItemsContainerCommon from './ItemsContainerCommon.vue'
@@ -195,14 +197,21 @@ import ItemsInfoList from './ItemsInfoList.vue'
 import DialogAdd from './DialogAdd.vue';
 
 const route = useRoute()
+const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
+
+// 第一次启动，更新activeLibrary
+onMounted(() => {
+    activeLibrary.value = { id: parseInt(route.query.id as string), name: route.query.name as string }
+})
+// 参数变化，跟新activeLibrary
 watch(() => route.query.id, (newValue) => {
     activeLibrary.value = { id: parseInt(route.query.id as string), name: route.query.name as string }
     switchComponent(0)
     // TODO 清空搜索词
 })
-const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 
-/* 组件切换 */
+
+/******************** 组件切换 ********************/
 const componentActive = shallowRef<any>(ItemsContainerCommon)
 const componentActiveIndex = ref(0)
 const componentData = shallowReactive([
