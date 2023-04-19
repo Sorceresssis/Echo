@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h2>设置</h2>
+        <h2>{{ $t('settings.settings') }}</h2>
         <div class="menu">
             <div v-for="(component, index) in componentData"
                  @click="switchComponent(index)"
@@ -16,26 +16,27 @@
 
 <script setup lang='ts'>
 import { onMounted, shallowReactive, shallowRef, inject, Ref } from 'vue'
-import SettingSponsor from './SettingSponsor.vue';
-import SettingTutorial from './SettingTutorial.vue';
-import SettingGeneral from './SettingGeneral.vue';
-import SettingData from './SettingData.vue';
-import SettingAbout from './SettingAbout.vue';
+import i18n from '../locales/index'
+import SettingsSponsor from './SettingsSponsor.vue'
+import SettingsTutorial from './SettingsTutorial.vue'
+import SettingsGeneral from './SettingsGeneral.vue'
+import SettingsData from './SettingsData.vue'
+import SettingsAbout from './SettingsAbout.vue'
 
 
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 onMounted(() => {
     activeLibrary.value = { id: 0, name: "" }
-    document.title = `${'设置'} - Echo`;
+    document.title = `${i18n.global.t('settings.settings')} - Echo`;
 })
 
-const componentActive = shallowRef(SettingSponsor)
+const componentActive = shallowRef(SettingsSponsor)
 const componentData = shallowReactive([
-    { name: '赞助', component: SettingSponsor },
-    { name: '教程', component: SettingTutorial },
-    { name: '通用', component: SettingGeneral },
-    { name: '数据', component: SettingData },
-    { name: '关于', component: SettingAbout }
+    { name: i18n.global.t('settings.sponsor'), component: SettingsSponsor },
+    { name: i18n.global.t('settings.turorial'), component: SettingsTutorial },
+    { name: i18n.global.t('settings.greneral'), component: SettingsGeneral },
+    { name: i18n.global.t('settings.data'), component: SettingsData },
+    { name: i18n.global.t('settings.about'), component: SettingsAbout }
 ])
 const switchComponent = (index: number) => {
     componentActive.value = componentData[index].component

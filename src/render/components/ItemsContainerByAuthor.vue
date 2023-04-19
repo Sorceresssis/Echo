@@ -46,6 +46,10 @@ import { debounce } from '../util/debounce'
 
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 const items = ref<item[]>([])
+
+
+// 第一次启动，更新activeLibrary
+
 onMounted(async () => {
 })
 items.value = await window.electronAPI.getItems(activeLibrary.value.id)
@@ -77,6 +81,10 @@ watch([activeLibrary], debounce(async (newValue) => {
 }, 200), {
     deep: true
 })
+
+
+
+
 
 </script>
 

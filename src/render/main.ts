@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, getCurrentInstance } from 'vue'
 import App from './App.vue'
 import './assets/css/reset.css'
 import './assets/css/font.css'
@@ -9,6 +9,7 @@ import 'element-plus/dist/index.css'
 // 右键菜单
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 import ContextMenu from '@imengyu/vue3-context-menu'
+
 
 
 const app = createApp(App)

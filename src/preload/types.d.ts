@@ -27,7 +27,7 @@ export interface IElectronAPI {
 
     /******************** 对话框 ********************/
     openFile: () => Promise<any>
-    getConfig: () => Promise<any>
+    config: (index: string, newValue: string | null = null) => Promise<string>
 
     /******************** 系统 ********************/
     openUrlExternal: (url: string) => Promise<void>

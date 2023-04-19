@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import type { BuildOptions } from "vite";
 import vue from "@vitejs/plugin-vue";
+import vueI18n from '@intlify/vite-plugin-vue-i18n'
 import { resolve } from "path";
 
 export default defineConfig(({ mode }) => {
@@ -20,6 +21,9 @@ export default defineConfig(({ mode }) => {
     // 修改vue渲染入口路径
     root: resolve(__dirname, "./src/render"),
     build,
-    plugins: [vue()]
+    plugins: [vue(),
+    vueI18n({
+      include: resolve(__dirname, './src/render/locales/**')
+    })]
   }
 });

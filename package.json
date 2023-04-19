@@ -16,10 +16,11 @@
   },
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.2.3",
+    "@intlify/vite-plugin-vue-i18n": "^7.0.0",
     "element-plus": "^2.2.36",
     "sqlite3": "^5.1.4",
     "vue": "^3.2.41",
-    "vue-i18n": "^9.2.2",
+    "vue-i18n": "^9.3.0-beta.17",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {

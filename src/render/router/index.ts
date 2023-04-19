@@ -9,7 +9,7 @@ const routes: Array<RouteRecordRaw> = [
     },
     {
         path: "/setting",
-        component: () => import('../components/Setting.vue')
+        component: () => import('../components/Settings.vue')
     },
     {
         path: "/author",

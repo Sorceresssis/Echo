@@ -1,6 +1,7 @@
 import Sqlite from './Sqlite'
 import { config } from './config'
 import { mkdirsSync } from './checkDir'
+import { StepInstance } from 'element-plus';
 const path = require('path');
 const fs = require('fs')
 
@@ -20,6 +21,12 @@ interface item {
     tags: string
     authorsID: string
     authors: string
+}
+
+type filter = {
+    hyperlink: boolean,
+    folder_id: boolean,
+    hasImage: boolean
 }
 
 export class DBLibrary {
@@ -146,8 +153,41 @@ export class DBLibrary {
 
     }
 
-    filterSqlGetItems() {
+    _getItemsQueryWordSQL(type: String, queryList: any[]) {
+        return ''
+    }
 
+    _getItemsFilterSQL(filter: filter) {
+        return ''
+    }
+    /**
+     * 
+     * @param field 排序的字段
+     * @param ascending 是否升序
+     * @param hasQuery 是否有query词
+     * @returns 排序的sql语句
+     */
+    _getItemsOrderBySQL(field: string, ascending: boolean, hasQuery: boolean) {
+        let SQL: string[] = ['ORDER BY']
+        let byClick: string = 'item_clicks DESC',
+            byTitle: string = 'item_title',
+            byId: string = 'item_id'
+        let tableName: string = hasQuery ? 't2.' : ''
+        if (hasQuery) { SQL.push('t1.sumSore DESC,') }
+        switch (field) {
+            case 'clicks':
+                SQL.push(tableName + `${ascending ? '' : 'DESC'}`)
+                SQL.push(tableName + byTitle)
+                SQL.push(tableName + byId)
+                break
+            case 'title':
+                SQL.push(tableName + '')
+                break
+            case 'date':
+                SQL.push(tableName + '')
+                break
+        }
+        return SQL.join(' ')
     }
 }
 

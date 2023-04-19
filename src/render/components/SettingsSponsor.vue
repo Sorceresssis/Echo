@@ -39,9 +39,14 @@
 
 <style scoped>
 .sponsorItem {
+    max-width: 800px;
     display: flex;
+    padding: 20px;
     margin-bottom: 20px;
     justify-content: left;
+    background-color: #fff;
+    border-radius: 3px;
+    box-shadow: 0 0 2px 1px #e8e7ea;
 }
 
 .sponsorItem>div {

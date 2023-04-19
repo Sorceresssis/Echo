@@ -50,8 +50,9 @@ export function IPCMain() {
 
 
     /******************** 其他 ********************/
-    ipcMain.handle('config', () => {
-        return config
+    ipcMain.handle('config', (e: IpcMainInvokeEvent, index: string, newValue: string | null = null) => {
+
+        return 'ik'
     })
     ipcMain.handle('dialog:selectFile', async () => {
         const { canceled, filePaths } = await dialog.showOpenDialog()

@@ -5,12 +5,15 @@ const fs = require('fs')
 const configPath: string = path.resolve(path.dirname(app.getPath('exe')), "config.json")
 const defaultConfig = {
     userDataPath: path.resolve(path.dirname(app.getPath('exe')), "userData"),
-    locale: 'zh-CN',
+    locale: 'zhCN',
     photoPlayerPath: null,
     videoPlayerPath: null
 }
-
-export let config: any;
+type conf = {
+    userDataPath: string,
+    locale: string
+}
+export let config: conf;
 export function readConfig() {
     try {
         let data = fs.readFileSync(configPath, 'utf8')

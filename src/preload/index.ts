@@ -29,7 +29,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     /******************** 对话框 ********************/
     openFile: () => ipcRenderer.invoke('dialog:selectFile'),
 
-    getConfig: () => ipcRenderer.invoke('config'),
+    config: (index: string, newValue: string | null = null) => ipcRenderer.invoke('config', index, newValue),
 
     /******************** 系统 ********************/
     openUrlExternal: (url: string) => ipcRenderer.invoke('shell:openUrlExternal', url),

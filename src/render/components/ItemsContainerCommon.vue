@@ -6,7 +6,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, watch, inject, onMounted, onActivated, onDeactivated, onUnmounted } from 'vue'
+import { ref, Ref, watch, inject, onMounted } from 'vue'
 import Items from './Items.vue'
 import { debounce } from '../util/debounce';
 
@@ -14,10 +14,16 @@ import { debounce } from '../util/debounce';
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 const items = ref<item[]>([])
 
+
+// 第一次启动，更新activeLibrary
+onMounted(async () => {
+    isVisibleLoading.value = true
+    items.value = await window.electronAPI.getItems(activeLibrary.value.id);
+    isVisibleLoading.value = false
+})
+
 let itemsSrollPosition = 0
-// onMounted(() => {
-//     console.log("组件加载");
-// })
+
 // // 获取onDeactivea获取items的滚动位置， onActiveat在赋值给item。
 // onActivated(() => {
 //     console.log("keep加载");

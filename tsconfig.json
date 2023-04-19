@@ -23,7 +23,11 @@
     "src/**/*.ts",
     "src/**/*.d.ts",
     "src/**/*.tsx",
-    "src/**/*.vue"
+    "src/**/*.vue",
+    "src/render/locales/en.js",
+    "src/render/locales/en.js",
+    "src/render/locales/zh-CN.tjs",
+    "src/render/locales/zh-CN.tjs"
   ],
   "references": [
     {
