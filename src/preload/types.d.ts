@@ -27,13 +27,18 @@ export interface IElectronAPI {
 
     /******************** 对话框 ********************/
     openFile: () => Promise<any>
-    config: (index: string, newValue: string | null = null) => Promise<string>
+
+
+
+
+    config: (index: string, newValue: any = null) => Promise<any>
 
     /******************** 系统 ********************/
     openUrlExternal: (url: string) => Promise<void>
     showItemInFolder: (fullPath: string) => Promise<string>
 
     /******************** 窗口 ********************/
+    windowRelaunch: () => Promise<void>
     createMainWindow: (library: library) => Promise<any>
     createItemWinodw: (libraryID: number, itemID: number) => Promise<any>
     windowMinmize: () => Promise<any>

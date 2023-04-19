@@ -4,26 +4,26 @@
         <div id="logo">Echo</div>
         <div id="menuWrapper">
             <div>
-                <div class="menuTitle">工作台</div>
+                <div class="menuTitle">{{ $t('siderBar.workbench') }}</div>
                 <div>
                     <ul>
                         <li :class="{ active: activeLibrary.id == -1 }"
                             class="menuItem "
-                            @click="openLibrary({ id: -1, name: '稍后再看' })">
+                            @click="openLibrary({ id: -1, name: i18n.global.t('siderBar.watchLater') })">
                             <span class="iconfont">&#xe6bb;</span>
-                            稍后再看
+                            {{ $t('siderBar.watchLater') }}
                         </li>
                         <li :class="{ active: activeLibrary.id == -2 }"
                             class="menuItem "
-                            @click="openLibrary({ id: -2, name: '回收站' })">
+                            @click="openLibrary({ id: -2, name: i18n.global.t('siderBar.recycleBin') })">
                             <span class="iconfont">&#xe61a;</span>
-                            回收站
+                            {{ $t('siderBar.recycleBin') }}
                         </li>
                     </ul>
                 </div>
             </div>
             <div>
-                <div class="menuTitle spaceBetween"><span>创建的组</span> <span class="iconfont"
+                <div class="menuTitle spaceBetween"><span>{{ $t('siderBar.createdGroup') }}</span> <span class="iconfont"
                           @click="showInputAddGroup">&#xe68c;</span>
                 </div>
                 <div>
@@ -122,9 +122,9 @@
         </div>
         <context-menu v-model:show="isVisibleCtmGroup"
                       :options="contextMenuOptions">
-            <context-menu-item label="添加库"
+            <context-menu-item :label="i18n.global.t('ctm.addLibrary')"
                                @click="showInputAddLibrary" />
-            <context-menu-item label="重命名"
+            <context-menu-item :label="i18n.global.t('ctm.rename')"
                                @click="inputRenameGroupId = groups[_FocusGroupIndex].id" />
             <context-menu-item label="删除"
                                @click="openDeleteDialog">
@@ -183,6 +183,7 @@
 import { Ref, inject, ref, watch } from 'vue';
 import type { Directive } from 'vue';
 import { useRouter } from 'vue-router'
+import i18n from '../locales/index'
 import { debounce } from '../util/debounce'
 import { ElMessage } from 'element-plus'
 

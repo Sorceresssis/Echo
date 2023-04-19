@@ -29,13 +29,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
     /******************** 对话框 ********************/
     openFile: () => ipcRenderer.invoke('dialog:selectFile'),
 
-    config: (index: string, newValue: string | null = null) => ipcRenderer.invoke('config', index, newValue),
+    config: (index: string, newValue: any = null) => ipcRenderer.invoke('config', index, newValue),
 
     /******************** 系统 ********************/
     openUrlExternal: (url: string) => ipcRenderer.invoke('shell:openUrlExternal', url),
     showItemInFolder: (fulllPath: string) => ipcRenderer.invoke('shell:showItemInFolder', fulllPath),
 
     /******************** 窗口 ********************/
+    windowRelaunch: () => ipcRenderer.invoke('window:relaunch'),
     createMainWindow: (library: library) => ipcRenderer.invoke('window:createMainWindow', library),
     createItemWinodw: (libraryID: number, itemID: number) => ipcRenderer.invoke('window:createItemWindow', libraryID, itemID),
     windowMinmize: () => ipcRenderer.invoke('window:minmize'),

@@ -35,7 +35,7 @@
                       @click="">
                     &#xe8e2;
                 </span>
-                <el-dropdown title="筛选"
+                <el-dropdown :title="i18n.global.t('mainContainer.filter')"
                              trigger="click"
                              popper-class="dropdown">
                     <span class=" rightMenuItem iconfont">
@@ -67,7 +67,7 @@
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-dropdown title="排序"
+                <el-dropdown :title="i18n.global.t('mainContainer.sort')"
                              trigger="click"
                              popper-class="dropdown">
                     <span class=" rightMenuItem iconfont">
@@ -80,21 +80,21 @@
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                标题
+                                {{ $t('mainContainer.title') }}
                             </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsInfo.orderBy = orderField.click">
-                                <span v-if="getItemsInfo.orderBy == orderField.click"
+                            <el-dropdown-item @click="getItemsInfo.orderBy = orderField.hits">
+                                <span v-if="getItemsInfo.orderBy == orderField.hits"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                点击量
+                                {{ $t('mainContainer.hits') }}
                             </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsInfo.orderBy = orderField.date">
-                                <span v-if="getItemsInfo.orderBy == orderField.date"
+                            <el-dropdown-item @click="getItemsInfo.orderBy = orderField.time">
+                                <span v-if="getItemsInfo.orderBy == orderField.time"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                时间
+                                {{ $t('mainContainer.time') }}
                             </el-dropdown-item>
                             <el-dropdown-item divided
                                               @click="getItemsInfo.ascending = 0">
@@ -180,6 +180,7 @@
 <script lang="ts" setup>
 import { inject, ref, Ref, shallowReactive, shallowRef, watch, onMounted, provide } from 'vue';
 import { useRoute } from 'vue-router'
+import i18n from '../locales/index'
 import { debounce } from '../util/debounce';
 import ItemsContainerCommon from './ItemsContainerCommon.vue'
 import ItemsContainerByAuthor from './ItemsContainerByAuthor.vue'
@@ -206,10 +207,10 @@ watch(() => route.query.id, () => {
 const componentActive = shallowRef<any>(ItemsContainerCommon)
 const componentActiveIndex = ref(0)
 const componentData = shallowReactive([
-    { name: '资源', component: ItemsContainerCommon },
-    { name: '作者', component: ItemsContainerByAuthor },
-    { name: '喜欢', component: ItemsContainerOfFav },
-    { name: '信息列表', component: ItemsInfoList }
+    { name: i18n.global.t('mainContainer.item'), component: ItemsContainerCommon },
+    { name: i18n.global.t('mainContainer.author'), component: ItemsContainerByAuthor },
+    { name: i18n.global.t('mainContainer.fav'), component: ItemsContainerOfFav },
+    { name: i18n.global.t('mainContainer.infoList'), component: ItemsInfoList }
 ])
 function switchComponent(index: number) {
     componentActive.value = componentData[index].component
@@ -242,7 +243,7 @@ provide('displayMode', displayMode)
 // getItems
 enum getItemsType { noQuery, query, fd }
 enum filterIndex { noHyperlink = 0, noFile, noImage }
-enum orderField { title, click, date }
+enum orderField { title, hits, time }
 const getItemsInfo = ref({
     type: getItemsType.noQuery,
     itemsQuery: [],

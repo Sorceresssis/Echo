@@ -1,20 +1,37 @@
 export default {
-    ctn: {
-
+    ctm: {
+        addLibrary: 'Add Library',
+        rename: 'Rename',
     },
     dialog: {
 
     },
     siderBar: {
-
+        workbench: 'Workbench',
+        watchLater: 'Watch Later',
+        recycleBin: 'Recycle Bin',
+        createdGroup: 'Created Group',
+    },
+    mainContainer: {
+        item: 'Item',
+        author: 'Author',
+        fav: 'Favorite',
+        infoList: 'Info',
+        advancedSearch: 'Advanced Search',
+        filter: 'Filter',
+        sort: 'Sort',
+        title: 'Title',
+        hits: 'Hits',
+        time: 'Time',
+        display: 'Display'
     },
     settings: {
         settings: 'Settings',
-        sponsor: 'sponsor',
-        turorial: 'turorial',
-        greneral: 'greneral',
-        data: 'data',
-        about: 'about',
+        sponsor: 'Sponsor',
+        turorial: 'Turorial',
+        greneral: 'Greneral',
+        data: 'Data',
+        about: 'About',
         lang: 'Language'
     }
 }

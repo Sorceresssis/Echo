@@ -2,6 +2,7 @@ import Sqlite from './Sqlite'
 import { config } from './config'
 import { mkdirsSync } from './checkDir'
 import { StepInstance } from 'element-plus';
+import { Data } from 'electron';
 const path = require('path');
 const fs = require('fs')
 
@@ -15,12 +16,13 @@ interface item {
     id: number
     title: string
     isFav: number
+    createTime?: string
+    hasImage?: number
     hyperlink: string
-    flieName: string
-    folder_id: number
+    authorIDs: string
+    authorNames: string
     tags: string
-    authorsID: string
-    authors: string
+    folder_id: number
 }
 
 type filter = {

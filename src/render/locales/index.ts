@@ -2,8 +2,7 @@ import { createI18n } from 'vue-i18n';
 import zhCN from './zhCN';
 import enUS from './enUS';
 
-const locale = 'enUS'
-
+const locale = (await window.electronAPI.config('lang')).locale || 'enUS'
 const i18n = createI18n({
     legacy: false,
     globalInjection: true,
@@ -14,4 +13,5 @@ const i18n = createI18n({
         enUS,
     }
 });
+
 export default i18n

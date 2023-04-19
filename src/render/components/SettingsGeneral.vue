@@ -5,7 +5,7 @@
             <el-dropdown trigger="click"
                          popper-class="dropdown">
                 <span class="">
-                    {{ currentLang }}
+                    {{ currentLang.label }}
                 </span>
                 <template #dropdown>
                     <el-dropdown-menu>
@@ -24,30 +24,44 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, reactive } from 'vue'
-import { useI18n } from 'vue-i18n';
+import { ref, reactive, onMounted } from 'vue'
+import { ElMessageBox } from 'element-plus'
+
+
+onMounted(async () => {
+    currentLang.value = await window.electronAPI.config('lang') || langList[0]
+})
 
 type lang = {
     label: string,
-    value: string
+    locale: string
 }
-const langList = reactive([
-    { label: '简体中文', value: 'zhCN' },
-    { label: 'English', value: 'enUS' },
-    { label: '日本語', value: 'jaJP' },
-    { label: '繁體中文', value: 'zhTW' },
-    { label: '한국어', value: 'koKR' },
-    { label: 'Deutsch', value: 'de' },
-    { label: 'Français', value: 'fr' },
-    { label: 'Pyccĸий', value: 'ru' }
+const langList = ([
+    { label: '简体中文', locale: 'zhCN' },
+    { label: 'English', locale: 'enUS' },
+    { label: '日本語', locale: 'jaJP' },
+    { label: '繁體中文', locale: 'zhTW' },
+    { label: '한국어', locale: 'koKR' },
+    { label: 'Deutsch', locale: 'de' },
+    { label: 'Français', locale: 'fr' },
+    { label: 'Pyccĸий', locale: 'ru' }
 ])
-const currentLang = ref('English')
-const i18n = useI18n()
-function changelang(lang: lang) {
-    currentLang.value = lang.label
-    i18n.locale.value = lang.value
-    // TODO 写入配置，重启加载
+const currentLang = ref<lang>(langList[0])
+const changelang = async (lang: lang) => {
+    if (lang.locale === currentLang.value.locale) return
+    // 切换语言要用户确认重启
+    ElMessageBox.confirm(
+        '您现在必须重启Echo才能更改语言设置',
+        {
+            confirmButtonText: '重启echo',
+            cancelButtonText: '取消',
+        }).then(async () => {
+            await window.electronAPI.config('lang', lang)
+            window.electronAPI.windowRelaunch()
+        })
 }
+
+
 </script>
 
 <style scoped></style>

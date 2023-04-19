@@ -1,5 +1,5 @@
-import { ipcMain, BrowserWindow, dialog, IpcMainInvokeEvent, shell } from "electron";
-import { config } from './config'
+import { app, ipcMain, BrowserWindow, dialog, IpcMainInvokeEvent, shell } from "electron";
+import { config, setConfig } from './config'
 import { createWindow } from './mainWindow'
 import { createItemWindow } from './itemWindow'
 import { getGroups, addGroup, updataOrderGroup, renameGroup, renameLibrary, updataOrderLibrary, addLibrary, moveLibrary, deleteGroup, deleteLibrary } from './dbGroup'
@@ -50,9 +50,8 @@ export function IPCMain() {
 
 
     /******************** 其他 ********************/
-    ipcMain.handle('config', (e: IpcMainInvokeEvent, index: string, newValue: string | null = null) => {
-
-        return 'ik'
+    ipcMain.handle('config', (e: IpcMainInvokeEvent, index: string, newValue: any | null = null) => {
+        return setConfig(index, newValue)
     })
     ipcMain.handle('dialog:selectFile', async () => {
         const { canceled, filePaths } = await dialog.showOpenDialog()
@@ -64,7 +63,6 @@ export function IPCMain() {
     })
 
     /******************** 系统 ********************/
-
     ipcMain.handle('shell:showItemInFolder', async (e: IpcMainInvokeEvent, fulllPath: string) => {
         // 先判断路径合法
         await shell.openPath(path.join(fulllPath))
@@ -79,6 +77,10 @@ export function IPCMain() {
     })
 
     /******************** 窗口 ********************/
+    ipcMain.handle('window:relaunch', () => {
+        app.relaunch()
+        app.exit()
+    })
     ipcMain.handle('window:createMainWindow', (e, library: library) => {
         createWindow(library)
     })

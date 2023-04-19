@@ -41,6 +41,7 @@ const componentData = shallowReactive([
 const switchComponent = (index: number) => {
     componentActive.value = componentData[index].component
 }
+
 </script>
 
 <style scoped>
