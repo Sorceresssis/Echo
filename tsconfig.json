@@ -19,6 +19,9 @@
       "element-plus/global"
     ]
   },
+  "vueCompilerOptions": {
+    "strictNullChecksTypeScript": true
+  },
   "include": [
     "src/**/*.ts",
     "src/**/*.d.ts",

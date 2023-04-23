@@ -1,14 +1,15 @@
 // main-window.ts
-import { BrowserWindow, app } from "electron";
+import { app, BrowserWindow, Menu } from "electron";
 import { resolve } from "path";
 const isDev = !app.isPackaged;
 
 export function createItemWindow(): BrowserWindow {
+    Menu.setApplicationMenu(null)
     const win = new BrowserWindow({
         width: 1025,
         height: 634,
-        minWidth: 700,
-        minHeight: 400,
+        minWidth: 720,
+        minHeight: 600,
         show: false,
         // 取消默认的标题栏
         // frame: false,

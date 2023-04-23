@@ -23,8 +23,14 @@
                 </div>
             </div>
             <div>
-                <div class="menuTitle spaceBetween"><span>{{ $t('siderBar.createdGroup') }}</span> <span class="iconfont"
-                          @click="showInputAddGroup">&#xe68c;</span>
+                <div class="menuTitle spaceBetween">
+                    <span>{{ $t('siderBar.createdGroup') }}</span>
+                    <div>
+                        <span class="iconfont"
+                              @click="startPreparation">&#xe64c;</span>
+                        <span class="iconfont"
+                              @click="showInputAddGroup">&#xe68c;</span>
+                    </div>
                 </div>
                 <div>
                     <ul>
@@ -132,8 +138,6 @@
                     <span class="iconfont">&#xe61a;</span>
                 </template>
             </context-menu-item>
-            <context-menu-item label="刷新菜单"
-                               @click="startPreparation()" />
         </context-menu>
         <context-menu v-model:show="isVisibleCtmLibrary"
                       :options="contextMenuOptions">
@@ -550,13 +554,23 @@ const dragleave = (e: MouseEvent) => {
 }
 
 .menuTitle {
+    height: 20px;
     margin-top: 20px;
+    line-height: 20px;
     font-size: 13px;
     color: #787878;
 }
 
-.menuTitle>span:hover {
-    color: #000000;
+.menuTitle .iconfont {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border-radius: 2px;
+    text-align: center;
+}
+
+.menuTitle .iconfont:hover {
+    background-color: #d9d9d9;
 }
 
 .iconfont {

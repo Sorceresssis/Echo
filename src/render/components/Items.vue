@@ -42,13 +42,17 @@
                         <div class="item__infoItem"
                              @mousedown="handleMouseDown"
                              @mousemove="handleMouseMove">
-                            <span class="tc">作者:</span>
-                            <span v-for="(author, authorIndex) in item.authors == null ? [] : item.authors.split(',')">
-                                <span v-if="authorIndex != 0"> , </span> <span class="item__author"
-                                      @click="router.push({ path: '/author', query: { authorID: item.authorsID.split(',')[authorIndex] } })">{{
-                                          author
-                                      }}</span>
-                            </span>
+                            <div>
+                                <span class="tc">作者:</span>
+                            </div>
+                            <div>
+                                <span v-for="(author, authorIndex) in item.authors == null ? [] : item.authors.split(',')">
+                                    <span v-if="authorIndex != 0"> , </span>
+                                    <span class="item__author"
+                                          @click="router.push({ path: '/author', query: { authorID: item.authorsID.split(',')[authorIndex] } })">
+                                        {{ author }}</span>
+                                </span>
+                            </div>
                         </div>
                         <div class="item__infoItem"
                              @mousedown="handleMouseDown"

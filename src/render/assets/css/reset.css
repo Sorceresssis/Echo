@@ -152,3 +152,41 @@ table {
 .el-overlay {
     background-color: rgba(0, 0, 0, 0.1) !important;
 }
+
+/* dropdown */
+.dropdown .el-dropdown-menu__item {
+    width: 90px;
+    padding: 3px 8px;
+    font-size: 13px;
+}
+
+.dropdown .el-dropdown-menu__item:not(.is-disabled):focus {
+    background-color: #eee;
+    color: #000;
+}
+
+.dropdown .iconfont {
+    min-width: 13px;
+    margin-right: 3px;
+    font-size: 13px;
+    line-height: 13px;
+}
+
+.dropdown .el-popper__arrow {
+    display: none;
+}
+
+.el-input__wrapper {
+    border-radius: 5px !important;
+    font-size: 13px !important;
+    background-color: #f0f0f0 !important;
+}
+
+.is-focus {
+    box-shadow: 0 0 0 1px #9e94f7 inset !important;
+}
+
+.el-dialog__headerbtn:focus .el-dialog__close,
+.el-dialog__headerbtn:hover .el-dialog__close {
+    color: #9e94f7 !important;
+}

@@ -17,6 +17,7 @@
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.2.3",
     "@intlify/vite-plugin-vue-i18n": "^7.0.0",
+    "electron-updater": "^5.3.0",
     "element-plus": "^2.2.36",
     "sqlite3": "^5.1.4",
     "vue": "^3.2.41",

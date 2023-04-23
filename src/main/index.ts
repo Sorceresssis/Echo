@@ -4,6 +4,7 @@ import { createWindow } from "./mainWindow";
 import { IPCMain } from './ipcMain'
 import { readConfig } from './config'
 import { checkBootDir } from './checkDir'
+
 async function bootstrap() {
     app.on("ready", () => {
         // 读取配置信息

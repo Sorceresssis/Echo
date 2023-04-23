@@ -185,7 +185,7 @@ import { debounce } from '../util/debounce';
 import ItemsContainerCommon from './ItemsContainerCommon.vue'
 import ItemsContainerByAuthor from './ItemsContainerByAuthor.vue'
 import ItemsContainerOfFav from './ItemsContainerOfFav.vue'
-import ItemsInfoList from './ItemsInfoList.vue'
+import ItemsTagFolderList from './ItemsTagFolderList.vue'
 import DialogAdd from './DialogAdd.vue';
 
 const route = useRoute()
@@ -210,7 +210,7 @@ const componentData = shallowReactive([
     { name: i18n.global.t('mainContainer.item'), component: ItemsContainerCommon },
     { name: i18n.global.t('mainContainer.author'), component: ItemsContainerByAuthor },
     { name: i18n.global.t('mainContainer.fav'), component: ItemsContainerOfFav },
-    { name: i18n.global.t('mainContainer.infoList'), component: ItemsInfoList }
+    { name: i18n.global.t('mainContainer.infoList'), component: ItemsTagFolderList }
 ])
 function switchComponent(index: number) {
     componentActive.value = componentData[index].component

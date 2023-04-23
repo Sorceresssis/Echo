@@ -1,7 +1,5 @@
 <template>
-    <div id="series">
-        <div></div>
-    </div>
+    <div id="ItemFolderDisplay">rer</div>
 </template>
 
 <script setup lang='ts'>
@@ -10,10 +8,11 @@ import { ref, reactive } from 'vue'
 </script>
 
 <style scoped>
-#series {
+#ItemFolderDisplay {
+    flex: 1;
     display: flex;
-    width: 300px;
     overflow: hidden;
-    background-color: blue;
+
+    background-color: #f3f3f3;
 }
 </style>

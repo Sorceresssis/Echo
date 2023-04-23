@@ -55,7 +55,6 @@ function windowClose() {
     align-items: center;
     line-height: 40px;
     padding: 0 8px;
-    background-color: #f6f6f8;
     -webkit-app-region: drag;
 }
 
