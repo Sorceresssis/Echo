@@ -7,6 +7,11 @@ import { DBLibrary, checkImageDir } from './dbLibrary'
 const path = require('path');
 
 export function IPCMain() {
+    /******************** 开始准备 ********************/
+    ipcMain.handle('app:config', (e: IpcMainInvokeEvent, index: string, newValue: any | null = null) => {
+        return setConfig(index, newValue)
+    })
+
     /******************** group ********************/
     ipcMain.handle('group:getGroups', getGroups)
     ipcMain.handle('group:add', addGroup)
@@ -24,7 +29,8 @@ export function IPCMain() {
     /******************** Item ********************/
     ipcMain.handle('library:getAttribute', async (e: IpcMainInvokeEvent, LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) => {
         let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
-        return await library.getAttribute(attribute, pageno, pagesize, filterWords)
+        // await library.getAttribute(attribute, pageno, pagesize, filterWords)
+        return ['dvdvedv', 'ffe', 'fefeffe', 'fefef']
     })
 
     ipcMain.handle('library:getItems', (e: IpcMainInvokeEvent, LibraryID: number) => {
@@ -50,9 +56,11 @@ export function IPCMain() {
 
 
     /******************** 其他 ********************/
-    ipcMain.handle('config', (e: IpcMainInvokeEvent, index: string, newValue: any | null = null) => {
-        return setConfig(index, newValue)
+    ipcMain.handle('dev:test', () => {
+
     })
+
+    /******************** 系统 ********************/
     ipcMain.handle('dialog:selectFile', async () => {
         const { canceled, filePaths } = await dialog.showOpenDialog()
         if (canceled) {
@@ -61,18 +69,15 @@ export function IPCMain() {
             return filePaths[0]
         }
     })
-
-    /******************** 系统 ********************/
     ipcMain.handle('shell:showItemInFolder', async (e: IpcMainInvokeEvent, fulllPath: string) => {
         // 先判断路径合法
         await shell.openPath(path.join(fulllPath))
         return path.join(fulllPath)
     })
-
     ipcMain.handle('shell:openUrlExternal', (e: IpcMainInvokeEvent, url: string) => {
         shell.openExternal('https://www.bilibili.com/video/BV1Yv411z7QM/?spm_id_from=333.788.recommend_more_video.-1&vd_source=dd4f8fa595f89999daf10908d21ade29')
     })
-    ipcMain.handle('system:openApp', () => {
+    ipcMain.handle('shell:openApp', () => {
 
     })
 

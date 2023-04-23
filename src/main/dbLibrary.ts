@@ -1,8 +1,7 @@
 import Sqlite from './Sqlite'
 import { config } from './config'
 import { mkdirsSync } from './checkDir'
-import { StepInstance } from 'element-plus';
-import { Data } from 'electron';
+import { log } from 'console';
 const path = require('path');
 const fs = require('fs')
 
@@ -25,15 +24,13 @@ interface item {
     folder_id: number
 }
 
-type filter = {
-    hyperlink: boolean,
-    folder_id: boolean,
-    hasImage: boolean
-}
+type filter = [
+    boolean,
+    boolean,
+    boolean
+]
 
 export class DBLibrary {
-    static tables: string[] = ["item", "author", "tag", "folder"]
-    static fields: string[] = ["item_title", "author_name", "tag_title", "folder_path"]
     dbLibrary: Sqlite | any
 
     constructor(filePath: string) {
@@ -82,23 +79,12 @@ export class DBLibrary {
                 UNIQUE(item_id, author_id));`)
     }
 
-    // 提供搜索建议和给用户提供信息列表
-    async getAttribute(attribute: number, pageno: number, pagesize: number, filterWords: string[]): Promise<string[]> {
-        // 转化CASE WHEN UPPER( author_name ) LIKE UPPER( '%filterWord%' ) THEN 1 ELSE 0 END
-        let a = `CASE WHEN UPPER( item_title ) LIKE UPPER( '%a%' ) THEN 1 ELSE 0 END`
-
-        if (attribute == Attribute.All) {
-
-        } else {
-
-        }
-        return await this.dbLibrary.all(`SELECT tag_title as suggest FROM tag;`)
-    }
-
-    async getItems(u: string, title: string, author: string, tag: string, ascending: number): Promise<item[]> {
-
+    async getItems(getItemsOption: any): Promise<item[]> {
+        // getItemsType: number,
         //TODO 文件存在但是读取错误，删除文件，重新创建
         //TODO 检查文件夹image/1/authorProfile coverimage
+
+
         return await this.dbLibrary.all(`SELECT t1.item_id AS id, t1.item_title AS title, t1.item_isFav AS isFav,
         t1.item_hyperlink AS hyperlink, t1.item_flieName AS flieName, t1.folder_id AS folder_id,
         GROUP_CONCAT(DISTINCT t3.tag_title) AS tags,t4.authorsID AS authorsID, t4.authors AS authors
@@ -112,84 +98,62 @@ export class DBLibrary {
     LIMIT 0 ,100;`)
     }
 
-    async getItemsByAuthor(authorID: number) {
 
-    }
 
-    async getItemsOfNoAuthor() {
-        `SELECT t1.item_id AS id, t1.item_title AS title, t1.item_isFav AS isFav,
-            t1.item_hyperlink AS hyperlink, t1.item_flieName AS flieName, t1.folder_id AS folder_id,
-            GROUP_CONCAT(DISTINCT t3.tag_title) AS tags,t4.authorsID AS authorsID, t4.authors AS authors
+    _subquerySQL_Matched(matchedType: number, queryList: string[] | string[][]) {
+        let SQL: string[] = []
+        if (matchedType === 1) {
+
+        } else {
+
+        }
+        `(SELECT item_id, SUM(sore) AS sumSore
         FROM
-        item t1
-        LEFT JOIN item_tag t2 ON t1.item_id = t2.item_id
-        LEFT JOIN tag t3 ON t2.tag_id = t3.tag_id
-        LEFT JOIN (SELECT t1.item_id,GROUP_CONCAT(t2.author_id) AS authorsID, GROUP_CONCAT(t2.author_name) AS authors
-            FROM item_author t1 JOIN author t2 ON t1.author_id = t2.author_id GROUP BY t1.item_id) t4 ON t1.item_id = t4.item_id
-        WHERE t4.authors IS NULL
-        GROUP BY t1.item_id;`;
-        `SELECT t1.item_id AS id, t1.item_title AS title, t1.item_isFav AS isFav,
-        t1.item_hyperlink AS hyperlink, t1.item_flieName AS flieName, t1.folder_id AS folder_id,
-        GROUP_CONCAT(DISTINCT t3.tag_title) AS tags,t4.authorsID AS authorsID, t4.authors AS authors
-    FROM
-        (SELECT item_id, SUM(sore) AS sumSore
-        FROM
-            (SELECT item_id, 2 AS sore FROM item
-            WHERE UPPER(item_title) LIKE UPPER('%a%') OR UPPER(item_title) LIKE UPPER('%俄%') UNION ALL
-            SELECT t1.item_id, 1 AS sore FROM item_tag t1 JOIN tag t2 ON t1.tag_id = t2.tag_id
-            WHERE UPPER(t2.tag_title) LIKE UPPER('%a%') OR UPPER(t2.tag_title) LIKE UPPER('%鬼%') UNION ALL
-            SELECT t1.item_id, 1 AS sore FROM item_author t1 JOIN author t2 ON t1.author_id = t2.author_id
-            WHERE UPPER(t2.author_name) LIKE UPPER('%a%') OR UPPER(t2.author_name) LIKE UPPER('%鬼%'))
-        GROUP BY item_id) t0
-        JOIN item t1 ON t0.item_id = t1.item_id
-        LEFT JOIN item_tag t2 ON t1.item_id = t2.item_id
-        LEFT JOIN tag t3 ON t2.tag_id = t3.tag_id
-        LEFT JOIN (SELECT t1.item_id,GROUP_CONCAT(t2.author_id) AS authorsID, GROUP_CONCAT(t2.author_name) AS authors
-            FROM item_author t1 JOIN author t2 ON t1.author_id = t2.author_id GROUP BY t1.item_id) t4 ON t1.item_id = t4.item_id
-    WHERE t4.authors IS NULL
-    GROUP BY t1.item_id
-    ORDER BY t0.sumSore DESC;`
-    }
+            (SELECT id AS item_id, 1 AS sore FROM item
+            WHERE UPPER(title) LIKE UPPER('%a%') OR UPPER(title) LIKE UPPER('%b%') UNION ALL
+            SELECT it.item_id, 0.5 AS sore FROM item_tag it JOIN tag t ON it.tag_id = t.id
+            WHERE UPPER(t.title) LIKE UPPER('%a%') OR UPPER(t.title) LIKE UPPER('%b%') UNION ALL
+            SELECT ia.item_id, 0.5 AS sore FROM item_author ia JOIN author a ON ia.author_id = a.id
+            WHERE UPPER(a.name) LIKE UPPER('%a%') OR UPPER(a.name) LIKE UPPER('%b%'))
+        GROUP BY item_id) matched`
 
-    async getAuthorList() {
-
-    }
-
-    _getItemsQueryWordSQL(type: String, queryList: any[]) {
-        return ''
-    }
-
-    _getItemsFilterSQL(filter: filter) {
         return ''
     }
     /**
-     * 
-     * @param field 排序的字段
-     * @param ascending 是否升序
-     * @param hasQuery 是否有query词
-     * @returns 排序的sql语句
+     * 得到用户筛选的SQL
+     * @param filterOption true为筛选false为不筛选
+     * @returns filter SQL
      */
-    _getItemsOrderBySQL(field: string, ascending: boolean, hasQuery: boolean) {
-        let SQL: string[] = ['ORDER BY']
-        let byClick: string = 'item_clicks DESC',
-            byTitle: string = 'item_title',
-            byId: string = 'item_id'
-        let tableName: string = hasQuery ? 't2.' : ''
-        if (hasQuery) { SQL.push('t1.sumSore DESC,') }
-        switch (field) {
-            case 'clicks':
-                SQL.push(tableName + `${ascending ? '' : 'DESC'}`)
-                SQL.push(tableName + byTitle)
-                SQL.push(tableName + byId)
-                break
-            case 'title':
-                SQL.push(tableName + '')
-                break
-            case 'date':
-                SQL.push(tableName + '')
-                break
+    _filterSQL_getItems(filterOption: boolean[]) {
+        let filter: string[] = ['il_V.hyperlink IS NOT NULL', 'il_V.folder_id IS NOT NULL', 'il_V.hasImage = 1']
+        let SQL: string[] = []
+        for (let i = 0; i < filter.length; i++) {
+            if (filterOption[i]) {
+                SQL.push(filter[i])
+            }
         }
-        return SQL.join(' ')
+        return SQL.join(' AND ')
+    }
+
+    /**
+     * 有搜索词根据匹配程度排序，再根据用户指定的字段排序，没有搜索词就直接根据用户指定字段排序
+     * @param hasQueryWord 是否有搜索词
+     * @param field 优先排序字段 time:0 hit:2 title:1
+     * @param isAscending 升降序
+     * @returns OrderBY SQL
+     */
+    _orderSQL_getItems(hasQueryWord: boolean, field: number, isAscending: boolean) {
+        let defaultOrderField: string[][] = [['il_V.id', ''], ['il_V.hits', ' DESC'], ['il_V.title', '']]
+        let SQL: string[] = []
+        if (hasQueryWord) { SQL.push('matched.sumSore DESC') }
+        SQL.push(defaultOrderField[field][0] + (isAscending ? '' : ' DESC'))
+        for (let i = 0; i < defaultOrderField.length; i++) {
+            console.log('ORDER BY ' + SQL.join(', '));
+            if (i != field) {
+                SQL.push(defaultOrderField[i][0] + defaultOrderField[i][1])
+            }
+        }
+        return 'ORDER BY ' + SQL.join(', ')
     }
 }
 

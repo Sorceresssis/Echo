@@ -1,10 +1,10 @@
-// index.ts
 import { contextBridge, ipcRenderer } from "electron"
 import path from "path"
 
 contextBridge.exposeInMainWorld('electronAPI', {
     /******************** 开始准备 ********************/
-    startOpenDB: (callback: (e: any, value: library) => void) => ipcRenderer.on('startOpenDB', callback),
+    startOpenDB: (callback: (e: any, value: library) => void) => ipcRenderer.on('app:startOpenLibrary', callback),
+    config: (index: string, newValue: any = null) => ipcRenderer.invoke('app:config', index, newValue),
 
     /******************** group ********************/
     getGroups: () => ipcRenderer.invoke('group:getGroups'),
@@ -26,12 +26,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
         ipcRenderer.invoke('library:getAttribute', LibraryID, attribute, pageno, pagesize, filterWords),
     getItems: (libraryID: number) => ipcRenderer.invoke('library:getItems', libraryID),
 
-    /******************** 对话框 ********************/
-    openFile: () => ipcRenderer.invoke('dialog:selectFile'),
-
-    config: (index: string, newValue: any = null) => ipcRenderer.invoke('config', index, newValue),
+    /******************** 其他 ********************/
+    devTest: () => ipcRenderer.invoke('dev:test'),
 
     /******************** 系统 ********************/
+    openFile: () => ipcRenderer.invoke('dialog:selectFile'),
     openUrlExternal: (url: string) => ipcRenderer.invoke('shell:openUrlExternal', url),
     showItemInFolder: (fulllPath: string) => ipcRenderer.invoke('shell:showItemInFolder', fulllPath),
 
@@ -47,11 +46,4 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
 contextBridge.exposeInMainWorld('NodeAPI', {
 
-})
-
-contextBridge.exposeInMainWorld('versions', {
-    node: () => process.versions.node,
-    chrome: () => process.versions.chrome,
-    electron: () => process.versions.electron,
-    ping: () => ipcRenderer.invoke('ping'),
 })

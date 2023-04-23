@@ -1,5 +1,5 @@
 -- ORDER BY
-CREATE INDEX item__clicks_INDEX ON item(clicks);
+CREATE INDEX item__hits_INDEX ON item(hits);
 
 
 -- WHERE

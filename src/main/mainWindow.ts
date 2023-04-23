@@ -26,7 +26,7 @@ export function createWindow(library: library | null): BrowserWindow {
         win.removeMenu();
     }
     win.once('ready-to-show', () => {
-        win.webContents.send('startOpenDB', library)
+        win.webContents.send('app:startOpenLibrary', library)
         win.show()
     })
     win.on('unmaximize', () => {

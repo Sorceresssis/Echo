@@ -1,6 +1,7 @@
-import { createI18n } from 'vue-i18n';
-import zhCN from './zhCN';
-import enUS from './enUS';
+import { createI18n } from 'vue-i18n'
+import zhCN from './zhCN'
+import enUS from './enUS'
+import jaJP from './jaJP'
 
 const locale = (await window.electronAPI.config('lang')).locale || 'enUS'
 const i18n = createI18n({
@@ -11,6 +12,7 @@ const i18n = createI18n({
     messages: {
         zhCN,
         enUS,
+        jaJP,
     }
 });
 

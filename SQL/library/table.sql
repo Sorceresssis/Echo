@@ -7,7 +7,7 @@ title VARCHAR(255) NOT NULL,
 -- item的创建时间
 createTime DATETIME NOT NULL DEFAULT (DATETIME(CURRENT_TIMESTAMP, 'localtime')),
 -- 点击数
-clicks INT DEFAULT 0,
+hits INT DEFAULT 0,
 -- 有图片
 hasImage BOOLEAN DEFAULT 0,
 -- 是喜爱

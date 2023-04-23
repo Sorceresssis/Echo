@@ -4,10 +4,11 @@ import path from "path"
 
 export interface IElectronAPI {
     /******************** 开始准备 ********************/
-    getGroups: () => Promise<group[]>
     startOpenDB: (callback: (e: any, value: library) => void) => Promise<any>,
+    config: (index: string, newValue: any = null) => Promise<any>
 
     /******************** group ********************/
+    getGroups: () => Promise<group[]>
     addGroup: (groupName: string) => Promise<number | null>
     updataOrderGroup: (groupsId: number[]) => Promise<void>
     renameGroup: (groupID: number, rename: string) => Promise<boolean>
@@ -25,15 +26,11 @@ export interface IElectronAPI {
     getAttributeItem: (LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) => Promise<string[]>
     getItems: (libraryID: number) => Promise<item[]>
 
-    /******************** 对话框 ********************/
-    openFile: () => Promise<any>
-
-
-
-
-    config: (index: string, newValue: any = null) => Promise<any>
+    /******************** 其他 ********************/
+    devTest: () => Promise<any>
 
     /******************** 系统 ********************/
+    openFile: () => Promise<any>
     openUrlExternal: (url: string) => Promise<void>
     showItemInFolder: (fullPath: string) => Promise<string>
 

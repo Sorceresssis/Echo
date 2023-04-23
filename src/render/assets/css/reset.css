@@ -176,6 +176,7 @@ table {
     display: none;
 }
 
+/* input */
 .el-input__wrapper {
     border-radius: 5px !important;
     font-size: 13px !important;

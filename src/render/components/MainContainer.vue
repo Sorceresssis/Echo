@@ -202,7 +202,6 @@ watch(() => route.query.id, () => {
     // TODO 清空搜索词
 })
 
-
 /******************** 组件切换 ********************/
 const componentActive = shallowRef<any>(ItemsContainerCommon)
 const componentActiveIndex = ref(0)
@@ -217,7 +216,7 @@ function switchComponent(index: number) {
     componentActiveIndex.value = index
 }
 
-/******************** 通用搜索 ********************/
+/******************** autoComplete ********************/
 enum AttributeItem {
     // ALL 不包含folder_path
     item_title, author_name, tag_title, folder_path, All
@@ -235,26 +234,40 @@ const search = async () => {
 }
 
 /******************** Items的筛选和展示方式 ********************/
-// display
+/* display */
 enum display { thumbnail, extended }
 const displayMode = ref<number>(display.thumbnail)
 provide('displayMode', displayMode)
 
-// getItems
-enum getItemsType { noQuery, query, fd }
+
+/* getItems */
+enum getItemsType { common = 0, byAuthor, noAuthor, OfFav }
+enum queryType { noQuery = 0, commonQuery, advancedQuery }
 enum filterIndex { noHyperlink = 0, noFile, noImage }
-enum orderField { title, hits, time }
-const getItemsInfo = ref({
-    type: getItemsType.noQuery,
-    itemsQuery: [],
-    itemsQueryTitle: [],
-    itemsQueryAuthor: [],
-    itemsQueryTag: [],
-    // 有链接，文件夹
-    filter: [false, false, false],
+enum orderField { title = 0, hits, time }
+type getItemsOption = {
+    type: number,
+    queryType: number,
+    queryWords: string[] | string[][],
+    filterOption: boolean[],
+    orderBy: number,
+    ascending: number
+}
+const getItemsInfo = ref<getItemsOption>({
+    // 普通，byauthor, noauthor, ofFav
+    type: getItemsType.common,
+    // 无搜索词，通用搜索，高级搜索
+    queryType: 0,
+    // 搜索词
+    queryWords: [],
+    // 是否筛选：有链接，文件夹，有封面
+    filterOption: [false, false, false],
+    // 排序：标题，点击，时间
     orderBy: orderField.title,
+    // 升降序: 0 为降序， 1 为升序
     ascending: 0
 })
+
 // TODO 读取记录 display
 watch(getItemsInfo, debounce((newValue) => {
 
@@ -374,29 +387,5 @@ const handleClose = (tag: string) => {
     flex: 1;
     overflow: hidden;
     display: flex;
-}
-</style>
-
-<style>
-.dropdown .el-dropdown-menu__item {
-    width: 90px;
-    padding: 3px 8px;
-    font-size: 13px;
-}
-
-.dropdown .el-dropdown-menu__item:not(.is-disabled):focus {
-    background-color: #eee;
-    color: #000;
-}
-
-.dropdown .iconfont {
-    min-width: 13px;
-    margin-right: 3px;
-    font-size: 13px;
-    line-height: 13px;
-}
-
-.dropdown .el-popper__arrow {
-    display: none;
 }
 </style>
