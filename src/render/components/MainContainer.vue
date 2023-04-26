@@ -43,22 +43,22 @@
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="getItemsInfo.filter[0] = !getItemsInfo.filter[0]">
-                                <span v-if="getItemsInfo.filter[filterIndex.noHyperlink]"
+                            <el-dropdown-item @click="getItemsOption.filterOption[0] = !getItemsOption.filterOption[0]">
+                                <span v-if="getItemsOption.filterOption[filterIndex.noHyperlink]"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 无链接
                             </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsInfo.filter[1] = !getItemsInfo.filter[1]">
-                                <span v-if="getItemsInfo.filter[filterIndex.noFile]"
+                            <el-dropdown-item @click="getItemsOption.filterOption[1] = !getItemsOption.filterOption[1]">
+                                <span v-if="getItemsOption.filterOption[filterIndex.noFile]"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 无源文件
                             </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsInfo.filter[2] = !getItemsInfo.filter[2]">
-                                <span v-if="getItemsInfo.filter[filterIndex.noImage]"
+                            <el-dropdown-item @click="getItemsOption.filterOption[2] = !getItemsOption.filterOption[2]">
+                                <span v-if="getItemsOption.filterOption[filterIndex.noImage]"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
@@ -75,40 +75,40 @@
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="getItemsInfo.orderBy = orderField.title">
-                                <span v-if="getItemsInfo.orderBy == orderField.title"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.title') }}
-                            </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsInfo.orderBy = orderField.hits">
-                                <span v-if="getItemsInfo.orderBy == orderField.hits"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.hits') }}
-                            </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsInfo.orderBy = orderField.time">
-                                <span v-if="getItemsInfo.orderBy == orderField.time"
+                            <el-dropdown-item @click="getItemsOption.orderBy = orderField.time">
+                                <span v-if="getItemsOption.orderBy == orderField.time"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 {{ $t('mainContainer.time') }}
                             </el-dropdown-item>
-                            <el-dropdown-item divided
-                                              @click="getItemsInfo.ascending = 0">
-                                <span v-if="getItemsInfo.ascending == 0"
+                            <el-dropdown-item @click="getItemsOption.orderBy = orderField.hits">
+                                <span v-if="getItemsOption.orderBy == orderField.hits"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                降序 </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsInfo.ascending = 1">
-                                <span v-if="getItemsInfo.ascending == 1"
+                                {{ $t('mainContainer.hits') }}
+                            </el-dropdown-item>
+                            <el-dropdown-item @click="getItemsOption.orderBy = orderField.title">
+                                <span v-if="getItemsOption.orderBy == orderField.title"
+                                      class="iconfont">&#xe60a;</span>
+                                <span v-else
+                                      class="iconfont"></span>
+                                {{ $t('mainContainer.title') }}
+                            </el-dropdown-item>
+                            <el-dropdown-item divided
+                                              @click="getItemsOption.isAscending = true">
+                                <span v-if="getItemsOption.isAscending"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
                                 升序</el-dropdown-item>
+                            <el-dropdown-item @click="getItemsOption.isAscending = false">
+                                <span v-if="!getItemsOption.isAscending"
+                                      class="iconfont">&#xe60a;</span>
+                                <span v-else
+                                      class="iconfont"></span>
+                                降序 </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -155,7 +155,7 @@
             <KeepAlive>
                 <component id="ItemsContainer"
                            :is="componentActive"
-                           :getItemsInfo="getItemsInfo">
+                           :getItemsOption="getItemsOption">
                 </component>
             </KeepAlive>
         </Suspense>
@@ -194,10 +194,14 @@ const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 // 第一次启动，更新activeLibrary
 onMounted(() => {
     activeLibrary.value = { id: parseInt(route.query.id as string), name: route.query.name as string }
+    // 改网页标题
+    document.title = activeLibrary.value.name == '' ? 'Echo' : activeLibrary.value.name + " - Echo";
 })
 // 参数变化，跟新activeLibrary
 watch(() => route.query.id, () => {
     activeLibrary.value = { id: parseInt(route.query.id as string), name: route.query.name as string }
+    // 改网页标题
+    document.title = activeLibrary.value.name == '' ? 'Echo' : activeLibrary.value.name + " - Echo";
     switchComponent(0)
     // TODO 清空搜索词
 })
@@ -216,7 +220,8 @@ function switchComponent(index: number) {
     componentActiveIndex.value = index
 }
 
-/******************** autoComplete ********************/
+/******************** 搜索 autoComplete querywords列表********************/
+/* 通用搜索 */
 enum AttributeItem {
     // ALL 不包含folder_path
     item_title, author_name, tag_title, folder_path, All
@@ -232,6 +237,15 @@ const search = async () => {
         dynamicTags.splice(0, dynamicTags.length, ...searchWord.value.trim().split(/\s+/))
     }
 }
+/* 高级搜索 */
+
+
+/* queryWord列表 */
+let dynamicTags = shallowReactive<string[]>([])
+const handleClose = (tag: string) => {
+    dynamicTags.splice(dynamicTags.indexOf(tag), 1)
+}
+
 
 /******************** Items的筛选和展示方式 ********************/
 /* display */
@@ -241,38 +255,16 @@ provide('displayMode', displayMode)
 
 
 /* getItems */
-enum getItemsType { common = 0, byAuthor, noAuthor, OfFav }
 enum queryType { noQuery = 0, commonQuery, advancedQuery }
 enum filterIndex { noHyperlink = 0, noFile, noImage }
-enum orderField { title = 0, hits, time }
-type getItemsOption = {
-    type: number,
-    queryType: number,
-    queryWords: string[] | string[][],
-    filterOption: boolean[],
-    orderBy: number,
-    ascending: number
-}
-const getItemsInfo = ref<getItemsOption>({
-    // 普通，byauthor, noauthor, ofFav
-    type: getItemsType.common,
-    // 无搜索词，通用搜索，高级搜索
+enum orderField { time = 0, hits, title }
+const getItemsOption = ref<getItemsOption>({
     queryType: 0,
-    // 搜索词
-    queryWords: [],
-    // 是否筛选：有链接，文件夹，有封面
+    queryWords: '',
     filterOption: [false, false, false],
-    // 排序：标题，点击，时间
     orderBy: orderField.title,
-    // 升降序: 0 为降序， 1 为升序
-    ascending: 0
-})
-
-// TODO 读取记录 display
-watch(getItemsInfo, debounce((newValue) => {
-
-}, 200), {
-    deep: true
+    isAscending: true,
+    pageno: 0
 })
 
 
@@ -280,13 +272,6 @@ watch(getItemsInfo, debounce((newValue) => {
 const isVisibleDialogAdd = ref(false)
 
 
-
-
-/******************** keywords列表 ********************/
-let dynamicTags = shallowReactive<string[]>([])
-const handleClose = (tag: string) => {
-    dynamicTags.splice(dynamicTags.indexOf(tag), 1)
-}
 </script>
 
 <style scoped>

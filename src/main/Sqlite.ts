@@ -8,7 +8,7 @@ class Sqlite {
         this.db = null
     }
     // 连接数据库
-    connect(path: string) {
+    connect(path: string): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db = new sqlite.Database(path, (err: any) => {
                 if (err === null) {
@@ -21,7 +21,7 @@ class Sqlite {
         })
     }
     // 运行sql
-    run(sql: string, params: any) {
+    run(sql: string, params?: any): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db.run(sql, params, (err: any) => {
                 if (err === null) {
@@ -33,7 +33,7 @@ class Sqlite {
         })
     }
     // 运行多条sql
-    exec(sql: any) {
+    exec(sql: any): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db.exec(sql, (err: any) => {
                 if (err === null) {
@@ -45,7 +45,7 @@ class Sqlite {
         })
     }
     // 查询一条数据
-    get(sql: any, params: any) {
+    get(sql: any, params?: any): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db.get(sql, params, (err: any, data: any) => {
                 if (err) {
@@ -57,7 +57,7 @@ class Sqlite {
         })
     }
     // 查询所有数据
-    all(sql: any, params: any) {
+    all(sql: any, params?: any): Promise<any> {
         return new Promise((resolve, reject) => {
             this.db.all(sql, params, (err: any, data: any) => {
                 if (err) {

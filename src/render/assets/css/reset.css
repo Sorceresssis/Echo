@@ -191,3 +191,8 @@ table {
 .el-dialog__headerbtn:hover .el-dialog__close {
     color: #9e94f7 !important;
 }
+
+/* loading */
+.el-loading-spinner .path {
+    stroke: #9e94f7 !important;
+}

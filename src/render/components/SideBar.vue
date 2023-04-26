@@ -38,13 +38,14 @@
                         <li>
                             <div class="input-wrapper"
                                  v-if="isVisibleInputAddGroup">
+                                <!-- onfocus写在v-focus前面  -->
                                 <input v-model="inputModelAddGroup"
                                        type="text"
                                        maxlength="255"
+                                       onfocus="this.select()"
                                        v-focus="isVisibleInputAddGroup"
                                        @keyup.enter="($event.target as HTMLInputElement)?.blur()"
-                                       @blur="handleInputAddGroup"
-                                       onfocus="this.select()">
+                                       @blur="handleInputAddGroup">
                             </div>
                         </li>
                         <li v-for="(group, groupIndex) in groups"
@@ -82,7 +83,6 @@
                                     <li>
                                         <div v-if="addLibraryGroupIndex == groupIndex"
                                              class="input-wrapper ">
-                                            <!-- onfocus写在v-focus前面  -->
                                             <input type="text"
                                                    v-model="inputModelAddLibrary"
                                                    onfocus="this.select()"
@@ -250,9 +250,6 @@ watch(activeLibrary, debounce((newValue) => {
 /******************** 打开Library ********************/
 const openLibrary = function (library: library) {
     if (library != activeLibrary?.value) {
-        // 改网页标题
-        document.title = library.name == '' ? 'Echo' : library.name + " - Echo";
-        activeLibrary.value = library
         router.push({
             path: '/',
             query: {
@@ -284,7 +281,7 @@ let _ToLibraryIndex = -1
 const isVisibleCtmGroup = ref(false)
 const isVisibleCtmLibrary = ref(false)
 const contextMenuOptions = {
-    zIndex: 3,
+    zIndex: 3000,
     minWidth: 300,
     x: 500,
     y: 200
@@ -430,15 +427,16 @@ const handleDeleteDialog = async () => {
     if (_FocusLibraryIndex == -1) {
         groups.value[_FocusGroupIndex].librarys.forEach(element => {
             if (element.id == activeLibrary.value.id) {
+                openLibrary({ id: 0, name: "" })
             }
         });
         if (await window.electronAPI.deleteGroup(groups.value[_FocusGroupIndex].id)) {
             groups.value.splice(_FocusGroupIndex, 1)
             isExpandGroup.value.splice(_FocusGroupIndex, 1)
         }
-
     } else {
         if (groups.value[_FocusGroupIndex].librarys[_FocusLibraryIndex].id == activeLibrary.value.id) {
+            openLibrary({ id: 0, name: "" })
         }
         if (await window.electronAPI.deleteLibrary(groups.value[_FocusGroupIndex].librarys[_FocusLibraryIndex].id)) {
             groups.value[_FocusGroupIndex].librarys.splice(_FocusLibraryIndex, 1)

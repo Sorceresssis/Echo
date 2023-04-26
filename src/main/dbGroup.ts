@@ -1,8 +1,7 @@
 import Sqlite from './Sqlite'
 import { config } from './config'
-import { IpcMainInvokeEvent } from 'electron';
-import { StringBuffer } from './StringBuffer'
-const path = require('path');
+import { IpcMainInvokeEvent } from 'electron'
+const path = require('path')
 const fs = require('fs')
 
 class group {
@@ -97,13 +96,13 @@ export async function updataOrderGroup(e: IpcMainInvokeEvent, groupsId: number[]
     const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
     const dbGroup = Sqlite.getInstance()
     dbGroup.connect(groupDBPath)
-    let sql = new StringBuffer()
-    sql.append(`UPDATE 'group' SET group_order = CASE group_id `)
+    let sql: string[] = []
+    sql.push(`UPDATE 'group' SET group_order = CASE group_id`)
     for (let i = 0; i < groupsId.length; i++) {
-        sql.append(`WHEN ${groupsId[i]} THEN ${i + 1} `)
+        sql.push(`WHEN ${groupsId[i]} THEN ${i + 1}`)
     }
-    sql.append(`ELSE group_order END;`)
-    dbGroup.run(sql.toString())
+    sql.push(`ELSE group_order END;`)
+    dbGroup.run(sql.join(' '))
     dbGroup.close
 }
 
@@ -160,13 +159,13 @@ export async function updataOrderLibrary(e: IpcMainInvokeEvent, groupId: number,
     const groupDBPath = path.resolve(config.userDataPath, "database/group.db")
     const dbGroup = Sqlite.getInstance()
     dbGroup.connect(groupDBPath)
-    let sql = new StringBuffer()
-    sql.append(`UPDATE library SET library_order = CASE library_id `)
+    let sql: string[] = []
+    sql.push(`UPDATE library SET library_order = CASE library_id`)
     for (let i = 0; i < librarysId.length; i++) {
-        sql.append(`WHEN ${librarysId[i]} THEN ${i + 1} `)
+        sql.push(`WHEN ${librarysId[i]} THEN ${i + 1}`)
     }
-    sql.append(`ELSE library_order END WHERE group_id = ${groupId};`)
-    dbGroup.run(sql.toString())
+    sql.push(`ELSE library_order END WHERE group_id = ${groupId};`)
+    dbGroup.run(sql.join(' '))
     dbGroup.close
 }
 

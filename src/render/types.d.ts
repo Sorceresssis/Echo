@@ -9,3 +9,29 @@ export interface item {
     authorsID: string | null
     authors: string | null
 }
+
+declare type getItemsOption = {
+    // queryType: noQuery, commonQuery, advancedQuery
+    queryType: number,
+    queryWords: string | [string, string, string],
+    // filterOptionIndex: [noHyperlink, noFile, noImage]
+    filterOption: [boolean, boolean, boolean],
+    // orderField: time, hits, title
+    orderBy: number,
+    isAscending: boolean,
+    pageno: number
+}
+
+declare interface itemProfile {
+    id: number
+    title: string
+    createTime: string
+    hits: number
+    hasImage: number
+    isFav: number
+    hyperlink: string
+    folder_id: number
+    authorIDs: string
+    authorNames: string
+    tags: string
+}

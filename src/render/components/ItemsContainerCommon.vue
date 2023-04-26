@@ -9,6 +9,7 @@
 import { ref, Ref, watch, inject, onMounted } from 'vue'
 import Items from './Items.vue'
 import { debounce } from '../util/debounce';
+import internal from 'stream';
 
 
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
