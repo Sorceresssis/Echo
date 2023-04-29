@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang='ts'>
-import { provide, ref } from 'vue'
+import { provide, ref, onMounted } from 'vue'
 import LeftBar from './SideBar.vue'
 import TitleBar from './TitleBar.vue';
 
@@ -29,6 +29,8 @@ provide('activeLibrary', activeLibrary)
 
 /* 侧边开关 */
 const isOpenSideBar = ref<boolean>(true)
+
+
 </script>
 
 <style scoped>

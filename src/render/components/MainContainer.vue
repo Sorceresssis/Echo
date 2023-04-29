@@ -13,32 +13,36 @@
             <div id="rightMenu">
                 <el-autocomplete class="inputSearch"
                                  size="small"
-                                 placeholder="通用搜索"
+                                 :placeholder="i18n.global.t('mainContainer.universalSearch')"
                                  clearable
                                  v-model="searchWord"
-                                 value-key="suggest"
                                  :disabled="componentActiveIndex == 3"
                                  :trigger-on-focus="false"
                                  :fetch-suggestions="querySearchAsync"
                                  @keyup.enter="search"
-                                 onfocus="this.select()" />
-                <span class="iconfont rightMenuItem"
-                      title="高级搜索">
-                    &#xe66b;
-                </span>
-                <span class="iconfont rightMenuItem"
-                      title="添加"
-                      @click="isVisibleDialogAdd = true">
-                    &#xe68c;
-                </span>
-                <span class="iconfont rightMenuItem"
-                      @click="">
-                    &#xe8e2;
-                </span>
+                                 onfocus="this.select()">
+                    <template #default="{ item }">
+                        <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
+                    </template>
+                </el-autocomplete>
+                <div :title="i18n.global.t('mainContainer.advancedSearch')"
+                     class="el-dropdown">
+                    <span class="rightMenuItem iconfont"
+                          @click="isVisibleAdvancedSearch = true">
+                        &#xe66b;
+                    </span>
+                </div>
+                <div :title="i18n.global.t('mainContainer.manageData')"
+                     class="el-dropdown">
+                    <span class="rightMenuItem iconfont"
+                          @click="isVisibleDialogAdd = true">
+                        &#xe7f4;
+                    </span>
+                </div>
                 <el-dropdown :title="i18n.global.t('mainContainer.filter')"
                              trigger="click"
                              popper-class="dropdown">
-                    <span class=" rightMenuItem iconfont">
+                    <span class="rightMenuItem iconfont">
                         &#xe7e6;
                     </span>
                     <template #dropdown>
@@ -48,21 +52,21 @@
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                无链接
+                                {{ $t('mainContainer.noHyperlink') }}
                             </el-dropdown-item>
                             <el-dropdown-item @click="getItemsOption.filterOption[1] = !getItemsOption.filterOption[1]">
                                 <span v-if="getItemsOption.filterOption[filterIndex.noFile]"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                无源文件
+                                {{ $t('mainContainer.noFile') }}
                             </el-dropdown-item>
                             <el-dropdown-item @click="getItemsOption.filterOption[2] = !getItemsOption.filterOption[2]">
                                 <span v-if="getItemsOption.filterOption[filterIndex.noImage]"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                无封面
+                                {{ $t('mainContainer.noImage') }}
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
@@ -70,8 +74,8 @@
                 <el-dropdown :title="i18n.global.t('mainContainer.sort')"
                              trigger="click"
                              popper-class="dropdown">
-                    <span class=" rightMenuItem iconfont">
-                        <span class="iconfont">&#xe81f;</span>
+                    <span class="rightMenuItem iconfont">
+                        &#xe81f;
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -112,11 +116,11 @@
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-dropdown title="展示"
+                <el-dropdown :title="i18n.global.t('mainContainer.display')"
                              trigger="click"
                              popper-class="dropdown">
                     <span class=" rightMenuItem iconfont">
-                        <span class="iconfont">&#xe7f4;</span>
+                        &#xe6c7;
                     </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -125,13 +129,14 @@
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
                                       class="iconfont"></span>
-                                缩略图
+                                {{ $t('mainContainer.thumbnail') }}
                             </el-dropdown-item>
                             <el-dropdown-item @click="displayMode = display.extended">
                                 <span v-if="displayMode == display.extended"
                                       class="iconfont">&#xe60a;</span>
                                 <span v-else
-                                      class="iconfont"></span> 扩展列表
+                                      class="iconfont"></span>
+                                {{ $t('mainContainer.extended') }}
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
@@ -143,7 +148,7 @@
             <el-button class="button-new-tag ml-1 input"
                        size="small"
                        @click="dynamicTags.splice(0)">
-                清空
+                {{ $t('mainContainer.clear') }}
             </el-button>
             <div v-for="tag in dynamicTags"
                  :key="tag"
@@ -159,21 +164,82 @@
                 </component>
             </KeepAlive>
         </Suspense>
-        <el-dialog v-model="isVisibleDialogAdd"
-                   align-center
-                   title="添加"
-                   width="500px"
-                   class="dialog">
-            <DialogAdd></DialogAdd>
-            <template #footer>
-                <span class="dialog-footer">
-                    <el-button type="primary"
-                               :class="{}"
-                               @click="isVisibleDialogAdd = false">
-                    </el-button>
-                </span>
-            </template>
-        </el-dialog>
+        <div>
+            <el-dialog v-model="isVisibleAdvancedSearch"
+                       align-center
+                       :title="i18n.global.t('mainContainer.advancedSearch')"
+                       width="500px"
+                       class="dialog">
+                <div id="advancedSearch">
+                    <div>
+                        <div>item标题</div>
+                        <el-autocomplete class="inputSearch"
+                                         size="small"
+                                         placeholder="输入啊"
+                                         clearable
+                                         v-model="searchWord"
+                                         :disabled="componentActiveIndex == 3"
+                                         :trigger-on-focus="false"
+                                         :fetch-suggestions="querySearchAsync"
+                                         @keyup.enter="search"
+                                         onfocus="this.select()">
+                            <template #default="{ item }">
+                                <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
+                            </template>
+                        </el-autocomplete>
+                    </div>
+                    <div>
+                        <div>作者</div>
+                        <el-autocomplete class="inputSearch"
+                                         size="small"
+                                         placeholder="输入啊"
+                                         clearable
+                                         v-model="searchWord"
+                                         :disabled="componentActiveIndex == 3"
+                                         :trigger-on-focus="false"
+                                         :fetch-suggestions="querySearchAsync"
+                                         @keyup.enter="search"
+                                         onfocus="this.select()">
+                            <template #default="{ item }">
+                                <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
+                            </template>
+                        </el-autocomplete>
+                    </div>
+                    <div>
+                        <div>标签</div>
+                        <el-autocomplete class="inputSearch"
+                                         size="small"
+                                         placeholder="输入啊"
+                                         clearable
+                                         v-model="searchWord"
+                                         :disabled="componentActiveIndex == 3"
+                                         :trigger-on-focus="false"
+                                         :fetch-suggestions="querySearchAsync"
+                                         @keyup.enter="search"
+                                         onfocus="this.select()">
+                            <template #default="{ item }">
+                                <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
+                            </template>
+                        </el-autocomplete>
+                    </div>
+                </div>
+                <template #footer>
+                    <span class="dialog-footer">
+                        <el-button type="primary"
+                                   @click="">
+                            反对法
+                        </el-button>
+                    </span>
+                </template>
+            </el-dialog>
+            <el-dialog v-model="isVisibleDialogAdd"
+                       align-center
+                       :title="i18n.global.t('mainContainer.manageData')"
+                       width="500px"
+                       class="dialog">
+                <DialogManageData></DialogManageData>
+            </el-dialog>
+        </div>
     </div>
 </template>
   
@@ -181,12 +247,12 @@
 import { inject, ref, Ref, shallowReactive, shallowRef, watch, onMounted, provide } from 'vue';
 import { useRoute } from 'vue-router'
 import i18n from '../locales/index'
-import { debounce } from '../util/debounce';
 import ItemsContainerCommon from './ItemsContainerCommon.vue'
 import ItemsContainerByAuthor from './ItemsContainerByAuthor.vue'
 import ItemsContainerOfFav from './ItemsContainerOfFav.vue'
 import ItemsTagFolderList from './ItemsTagFolderList.vue'
-import DialogAdd from './DialogAdd.vue';
+import AutoCompleteSuggestion from './AutoCompleteSuggestion.vue'
+import DialogManageData from './DialogManageData.vue';
 
 const route = useRoute()
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
@@ -222,13 +288,12 @@ function switchComponent(index: number) {
 
 /******************** 搜索 autoComplete querywords列表********************/
 /* 通用搜索 */
-enum AttributeItem {
-    // ALL 不包含folder_path
-    item_title, author_name, tag_title, folder_path, All
-}
+
+// ALL 不包含Folder
+enum getAttributeType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
 const searchWord = ref('')
 const querySearchAsync = (queryString: string, cb: any) => {
-    window.electronAPI.getAttributeItem(1, AttributeItem.All, 0, 12, queryString.trim().split(/\s+/)).then((a) => {
+    window.electronAPI.getAttribute(activeLibrary.value.id, getAttributeType.ALL, queryString, 0, 20).then((a) => {
         cb(a)
     })
 }
@@ -272,6 +337,7 @@ const getItemsOption = ref<getItemsOption>({
 const isVisibleDialogAdd = ref(false)
 
 
+const isVisibleAdvancedSearch = ref(false)
 </script>
 
 <style scoped>
@@ -317,10 +383,13 @@ const isVisibleDialogAdd = ref(false)
 }
 
 .rightMenuItem {
-    font-size: 18px;
+    background-color: #fff;
     padding: 4px;
+    margin: 3px;
+    border-radius: 4px;
+    border: 2px solid #dedee0;
     cursor: pointer;
-    border-radius: 3px;
+    font-size: 16px;
 }
 
 .rightMenuItem:hover {
@@ -333,7 +402,7 @@ const isVisibleDialogAdd = ref(false)
     max-width: 320px;
     height: 24px;
     font-size: 14px;
-    margin: 5px 20px 5px 0;
+    margin: 5px 10px 5px 0;
 }
 
 :deep(.inputSearch .el-input__wrapper) {
@@ -372,5 +441,9 @@ const isVisibleDialogAdd = ref(false)
     flex: 1;
     overflow: hidden;
     display: flex;
+}
+
+#advancedSearch {
+    padding: 20px 0;
 }
 </style>

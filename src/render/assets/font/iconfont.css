@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3790846 */
-  src: url('iconfont.woff2?t=1680700290609') format('woff2'),
-       url('iconfont.woff?t=1680700290609') format('woff'),
-       url('iconfont.ttf?t=1680700290609') format('truetype');
+  src: url('iconfont.woff2?t=1682763685713') format('woff2'),
+       url('iconfont.woff?t=1682763685713') format('woff'),
+       url('iconfont.ttf?t=1682763685713') format('truetype');
 }
 
 .iconfont {
@@ -13,12 +13,80 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-iconfontangleleft:before {
-  content: "\e615";
+.icon-weibiaoti550:before {
+  content: "\e637";
 }
 
-.icon-iconfontangleright:before {
-  content: "\e617";
+.icon-ai211:before {
+  content: "\e6c7";
+}
+
+.icon-ai212:before {
+  content: "\e6c9";
+}
+
+.icon-ai233:before {
+  content: "\e6dd";
+}
+
+.icon-ai234:before {
+  content: "\e6de";
+}
+
+.icon-buju:before {
+  content: "\e641";
+}
+
+.icon-database:before {
+  content: "\e61c";
+}
+
+.icon-open-in-new1:before {
+  content: "\e8a9";
+}
+
+.icon-folder:before {
+  content: "\e69d";
+}
+
+.icon-folder1:before {
+  content: "\e7d1";
+}
+
+.icon-folder-open-fill:before {
+  content: "\e85e";
+}
+
+.icon-folder2:before {
+  content: "\e6e8";
+}
+
+.icon-open-outline:before {
+  content: "\e9fc";
+}
+
+.icon-triangleLineUp_1:before {
+  content: "\e66e";
+}
+
+.icon-angle-up:before {
+  content: "\e60b";
+}
+
+.icon-backtop:before {
+  content: "\e6c6";
+}
+
+.icon-backtop1:before {
+  content: "\e60c";
+}
+
+.icon-top:before {
+  content: "\e633";
+}
+
+.icon-top1:before {
+  content: "\e681";
 }
 
 .icon-triangleLineRight_1:before {
@@ -29,48 +97,8 @@
   content: "\e66d";
 }
 
-.icon-angle-right:before {
-  content: "\e84e";
-}
-
-.icon-angle-left:before {
-  content: "\e84f";
-}
-
-.icon-jianhao:before {
-  content: "\e729";
-}
-
-.icon-filter1:before {
-  content: "\e692";
-}
-
-.icon-jian:before {
-  content: "\e621";
-}
-
 .icon-jian1:before {
   content: "\e8e2";
-}
-
-.icon-jian2:before {
-  content: "\e60b";
-}
-
-.icon-jianhao1:before {
-  content: "\eaf5";
-}
-
-.icon-jianhao_o:before {
-  content: "\eb79";
-}
-
-.icon-jian_sekuai:before {
-  content: "\ed21";
-}
-
-.icon-jian3:before {
-  content: "\e634";
 }
 
 .icon-filter_list:before {
@@ -93,28 +121,8 @@
   content: "\e6c8";
 }
 
-.icon-liulanqi:before {
-  content: "\e605";
-}
-
-.icon-lianjie2:before {
-  content: "\e620";
-}
-
-.icon-lianjie3:before {
-  content: "\e89c";
-}
-
-.icon-yunlianjie:before {
-  content: "\e8a4";
-}
-
 .icon-shuaxin:before {
   content: "\e782";
-}
-
-.icon-shuaxin1:before {
-  content: "\e650";
 }
 
 .icon-xuexiao:before {

@@ -29,44 +29,21 @@ export function IPCMain() {
     /******************** Item ********************/
     ipcMain.handle('library:getAttribute', async (e: IpcMainInvokeEvent, LibraryID: number, type: number, queryWords: string, pageno: number, pagesize: number) => {
         let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
-        // await library.getAttribute(attribute, pageno, pagesize, filterWords)
-        return ['dvdvedv', 'ffe', 'fefeffe', 'fefef']
+        return await library.getAttribute(type, queryWords, pageno, pagesize)
     })
-    ipcMain.handle('library:getItems', (e: IpcMainInvokeEvent, LibraryID: number) => {
+    ipcMain.handle('library:getItems', async (e: IpcMainInvokeEvent, LibraryID: number) => {
         //TODO 检查文件夹image/1/authorProfile coverimage
         checkImageDir(LibraryID)
         let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
-
-        const getItemsInfo: getItemsOption = {
-            // 无搜索词，通用搜索，高级搜索
-            queryType: 2,
-            // 搜索词
-            queryWords: ['fdfdf vfq f', '', ''],
-            // 是否筛选：有链接，文件夹，有封面
-            filterOption: [false, false, false],
-            // 排序：标题，点击，时间
-            orderBy: 1,
-            // 升降序: 0 为降序， 1 为升序
-            isAscending: false,
-            // 页码
-            pageno: 0,
-        }
-        return library.getItemsa(getItemsInfo)
+        return await library.getItems({ queryType: 0, queryWords: '', filterOption: [false, false, false], orderBy: 0, isAscending: true, pageno: 0 })
     })
-    ipcMain.handle('library:getItemsByAuthor', (e: IpcMainInvokeEvent, LibraryID: number, getItemsOption: getItemsOption, authorID: number) => {
-        // 检查修复存放图片的文件夹
-        checkImageDir(LibraryID)
-        try {
-            let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
-        } catch (e) {
-            // 删除文件
-            //TODO 文件存在但是读取错误，删除文件，重新创建
-            // 重新创建
-        }
-        return
+    ipcMain.handle('library:getItemsByAuthor', async (e: IpcMainInvokeEvent, LibraryID: number, getItemsOption: getItemsOption, authorID: number) => {
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
+        return await library.getItemsByAuthor(getItemsOption, authorID)
     })
-    ipcMain.handle('library:getItemsOfFav', (e: IpcMainInvokeEvent, LibraryID: number, getItemsOption: getItemsOption) => {
-
+    ipcMain.handle('library:getItemsOfFav', async (e: IpcMainInvokeEvent, LibraryID: number, getItemsOption: getItemsOption) => {
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
+        return await library.getItemsOfFav(getItemsOption)
     })
     ipcMain.handle('library:getAuthorList', (e: IpcMainInvokeEvent, LibraryID: number, getItemsOption: getItemsOption) => {
 
@@ -74,14 +51,15 @@ export function IPCMain() {
     ipcMain.handle('library:addItem', (e: IpcMainInvokeEvent, LibraryID: number) => {
     })
 
-
     /******************** 其他 ********************/
-    ipcMain.handle('dev:test', () => {
+    ipcMain.handle('dev:test', async () => {
         let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${1}.db`))
         let rs = []
-        rs.push(library.getItems({ queryType: 1, queryWords: '', filterOption: [false, true, false], orderBy: 0, isAscending: false, pageno: 0 }))
-        rs.push(library.getItemsByAuthor({ queryType: 2, queryWords: ['fdf fdfd', '', 'grgr'], filterOption: [false, false, false], orderBy: 0, isAscending: false, pageno: 0 }, 0))
-        rs.push(library.getItemsOfFav({ queryType: 2, queryWords: ['', 'hyh', ''], filterOption: [false, false, true], orderBy: 0, isAscending: false, pageno: 0 }))
+        rs.push(await library.getAttribute(0, 'a a', 0, 20))
+        rs.push(await library.getAttribute(1, 'a b', 0, 20))
+        rs.push(await library.getAttribute(2, 'a d', 0, 20))
+        rs.push(await library.getAttribute(3, 'a d', 0, 20))
+        rs.push(await library.getAttribute(4, 'a d', 0, 20))
         return rs
     })
 

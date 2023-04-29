@@ -126,60 +126,63 @@
                 </div>
             </div>
         </div>
-        <context-menu v-model:show="isVisibleCtmGroup"
-                      :options="contextMenuOptions">
-            <context-menu-item :label="i18n.global.t('ctm.addLibrary')"
-                               @click="showInputAddLibrary" />
-            <context-menu-item :label="i18n.global.t('ctm.rename')"
-                               @click="inputRenameGroupId = groups[_FocusGroupIndex].id" />
-            <context-menu-item label="删除"
-                               @click="openDeleteDialog">
-                <template #icon>
-                    <span class="iconfont">&#xe61a;</span>
+        <div>
+            <context-menu v-model:show="isVisibleCtmGroup"
+                          :options="contextMenuOptions">
+                <context-menu-item :label="i18n.global.t('ctm.addLibrary')"
+                                   @click="showInputAddLibrary" />
+                <context-menu-item :label="i18n.global.t('ctm.rename')"
+                                   @click="inputRenameGroupId = groups[_FocusGroupIndex].id" />
+                <context-menu-item label="删除"
+                                   @click="openDeleteDialog">
+                    <template #icon>
+                        <span class="iconfont">&#xe61a;</span>
+                    </template>
+                </context-menu-item>
+            </context-menu>
+            <context-menu v-model:show="isVisibleCtmLibrary"
+                          :options="contextMenuOptions">
+                <context-menu-item label="在新窗口中打开"
+                                   @click="openLibraryNewWindow(groups[_FocusGroupIndex].librarys[_FocusLibraryIndex])" />
+                <context-menu-item label="重命名"
+                                   @click="inputRenameLibraryId = groups[_FocusGroupIndex].librarys[_FocusLibraryIndex].id" />
+                <context-menu-item label="删除"
+                                   @click="openDeleteDialog">
+                    <template #icon>
+                        <span class="iconfont">&#xe61a;</span>
+                    </template>
+                </context-menu-item>
+                <context-menu-sperator />
+                <context-menu-group label="移动到">
+                    <context-menu-item v-for="(group, groupIndex) in groups"
+                                       :key="group.id"
+                                       :label="group.name"
+                                       @click="moveLibrary(groupIndex)" />
+                </context-menu-group>
+                <context-menu-item label="导出" />
+            </context-menu>
+            <el-dialog v-model="deleteDialogInfo.isVisibleDialog"
+                       align-center
+                       title="你确定要这样做吗"
+                       width="350px"
+                       class="dialog">
+                <p>此操作<span style="font-weight: 700;">无法</span>撤销。这将永久删除数据
+                </p>
+                <p>请输入 <span style="font-weight: 700; user-select: text;">{{ deleteDialogInfo.deleteItemName }}</span> 进行确认。
+                </p>
+                <el-input class="diaglog-input"
+                          v-model="deleteDialogInfo.confirmInputName"></el-input>
+                <template #footer>
+                    <span class="dialog-footer">
+                        <el-button type="primary"
+                                   :class="{ 'confirmed': deleteDialogInfo.confirmInputName == deleteDialogInfo.deleteItemName }"
+                                   @click="handleDeleteDialog">
+                            我明白后果，确认删除这个{{ deleteDialogInfo.deleteType }}
+                        </el-button>
+                    </span>
                 </template>
-            </context-menu-item>
-        </context-menu>
-        <context-menu v-model:show="isVisibleCtmLibrary"
-                      :options="contextMenuOptions">
-            <context-menu-item label="在新窗口中打开"
-                               @click="openLibraryNewWindow(groups[_FocusGroupIndex].librarys[_FocusLibraryIndex])" />
-            <context-menu-item label="重命名"
-                               @click="inputRenameLibraryId = groups[_FocusGroupIndex].librarys[_FocusLibraryIndex].id" />
-            <context-menu-item label="删除"
-                               @click="openDeleteDialog">
-                <template #icon>
-                    <span class="iconfont">&#xe61a;</span>
-                </template>
-            </context-menu-item>
-            <context-menu-sperator />
-            <context-menu-group label="移动到">
-                <context-menu-item v-for="(group, groupIndex) in groups"
-                                   :key="group.id"
-                                   :label="group.name"
-                                   @click="moveLibrary(groupIndex)" />
-            </context-menu-group>
-            <context-menu-item label="导出" />
-        </context-menu>
-        <el-dialog v-model="deleteDialogInfo.isVisibleDialog"
-                   align-center
-                   title="你确定要这样做吗"
-                   width="350px"
-                   class="dialog">
-            <p>此操作<span style="font-weight: 700;">无法</span>撤销。这将永久删除数据
-            </p>
-            <p>请输入 <span style="font-weight: 700; user-select: text;">{{ deleteDialogInfo.deleteItemName }}</span> 进行确认。</p>
-            <el-input class="diaglog-input"
-                      v-model="deleteDialogInfo.confirmInputName"></el-input>
-            <template #footer>
-                <span class="dialog-footer">
-                    <el-button type="primary"
-                               :class="{ 'confirmed': deleteDialogInfo.confirmInputName == deleteDialogInfo.deleteItemName }"
-                               @click="handleDeleteDialog">
-                        我明白后果，确认删除这个{{ deleteDialogInfo.deleteType }}
-                    </el-button>
-                </span>
-            </template>
-        </el-dialog>
+            </el-dialog>
+        </div>
     </div>
 </template>
 
@@ -254,7 +257,8 @@ const openLibrary = function (library: library) {
             path: '/',
             query: {
                 id: library.id,
-                name: library.name
+                name: library.name,
+                queryWord: null
             }
         })
     }
@@ -626,7 +630,7 @@ const dragleave = (e: MouseEvent) => {
 }
 
 .menuItem:hover:not(.active) {
-    background-color: #d9d9d9;
+    background-color: #f1f0fe;
 }
 
 .active {

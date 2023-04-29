@@ -25,8 +25,8 @@
                      @contextmenu="openCtm">
                     <div class="item__img-wrapper">
                         <div class="item__open">
-                            <div @click="openItem(item.id)"><span class="iconfont">&#xe6e6;</span></div>
-                            <div @click="openItemFolder(item.id)"><span class="iconfont">&#xe8a4;</span></div>
+                            <div @click="openItem(item.id)"><span class="iconfont">&#xe9fc;</span></div>
+                            <div @click="openItemFolder(item.id)"><span class="iconfont">&#xe69d;</span></div>
                             <div @click="openItemHyperlink(item.id)"><span class="iconfont">&#xe6c8;</span></div>
                         </div>
                         <img :src="`../assets/images/${item.id & 1 ? '2.jpg' : '屏幕截图 2022-11-08 192954.png'}`"
@@ -46,10 +46,11 @@
                                 <span class="tc">作者:</span>
                             </div>
                             <div>
-                                <span v-for="(author, authorIndex) in item.authors == null ? [] : item.authors.split(',')">
+                                <span
+                                      v-for="(author, authorIndex) in item.authorNames == null ? [] : item.authorNames.split(',')">
                                     <span v-if="authorIndex != 0"> , </span>
                                     <span class="item__author"
-                                          @click="router.push({ path: '/author', query: { authorID: item.authorsID.split(',')[authorIndex] } })">
+                                          @click="router.push({ path: '/author', query: { authorID: item.authorNames.split(',')[authorIndex] } })">
                                         {{ author }}</span>
                                 </span>
                             </div>
@@ -74,7 +75,7 @@
             <el-backtop target="#Items"
                         :bottom="80"
                         :right="80">
-                <span class="iconfont">&#xe616;</span>
+                <span class="iconfont">&#xe681;</span>
             </el-backtop>
         </div>
         <context-menu v-model:show="isVisibleCtmItem"
@@ -107,7 +108,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const props = defineProps<{
-    items: item[]
+    items: itemProfile[]
 }>()
 
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>

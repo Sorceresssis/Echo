@@ -1,16 +1,16 @@
 import Sqlite from './Sqlite'
 import { config } from './config'
 import { mkdirsSync } from './checkDir'
+import { StepInstance } from 'element-plus';
 const path = require('path');
 const fs = require('fs')
 
 
-enum Attribute {
-    // ALL 不包含folder_path
-    item_title, author_name, tag_title, folder_path, All
-}
 enum getItemsType { common = 0, noAuthor, byAuthor, ofFav }
 enum queryType { noQuery = 0, commonQuery, advancedQuery }
+// ALL 不包含Folder
+enum getAttributeType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
+
 export class DBLibrary {
     dbLibrary: Sqlite
 
@@ -52,27 +52,41 @@ export class DBLibrary {
             `)
     }
 
-    async getItemsa(getItemsOption: getItemsOption): Promise<itemProfile[]> {
-        let SQL: string[] = []
-        return await this.dbLibrary.all(`SELECT t1.item_id AS id, t1.item_title AS title, t1.item_isFav AS isFav,
-        t1.item_hyperlink AS hyperlink, t1.item_flieName AS flieName, t1.folder_id AS folder_id,
-        GROUP_CONCAT(DISTINCT t3.tag_title) AS tags,t4.authorsID AS authorsID, t4.authors AS authors
-    FROM
-        item t1
-        LEFT JOIN item_tag t2 ON t1.item_id = t2.item_id
-        LEFT JOIN tag t3 ON t2.tag_id = t3.tag_id
-        LEFT JOIN (SELECT t1.item_id,GROUP_CONCAT(t2.author_id) AS authorsID, GROUP_CONCAT(t2.author_name) AS authors
-            FROM item_author t1 JOIN author t2 ON t1.author_id = t2.author_id GROUP BY t1.item_id) t4 ON t1.item_id = t4.item_id
-    GROUP BY t1.item_id
-    LIMIT 0 ,100;`)
+    async getAttribute(type: getAttributeType, queryWords: string, pageno: number, pagesize: number = 300) {
+        let query: string = (queryWords as string).trim()
+        if (type > 4 || type < 0 || query.length == 0) return []
+        let words: string[] = query.split(/\s+/)
+
+        const tableInfo = [{ type: 'item', field: 'title' }, { type: 'author', field: 'name' },
+        { type: 'tag', field: 'title' }, { type: 'folder', field: 'path' }]
+        let SQL: string[] = ['SELECT type, id, value FROM ('];
+
+        if (type == getAttributeType.ALL) {
+            for (let i = 0; i < 3; i++) {
+                if (i != 0) SQL.push('UNION ALL ')
+                SQL.push(`SELECT '${tableInfo[i].type}' AS type, id, ${tableInfo[i].field} AS value, (`)
+                words.map((word, index) => {
+                    if (index != 0) SQL.push('+')
+                    SQL.push(`CASE WHEN UPPER(${tableInfo[i].field}) LIKE UPPER('%${word}%') THEN 1 ELSE 0 END`)
+                })
+                SQL.push(`) AS sore FROM ${tableInfo[i].type} WHERE sore > 0 `)
+            }
+        }
+        else {
+            SQL.push(`SELECT '${tableInfo[type].type}' AS type, id, ${tableInfo[type].field} AS value, (`)
+            words.map((word, index) => {
+                if (index != 0) SQL.push('+')
+                SQL.push(`CASE WHEN UPPER(${tableInfo[type].field}) LIKE UPPER('%${word}%') THEN 1 ELSE 0 END`)
+            })
+            SQL.push(`) AS sore FROM ${tableInfo[type].type} WHERE sore > 0`)
+        }
+        SQL.push(`) ORDER BY sore DESC LIMIT ${pageno}, ${pagesize};`)
+        return await this.dbLibrary.all(SQL.join(' '))
     }
 
     checkGetItemsOption(getItemsOption: getItemsOption): boolean {
         let isCorrect: boolean = true
         switch (getItemsOption.queryType) {
-            case queryType.noQuery:
-                isCorrect = getItemsOption.queryWords == null
-                break
             case queryType.commonQuery:
                 // 类型检查，字符串 && 字符串长度大于0不为''
                 isCorrect = typeof getItemsOption.queryWords == 'string' && getItemsOption.queryWords.length > 0
@@ -87,17 +101,17 @@ export class DBLibrary {
         return isCorrect
     }
 
-    getItems(getItemsOption: getItemsOption) {
+    async getItems(getItemsOption: getItemsOption): Promise<itemProfile[]> {
         if (!this.checkGetItemsOption(getItemsOption)) return []
         let SQL: string[] = []
         SQL.push(this._mainSQL_getItems(getItemsOption))
         SQL.push(this._filterSQL_getItems(getItemsType.common, getItemsOption.filterOption))
         SQL.push(this._orderSQL_getItems(getItemsOption.queryType != queryType.noQuery, getItemsOption.orderBy, getItemsOption.isAscending))
         SQL.push(`LIMIT ${getItemsOption.pageno}, 300;`)
-        return SQL.join(' ')
+        return await this.dbLibrary.all(SQL.join(' '))
     }
 
-    getItemsByAuthor(getItemsOption: getItemsOption, authorID: number) {
+    async getItemsByAuthor(getItemsOption: getItemsOption, authorID: number): Promise<itemProfile[]> {
         if (!this.checkGetItemsOption(getItemsOption)) return []
         let SQL: string[] = []
         SQL.push(this._mainSQL_getItems(getItemsOption))
@@ -111,10 +125,10 @@ export class DBLibrary {
         }
         SQL.push(this._orderSQL_getItems(getItemsOption.queryType != queryType.noQuery, getItemsOption.orderBy, getItemsOption.isAscending))
         SQL.push(`LIMIT ${getItemsOption.pageno}, 300;`)
-        return SQL.join(' ')
+        return await this.dbLibrary.all(SQL.join(' '))
     }
 
-    getItemsOfFav(getItemsOption: getItemsOption) {
+    async getItemsOfFav(getItemsOption: getItemsOption): Promise<itemProfile[]> {
         if (!this.checkGetItemsOption(getItemsOption)) return []
         let SQL: string[] = []
         SQL.push(this._mainSQL_getItems(getItemsOption))
@@ -122,7 +136,7 @@ export class DBLibrary {
         SQL.push(this._filterSQL_getItems(getItemsType.ofFav, getItemsOption.filterOption))
         SQL.push(this._orderSQL_getItems(getItemsOption.queryType != queryType.noQuery, getItemsOption.orderBy, getItemsOption.isAscending))
         SQL.push(`LIMIT ${getItemsOption.pageno}, 300;`)
-        return SQL.join(' ')
+        return await this.dbLibrary.all(SQL.join(' '))
     }
 
     _mainSQL_getItems(getItemsOption: getItemsOption) {
@@ -131,7 +145,7 @@ export class DBLibrary {
             SQL.push('itemList_VIEW il_V')
         } else {
             SQL.push(this._subquerySQL_Matched(getItemsOption.queryType, getItemsOption.queryWords as string | [string, string, string]))
-            SQL.push('JOIN itemList_view il_V ON matched.item_id = il_V.id')
+            SQL.push('JOIN itemList_VIEW il_V ON matched.item_id = il_V.id')
         }
         return SQL.join(' ')
     }

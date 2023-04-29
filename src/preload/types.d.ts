@@ -22,8 +22,8 @@ export interface IElectronAPI {
     moveLibrary: (toGroupId: number, moveLibraryId: number) => Promise<boolean>
 
     /******************** Item ********************/
-    searchSuggest: () => Promise<string[]>
-    getAttributeItem: (LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) => Promise<string[]>
+    getAttribute: (LibraryID: number, type: number, queryWords: string, pageno: number, pagesize: number) => Promise<Attribute[]>
+
     getItems: (libraryID: number) => Promise<item[]>
 
     /******************** 其他 ********************/
@@ -72,5 +72,10 @@ declare global {
         tags: string
         authorsID: string
         authors: string
+    }
+    type Attribute = {
+        type: string
+        id: number
+        value: string
     }
 }

@@ -21,9 +21,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     moveLibrary: (toGroupId: number, moveLibraryId: number) => ipcRenderer.invoke('library:move', toGroupId, moveLibraryId),
 
     /******************** Items ********************/
-    searchSuggest: () => ipcRenderer.invoke('library:searchSuggest'),
-    getAttributeItem: (LibraryID: number, attribute: number, pageno: number, pagesize: number, filterWords: string[]) =>
-        ipcRenderer.invoke('library:getAttribute', LibraryID, attribute, pageno, pagesize, filterWords),
+    getAttribute: (LibraryID: number, type: number, queryWords: string, pageno: number, pagesize: number) =>
+        ipcRenderer.invoke('library:getAttribute', LibraryID, type, queryWords, pageno, pagesize),
+
     getItems: (libraryID: number) => ipcRenderer.invoke('library:getItems', libraryID),
 
     /******************** 其他 ********************/

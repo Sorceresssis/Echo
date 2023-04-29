@@ -1,13 +1,14 @@
 <template>
     <div>
-        <div class="sponsorItem">
+        <div class="sponsorItem"
+             style="flex-direction: column;">
             If you find my project useful, please consider showing your love by giving it a
             star!
-        </div>
-        <div class="sponsorItem">
             <a href="https://github.com/Sorceresssis/echo"
                target="_blank"
-               rel="noopener noreferrer">⭐to github⭐</a>
+               rel="noopener noreferrer"
+               class="link">
+                to github <span class="iconfont">&#xe8a9;</span></a>
         </div>
         <div class="sponsorItem">
             <div>
@@ -58,8 +59,9 @@ a {
     text-decoration: none;
 }
 
-a:hover {
-    color: #409eff;
+a {
+    font-weight: 700;
+    color: #413be0;
 }
 
 .sponsor__title {
