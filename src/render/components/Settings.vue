@@ -20,7 +20,6 @@ import i18n from '../locales/index'
 import SettingsSponsor from './SettingsSponsor.vue'
 import SettingsTutorial from './SettingsTutorial.vue'
 import SettingsGeneral from './SettingsGeneral.vue'
-import SettingsData from './SettingsData.vue'
 import SettingsAbout from './SettingsAbout.vue'
 
 
@@ -35,7 +34,6 @@ const componentData = shallowReactive([
     { name: i18n.global.t('settings.sponsor'), component: SettingsSponsor },
     { name: i18n.global.t('settings.turorial'), component: SettingsTutorial },
     { name: i18n.global.t('settings.greneral'), component: SettingsGeneral },
-    { name: i18n.global.t('settings.data'), component: SettingsData },
     { name: i18n.global.t('settings.about'), component: SettingsAbout }
 ])
 const switchComponent = (index: number) => {
@@ -88,5 +86,108 @@ h2 {
 #settingContainer::-webkit-scrollbar-thumb {
     border-radius: 5px;
     background-color: #cfcfcf;
+}
+</style>
+
+<style>
+.setting-item {
+    max-width: 800px;
+    padding: 20px 0;
+    justify-content: left;
+    overflow: hidden;
+    border-bottom: 1px solid #dbdadf;
+    line-height: 20px;
+    font-size: 13px;
+}
+
+.setting-item__title {
+    color: #7b7b7b;
+    line-height: 20px;
+}
+
+.setting-item__content {
+    margin-top: 10px;
+    padding-left: 30px;
+    color: #333333;
+}
+
+.setting-item .el-tooltip__trigger {
+    line-height: 20px !important;
+}
+
+.setting-item img {
+    -webkit-user-drag: none;
+}
+
+.flexRow {
+    display: flex;
+}
+
+.flexRow>div {
+    margin-right: 20px;
+}
+
+.marginTop10 {
+    margin-top: 10px;
+}
+
+.externalUrl {
+    text-decoration: none;
+    color: #007bff
+}
+
+.externalUrl::after {
+    font-family: "iconfont" !important;
+    content: "\e8a9";
+    font-size: 16px;
+}
+
+.setting-input {
+    display: inline-block;
+    width: 500px;
+    height: 26px;
+    margin: 4px 8px 4px 0;
+    padding: 0 5px;
+    border: 1px solid #dcdfe6;
+    box-sizing: border-box;
+    vertical-align: middle;
+    background-color: #fff;
+}
+
+.setting-input::selection {
+    background-color: #888888;
+}
+
+.setting-input:focus {
+    outline: 0;
+}
+
+.setting-button {
+    display: inline-block;
+    height: 26px;
+    margin: 4px 8px 4px 0;
+    padding: 0 15px;
+    border: 1px solid #dcdfe6;
+    box-shadow: 0 0 4px 1px #eaeaea inset;
+    background-color: #fff;
+    vertical-align: bottom;
+    line-height: 26px;
+    font-size: 13px;
+}
+
+.setting-button:hover {
+    background-color: #e7e7e7;
+}
+
+.setting-button span {
+    display: inline-block;
+    line-height: 24px;
+    width: 100%;
+    height: 100%;
+    vertical-align: top;
+}
+
+.setting-button span:active {
+    transform: translate(.5px, .5px);
 }
 </style>

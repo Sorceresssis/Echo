@@ -10,7 +10,7 @@ import Items from './Items.vue';
 import { debounce } from '../util/debounce';
 
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
-const items = ref<item[]>([])
+const items = ref<itemProfile[]>([])
 
 onMounted(async () => {
     items.value = await window.electronAPI.getItems(activeLibrary.value.id)

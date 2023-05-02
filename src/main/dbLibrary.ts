@@ -1,7 +1,6 @@
 import Sqlite from './Sqlite'
 import { config } from './config'
 import { mkdirsSync } from './checkDir'
-import { StepInstance } from 'element-plus';
 const path = require('path');
 const fs = require('fs')
 
@@ -9,8 +8,8 @@ const fs = require('fs')
 enum getItemsType { common = 0, noAuthor, byAuthor, ofFav }
 enum queryType { noQuery = 0, commonQuery, advancedQuery }
 // ALL 不包含Folder
-enum getAttributeType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
-
+enum autoCompleteType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
+enum AttributeType { TAG, FOLDER }
 export class DBLibrary {
     dbLibrary: Sqlite
 
@@ -52,16 +51,16 @@ export class DBLibrary {
             `)
     }
 
-    async getAttribute(type: getAttributeType, queryWords: string, pageno: number, pagesize: number = 300) {
+    async autoComplete(type: autoCompleteType, queryWords: string, pagesize: number) {
         let query: string = (queryWords as string).trim()
-        if (type > 4 || type < 0 || query.length == 0) return []
+        if (type > 4 || type < 0) return []
         let words: string[] = query.split(/\s+/)
 
         const tableInfo = [{ type: 'item', field: 'title' }, { type: 'author', field: 'name' },
         { type: 'tag', field: 'title' }, { type: 'folder', field: 'path' }]
         let SQL: string[] = ['SELECT type, id, value FROM ('];
 
-        if (type == getAttributeType.ALL) {
+        if (type == autoCompleteType.ALL) {
             for (let i = 0; i < 3; i++) {
                 if (i != 0) SQL.push('UNION ALL ')
                 SQL.push(`SELECT '${tableInfo[i].type}' AS type, id, ${tableInfo[i].field} AS value, (`)
@@ -80,7 +79,7 @@ export class DBLibrary {
             })
             SQL.push(`) AS sore FROM ${tableInfo[type].type} WHERE sore > 0`)
         }
-        SQL.push(`) ORDER BY sore DESC LIMIT ${pageno}, ${pagesize};`)
+        SQL.push(`) ORDER BY sore DESC LIMIT 0, ${pagesize};`)
         return await this.dbLibrary.all(SQL.join(' '))
     }
 
@@ -139,6 +138,57 @@ export class DBLibrary {
         return await this.dbLibrary.all(SQL.join(' '))
     }
 
+    async getAuthorList(type: queryType, queryWords: string | [string, string, string]): Promise<authorProfile[]> {
+        let SQL: string[] = []
+        SQL.push('SELECT a.id, a.name, a.intro, COUNT(ia.item_id) AS itemCount, GROUP_CONCAT(ia.item_id) AS itemIDs')
+        SQL.push('FROM author a JOIN item_author ia ON a.id = ia.author_id JOIN item i ON ia.item_id = i.id')
+        SQL.push('WHERE i.hasImage = 1')
+        if (type != queryType.noQuery) {
+            SQL.push('AND ia.item_id IN (')
+            let query: string
+            let words: string[]
+            let matchedFiled = ['title', 't.title', 'a.name']
+            let table = ['SELECT id FROM item WHERE', 'SELECT it.item_id FROM item_tag it JOIN tag t ON it.tag_id = t.id WHERE', 'SELECT ia.item_id FROM item_author ia JOIN author a ON ia.author_id = a.id WHERE']
+            if (type == queryType.commonQuery) {
+                query = (queryWords as string).trim()
+                words = query.split(/\s+/)
+                matchedFiled.map((filde, index) => {
+                    if (index != 0) SQL.push('UNION ALL')
+                    SQL.push(table[index])
+                    SQL.push(words.map(word => `UPPER(${filde}) LIKE UPPER('%${word}%')`).join(' OR '))
+                })
+            } else {
+                let hasQuery: Boolean = false
+                matchedFiled.map((filde, index) => {
+                    query = queryWords[index].trim()
+                    if (query != '') {
+                        if (hasQuery) SQL.push('UNION ALL')
+                        SQL.push(table[index])
+                        hasQuery = true
+                        words = query.split(/\s+/)
+                        SQL.push(words.map(word => `UPPER(${filde}) LIKE UPPER('%${word}%')`).join(' OR '))
+                    }
+                })
+            }
+            SQL.push(')')
+        }
+        SQL.push('GROUP BY a.id;')
+        return await this.dbLibrary.all(SQL.join(' '))
+    }
+
+    async getAttributes(type: AttributeType, pageno: number): Promise<LibraryAttribute[]> {
+        switch (type) {
+            case AttributeType.TAG:
+                return await this.dbLibrary.all(`SELECT t.id, t.title AS value, COUNT(it.item_id) AS itemCount
+                FROM item_tag it JOIN tag t ON it.tag_id = t.id
+                GROUP BY t.id LIMIT ${pageno}, 300;`)
+            case AttributeType.FOLDER:
+                return await this.dbLibrary.all(`SELECT f.id, f.path AS value, COUNT(i.id) AS itemCount
+                FROM item i JOIN folder f ON i.folder_id = f.id
+                GROUP BY f.id LIMIT ${pageno}, 300;`)
+        }
+    }
+
     _mainSQL_getItems(getItemsOption: getItemsOption) {
         let SQL: string[] = ['SELECT il_V.* FROM']
         if (getItemsOption.queryType === queryType.noQuery) {
@@ -190,6 +240,7 @@ export class DBLibrary {
         SQL.push(') GROUP BY item_id) matched')
         return SQL.join(' ')
     }
+
     /**
      * 得到用户筛选的SQL
      * WHERE il_V.folder_id IS NOT NULL AND il_V.hyperlink IS NOT NULL AND il_V.hasImage = 1

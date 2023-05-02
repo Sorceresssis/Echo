@@ -32,6 +32,8 @@ export default {
         title: '标题',
         hits: '点击量',
         time: '时间',
+        ascending: '升序',
+        descending: '降序',
         display: '展示',
         thumbnail: '缩略图',
         extended: '扩展',
@@ -42,7 +44,6 @@ export default {
         sponsor: '赞助',
         turorial: '教程',
         greneral: '通用',
-        data: '数据',
         about: '关于',
         lang: '语言',
     }

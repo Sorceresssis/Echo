@@ -30,7 +30,6 @@ export default {
         sponsor: 'Sponsor',
         turorial: 'Turorial',
         greneral: 'Greneral',
-        data: 'Data',
         about: 'About',
         lang: 'Language'
     }

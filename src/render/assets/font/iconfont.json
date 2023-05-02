@@ -6,11 +6,74 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "983771",
-      "name": "布局",
-      "font_class": "weibiaoti550",
-      "unicode": "e637",
-      "unicode_decimal": 58935
+      "icon_id": "68264",
+      "name": "搜索，猫客",
+      "font_class": "sousuo",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "629357",
+      "name": "搜索",
+      "font_class": "sousuo1",
+      "unicode": "e651",
+      "unicode_decimal": 58961
+    },
+    {
+      "icon_id": "2076190",
+      "name": "搜索",
+      "font_class": "sousuo2",
+      "unicode": "e86e",
+      "unicode_decimal": 59502
+    },
+    {
+      "icon_id": "88609",
+      "name": "copy",
+      "font_class": "copy",
+      "unicode": "e706",
+      "unicode_decimal": 59142
+    },
+    {
+      "icon_id": "1160116",
+      "name": "copy",
+      "font_class": "copy1",
+      "unicode": "e633",
+      "unicode_decimal": 58931
+    },
+    {
+      "icon_id": "4936618",
+      "name": "file-copy-fill",
+      "font_class": "file-copy-fill",
+      "unicode": "e85c",
+      "unicode_decimal": 59484
+    },
+    {
+      "icon_id": "5993150",
+      "name": "复制",
+      "font_class": "fuzhi",
+      "unicode": "ec7a",
+      "unicode_decimal": 60538
+    },
+    {
+      "icon_id": "11215209",
+      "name": "copy",
+      "font_class": "copy2",
+      "unicode": "e6f5",
+      "unicode_decimal": 59125
+    },
+    {
+      "icon_id": "15927043",
+      "name": "copy",
+      "font_class": "copy3",
+      "unicode": "e9fe",
+      "unicode_decimal": 59902
+    },
+    {
+      "icon_id": "34452996",
+      "name": "copy",
+      "font_class": "copy4",
+      "unicode": "e839",
+      "unicode_decimal": 59449
     },
     {
       "icon_id": "998821",
@@ -32,27 +95,6 @@
       "font_class": "ai233",
       "unicode": "e6dd",
       "unicode_decimal": 59101
-    },
-    {
-      "icon_id": "999215",
-      "name": "布局",
-      "font_class": "ai234",
-      "unicode": "e6de",
-      "unicode_decimal": 59102
-    },
-    {
-      "icon_id": "8094172",
-      "name": "布局",
-      "font_class": "buju",
-      "unicode": "e641",
-      "unicode_decimal": 58945
-    },
-    {
-      "icon_id": "14772699",
-      "name": "database",
-      "font_class": "database",
-      "unicode": "e61c",
-      "unicode_decimal": 58908
     },
     {
       "icon_id": "6986818",
@@ -111,25 +153,11 @@
       "unicode_decimal": 58891
     },
     {
-      "icon_id": "309253",
-      "name": "backtop",
-      "font_class": "backtop",
-      "unicode": "e6c6",
-      "unicode_decimal": 59078
-    },
-    {
       "icon_id": "464994",
       "name": "backTop",
       "font_class": "backtop1",
       "unicode": "e60c",
       "unicode_decimal": 58892
-    },
-    {
-      "icon_id": "1455709",
-      "name": "top",
-      "font_class": "top",
-      "unicode": "e633",
-      "unicode_decimal": 58931
     },
     {
       "icon_id": "15838545",

@@ -35,3 +35,11 @@ declare interface itemProfile {
     authorNames: string
     tags: string
 }
+
+declare type authorProfile = {
+    id: number
+    name: string
+    intro: string
+    itemCount: number
+    itemIDs: string
+}

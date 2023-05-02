@@ -12,7 +12,7 @@ import { debounce } from '../util/debounce';
 
 
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
-const items = ref<item[]>([])
+const items = ref<itemProfile[]>([])
 
 
 // 第一次启动，更新activeLibrary

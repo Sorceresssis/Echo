@@ -329,7 +329,7 @@ const openCtm = (e: MouseEvent) => {
 }
 
 .item__author:hover {
-    color: #fd9e16;
+    color: #f39c12;
 }
 
 .item__tag {

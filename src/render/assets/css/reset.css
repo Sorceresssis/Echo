@@ -165,13 +165,6 @@ table {
     color: #000;
 }
 
-.dropdown .iconfont {
-    min-width: 13px;
-    margin-right: 3px;
-    font-size: 13px;
-    line-height: 13px;
-}
-
 .el-popper__arrow {
     display: none;
 }

@@ -30,7 +30,9 @@ provide('activeLibrary', activeLibrary)
 /* 侧边开关 */
 const isOpenSideBar = ref<boolean>(true)
 
-
+onMounted(async () => {
+    // console.log(await window.electronAPI.devTest());
+})
 </script>
 
 <style scoped>
@@ -84,6 +86,8 @@ const isOpenSideBar = ref<boolean>(true)
 
 .rightContainer {
     flex: 1;
+    /* important 防止white-space: no-wrap 打破 flex, 让min-width重新计算 */
+    min-width: 0;
     display: flex;
     flex-direction: column;
     background-color: #f6f6f8;

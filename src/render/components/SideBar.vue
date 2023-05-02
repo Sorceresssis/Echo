@@ -579,6 +579,7 @@ const dragleave = (e: MouseEvent) => {
     font-size: 13px;
     font-weight: 700;
     margin-right: 5px;
+    cursor: pointer;
 }
 
 .spaceBetween {

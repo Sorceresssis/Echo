@@ -1,5 +1,6 @@
 import { promises } from "dns"
 import type { ipcRenderer } from "electron"
+import { type } from "os"
 import path from "path"
 
 export interface IElectronAPI {
@@ -22,9 +23,14 @@ export interface IElectronAPI {
     moveLibrary: (toGroupId: number, moveLibraryId: number) => Promise<boolean>
 
     /******************** Item ********************/
-    getAttribute: (LibraryID: number, type: number, queryWords: string, pageno: number, pagesize: number) => Promise<Attribute[]>
+    libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete>
+    getItems: (libraryID: number) => Promise<itemProfile[]>
+    getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => Promise<itemProfile[]>
+    getItemsOfFav: (libraryID: number, getItemsOption: getItemsOption) => Promise<itemProfile[]>
+    getAuthorList: (libraryID: number, type: number, queryWords: string | [string, string, string]) => Promise<authorProfile[]>
+    getAttributes: (libraryID: number, type: number, pageno: number) => Promise<LibraryAttribute[]>
 
-    getItems: (libraryID: number) => Promise<item[]>
+
 
     /******************** 其他 ********************/
     devTest: () => Promise<any>
@@ -44,14 +50,17 @@ export interface IElectronAPI {
     windowClose: () => Promise<any>
 }
 
-export interface INodeAPI {
-
+export interface IVersionAPI {
+    appVersion: () => Promise<string>
+    electronVersion: string
+    chromeVersion: string
+    nodeVersion: string
 }
 
 declare global {
     interface Window {
         electronAPI: IElectronAPI
-        NodeAPI: INodeAPI
+        versionAPI: IVersionAPI
     }
     interface group {
         id: number
@@ -62,20 +71,48 @@ declare global {
         id: number
         name: string
     }
-    interface item {
+    declare interface itemProfile {
         id: number
         title: string
+        createTime: string
+        hits: number
+        hasImage: number
         isFav: number
         hyperlink: string
-        flieName: string
         folder_id: number
+        authorIDs: string
+        authorNames: string
         tags: string
-        authorsID: string
-        authors: string
     }
-    type Attribute = {
+    type AutoComplete = {
         type: string
         id: number
         value: string
     }
+    type getItemsOption = {
+        // queryType: noQuery, commonQuery, advancedQuery
+        queryType: number,
+        queryWords: string | [string, string, string],
+        // filterOptionIndex: [noHyperlink, noFile, noImage]
+        filterOption: [boolean, boolean, boolean],
+        // orderField: time, hits, title
+        orderBy: number,
+        isAscending: boolean,
+        pageno: number
+    }
+
+    declare type authorProfile = {
+        id: number
+        name: string
+        intro: string
+        itemCount: number
+        itemIDs: string
+    }
+
+    type LibraryAttribute = {
+        id: number
+        value: string
+        itemCount: number
+    }
+
 }

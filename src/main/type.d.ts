@@ -45,6 +45,19 @@ declare interface itemProfile {
     tags: string
 }
 
+declare type LibraryAttribute = {
+    id: number
+    value: string
+    itemCount: number
+}
+
+declare type authorProfile = {
+    id: number
+    name: string
+    intro: string
+    itemCount: number
+    itemIDs: string
+}
 declare interface itemInfo {
     id: number
     title: string

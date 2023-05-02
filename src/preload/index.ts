@@ -1,5 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron"
-import path from "path"
+import { contextBridge, ipcRenderer, app } from "electron"
 
 contextBridge.exposeInMainWorld('electronAPI', {
     /******************** 开始准备 ********************/
@@ -21,10 +20,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
     moveLibrary: (toGroupId: number, moveLibraryId: number) => ipcRenderer.invoke('library:move', toGroupId, moveLibraryId),
 
     /******************** Items ********************/
-    getAttribute: (LibraryID: number, type: number, queryWords: string, pageno: number, pagesize: number) =>
-        ipcRenderer.invoke('library:getAttribute', LibraryID, type, queryWords, pageno, pagesize),
-
+    libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) =>
+        ipcRenderer.invoke('library:autoComplete', LibraryID, type, queryWords, pagesize),
     getItems: (libraryID: number) => ipcRenderer.invoke('library:getItems', libraryID),
+    getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => ipcRenderer.invoke('library:getItemsByAuthor', libraryID, getItemsOption, authorID),
+    getItemsOfFav: (libraryID: number, getItemsOption: getItemsOption) => ipcRenderer.invoke('library:getItemsOfFav', libraryID, getItemsOption),
+    getAuthorList: (libraryID: number, type: number, queryWords: string | [string, string, string]) => ipcRenderer.invoke('library:getAuthorList', libraryID, type, queryWords),
+    getAttributes: (libraryID: number, type: number, pageno: number) => ipcRenderer.invoke('library:getAttributes', libraryID, type, pageno),
+
+
+
 
     /******************** 其他 ********************/
     devTest: () => ipcRenderer.invoke('dev:test'),
@@ -44,6 +49,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     windowClose: () => ipcRenderer.invoke('window:close')
 })
 
-contextBridge.exposeInMainWorld('NodeAPI', {
-
+contextBridge.exposeInMainWorld('versionAPI', {
+    appVersion: () => ipcRenderer.invoke('app:version'),
+    electronVersion: process.versions.electron,
+    chromeVersion: process.versions.chrome,
+    nodeVersion: process.versions.node,
 })

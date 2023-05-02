@@ -48,25 +48,19 @@
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item @click="getItemsOption.filterOption[0] = !getItemsOption.filterOption[0]">
-                                <span v-if="getItemsOption.filterOption[filterIndex.noHyperlink]"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.noHyperlink') }}
+                                <span :class="[getItemsOption.filterOption[filterIndex.noHyperlink] ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.noHyperlink') }}
+                                </span>
                             </el-dropdown-item>
                             <el-dropdown-item @click="getItemsOption.filterOption[1] = !getItemsOption.filterOption[1]">
-                                <span v-if="getItemsOption.filterOption[filterIndex.noFile]"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.noFile') }}
+                                <span :class="[getItemsOption.filterOption[filterIndex.noFile] ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.noFile') }}
+                                </span>
                             </el-dropdown-item>
                             <el-dropdown-item @click="getItemsOption.filterOption[2] = !getItemsOption.filterOption[2]">
-                                <span v-if="getItemsOption.filterOption[filterIndex.noImage]"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.noImage') }}
+                                <span :class="[getItemsOption.filterOption[filterIndex.noImage] ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.noImage') }}
+                                </span>
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
@@ -80,39 +74,31 @@
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item @click="getItemsOption.orderBy = orderField.time">
-                                <span v-if="getItemsOption.orderBy == orderField.time"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.time') }}
+                                <span :class="[getItemsOption.orderBy == orderField.time ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.time') }}
+                                </span>
                             </el-dropdown-item>
                             <el-dropdown-item @click="getItemsOption.orderBy = orderField.hits">
-                                <span v-if="getItemsOption.orderBy == orderField.hits"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.hits') }}
+                                <span :class="[getItemsOption.orderBy == orderField.hits ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.hits') }}
+                                </span>
                             </el-dropdown-item>
                             <el-dropdown-item @click="getItemsOption.orderBy = orderField.title">
-                                <span v-if="getItemsOption.orderBy == orderField.title"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.title') }}
+                                <span :class="[getItemsOption.orderBy == orderField.title ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.title') }}
+                                </span>
                             </el-dropdown-item>
                             <el-dropdown-item divided
                                               @click="getItemsOption.isAscending = true">
-                                <span v-if="getItemsOption.isAscending"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                升序</el-dropdown-item>
+                                <span :class="[getItemsOption.isAscending ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.ascending') }}
+                                </span>
+                            </el-dropdown-item>
                             <el-dropdown-item @click="getItemsOption.isAscending = false">
-                                <span v-if="!getItemsOption.isAscending"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                降序 </el-dropdown-item>
+                                <span :class="[!getItemsOption.isAscending ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.descending') }}
+                                </span>
+                            </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
@@ -125,18 +111,14 @@
                     <template #dropdown>
                         <el-dropdown-menu>
                             <el-dropdown-item @click="displayMode = display.thumbnail">
-                                <span v-if="displayMode == display.thumbnail"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.thumbnail') }}
+                                <span :class="[displayMode == display.thumbnail ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.thumbnail') }}
+                                </span>
                             </el-dropdown-item>
                             <el-dropdown-item @click="displayMode = display.extended">
-                                <span v-if="displayMode == display.extended"
-                                      class="iconfont">&#xe60a;</span>
-                                <span v-else
-                                      class="iconfont"></span>
-                                {{ $t('mainContainer.extended') }}
+                                <span :class="[displayMode == display.extended ? 'dot' : 'no-dot']">
+                                    {{ $t('mainContainer.extended') }}
+                                </span>
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
@@ -290,10 +272,10 @@ function switchComponent(index: number) {
 /* 通用搜索 */
 
 // ALL 不包含Folder
-enum getAttributeType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
+enum autoCompleteType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
 const searchWord = ref('')
 const querySearchAsync = (queryString: string, cb: any) => {
-    window.electronAPI.getAttribute(activeLibrary.value.id, getAttributeType.ALL, queryString, 0, 20).then((a) => {
+    window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.ALL, queryString, 20).then((a) => {
         cb(a)
     })
 }
@@ -421,6 +403,23 @@ const isVisibleAdvancedSearch = ref(false)
     width: 100px;
     margin: 5px 8px 5px 0;
     background-color: #f0f0f0;
+}
+
+.no-dot::before {
+    display: inline-block;
+    content: " ";
+    min-width: 13px;
+    margin-right: 3px;
+}
+
+.dot::before {
+    display: inline-block;
+    content: "\e60a";
+    font-family: "iconfont" !important;
+    min-width: 13px;
+    font-size: 13px;
+    margin-right: 3px;
+    line-height: 13px;
 }
 
 #keywordList {

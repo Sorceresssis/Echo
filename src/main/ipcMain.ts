@@ -11,6 +11,9 @@ export function IPCMain() {
     ipcMain.handle('app:config', (e: IpcMainInvokeEvent, index: string, newValue: any | null = null) => {
         return setConfig(index, newValue)
     })
+    ipcMain.handle('app:version', () => {
+        return app.getVersion()
+    })
 
     /******************** group ********************/
     ipcMain.handle('group:getGroups', getGroups)
@@ -27,40 +30,48 @@ export function IPCMain() {
     ipcMain.handle('library:move', moveLibrary)
 
     /******************** Item ********************/
-    ipcMain.handle('library:getAttribute', async (e: IpcMainInvokeEvent, LibraryID: number, type: number, queryWords: string, pageno: number, pagesize: number) => {
-        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
-        return await library.getAttribute(type, queryWords, pageno, pagesize)
+    ipcMain.handle('library:autoComplete', async (e: IpcMainInvokeEvent, libraryID: number, type: number, queryWords: string, pagesize: number) => {
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
+        return await library.autoComplete(type, queryWords, pagesize)
     })
-    ipcMain.handle('library:getItems', async (e: IpcMainInvokeEvent, LibraryID: number) => {
+    ipcMain.handle('library:getItems', async (e: IpcMainInvokeEvent, libraryID: number) => {
         //TODO 检查文件夹image/1/authorProfile coverimage
-        checkImageDir(LibraryID)
-        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
+        checkImageDir(libraryID)
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
         return await library.getItems({ queryType: 0, queryWords: '', filterOption: [false, false, false], orderBy: 0, isAscending: true, pageno: 0 })
     })
-    ipcMain.handle('library:getItemsByAuthor', async (e: IpcMainInvokeEvent, LibraryID: number, getItemsOption: getItemsOption, authorID: number) => {
-        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
+    ipcMain.handle('library:getItemsByAuthor', async (e: IpcMainInvokeEvent, libraryID: number, getItemsOption: getItemsOption, authorID: number) => {
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
         return await library.getItemsByAuthor(getItemsOption, authorID)
     })
-    ipcMain.handle('library:getItemsOfFav', async (e: IpcMainInvokeEvent, LibraryID: number, getItemsOption: getItemsOption) => {
-        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${LibraryID}.db`))
+    ipcMain.handle('library:getItemsOfFav', async (e: IpcMainInvokeEvent, libraryID: number, getItemsOption: getItemsOption) => {
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
         return await library.getItemsOfFav(getItemsOption)
     })
-    ipcMain.handle('library:getAuthorList', (e: IpcMainInvokeEvent, LibraryID: number, getItemsOption: getItemsOption) => {
-
+    ipcMain.handle('library:getAuthorList', async (e: IpcMainInvokeEvent, libraryID: number, type: number, queryWords: string | [string, string, string]) => {
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
+        let authorList: authorProfile[] = await library.getAuthorList(type, queryWords)
+        for (let i = 0; i < authorList.length; i++) {
+            let str = authorList[i].itemIDs
+            const fourthCommaIndex = str.indexOf(',', str.indexOf(',', str.indexOf(',') + 1) + 1)
+            if (fourthCommaIndex != -1) {
+                // 截取前面三个逗号的部分
+                authorList[i].itemIDs = str.slice(0, fourthCommaIndex)
+            }
+        }
+        return authorList
     })
-    ipcMain.handle('library:addItem', (e: IpcMainInvokeEvent, LibraryID: number) => {
+    ipcMain.handle('library:getAttributes', async (e: IpcMainInvokeEvent, libraryID: number, type: number, pageno: number) => {
+        let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
+        return await library.getAttributes(type, pageno)
+    })
+    ipcMain.handle('library:addItem', (e: IpcMainInvokeEvent, libraryID: number) => {
     })
 
     /******************** 其他 ********************/
     ipcMain.handle('dev:test', async () => {
         let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${1}.db`))
-        let rs = []
-        rs.push(await library.getAttribute(0, 'a a', 0, 20))
-        rs.push(await library.getAttribute(1, 'a b', 0, 20))
-        rs.push(await library.getAttribute(2, 'a d', 0, 20))
-        rs.push(await library.getAttribute(3, 'a d', 0, 20))
-        rs.push(await library.getAttribute(4, 'a d', 0, 20))
-        return rs
+        return
     })
 
     /******************** 系统 ********************/
@@ -78,7 +89,7 @@ export function IPCMain() {
         return path.join(fulllPath)
     })
     ipcMain.handle('shell:openUrlExternal', (e: IpcMainInvokeEvent, url: string) => {
-        shell.openExternal('https://www.bilibili.com/video/BV1Yv411z7QM/?spm_id_from=333.788.recommend_more_video.-1&vd_source=dd4f8fa595f89999daf10908d21ade29')
+        shell.openExternal(url)
     })
     ipcMain.handle('shell:openApp', () => {
 

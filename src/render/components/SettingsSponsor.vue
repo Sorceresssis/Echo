@@ -1,70 +1,67 @@
 <template>
     <div>
-        <div class="sponsorItem"
-             style="flex-direction: column;">
-            If you find my project useful, please consider showing your love by giving it a
-            star!
-            <a href="https://github.com/Sorceresssis/echo"
-               target="_blank"
-               rel="noopener noreferrer"
-               class="link">
-                to github <span class="iconfont">&#xe8a9;</span></a>
-        </div>
-        <div class="sponsorItem">
-            <div>
-                <div class="sponsor__title"> 微信</div>
-                <img style="width: 200px;"
-                     src="../assets/images/wechat.png"
-                     alt="">
-            </div>
-            <div>
-                <div class="sponsor__title">支付宝</div>
-                <img style="width: 200px;"
-                     src="../assets/images/alipay.jpg"
-                     alt="">
+        <div class="setting-item">
+            <div class="setting-item__title">联系方式</div>
+            <div class="setting-item__content">
+                <div>Email: sorceresssis@gmail.com</div>
             </div>
         </div>
-        <div class="sponsorItem">
-            <div>
-                <div class="sponsor__title">paypal</div>
-                <a href="www.paypal.com/FoxFairy"
-                   target="_blank">www.paypal.com/FoxFairy</a>
+        <div class="setting-item">
+            <div class="setting-item__title">GitHub Star</div>
+            <div class="setting-item__content">
+                If you find my project useful, please consider showing your love by giving it a
+                star!
+                <div>
+                    <a @click.prevent="openUrlExternal('https://github.com/Sorceresssis/echo')"
+                       rel="noopener noreferrer"
+                       class="externalUrl">
+                        to github
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="setting-item">
+            <div class="setting-item__title">经济支持(中国)</div>
+            <div class="setting-item__content flexRow">
+                <div>
+                    <div>微信</div>
+                    <div class="marginTop10">
+                        <img src="../assets/images/wechat.png">
+                    </div>
+                </div>
+                <div>
+                    <div>支付宝</div>
+                    <div class="marginTop10">
+                        <img src="../assets/images/alipay.jpg">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="setting-item">
+            <div class="setting-item__title">经济支持(非中国)</div>
+            <div class="setting-item__content">
+                <div>
+                    <div>
+                        paypal
+                    </div>
+                    <div class="marginTop10">
+                        <a @click.prevent="openUrlExternal('https://www.paypal.com/FoxFairy')"
+                           class="externalUrl">
+                            www.paypal.com/FoxFairy
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup lang='ts'>
-
+import { openUrlExternal } from '../util/externalOperation';
 </script>
 
 <style scoped>
-.sponsorItem {
-    max-width: 800px;
-    display: flex;
-    padding: 20px;
-    margin-bottom: 20px;
-    justify-content: left;
-    background-color: #fff;
-    border-radius: 3px;
-    box-shadow: 0 0 2px 1px #e8e7ea;
-}
-
-.sponsorItem>div {
-    margin-right: 50px;
-}
-
-a {
-    color: #000;
-    text-decoration: none;
-}
-
-a {
-    font-weight: 700;
-    color: #413be0;
-}
-
-.sponsor__title {
-    margin: 8px 0;
+img {
+    width: 150px;
 }
 </style>

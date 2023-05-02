@@ -2,97 +2,118 @@
     <div>
         <div class="infoRow"
              style="width:40%">
-            <h3 class="infoRow__title">标签#</h3>
+            <h3 class="infoRow__title">标签</h3>
             <div class="list">
                 <ul>
                     <li v-for="tag in tags"
                         :key="tag.id"
-                        class="iconfont">
-                        {{ tag.title }}
+                        @dblclick="">
+                        <span>{{ tag.value }}</span>
+                        <span class="itemCount">{{ tag.itemCount }}</span>
                     </li>
                 </ul>
             </div>
         </div>
         <div class="infoRow"
              style="width: 60%;">
-            <h3 class="iconfont infoRow__title">文件夹&#xe7d1;</h3>
+            <h3 class="infoRow__title">文件夹</h3>
             <div class="list">
                 <ul>
                     <li v-for="folder in folders"
-                        :key="folder.id">
-                        {{ folder.path }}
+                        :key="folder.id"
+                        @dblclick="">
+                        <span>{{ folder.value }}</span>
+                        <span class="itemCount">{{ folder.itemCount }}</span>
                     </li>
                 </ul>
             </div>
         </div>
     </div>
 </template>
-
+           
 <script setup lang='ts'>
 import { ref, onMounted } from 'vue'
 
-onMounted(() => {
-    folders.value.push()
-    tags.value.push()
+onMounted(async () => {
+    tags.value.push(...await window.electronAPI.getAttributes(1, 0, 0))
+    folders.value.push({ id: 1, value: "F:\\Project\\Github\echo\\node_modules\\electron\dist", itemCount: 1 },
+        { id: 2, value: 'F:\\Project\\Github\\echo', itemCount: 43 },
+        { id: 3, value: 'F:\\Project\Github\\echo\\node_modules\@imengyu\vue3-context-menu\examples', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },
+        { id: 4, value: 'D:\\Work\\Microsoft VS Code\\bin', itemCount: 99 },)
 })
 
-type folder = {
-    id: number,
-    path: string,
-}
-type tag = {
-    id: number,
-    title: string,
-}
-const folders = ref<folder[]>([])
-const tags = ref<tag[]>([])
+const folders = ref<LibraryAttribute[]>([])
+const tags = ref<LibraryAttribute[]>([])
 
-const generateArray = <T>(length: number, generator: (index: number) => T): T[] => {
-    return Array.from({ length }, (_, index) => generator(index));
-};
-
-folders.value.push(...generateArray<folder>(50, (index) => ({
-    id: index + 1,
-    path: `/path/afdddddddddddddddddddddddddddddddddddddddddddddddddd${index + 1}`,
-})))
-
-tags.value.push(...
-    generateArray<tag>(50, (index) => ({
-        id: index + 1,
-        title: `标签${index + 1}`,
-    })));
-
+// 双击复制到剪贴板
 </script>
 
 <style scoped>
 .infoRow {
     display: flex;
     flex-direction: column;
-    padding: 0 10px;
+    padding-bottom: 8px;
+    overflow: hidden;
 }
 
-.infoRow__title {}
+.infoRow__title {
+    width: 100%;
+    height: 40px;
+    font-weight: 700;
+    font-size: 16px;
+}
 
 .list {
     width: 100%;
-    height: 100%;
+    flex: 1;
     overflow: auto;
 }
 
 .list::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 10px;
     background-color: transparent;
 }
 
 .list::-webkit-scrollbar-thumb {
-    border-radius: 3px;
+    border-radius: 4px;
     background-color: #cfcfcf;
 }
 
 .list li {
-    height: 20px;
-    font-size: 14px;
-    line-height: 20px;
+    display: flex;
+    padding: 0 10px;
+    border-radius: 3px;
+    line-height: 26px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.list li:hover {
+    background-color: #d9d9d9;
+}
+
+.itemCount {
+    color: #258fb8;
+    margin-left: 8px;
 }
 </style>
