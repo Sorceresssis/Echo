@@ -28,13 +28,13 @@
                        class="setting-input"
                        v-model="dataSavePath">
                 <button @click=""
-                        class="setting-button"><span> 更改目录</span></button>
+                        class="button"><span> 更改目录</span></button>
             </div>
         </div>
         <div class="setting-item">
             <div class="setting-item__title">数据的导入导出</div>
             <div class="setting-item__content">
-                <button class="setting-button">导出</button>
+                <button class="button">导出</button>
                 开始导入qu
             </div>
         </div>

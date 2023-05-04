@@ -58,18 +58,9 @@ function windowClose() {
     -webkit-app-region: drag;
 }
 
-.iconfont {
-    color: #7b7b7b
-}
-
+span,
 i {
-    height: 34px;
-    margin: 0 7px;
-    padding: 0 5px;
     color: #7b7b7b;
-}
-
-span {
     height: 30px;
     margin-right: 14px;
     padding: 0 5px;

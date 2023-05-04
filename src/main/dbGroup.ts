@@ -1,4 +1,4 @@
-import Sqlite from './Sqlite'
+import Sqlite from './util/Sqlite'
 import { config } from './config'
 import { IpcMainInvokeEvent } from 'electron'
 const path = require('path')

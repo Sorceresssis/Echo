@@ -1,6 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import './assets/css/reset.css'
+import './assets/css/global.css'
 import './assets/font/iconfont.css'
 import router from './router/index'
 import i18n from './locales/index'

@@ -12,7 +12,7 @@
                     <div class="author">
                         <div class="author__profile">
                             <div class="author__avatar">
-                                <img class="image--cover"
+                                <img class="img--cover"
                                      :src="author.profile"
                                      @error="($event.target as HTMLImageElement).src = '../assets/images/profile.png'">
                             </div>
@@ -23,9 +23,9 @@
                             </div>
                         </div>
                         <div class="author__works">
-                            <div v-for="(work) in author.works"
+                            <div v-for="work in author.works"
                                  class="author__work">
-                                <img class="image--cover"
+                                <img class="img--cover"
                                      src="../assets/images/2.jpg"
                                      @error="($event.target as HTMLImageElement).src = '../assets/images/nodata.png'">
                             </div>
@@ -129,10 +129,8 @@ watch([activeLibrary], debounce(async (newValue) => {
     width: 86px;
     height: 86px;
     flex-shrink: 0;
-}
-
-.author__avatar>img {
-    border-radius: 43px;
+    border-radius: 50%;
+    overflow: hidden;
 }
 
 .author__info {
@@ -168,11 +166,5 @@ watch([activeLibrary], debounce(async (newValue) => {
 .author__work {
     width: 85px;
     margin: 0 2px;
-}
-
-.image--cover {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
 }
 </style>

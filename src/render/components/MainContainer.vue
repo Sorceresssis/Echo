@@ -8,17 +8,18 @@
                      class="leftMenuItem"
                      @click="switchComponent(index)">{{
                          component.name
-                     }}</div>
+                     }}
+                </div>
             </div>
             <div id="rightMenu">
                 <el-autocomplete class="inputSearch"
                                  size="small"
                                  :placeholder="i18n.global.t('mainContainer.universalSearch')"
                                  clearable
-                                 v-model="searchWord"
+                                 v-model="searchWord_all"
                                  :disabled="componentActiveIndex == 3"
                                  :trigger-on-focus="false"
-                                 :fetch-suggestions="querySearchAsync"
+                                 :fetch-suggestions="autoCompSug_all"
                                  @keyup.enter="search"
                                  onfocus="this.select()">
                     <template #default="{ item }">
@@ -35,7 +36,7 @@
                 <div :title="i18n.global.t('mainContainer.manageData')"
                      class="el-dropdown">
                     <span class="rightMenuItem iconfont"
-                          @click="isVisibleDialogAdd = true">
+                          @click="isVisibleManageData = true">
                         &#xe7f4;
                     </span>
                 </div>
@@ -127,7 +128,7 @@
         </div>
         <div id="keywordList"
              v-show="dynamicTags.length != 0 && componentActiveIndex != 3">
-            <el-button class="button-new-tag ml-1 input"
+            <el-button class="button-new-tag ml-1"
                        size="small"
                        @click="dynamicTags.splice(0)">
                 {{ $t('mainContainer.clear') }}
@@ -150,54 +151,51 @@
             <el-dialog v-model="isVisibleAdvancedSearch"
                        align-center
                        :title="i18n.global.t('mainContainer.advancedSearch')"
-                       width="500px"
+                       width="400px"
                        class="dialog">
-                <div id="advancedSearch">
-                    <div>
-                        <div>item标题</div>
-                        <el-autocomplete class="inputSearch"
+                <div>
+                    <div class="dialogCol">
+                        <div class="col-title">标题</div>
+                        <el-autocomplete class="col-content"
                                          size="small"
-                                         placeholder="输入啊"
+                                         style="width: 240px;"
+                                         v-model="searchWord_title"
+                                         placeholder="搜索标题"
                                          clearable
-                                         v-model="searchWord"
-                                         :disabled="componentActiveIndex == 3"
+                                         fit-input-width
                                          :trigger-on-focus="false"
-                                         :fetch-suggestions="querySearchAsync"
-                                         @keyup.enter="search"
+                                         :fetch-suggestions="autoCompSug_title"
                                          onfocus="this.select()">
                             <template #default="{ item }">
                                 <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
                             </template>
                         </el-autocomplete>
                     </div>
-                    <div>
-                        <div>作者</div>
-                        <el-autocomplete class="inputSearch"
+                    <div class="dialogCol">
+                        <div class="col-title">作者</div>
+                        <el-autocomplete class="col-content"
                                          size="small"
-                                         placeholder="输入啊"
+                                         style="width: 240px;"
+                                         v-model="searchWord_author"
+                                         placeholder="输入作者"
                                          clearable
-                                         v-model="searchWord"
-                                         :disabled="componentActiveIndex == 3"
                                          :trigger-on-focus="false"
-                                         :fetch-suggestions="querySearchAsync"
-                                         @keyup.enter="search"
+                                         :fetch-suggestions="autoCompSug_author"
                                          onfocus="this.select()">
                             <template #default="{ item }">
                                 <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
                             </template>
                         </el-autocomplete>
                     </div>
-                    <div>
-                        <div>标签</div>
-                        <el-autocomplete class="inputSearch"
+                    <div class="dialogCol">
+                        <div class="col-title">标签</div>
+                        <el-autocomplete class="col-content"
                                          size="small"
-                                         placeholder="输入啊"
+                                         v-model="searchWord_tag"
+                                         placeholder="输入标签"
                                          clearable
-                                         v-model="searchWord"
-                                         :disabled="componentActiveIndex == 3"
                                          :trigger-on-focus="false"
-                                         :fetch-suggestions="querySearchAsync"
-                                         @keyup.enter="search"
+                                         :fetch-suggestions="autoCompSug_tag"
                                          onfocus="this.select()">
                             <template #default="{ item }">
                                 <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
@@ -209,15 +207,15 @@
                     <span class="dialog-footer">
                         <el-button type="primary"
                                    @click="">
-                            反对法
+                            {{ $t('mainContainer.search') }}
                         </el-button>
                     </span>
                 </template>
             </el-dialog>
-            <el-dialog v-model="isVisibleDialogAdd"
+            <el-dialog v-model="isVisibleManageData"
                        align-center
                        :title="i18n.global.t('mainContainer.manageData')"
-                       width="500px"
+                       width="600px"
                        class="dialog">
                 <DialogManageData></DialogManageData>
             </el-dialog>
@@ -269,23 +267,26 @@ function switchComponent(index: number) {
 }
 
 /******************** 搜索 autoComplete querywords列表********************/
-/* 通用搜索 */
-
 // ALL 不包含Folder
 enum autoCompleteType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
-const searchWord = ref('')
-const querySearchAsync = (queryString: string, cb: any) => {
-    window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.ALL, queryString, 20).then((a) => {
-        cb(a)
-    })
-}
-const search = async () => {
-    if (searchWord.value != '') {
-        dynamicTags.splice(0, dynamicTags.length, ...searchWord.value.trim().split(/\s+/))
+
+/* 通用搜索 */
+const searchWord_all = ref<string>('')
+const autoCompSug_all = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.ALL, queryString, 20).then((a) => { cb(a) }) }
+
+/* 高级搜索 */
+const searchWord_title = ref<string>('')
+const autoCompSug_title = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.ITEM_TITLE, queryString, 20).then((a) => { cb(a) }) }
+const searchWord_author = ref<string>('')
+const autoCompSug_author = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.AUTHOR_NAME, queryString, 20).then((a) => { cb(a) }) }
+const searchWord_tag = ref<string>('')
+const autoCompSug_tag = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.TAG_TITLE, queryString, 20).then((a) => { cb(a) }) }
+
+const search = async (type: number) => {
+    if (searchWord_all.value != '') {
+        dynamicTags.splice(0, dynamicTags.length, ...searchWord_all.value.trim().split(/\s+/))
     }
 }
-/* 高级搜索 */
-
 
 /* queryWord列表 */
 let dynamicTags = shallowReactive<string[]>([])
@@ -316,7 +317,7 @@ const getItemsOption = ref<getItemsOption>({
 
 
 /******************** 对话框 ********************/
-const isVisibleDialogAdd = ref(false)
+const isVisibleManageData = ref(false)
 
 
 const isVisibleAdvancedSearch = ref(false)
@@ -382,19 +383,7 @@ const isVisibleAdvancedSearch = ref(false)
     width: 60%;
     min-width: 130px;
     max-width: 320px;
-    height: 24px;
-    font-size: 14px;
-    margin: 5px 10px 5px 0;
-}
-
-:deep(.inputSearch .el-input__wrapper) {
-    border-radius: 5px;
-    font-size: 14px;
-    background-color: #f0f0f0;
-}
-
-:deep(.inputSearch .is-focus) {
-    box-shadow: 0 0 0 1px #9e94f7 inset;
+    margin-right: 5px;
 }
 
 .input {
@@ -424,15 +413,19 @@ const isVisibleAdvancedSearch = ref(false)
 
 #keywordList {
     display: flex;
+    /* max-height: 40px; */
     justify-content: left;
     margin: 5px 10px;
     flex-wrap: wrap;
 }
 
 .keyword {
+    padding: 0 10px;
+    line-height: 20px;
+    margin: 3px 8px;
+    border-radius: 10px;
     background-color: #9e94f7;
-    font-size: 14px;
-    margin: 5px 8px;
+    font-size: 13px;
     color: #fff;
 }
 
@@ -441,8 +434,28 @@ const isVisibleAdvancedSearch = ref(false)
     overflow: hidden;
     display: flex;
 }
+</style>
+<style>
+.dialogCol {
+    display: flex;
+    justify-content: center;
+    line-height: 26px;
+    margin: 15px 0;
+}
 
-#advancedSearch {
-    padding: 20px 0;
+.dialogCol .col-title {
+    width: 60px;
+    margin-right: 10px;
+}
+
+.dialogCol .col-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.col-content>div {
+    display: flex;
+    margin-bottom: 5px;
 }
 </style>

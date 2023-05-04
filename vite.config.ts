@@ -2,6 +2,7 @@ import { defineConfig } from "vite";
 import type { BuildOptions } from "vite";
 import vue from "@vitejs/plugin-vue";
 import vueI18n from '@intlify/vite-plugin-vue-i18n'
+import topLevelAwait from 'vite-plugin-top-level-await'
 import { resolve } from "path";
 
 export default defineConfig(({ mode }) => {
@@ -24,6 +25,10 @@ export default defineConfig(({ mode }) => {
     plugins: [vue(),
     vueI18n({
       include: resolve(__dirname, './src/render/locales/**')
+    }),
+    topLevelAwait({
+      promiseExportName: '__tla',
+      promiseImportName: i => `__tla_${i}`
     })]
   }
 });

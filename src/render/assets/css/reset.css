@@ -91,7 +91,8 @@ video {
     border: 0;
     font-size: 100%;
     font: inherit;
-    vertical-align: baseline;
+    /* vertical-align: baseline; */
+    vertical-align: top;
 }
 
 /* HTML5 display-role reset for older browsers */
@@ -144,6 +145,7 @@ table {
     border-spacing: 0;
 }
 
+
 /******************** element-plus ********************/
 .el-loading-mask {
     background-color: #f6f6f8 !important;
@@ -151,6 +153,11 @@ table {
 
 .el-overlay {
     background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+/* loading */
+.el-loading-spinner .path {
+    stroke: #9e94f7 !important;
 }
 
 /* dropdown */
@@ -170,9 +177,24 @@ table {
 }
 
 /* input */
+.el-autocomplete {
+    flex: 1;
+    /* 我搞了2小时，终于对齐了，草草草！ */
+    display: flex !important;
+    height: 26px;
+    box-sizing: border-box;
+}
+
+.el-input {
+    display: inline-block;
+    margin-top: 0 !important;
+}
+
 .el-input__wrapper {
-    border-radius: 5px !important;
+    height: 26px;
+    border-radius: 0 !important;
     font-size: 13px !important;
+    box-sizing: border-box;
     background-color: #f0f0f0 !important;
 }
 
@@ -180,14 +202,9 @@ table {
     box-shadow: 0 0 0 1px #9e94f7 inset !important;
 }
 
-.el-dialog__headerbtn:focus .el-dialog__close,
-.el-dialog__headerbtn:hover .el-dialog__close {
-    color: #9e94f7 !important;
-}
 
-/* loading */
-.el-loading-spinner .path {
-    stroke: #9e94f7 !important;
+.el-autocomplete-suggestion__wrap {
+    padding: 5px 0 !important;
 }
 
 .el-autocomplete-suggestion li {
@@ -199,13 +216,17 @@ table {
     --el-backtop-text-color: #9e94f7 !important;
 }
 
-.el-autocomplete-suggestion__wrap {
-    padding: 5px 0 !important;
-}
-
 /* el-dialog */
 .el-dialog {
     border-radius: 4px !important;
+}
+
+.el-dialog__headerbtn {
+    top: 0 !important;
+}
+
+.el-dialog__headerbtn:hover .el-dialog__close {
+    color: #9e94f7 !important;
 }
 
 .el-dialog__header {
@@ -217,6 +238,10 @@ table {
     border-bottom: 2px solid #ededed;
 }
 
-.el-dialog__headerbtn {
-    top: 0 !important;
+.el-dialog__body {
+    padding: 0 20px !important;
+}
+
+.el-button {
+    padding: 4px 25px !important;
 }

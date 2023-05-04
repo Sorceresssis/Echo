@@ -146,7 +146,7 @@ h2 {
     display: inline-block;
     width: 500px;
     height: 26px;
-    margin: 4px 8px 4px 0;
+    margin-right: 8px;
     padding: 0 5px;
     border: 1px solid #dcdfe6;
     box-sizing: border-box;
@@ -160,34 +160,5 @@ h2 {
 
 .setting-input:focus {
     outline: 0;
-}
-
-.setting-button {
-    display: inline-block;
-    height: 26px;
-    margin: 4px 8px 4px 0;
-    padding: 0 15px;
-    border: 1px solid #dcdfe6;
-    box-shadow: 0 0 4px 1px #eaeaea inset;
-    background-color: #fff;
-    vertical-align: bottom;
-    line-height: 26px;
-    font-size: 13px;
-}
-
-.setting-button:hover {
-    background-color: #e7e7e7;
-}
-
-.setting-button span {
-    display: inline-block;
-    line-height: 24px;
-    width: 100%;
-    height: 100%;
-    vertical-align: top;
-}
-
-.setting-button span:active {
-    transform: translate(.5px, .5px);
 }
 </style>

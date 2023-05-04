@@ -2,7 +2,7 @@
     <div class="wrap">
         <div class="about">
             <div>
-                <img src="../../assets/images/logo.png"
+                <img src="../assets/images/logo.png"
                      alt="logo"
                      width="200"
                      height="200">

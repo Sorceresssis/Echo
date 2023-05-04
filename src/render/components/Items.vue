@@ -129,7 +129,7 @@ const openItemFolder = async (itemID: number) => {
     console.log(await window.electronAPI.showItemInFolder('F:/Project/Github/echo/src/render/assets/images'));
 }
 const openItemHyperlink = (itemID: number) => {
-    window.electronAPI.openUrlExternal(props.items[itemID].hyperlink)
+    window.electronAPI.openUrl(props.items[itemID].hyperlink)
 }
 
 

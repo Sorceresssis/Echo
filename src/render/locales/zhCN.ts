@@ -19,6 +19,7 @@ export default {
     mainContainer: {
         item: '项',
         author: '作者',
+        tag: '标签',
         fav: '喜爱',
         infoList: '信息列表',
         universalSearch: '通用搜索',
@@ -38,6 +39,7 @@ export default {
         thumbnail: '缩略图',
         extended: '扩展',
         clear: '清空',
+        search: '搜索',
     },
     settings: {
         settings: '设置',

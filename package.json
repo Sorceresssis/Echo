@@ -33,6 +33,7 @@
     "electron-builder": "^23.6.0",
     "typescript": "^4.6.4",
     "vite": "^3.2.3",
+    "vite-plugin-top-level-await": "^1.3.0",
     "vue-tsc": "^1.0.9"
   },
   "description": "像浏览网站一样,浏览本地文件",

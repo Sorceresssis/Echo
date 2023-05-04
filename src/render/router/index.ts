@@ -1,4 +1,3 @@
-import { ro } from 'element-plus/es/locale'
 import { createRouter, createWebHashHistory, RouteRecord, RouteRecordRaw } from 'vue-router'
 
 

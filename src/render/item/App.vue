@@ -8,8 +8,7 @@
                     <div class="item__img"
                          style="display: flex; height: 200px; justify-content: center;">
                         <img style="max-width: 100%; max-height: 100%;"
-                             src="../../assets/images/2.jpg"
-                             alt="">
+                             src="../assets/images/2.jpg">
                     </div>
                     <div class="item__title">
 
@@ -25,22 +24,7 @@
                         </div>
                     </div>
                     <div>
-
                     </div>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
-                    <p>43434</p>
                     <p>43434</p>
                     <p>43434</p>
                     <p>43434</p>

@@ -1,0 +1,13 @@
+/* img */
+
+.img--cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.over-ellopsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

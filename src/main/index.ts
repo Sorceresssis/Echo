@@ -1,9 +1,10 @@
 // index.ts
 import { BrowserWindow, app } from "electron";
 import { createWindow } from "./mainWindow";
+import { config, readConfig } from './config'
+import { mkdirsSync } from './util/mkdirsSync'
 import { IPCMain } from './ipcMain'
-import { readConfig } from './config'
-import { checkBootDir } from './checkDir'
+const path = require('path');
 
 async function bootstrap() {
     app.on("ready", () => {
@@ -27,3 +28,12 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
+
+
+// 检查文件夹是否存在 ，否则sqlite报错
+export function checkBootDir() {
+    // 检查数据库文件夹
+    mkdirsSync(path.resolve(config.userDataPath, "database"))
+    // 图片存放位置
+    mkdirsSync(path.resolve(config.userDataPath, "image"))
+}

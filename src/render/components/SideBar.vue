@@ -165,10 +165,13 @@
                        align-center
                        title="你确定要这样做吗"
                        width="350px"
-                       class="dialog">
-                <p>此操作<span style="font-weight: 700;">无法</span>撤销。这将永久删除数据
+                       class="dialog-confirm">
+                <p>
+                    此操作<span style="font-weight: 700;">无法</span>撤销。这将永久删除数据
                 </p>
-                <p>请输入 <span style="font-weight: 700; user-select: text;">{{ deleteDialogInfo.deleteItemName }}</span> 进行确认。
+                <p>
+                    请输入 <span style="font-weight: 700; user-select: text;">{{ deleteDialogInfo.deleteItemName }}</span>
+                    进行确认。
                 </p>
                 <el-input class="diaglog-input"
                           v-model="deleteDialogInfo.confirmInputName"></el-input>
@@ -274,7 +277,6 @@ function openLibraryNewWindow(library: library) {
     */
     window.electronAPI.createMainWindow(JSON.parse(JSON.stringify(library)))
 }
-
 
 let _FocusGroupIndex = -1
 let _FocusLibraryIndex = -1
@@ -665,17 +667,13 @@ const dragleave = (e: MouseEvent) => {
 }
 </style>
 <style>
-.dialog .el-dialog__body {
-    padding-top: 0;
-    padding-bottom: 0;
-}
-
-.dialog .el-dialog__body p {
+.dialog-confirm .el-dialog__body p {
     color: #24292f;
+    line-height: 26px;
     margin: 5px 0;
 }
 
-.dialog .el-dialog__body .el-input {
-    margin-top: 5px;
+.dialog-confirm .el-input {
+    height: 32px;
 }
 </style>

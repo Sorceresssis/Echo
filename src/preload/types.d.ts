@@ -1,4 +1,3 @@
-import { promises } from "dns"
 import type { ipcRenderer } from "electron"
 import { type } from "os"
 import path from "path"
@@ -8,21 +7,22 @@ export interface IElectronAPI {
     startOpenDB: (callback: (e: any, value: library) => void) => Promise<any>,
     config: (index: string, newValue: any = null) => Promise<any>
 
-    /******************** group ********************/
+
+    /******************** db_group ********************/
     getGroups: () => Promise<group[]>
     addGroup: (groupName: string) => Promise<number | null>
     updataOrderGroup: (groupsId: number[]) => Promise<void>
     renameGroup: (groupID: number, rename: string) => Promise<boolean>
     deleteGroup: (groupID: number) => Promise<boolean>
 
-    /******************** library ********************/
     addLibrary: (groupID: number, LibraryName: string) => Promise<number | null>
     updataOrderLibrary: (groupID: number, librarysId: number[]) => Promise<void>
     renameLibrary: (LibraryID: number, rename: string) => Promise<boolean>
     deleteLibrary: (LibraryID: number) => Promise<boolean>
     moveLibrary: (toGroupId: number, moveLibraryId: number) => Promise<boolean>
 
-    /******************** Item ********************/
+
+    /******************** library ********************/
     libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete>
     getItems: (libraryID: number) => Promise<itemProfile[]>
     getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => Promise<itemProfile[]>
@@ -31,23 +31,28 @@ export interface IElectronAPI {
     getAttributes: (libraryID: number, type: number, pageno: number) => Promise<LibraryAttribute[]>
 
 
-
     /******************** 其他 ********************/
     devTest: () => Promise<any>
 
-    /******************** 系统 ********************/
-    openFile: () => Promise<any>
-    openUrlExternal: (url: string) => Promise<void>
-    showItemInFolder: (fullPath: string) => Promise<string>
 
-    /******************** 窗口 ********************/
+    /******************** dialog ********************/
+    openDialog: (type: OpenDialogType, multiSelections: boolean) => Promise<null | string | string[]>
+
+
+    /******************** external ********************/
+    openUrl: (url: string) => Promise<void>
+    showItemInFolder: (fullPath: string) => Promise<string>
+    clibboardWriteText: (text: string) => Promise<void>
+
+
+    /******************** window ********************/
     windowRelaunch: () => Promise<void>
-    createMainWindow: (library: library) => Promise<any>
-    createItemWinodw: (libraryID: number, itemID: number) => Promise<any>
-    windowMinmize: () => Promise<any>
-    windowMaxmize: () => Promise<any>
+    createMainWindow: (library: library) => Promise<void>
+    createItemWinodw: (libraryID: number, itemID: number) => Promise<void>
+    windowMinmize: () => Promise<void>
+    windowMaxmize: () => Promise<void>
     windowIsMaxmize: (callback: (e: any, value: any) => void) => Promise<any>
-    windowClose: () => Promise<any>
+    windowClose: () => Promise<void>
 }
 
 export interface IVersionAPI {
@@ -114,5 +119,4 @@ declare global {
         value: string
         itemCount: number
     }
-
 }

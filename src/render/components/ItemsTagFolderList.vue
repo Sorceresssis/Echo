@@ -7,7 +7,7 @@
                 <ul>
                     <li v-for="tag in tags"
                         :key="tag.id"
-                        @dblclick="">
+                        @dblclick="clibboardWriteText(tag.value)">
                         <span>{{ tag.value }}</span>
                         <span class="itemCount">{{ tag.itemCount }}</span>
                     </li>
@@ -21,7 +21,7 @@
                 <ul>
                     <li v-for="folder in folders"
                         :key="folder.id"
-                        @dblclick="">
+                        @dblclick="clibboardWriteText(folder.value)">
                         <span>{{ folder.value }}</span>
                         <span class="itemCount">{{ folder.itemCount }}</span>
                     </li>
@@ -33,6 +33,7 @@
            
 <script setup lang='ts'>
 import { ref, onMounted } from 'vue'
+import { clibboardWriteText } from '../util/externalOperation'
 
 onMounted(async () => {
     tags.value.push(...await window.electronAPI.getAttributes(1, 0, 0))
