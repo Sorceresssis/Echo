@@ -179,7 +179,7 @@ table {
 /* input */
 .el-autocomplete {
     flex: 1;
-    /* 我搞了2小时，终于对齐了，草草草！ */
+    /* 为了el-autocomplete el-input button 能水平对齐，搞了两个小时，😡 */
     display: flex !important;
     height: 26px;
     box-sizing: border-box;
@@ -190,6 +190,7 @@ table {
     margin-top: 0 !important;
 }
 
+.el-textarea__inner,
 .el-input__wrapper {
     height: 26px;
     border-radius: 0 !important;
@@ -198,6 +199,7 @@ table {
     background-color: #f0f0f0 !important;
 }
 
+.el-textarea__inner:focus,
 .is-focus {
     box-shadow: 0 0 0 1px #9e94f7 inset !important;
 }

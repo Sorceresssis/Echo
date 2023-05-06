@@ -6,9 +6,8 @@
                 <div v-for="(component, index) in componentData"
                      :class="[componentActiveIndex == index ? 'componentActive' : '']"
                      class="leftMenuItem"
-                     @click="switchComponent(index)">{{
-                         component.name
-                     }}
+                     @click="switchComponent(index)">
+                    {{ component.name }}
                 </div>
             </div>
             <div id="rightMenu">
@@ -155,7 +154,7 @@
                        class="dialog">
                 <div>
                     <div class="dialogCol">
-                        <div class="col-title">标题</div>
+                        <div class="col-title">{{ $t('app.title') }}</div>
                         <el-autocomplete class="col-content"
                                          size="small"
                                          style="width: 240px;"
@@ -172,7 +171,7 @@
                         </el-autocomplete>
                     </div>
                     <div class="dialogCol">
-                        <div class="col-title">作者</div>
+                        <div class="col-title">{{ $t('app.author') }}</div>
                         <el-autocomplete class="col-content"
                                          size="small"
                                          style="width: 240px;"
@@ -188,7 +187,7 @@
                         </el-autocomplete>
                     </div>
                     <div class="dialogCol">
-                        <div class="col-title">标签</div>
+                        <div class="col-title">{{ $t('app.tag') }}</div>
                         <el-autocomplete class="col-content"
                                          size="small"
                                          v-model="searchWord_tag"
@@ -207,7 +206,7 @@
                     <span class="dialog-footer">
                         <el-button type="primary"
                                    @click="">
-                            {{ $t('mainContainer.search') }}
+                            {{ $t('opr.search') }}
                         </el-button>
                     </span>
                 </template>
@@ -227,13 +226,13 @@
 import { inject, ref, Ref, shallowReactive, shallowRef, watch, onMounted, provide } from 'vue';
 import { useRoute } from 'vue-router'
 import i18n from '../locales/index'
+import { autoCompleteType } from '../store/enum'
 import ItemsContainerCommon from './ItemsContainerCommon.vue'
 import ItemsContainerByAuthor from './ItemsContainerByAuthor.vue'
 import ItemsContainerOfFav from './ItemsContainerOfFav.vue'
 import ItemsTagFolderList from './ItemsTagFolderList.vue'
 import AutoCompleteSuggestion from './AutoCompleteSuggestion.vue'
 import DialogManageData from './DialogManageData.vue';
-
 const route = useRoute()
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 
@@ -256,8 +255,8 @@ watch(() => route.query.id, () => {
 const componentActive = shallowRef<any>(ItemsContainerCommon)
 const componentActiveIndex = ref(0)
 const componentData = shallowReactive([
-    { name: i18n.global.t('mainContainer.item'), component: ItemsContainerCommon },
-    { name: i18n.global.t('mainContainer.author'), component: ItemsContainerByAuthor },
+    { name: i18n.global.t('app.item'), component: ItemsContainerCommon },
+    { name: i18n.global.t('app.author'), component: ItemsContainerByAuthor },
     { name: i18n.global.t('mainContainer.fav'), component: ItemsContainerOfFav },
     { name: i18n.global.t('mainContainer.infoList'), component: ItemsTagFolderList }
 ])
@@ -267,9 +266,6 @@ function switchComponent(index: number) {
 }
 
 /******************** 搜索 autoComplete querywords列表********************/
-// ALL 不包含Folder
-enum autoCompleteType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
-
 /* 通用搜索 */
 const searchWord_all = ref<string>('')
 const autoCompSug_all = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.ALL, queryString, 20).then((a) => { cb(a) }) }
@@ -433,29 +429,5 @@ const isVisibleAdvancedSearch = ref(false)
     flex: 1;
     overflow: hidden;
     display: flex;
-}
-</style>
-<style>
-.dialogCol {
-    display: flex;
-    justify-content: center;
-    line-height: 26px;
-    margin: 15px 0;
-}
-
-.dialogCol .col-title {
-    width: 60px;
-    margin-right: 10px;
-}
-
-.dialogCol .col-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-.col-content>div {
-    display: flex;
-    margin-bottom: 5px;
 }
 </style>

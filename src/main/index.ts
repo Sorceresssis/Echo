@@ -1,8 +1,7 @@
-// index.ts
 import { BrowserWindow, app } from "electron";
 import { createWindow } from "./mainWindow";
 import { config, readConfig } from './config'
-import { mkdirsSync } from './util/mkdirsSync'
+import { mkdirsSync } from './util/FileManager'
 import { IPCMain } from './ipcMain'
 const path = require('path');
 

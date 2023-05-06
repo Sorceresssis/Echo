@@ -34,11 +34,10 @@
                 </div>
                 <div>
                     <div>
-                        <h3 id="section-1"></h3>
+                        <h3 id="section-1">注意</h3>
                         <div>
-
-                            <p>fdfdfdf
-
+                            <p>
+                                作者， 标题可以重名，但是tag,系列，不能改软件不能保存相同的
                             </p>
                         </div>
                     </div>

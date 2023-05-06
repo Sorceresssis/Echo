@@ -105,36 +105,3 @@ onMounted(async () => {
     overflow: hidden;
 }
 </style>
-
-<style>
-.button {
-    display: inline-block;
-    flex-shrink: 0;
-    height: 26px;
-    padding: 0 15px;
-    border: 1px solid #dcdfe6;
-    box-sizing: border-box;
-    box-shadow: 0 0 4px 1px #eaeaea inset;
-    background-color: #fff;
-    vertical-align: bottom;
-    line-height: 26px;
-    font-size: 13px;
-}
-
-.button:hover {
-    background-color: #e7e7e7;
-}
-
-.button span {
-    display: inline-block;
-    line-height: 24px;
-    width: 100%;
-    height: 100%;
-    vertical-align: top;
-    color: #474747;
-}
-
-.button span:active {
-    transform: translate(.5px, .5px);
-}
-</style>

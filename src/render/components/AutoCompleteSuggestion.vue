@@ -24,6 +24,13 @@
         </div>
         <div class="type">#</div>
     </div>
+    <div v-else-if="item.type == 'ser'"
+         class="suggestion-inner">
+        <div class="suggestion-text">
+            {{ item.value }}
+        </div>
+        <div class="type">#</div>
+    </div>
     <div v-else
          class="suggestion-inner">
         <div class="suggestion-text">
@@ -52,6 +59,7 @@ const props = defineProps<{
     max-width: 500px;
     justify-content: space-between;
     padding: 5px 0;
+    font-size: 13px;
 }
 
 .type {

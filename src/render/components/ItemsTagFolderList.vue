@@ -2,12 +2,12 @@
     <div>
         <div class="infoRow"
              style="width:40%">
-            <h3 class="infoRow__title">标签</h3>
+            <h3 class="infoRow__title">{{ $t('app.tag') }}</h3>
             <div class="list">
                 <ul>
                     <li v-for="tag in tags"
                         :key="tag.id"
-                        @dblclick="clibboardWriteText(tag.value)">
+                        @contextmenu="clibboardWriteText(tag.value)">
                         <span>{{ tag.value }}</span>
                         <span class="itemCount">{{ tag.itemCount }}</span>
                     </li>
@@ -16,12 +16,14 @@
         </div>
         <div class="infoRow"
              style="width: 60%;">
-            <h3 class="infoRow__title">文件夹</h3>
+            <h3 class="infoRow__title">{{ $t('app.folder') }}</h3>
             <div class="list">
                 <ul>
+                    <!-- TODO 双击在打开文件夹 -->
                     <li v-for="folder in folders"
                         :key="folder.id"
-                        @dblclick="clibboardWriteText(folder.value)">
+                        @dblclick=""
+                        @contextmenu="clibboardWriteText(folder.value)">
                         <span>{{ folder.value }}</span>
                         <span class="itemCount">{{ folder.itemCount }}</span>
                     </li>

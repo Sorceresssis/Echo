@@ -1,6 +1,6 @@
 import Sqlite from './util/Sqlite'
 import { config } from './config'
-import { mkdirsSync } from './util/mkdirsSync'
+import { mkdirsSync } from './util/FileManager'
 const path = require('path');
 const fs = require('fs')
 
