@@ -106,7 +106,7 @@
                     <div class="col-title">{{ $t('app.author') }}</div>
                     <div class="col-content">
                         <div>
-                            <el-autocomplete v-model="add_author"
+                            <el-autocomplete v-model="add_input_author"
                                              placeholder="添加已经有的，不能直接新建一个作者"
                                              clearable
                                              :trigger-on-focus="false"
@@ -137,7 +137,7 @@
                     <div class="col-title">{{ $t('app.tag') }}</div>
                     <div class="col-content">
                         <div>
-                            <el-autocomplete v-model="add_tag"
+                            <el-autocomplete v-model="add_input_tag"
                                              :placeholder="$t('dialog.inputTag')"
                                              clearable
                                              :trigger-on-focus="false"
@@ -162,7 +162,7 @@
                         <div>
                             <el-autocomplete clearable
                                              :trigger-on-focus="false"
-                                             :fetch-suggestions="autoCompSug_folder"
+                                             :fetch-suggestions="autoCompSug_series"
                                              onfocus="this.select()">
                                 <template #default="{ item }">
                                     <AutoCompleteSuggestion :item="item" />
@@ -408,9 +408,9 @@ const autoCompSug_folder = (queryString: string, cb: any) => {
     })
 }
 const autoCompSug_series = (queryString: string, cb: any) => {
-    // window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.SERIES_TITLE, queryString, 20).then((a) => {
-    //     cb(a)
-    // })
+    window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.SERIES_NAME, queryString, 20).then((a) => {
+        cb(a)
+    })
 }
 const separatePaths = (path: string | string[]) => {
     add_fileName.value = (path as string).substring((path as string).lastIndexOf('\\') + 1);
@@ -434,16 +434,23 @@ const add_title = ref<string>('')
 const add_coverImage = ref<string>('')
 const add_authors = ref<{ id: number, name: string }[]>([{ id: 0, name: 'fdf' }, { id: 1, name: 'fdf' }])
 const add_tags = ref<string[]>(['tag1', 'tag2', 'tag3'])
+const add_series = ref<string[]>(['series1', 'series2', 'series3'])
 const add_intro = ref<string>('')
 const add_info = ref<string>('')
 
+const add_input_series = ref<string>('')
+const add_input_author = ref<string>('')
+const add_input_tag = ref<string>('')
 
-const add_author = ref<string>('')
-const add_tag = ref<string>('')
+
+const add_Item = () => {
+}
 
 
-/******************** deleteItem by folder ********************/
+
+/******************** deleteItem ********************/
 const de_item_Byfolder = ref<string>('')
+const de_item_Byseries = ref<string>('')
 
 
 /******************** add Author ********************/

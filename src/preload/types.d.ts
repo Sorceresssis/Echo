@@ -23,7 +23,7 @@ export interface IElectronAPI {
 
 
     /******************** library ********************/
-    libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete>
+    libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete[]>
     getItems: (libraryID: number) => Promise<itemProfile[]>
     getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => Promise<itemProfile[]>
     getItemsOfFav: (libraryID: number, getItemsOption: getItemsOption) => Promise<itemProfile[]>

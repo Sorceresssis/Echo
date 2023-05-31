@@ -7,8 +7,8 @@ const fs = require('fs')
 
 enum getItemsType { common = 0, noAuthor, byAuthor, ofFav }
 enum queryType { noQuery = 0, commonQuery, advancedQuery }
-// ALL 不包含Folder
-enum autoCompleteType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, ALL }
+// ALL 不包含folder, series
+enum autoCompleteType { ITEM_TITLE = 0, AUTHOR_NAME, TAG_TITLE, FOLDER_PATH, SERIES_NAME, ALL }
 enum AttributeType { TAG, FOLDER }
 export class DBLibrary {
     dbLibrary: Sqlite
@@ -53,11 +53,12 @@ export class DBLibrary {
 
     async autoComplete(type: autoCompleteType, queryWords: string, pagesize: number) {
         let query: string = (queryWords as string).trim()
-        if (type > 4 || type < 0) return []
+        // 类型检查合法
+        if (type > 5 || type < 0) return []
         let words: string[] = query.split(/\s+/)
 
         const tableInfo = [{ type: 'item', field: 'title' }, { type: 'author', field: 'name' },
-        { type: 'tag', field: 'title' }, { type: 'folder', field: 'path' }]
+        { type: 'tag', field: 'title' }, { type: 'folder', field: 'path' }, { type: 'series', field: 'name' }]
         let SQL: string[] = ['SELECT type, id, value FROM ('];
 
         if (type == autoCompleteType.ALL) {
@@ -279,6 +280,35 @@ export class DBLibrary {
             }
         }
         return 'ORDER BY ' + SQL.join(', ')
+    }
+
+    async addItem() {
+        let addInfo = {
+            title: 'test',
+            folderPath: 'F:\fdf\fd',
+            hyperlink: 'https://www.example.com',
+        }
+
+        // 插入folder 并得到folderID
+        let folderID = null
+        if (addInfo.folderPath !== '') {
+            this.dbLibrary.run('', [addInfo.title, addInfo.hyperlink])
+        }
+
+        // 插入item 并得到itemID
+        this.dbLibrary.run(``)
+        const itemID = (await this.dbLibrary.get(`SELECT LAST_INSERT_ROWID() as lastInsert`)).lastInsert
+
+        // 插入item_author
+        this.dbLibrary.run('')
+
+
+
+        this.dbLibrary.close();
+    }
+
+    async addItemsFromFolder() {
+
     }
 }
 

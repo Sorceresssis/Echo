@@ -24,12 +24,12 @@
         </div>
         <div class="type">#</div>
     </div>
-    <div v-else-if="item.type == 'ser'"
+    <div v-else-if="item.type == 'series'"
          class="suggestion-inner">
         <div class="suggestion-text">
             {{ item.value }}
         </div>
-        <div class="type">#</div>
+        <div class="type">www</div>
     </div>
     <div v-else
          class="suggestion-inner">
