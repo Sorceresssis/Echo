@@ -26,8 +26,8 @@ export class DBLibrary {
     async createDBLibrary(filePath: string) {
         this.dbLibrary.connect(filePath)
         await this.dbLibrary.exec(`
-            CREATE TABLE item( id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(255) NOT NULL, createTime DATETIME NOT NULL DEFAULT(DATETIME(CURRENT_TIMESTAMP, 'localtime')), hits INT DEFAULT 0, hasImage BOOLEAN DEFAULT 0, isFav BOOLEAN DEFAULT 0, hyperlink TEXT, folder_id INTEGER);
-            CREATE TABLE item_detail( id INTEGER NOT NULL, flieName TEXT, intro TEXT, info TEXT );
+            CREATE TABLE 'item'( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'title' VARCHAR(255) NOT NULL, 'createTime' DATETIME NOT NULL DEFAULT(DATETIME(CURRENT_TIMESTAMP, 'localtime')), hits INT DEFAULT 0, hasImage BOOLEAN DEFAULT 0, isFav BOOLEAN DEFAULT 0, hyperlink TEXT, folder_id INTEGER);
+            CREATE TABLE 'item_detail'( 'id' INTEGER NOT NULL, 'flieName' TEXT, 'intro' TEXT, 'info' TEXT );
             CREATE TABLE folder( id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT NOT NULL UNIQUE );
             CREATE TABLE tag( id INTEGER PRIMARY KEY AUTOINCREMENT, title VARCHAR(255) NOT NULL UNIQUE );
             CREATE TABLE item_tag( item_id INTEGER NOT NULL, tag_id INTEGER NOT NULL, UNIQUE(item_id, tag_id) );

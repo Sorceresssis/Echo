@@ -1,5 +1,5 @@
 import { BrowserWindow, app } from "electron";
-import { createWindow } from "./mainWindow";
+import { createWindow } from "./window/main.window";
 import { config, readConfig } from './config'
 import { mkdirsSync } from './util/FileManager'
 import { IPCMain } from './ipcMain'
