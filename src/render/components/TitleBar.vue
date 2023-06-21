@@ -1,5 +1,5 @@
 <template>
-    <div class="titleBar">
+    <div class="titlebar">
         <div>
             <span class="iconfont"
                   @click="router.go(-1)">&#xe66d;</span>
@@ -48,14 +48,12 @@ function windowClose() {
 </script>
 
 <style scoped>
-.titleBar {
+.titlebar {
     display: flex;
-    height: 50px;
     justify-content: space-between;
     align-items: center;
     line-height: 40px;
     padding: 0 8px;
-    -webkit-app-region: drag;
 }
 
 span,

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3790846 */
-  src: url('iconfont.woff2?t=1683036330084') format('woff2'),
-       url('iconfont.woff?t=1683036330084') format('woff'),
-       url('iconfont.ttf?t=1683036330084') format('truetype');
+  src: url('iconfont.woff2?t=1687367214748') format('woff2'),
+       url('iconfont.woff?t=1687367214748') format('woff'),
+       url('iconfont.ttf?t=1687367214748') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,54 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-close:before {
+  content: "\e69e";
+}
+
+.icon-close1:before {
+  content: "\e64d";
+}
+
+.icon-close2:before {
+  content: "\e668";
+}
+
+.icon-close-bold:before {
+  content: "\e685";
+}
+
+.icon-window-minimize3:before {
+  content: "\e67a";
+}
+
+.icon-window-restore:before {
+  content: "\e607";
+}
+
+.icon-window-restore1:before {
+  content: "\e669";
+}
+
+.icon-window-restore2:before {
+  content: "\e673";
+}
+
+.icon-Library:before {
+  content: "\e69c";
+}
+
+.icon-edit:before {
+  content: "\e722";
+}
+
+.icon-edit1:before {
+  content: "\e62e";
+}
+
+.icon-edit2:before {
+  content: "\e60d";
 }
 
 .icon-sousuo:before {
@@ -23,10 +71,6 @@
 
 .icon-sousuo2:before {
   content: "\e86e";
-}
-
-.icon-copy:before {
-  content: "\e706";
 }
 
 .icon-copy1:before {
@@ -271,6 +315,14 @@
 
 .icon-window-minimize1:before {
   content: "\e609";
+}
+
+.icon-window-minimize2:before {
+  content: "\e66a";
+}
+
+.icon-window-maximize2:before {
+  content: "\e679";
 }
 
 .icon-maximize:before {

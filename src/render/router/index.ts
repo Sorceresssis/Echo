@@ -1,23 +1,33 @@
-import { createRouter, createWebHashHistory, RouteRecord, RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 
 
 const routes: Array<RouteRecordRaw> = [
     {
-        path: "/",
+        path: '/',
         component: () => import('../components/MainContainer.vue'),
     },
     {
-        path: "/setting",
+        path: '/library/:id',
+        component: () => import('../components/MainContainer.vue'),
+        children: [
+            {
+                path: 'author',
+                component: () => import('../components/Author.vue')
+            }
+        ]
+    },
+    {
+        path: '/setting',
         component: () => import('../components/Settings.vue')
     },
     {
-        path: "/author",
+        path: '/author',
         component: () => import('../components/Author.vue')
     }
 ]
 
 const router = createRouter({
-    history: createWebHashHistory(),
+    history: createWebHistory(),
     routes
 })
 

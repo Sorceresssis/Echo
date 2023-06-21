@@ -1,4 +1,15 @@
 export default {
+    titlebar: {
+        back: '返回',
+        forward: '前进',
+        setting: '设置',
+        minimize: '最小化',
+        maximize: '最大化',
+        restore: '还原',
+        close: '关闭',
+    },
+
+
     app: {
         item: '记录',
         title: '标题',

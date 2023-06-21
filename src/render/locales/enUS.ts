@@ -1,4 +1,15 @@
 export default {
+    titlebar: {
+        back: 'back',
+        forward: 'forward',
+        setting: 'setting',
+        minimize: 'minimize',
+        maximize: 'maximize',
+        restore: 'restore',
+        close: 'close',
+    },
+
+
     ctm: {
         addLibrary: 'Add Library',
         rename: 'Rename',

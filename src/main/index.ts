@@ -15,13 +15,14 @@ async function bootstrap() {
         IPCMain()
         // 启动窗口
         createWindow(null)
+
         app.on('activate', () => {
             if (BrowserWindow.getAllWindows().length === 0) createWindow(null)
         })
     });
 }
-bootstrap();
 
+bootstrap();
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit();

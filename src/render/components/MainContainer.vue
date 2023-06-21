@@ -1,6 +1,5 @@
 <template>
     <div>
-        <div id="libraryName">{{ route.query.name }}</div>
         <div id="menu">
             <div id="leftMenu">
                 <div v-for="(component, index) in componentData"
@@ -257,8 +256,9 @@ const componentActiveIndex = ref(0)
 const componentData = shallowReactive([
     { name: i18n.global.t('app.item'), component: ItemsContainerCommon },
     { name: i18n.global.t('app.author'), component: ItemsContainerByAuthor },
-    { name: i18n.global.t('mainContainer.fav'), component: ItemsContainerOfFav },
-    { name: i18n.global.t('mainContainer.infoList'), component: ItemsTagFolderList }
+    // { name: i18n.global.t('mainContainer.fav'), component: ItemsContainerOfFav },
+    { name: i18n.global.t('mainContainer.infoList'), component: ItemsTagFolderList },
+    { name: '回收站', component: '' }
 ])
 function switchComponent(index: number) {
     componentActive.value = componentData[index].component
@@ -320,15 +320,9 @@ const isVisibleAdvancedSearch = ref(false)
 </script>
 
 <style scoped>
-#libraryName {
-    margin: 0 10px;
-    font-size: 30px;
-    font-weight: 700;
-}
-
 #menu {
     display: flex;
-    margin: 10px;
+    margin: 6px 10px;
     justify-content: space-between;
 }
 
@@ -358,7 +352,6 @@ const isVisibleAdvancedSearch = ref(false)
     width: 50%;
     justify-content: right;
     align-items: center;
-    padding-right: 8px;
 }
 
 .rightMenuItem {

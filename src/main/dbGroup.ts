@@ -214,3 +214,9 @@ export async function moveLibrary(e: IpcMainInvokeEvent, toGroupId: number, libr
     }
     return flag
 }
+
+
+class GroupDao {
+
+
+}

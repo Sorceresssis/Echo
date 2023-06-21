@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain, app } from 'electron'
-import { createWindow } from '../mainWindow'
-import { createItemWindow } from '../itemWindow'
+import { createWindow } from '../window/main.window'
+import { createItemWindow } from '../window/record.window'
 
 export function IPCMain_window() {
     ipcMain.handle('window:relaunch', () => {

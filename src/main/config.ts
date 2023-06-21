@@ -1,5 +1,5 @@
 import { app } from "electron"
-const path = require('path');
+const path = require('path')
 const fs = require('fs')
 
 type lang = {
