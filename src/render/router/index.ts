@@ -4,25 +4,25 @@ import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
-        component: () => import('../components/MainContainer.vue'),
+        component: () => import('../views/Welcome.vue'),
     },
     {
         path: '/library/:id',
-        component: () => import('../components/MainContainer.vue'),
+        component: () => import('../views/library/Library.vue'),
         children: [
             {
                 path: 'author',
-                component: () => import('../components/Author.vue')
+                component: () => import('../views/library/Author.vue')
+            },
+            {
+                path: 'add',
+                component: () => import('../views/library/AddRecord.vue')
             }
         ]
     },
     {
         path: '/setting',
-        component: () => import('../components/Settings.vue')
-    },
-    {
-        path: '/author',
-        component: () => import('../components/Author.vue')
+        component: () => import('../views/Settings/Settings.vue')
     }
 ]
 

@@ -1,3 +1,4 @@
+/******************** echo ********************/
 :root {
     --echo-background-color: #f6f6f8;
     --echo-theme-color: #887cf7;
@@ -7,6 +8,26 @@
     --echo-text-color3: #474747;
 }
 
+.titlebar {
+    height: 50px;
+    line-height: 50px;
+    -webkit-app-region: drag;
+}
+
+.scrollbar-y {
+    overflow-y: scroll;
+}
+
+.scrollbar-y::-webkit-scrollbar {
+    background-color: transparent;
+}
+
+.scrollbar-y::-webkit-scrollbar-thumb {
+    background-color: #cfcfcf;
+}
+
+
+/******************** common ********************/
 .flex-col {
     display: flex;
     flex-direction: column;
@@ -23,12 +44,6 @@
 
 .overflow-hidden {
     overflow: hidden;
-}
-
-.titlebar {
-    height: 50px;
-    line-height: 50px;
-    -webkit-app-region: drag;
 }
 
 .no-drag {
@@ -58,20 +73,14 @@
     text-overflow: ellipsis;
 }
 
-
-
-
-
-
-
-
-
-
 /* 分割线 */
 .divider {
     border-top: 1px dashed #ccc;
     margin: 10px 0;
 }
+
+
+
 
 /* dialog */
 .dialogCol {

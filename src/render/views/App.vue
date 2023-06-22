@@ -1,8 +1,7 @@
 <template>
     <div class="flex-1 flex-row overflow-hidden">
         <Transition name="slide">
-            <sidebar v-show="isOpenSideBar"
-                     class="sidebar"></sidebar>
+            <sidebar v-show="isOpenSideBar"></sidebar>
         </Transition>
         <div class="flex-col">
             <div class="titlebar"></div>
@@ -26,27 +25,23 @@ import Sidebar from './Sidebar.vue'
 import Titlebar from './Titlebar.vue'
 
 /* 正在打开的Library */
-const activeLibrary = ref<library>({ id: 0, name: '' })
+const activeLibrary = ref<Library>({ id: 0, name: '' })
 provide('activeLibrary', activeLibrary)
 
 /* 侧边开关 */
 const isOpenSideBar = ref<boolean>(true)
-
 </script>
 
 <style scoped>
-.sidebar {
-    width: 230px;
-}
-
 .slide-track {
     align-items: center;
-    color: #505050;
 }
 
 .slide-thumb {
     height: 25px;
     line-height: 25px;
+    color: #505050;
+    transform: translateY(-25px);
 }
 
 .slide-thumb:hover {

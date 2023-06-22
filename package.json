@@ -8,7 +8,6 @@
     "dev:render": "vite",
     "build:render": "vue-tsc && vite build",
     "build:preload": "tsc -p ./src/preload",
-    "build:base": "tsc -p ./src/base",
     "dev:electron": "npm run build:electron && electron .",
     "build:electron": "npm run build:preload && tsc -p ./src/main && tsc -p ./src/share",
     "dev": "concurrently \"npm run dev:render\" \"npm run dev:electron\"",

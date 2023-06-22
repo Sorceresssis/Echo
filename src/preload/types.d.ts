@@ -22,6 +22,8 @@ export interface IElectronAPI {
     moveLibrary: (toGroupId: number, moveLibraryId: number) => Promise<boolean>
 
 
+    getLibraryNameByID: (id: number) => Promise<Result>
+
     /******************** library ********************/
     libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete[]>
     getItems: (libraryID: number) => Promise<itemProfile[]>
@@ -46,12 +48,12 @@ export interface IElectronAPI {
 
 
     /******************** window ********************/
-    windowRelaunch: () => Promise<void>
     createMainWindow: (library: library) => Promise<void>
     createItemWinodw: (libraryID: number, itemID: number) => Promise<void>
+    windowRelaunch: () => Promise<void>
     windowMinmize: () => Promise<void>
     windowMaxmize: () => Promise<void>
-    windowIsMaxmize: (callback: (e: any, value: any) => void) => Promise<any>
+    windowIsMaxmize: (callback: (e: IpcRendererEvent, value: any) => void) => Promise<any>
     windowClose: () => Promise<void>
 }
 

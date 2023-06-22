@@ -12,7 +12,7 @@
             <div id="rightMenu">
                 <el-autocomplete class="inputSearch"
                                  size="small"
-                                 :placeholder="i18n.global.t('mainContainer.universalSearch')"
+                                 :placeholder="t('mainContainer.universalSearch')"
                                  clearable
                                  v-model="searchWord_all"
                                  :disabled="componentActiveIndex == 3"
@@ -24,21 +24,21 @@
                         <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
                     </template>
                 </el-autocomplete>
-                <div :title="i18n.global.t('mainContainer.advancedSearch')"
+                <div :title="t('mainContainer.advancedSearch')"
                      class="el-dropdown">
                     <span class="rightMenuItem iconfont"
                           @click="isVisibleAdvancedSearch = true">
                         &#xe66b;
                     </span>
                 </div>
-                <div :title="i18n.global.t('mainContainer.manageData')"
+                <div :title="t('mainContainer.manageData')"
                      class="el-dropdown">
                     <span class="rightMenuItem iconfont"
                           @click="isVisibleManageData = true">
                         &#xe7f4;
                     </span>
                 </div>
-                <el-dropdown :title="i18n.global.t('mainContainer.filter')"
+                <el-dropdown :title="t('mainContainer.filter')"
                              trigger="click"
                              popper-class="dropdown">
                     <span class="rightMenuItem iconfont">
@@ -64,7 +64,7 @@
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-dropdown :title="i18n.global.t('mainContainer.sort')"
+                <el-dropdown :title="t('mainContainer.sort')"
                              trigger="click"
                              popper-class="dropdown">
                     <span class="rightMenuItem iconfont">
@@ -101,7 +101,7 @@
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <el-dropdown :title="i18n.global.t('mainContainer.display')"
+                <el-dropdown :title="t('mainContainer.display')"
                              trigger="click"
                              popper-class="dropdown">
                     <span class=" rightMenuItem iconfont">
@@ -137,18 +137,18 @@
                 {{ tag }}
             </div>
         </div>
-        <Suspense>
+        <!-- <Suspense>
             <KeepAlive>
                 <component id="ItemsContainer"
                            :is="componentActive"
                            :getItemsOption="getItemsOption">
                 </component>
             </KeepAlive>
-        </Suspense>
-        <div>
+        </Suspense> -->
+        <!-- <div>
             <el-dialog v-model="isVisibleAdvancedSearch"
                        align-center
-                       :title="i18n.global.t('mainContainer.advancedSearch')"
+                       :title="t('mainContainer.advancedSearch')"
                        width="400px"
                        class="dialog">
                 <div>
@@ -212,51 +212,60 @@
             </el-dialog>
             <el-dialog v-model="isVisibleManageData"
                        align-center
-                       :title="i18n.global.t('mainContainer.manageData')"
+                       :title="t('mainContainer.manageData')"
                        width="600px"
                        class="dialog">
                 <DialogManageData></DialogManageData>
             </el-dialog>
-        </div>
+        </div> -->
     </div>
 </template>
   
 <script lang="ts" setup>
 import { inject, ref, Ref, shallowReactive, shallowRef, watch, onMounted, provide } from 'vue';
 import { useRoute } from 'vue-router'
-import i18n from '../locales/index'
-import { autoCompleteType } from '../store/enum'
+import { t } from '../../locales'
+import { autoCompleteType } from '../../store/enum'
 import ItemsContainerCommon from './ItemsContainerCommon.vue'
 import ItemsContainerByAuthor from './ItemsContainerByAuthor.vue'
 import ItemsTagFolderList from './ItemsTagFolderList.vue'
 import AutoCompleteSuggestion from './AutoCompleteSuggestion.vue'
 import DialogManageData from './DialogManageData.vue';
-const route = useRoute()
-const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 
-// 第一次启动，更新activeLibrary
-onMounted(() => {
-    activeLibrary.value = { id: parseInt(route.query.id as string), name: route.query.name as string }
-    // 改网页标题
-    document.title = activeLibrary.value.name == '' ? 'Echo' : activeLibrary.value.name + " - Echo";
+
+const route = useRoute()
+
+const activeLibrary = inject<Ref<Library>>('activeLibrary') as Ref<Library>
+
+watch(() => route.params.id as string, (newVal: string) => {
+    op(Number.parseInt(newVal))
 })
-// 参数变化，跟新activeLibrary
-watch(() => route.query.id, () => {
-    activeLibrary.value = { id: parseInt(route.query.id as string), name: route.query.name as string }
-    // 改网页标题
-    document.title = activeLibrary.value.name == '' ? 'Echo' : activeLibrary.value.name + " - Echo";
-    switchComponent(0)
+
+const op = (libraryId: number) => {
+    activeLibrary.value = { id: libraryId, name: 'test' + libraryId }
     // TODO 清空搜索词
-})
+}
+
 
 /******************** 组件切换 ********************/
+const componentList = shallowReactive([
+    {},
+    {}
+])
+
+
+onMounted(() => {
+    op(Number.parseInt(route.params.id as string))
+})
+
+
+
 const componentActive = shallowRef<any>(ItemsContainerCommon)
 const componentActiveIndex = ref(0)
 const componentData = shallowReactive([
-    { name: i18n.global.t('app.item'), component: ItemsContainerCommon },
-    { name: i18n.global.t('app.author'), component: ItemsContainerByAuthor },
-    // { name: i18n.global.t('mainContainer.fav'), component: ItemsContainerOfFav },
-    { name: i18n.global.t('mainContainer.infoList'), component: ItemsTagFolderList },
+    { name: t('app.item'), component: ItemsContainerCommon },
+    { name: t('app.author'), component: ItemsContainerByAuthor },
+    { name: t('mainContainer.infoList'), component: ItemsTagFolderList },
     { name: '回收站', component: '' }
 ])
 function switchComponent(index: number) {

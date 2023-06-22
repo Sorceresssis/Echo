@@ -1,15 +1,12 @@
 import DatabaseConstructor, { Database } from "better-sqlite3";
-const DB = require('better-sqlite3')
 
 
 
-
-
-export default class Sqlite3 {
+export class DBUtil {
     db: Database
 
     constructor(path: string) {
-        this.db = new DB(path)
+        this.db = new DatabaseConstructor(path)
         this.db.pragma('journal_mode = WAL')
     }
 
@@ -21,8 +18,18 @@ export default class Sqlite3 {
         return this.db.prepare(sql).get(arg)
     }
 
-    all(sql: string, ...arg: any[]) {
+    all(sql: string, ...arg: any[]): any[] {
         return this.db.prepare(sql).all(arg)
+    }
+
+    run(sql: string, ...arg: any[]) {
+        return this.db.prepare(sql).run(arg)
+    }
+    exec(sql: string) {
+        this.db.exec(sql)
+    }
+    function(name: string, fn: (...arg: any[]) => any) {
+
     }
 
     close() {

@@ -41,6 +41,7 @@
 <script setup lang='ts'>
 import { onMounted, ref, Ref, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
+import { t } from '../locales'
 
 const router = useRouter()
 
@@ -49,24 +50,38 @@ const windowMinmize = () => window.electronAPI.windowMinmize()
 const windowMaxmize = () => window.electronAPI.windowMaxmize()
 const windowClose = () => window.electronAPI.windowClose()
 
-const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
-watch(activeLibrary, (newVal) => {
-    document.title = `${newVal.name} - Echo`
-})
 
-onMounted(() => {
-    window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
-})
+const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 
 const canGoBack = ref<boolean>(false)
 const canGoForward = ref<boolean>(false)
 watch(router.currentRoute, () => {
+    /* 监听路由变化，判断是否可以继续进行前进和后退来提示用户 */
     const position: number = window.history.state.position
     const length: number = window.history.length
-    // 当前href的位置是第一个
-    canGoBack.value = position !== 0
-    // 当前href的位置是最后一个
-    canGoForward.value = position !== length - 1
+    canGoBack.value = position !== 0   // 当前href的位置是第一个
+    canGoForward.value = position !== length - 1   // 当前href的位置是最后一个
+
+    /* 根据路由修改标题 */
+    const currentPath: string = router.currentRoute.value.fullPath
+    if (currentPath.startsWith('/library')) {
+        document.title = `${activeLibrary.value.name} - Echo`
+    }
+    else {
+        activeLibrary.value = { id: 0, name: '' }  // 重置当前激活的库
+        if (currentPath.startsWith('/setting')) {
+            document.title = `${t('settings.settings')} - Echo`
+        } else {
+            document.title = `Echo`
+        }
+    }
+})
+
+onMounted(async () => {
+    // 监听窗口最大化
+    window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
+    console.log(await window.electronAPI.getLibraryNameByID(1));
+
 })
 </script>
 

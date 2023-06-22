@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron"
+import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
 
 enum OpenDialogType { DIR = 0, FILE, IMAGE, VIDEO }
@@ -19,6 +19,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     renameLibrary: (LibraryID: number, rename: string) => ipcRenderer.invoke('library:rename', LibraryID, rename),
     deleteLibrary: (LibraryID: number) => ipcRenderer.invoke('library:delete', LibraryID),
     moveLibrary: (toGroupId: number, moveLibraryId: number) => ipcRenderer.invoke('library:move', toGroupId, moveLibraryId),
+
+
+    getLibraryNameByID: (id: number) => ipcRenderer.invoke('library:getLibraryNameByID', id),
+
 
 
     /******************** db_library ********************/
@@ -51,7 +55,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     createItemWinodw: (libraryID: number, itemID: number) => ipcRenderer.invoke('window:createItemWindow', libraryID, itemID),
     windowMinmize: () => ipcRenderer.invoke('window:minmize'),
     windowMaxmize: () => ipcRenderer.invoke('window:maxmize'),
-    windowIsMaxmize: (callback: (e: any, value: boolean) => void) => ipcRenderer.on('window:isMaxmize', callback),
+    windowIsMaxmize: (callback: (e: IpcRendererEvent, value: boolean) => void) => ipcRenderer.on('window:isMaxmize', callback),
     windowClose: () => ipcRenderer.invoke('window:close')
 })
 
