@@ -9,7 +9,7 @@ export interface IElectronAPI {
 
 
     /******************** db_group ********************/
-    getGroups: () => Promise<group[]>
+    getGroups: () => Promise<Result>
     addGroup: (groupName: string) => Promise<number | null>
     updataOrderGroup: (groupsId: number[]) => Promise<void>
     renameGroup: (groupID: number, rename: string) => Promise<boolean>
@@ -74,10 +74,7 @@ declare global {
         name: string
         librarys: library[]
     }
-    interface library {
-        id: number
-        name: string
-    }
+
     declare interface itemProfile {
         id: number
         title: string

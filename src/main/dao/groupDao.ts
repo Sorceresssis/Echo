@@ -30,7 +30,7 @@ export class GroupDao {
         this.db = new DBUtil(path)
     }
 
-    createDBGroup() {
+    createDBGroup(): void {
         this.db.transaction(() => {
             this.db.exec(`
             DROP TABLE IF EXISTS 'group';
@@ -45,7 +45,7 @@ export class GroupDao {
         })
     }
 
-    getGroups() {
+    getGroups(): Group[] {
         // 获得组的信息
         const gs: Profile[] = this.db.all(`
         WITH RECURSIVE group_list AS (
@@ -78,8 +78,8 @@ export class GroupDao {
 
     }
 
-    getLibraryNameByID(id: number) {
-        return this.getGroups()
+    getLibraryNameByID(id: number): string {
+        return (this.db.get(`SELECT name FROM library WHERE id = ?;`, id) as { name: string }).name
     }
 
     addLibrary(groupID: number, name: string) {

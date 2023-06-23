@@ -12,7 +12,7 @@
         </div>
         <div class="titlebar__title flex-1 min-width-0 textover--ellopsis">
             <span>
-                {{ activeLibrary.name }}
+                {{ activeLibraryName }}
             </span>
         </div>
         <div class="flex">
@@ -51,11 +51,12 @@ const windowMaxmize = () => window.electronAPI.windowMaxmize()
 const windowClose = () => window.electronAPI.windowClose()
 
 
-const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const activeLibraryName = ref<string>('')
 
 const canGoBack = ref<boolean>(false)
 const canGoForward = ref<boolean>(false)
-watch(router.currentRoute, () => {
+watch(router.currentRoute, async () => {
     /* 监听路由变化，判断是否可以继续进行前进和后退来提示用户 */
     const position: number = window.history.state.position
     const length: number = window.history.length
@@ -65,10 +66,17 @@ watch(router.currentRoute, () => {
     /* 根据路由修改标题 */
     const currentPath: string = router.currentRoute.value.fullPath
     if (currentPath.startsWith('/library')) {
-        document.title = `${activeLibrary.value.name} - Echo`
+        // 获取library的名字
+        const libraryID: number = Number.parseInt(currentPath.match(/\/library\/(\d+)/)![1]);
+        activeLibrary.value = libraryID
+        // 根据libraryID获取library的名字
+        activeLibraryName.value = (await window.electronAPI.getLibraryNameByID(activeLibrary.value)).data
+        document.title = `${activeLibraryName.value} - Echo`
     }
     else {
-        activeLibrary.value = { id: 0, name: '' }  // 重置当前激活的库
+        // 重置当前激活的库
+        activeLibrary.value = 0
+        activeLibraryName.value = ''
         if (currentPath.startsWith('/setting')) {
             document.title = `${t('settings.settings')} - Echo`
         } else {
@@ -80,8 +88,6 @@ watch(router.currentRoute, () => {
 onMounted(async () => {
     // 监听窗口最大化
     window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
-    console.log(await window.electronAPI.getLibraryNameByID(1));
-
 })
 </script>
 

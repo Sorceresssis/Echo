@@ -8,9 +8,12 @@ import Result from '../pojo/result'
 export function ipcMainGroup() {
     const groupDao = new GroupDao(path.resolve(config.userDataPath, "database/group.db"))
 
-    ipcMain.handle('group:getGroups', (e: IpcMainInvokeEvent): IGroup[] => {
-        groupDao.getGroups()
-        return []
+    ipcMain.handle('group:getGroups', (e: IpcMainInvokeEvent): Result => {
+        try {
+            return Result.success(groupDao.getGroups())
+        } catch (e: any) {
+            return Result.error(e.message)
+        }
     })
 
     ipcMain.handle('group:add', (e: IpcMainInvokeEvent, a) => {
@@ -31,8 +34,7 @@ export function ipcMainGroup() {
     ipcMain.handle('library:getLibraryNameByID', (e: IpcMainInvokeEvent, id: number): Result => {
         try {
             return Result.success(groupDao.getLibraryNameByID(id))
-        }
-        catch (e: any) {
+        } catch (e: any) {
             return Result.error(e.message)
         }
     })

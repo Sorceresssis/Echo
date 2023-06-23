@@ -4,7 +4,7 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 enum OpenDialogType { DIR = 0, FILE, IMAGE, VIDEO }
 contextBridge.exposeInMainWorld('electronAPI', {
     /******************** 开始准备 ********************/
-    startOpenDB: (callback: (e: any, value: library) => void) => ipcRenderer.on('app:startOpenLibrary', callback),
+    startOpenDB: (callback: (e: any, value: Library) => void) => ipcRenderer.on('app:startOpenLibrary', callback),
     config: (index: string, newValue: any = null) => ipcRenderer.invoke('app:config', index, newValue),
 
     /******************** db_group ********************/
@@ -51,7 +51,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     /******************** window ********************/
     windowRelaunch: () => ipcRenderer.invoke('window:relaunch'),
-    createMainWindow: (library: library) => ipcRenderer.invoke('window:createMainWindow', library),
+    createMainWindow: (library: Library) => ipcRenderer.invoke('window:createMainWindow', library),
     createItemWinodw: (libraryID: number, itemID: number) => ipcRenderer.invoke('window:createItemWindow', libraryID, itemID),
     windowMinmize: () => ipcRenderer.invoke('window:minmize'),
     windowMaxmize: () => ipcRenderer.invoke('window:maxmize'),

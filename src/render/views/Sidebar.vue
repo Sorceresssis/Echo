@@ -26,71 +26,164 @@
                         <div v-if="true"
                              :class="[isExpandGroup[idx_group] ? 'angle-down' : 'angle-right']"
                              class="menu-item menu-row menu-group textover--ellopsis"
-                             @click="isExpandGroup[idx_group] = !isExpandGroup[idx_group]">
+                             @click="isExpandGroup[idx_group] = !isExpandGroup[idx_group]"
+                             @contextmenu="openCtm($event, idx_group)">
                             {{ group.name }}
                         </div>
                         <el-input v-else />
-                        <ul>
-                            <li></li>
-                            <li v-for="(library, idx_library) in group.librarys"
-                                :key="library.id">
-                                <div v-if="true"
-                                     :class="{ 'active-library': library.id === activeLibrary.id }"
-                                     class="menu-item menu-row menu-library textover--ellopsis"
-                                     @click="openLibrary(library)">
-                                    {{ library.name }}
-                                </div>
-                                <el-input v-else />
-                            </li>
-                        </ul>
+                        <collapse-transition>
+                            <ul v-show="isExpandGroup[idx_group]">
+                                <li></li>
+                                <li v-for="(library, idx_library) in group.librarys"
+                                    :key="library.id">
+                                    <div v-if="true"
+                                         :class="{ 'active-library': library.id === activeLibrary }"
+                                         class="menu-item menu-row menu-library textover--ellopsis"
+                                         @click="openLibrary(library.id)"
+                                         @contextmenu="openCtm($event, idx_group, idx_library)">
+                                        {{ library.name }}
+                                    </div>
+                                    <el-input v-else />
+                                </li>
+                            </ul>
+                        </collapse-transition>
                     </li>
                 </ul>
             </div>
         </div>
         <div>
-
+            <context-menu v-model:show="isVisibleCtmGroup"
+                          :options="ctmOptions">
+                <context-menu-item :label="t('ctm.addLibrary')"
+                                   @click="" />
+                <context-menu-item :label="t('ctm.rename')"
+                                   @click=" " />
+                <context-menu-item label="删除"
+                                   @click=" ">
+                    <template #icon>
+                        <span class="iconfont">&#xe61a;</span>
+                    </template>
+                </context-menu-item>
+            </context-menu>
+            <context-menu v-model:show="isVisibleCtmLibrary"
+                          :options="ctmOptions">
+                <context-menu-item label="在新窗口中打开"
+                                   @click=" " />
+                <context-menu-item label="重命名"
+                                   @click=" " />
+                <context-menu-item label="删除"
+                                   @click=" ">
+                    <template #icon>
+                        <span class="iconfont">&#xe61a;</span>
+                    </template>
+                </context-menu-item>
+                <context-menu-sperator />
+                <context-menu-group label="移动到">
+                    <context-menu-item v-for="(group, groupIndex) in groups"
+                                       :key="group.id"
+                                       :label="group.name"
+                                       @click=" " />
+                </context-menu-group>
+                <context-menu-item label="导出" />
+            </context-menu>
         </div>
     </div>
 </template>
 
 <script setup lang='ts'>
+import { ElMessage } from 'element-plus';
 import { ref, Ref, watch, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
+import { t } from '../locales'
+import { debounce } from '../util/debounce'
+import CollapseTransition from '../components/CollapseTransition.vue'
 
 const router = useRouter()
 
 // 和展开的情况
-const groups = ref<IGroup[]>([])
+const groups = ref<Group[]>([])
 const isExpandGroup = ref<boolean[]>([false, false, false, false, false, false])
-const getGroups = () => {
-    // window.electronAPI.getGroups().then((res: IGroup[]) => {
-    //     groups.value = res
-    // })
-}
-
 // 正在打开的Library
-const activeLibrary = inject<Ref<Library>>('activeLibrary') as Ref<Library>
-const openLibrary = (l: Library) => {
-    if (l.id !== activeLibrary.value.id) {
-        activeLibrary.value = l
-        router.push(`/library/${l.id}`)
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+
+
+const getGroups = async () => {
+    const resp = await window.electronAPI.getGroups()
+    if (resp.code === 1) {
+        groups.value = resp.data
+    } else {
+        ElMessage.error(resp.msg)
+    }
+}
+const openLibrary = (id: number) => {
+    if (id !== activeLibrary.value) {
+        router.push(`/library/${id}`)
     }
 }
 
-watch(isExpandGroup, (newVal: boolean[]) => {
-}, { deep: true })
-watch(activeLibrary, (newVal: Library) => {
-})
+// TODO 修改
+const getStartOpenDB = () => {
+    return new Promise<library | null>((resolve) => {
+        window.electronAPI.startOpenDB((e: any, library: library) => {
+            if (library) {
+                resolve(library);
+            }
+            else {
+                resolve(null)
+            }
+        })
+    })
+}
 
-onMounted(() => {
-    groups.value = [
-        { id: 1, name: 'ACG', librarys: [{ id: 1, name: 'Comic', }, { id: 2, name: 'game' }, { id: 15, name: '的烦烦烦烦烦烦烦烦烦烦烦烦反对法放发达发达反对法' }] },
-        { id: 2, name: 'Art', librarys: [{ id: 3, name: '油画' }, { id: 4, name: '电影' }, { id: 14, name: '照片' }] },
-        { id: 3, name: 'Music', librarys: [{ id: 5, name: '古典' }, { id: 6, name: '流行' }] },
-        { id: 4, name: 'Life', librarys: [{ id: 7, name: '旅游' }, { id: 8, name: '美食' }, { id: 13, name: '宠物' }] },
-        { id: 5, name: 'Tech', librarys: [{ id: 9, name: '前端' }, { id: 10, name: '后端' }, { id: 12, name: 'AI' }] },
-        { id: 6, name: 'Others', librarys: [{ id: 11, name: '其他' }] },
-    ]
+let _CURRENT_IDX_GROUP_ = -1, _CURRENT_IDX_LIBRARY_ = -1,
+    _TARGET_IDX_GROUP_ = -1, _TARGET_IDX_LIBRARY_ = -1
+/******************** 右键菜单Ctm ********************/
+const ctmOptions = {
+    zIndex: 3000,
+    minWidth: 300,
+    x: 500,
+    y: 200
+}
+const isVisibleCtmGroup = ref(false)
+const isVisibleCtmLibrary = ref(false)
+const openCtm = (e: MouseEvent, idx_group: number, idx_library: number = -1) => {
+    ctmOptions.x = e.x
+    ctmOptions.y = e.y
+    if (idx_library == -1)
+        isVisibleCtmGroup.value = true
+    else
+        isVisibleCtmLibrary.value = true
+    _CURRENT_IDX_GROUP_ = idx_group
+    _CURRENT_IDX_LIBRARY_ = idx_library
+}
+
+watch(isExpandGroup, debounce((newVal: boolean[]) => {
+    window.localStorage.setItem('isExpandGroup', JSON.stringify(newVal))
+}, 200), { deep: true })
+
+watch(activeLibrary, debounce((newVal: number) => {
+    window.localStorage.setItem('lastActiveLibrary', JSON.stringify(newVal))
+}, 200))
+
+onMounted(async () => {
+    // 获取group的展开信息，
+    isExpandGroup.value = JSON.parse(window.localStorage.getItem('isExpandGroup') || "[]")
+
+    // 获取groups 
+    await getGroups()
+
+    // 检查isExpandGroup和groups的对应情况,少就补上false,
+    while (isExpandGroup.value.length < groups.value.length) {
+        isExpandGroup.value.push(false)
+    }
+
+    // 获取启动就要打开的library。循序为后台发送来的library(新建窗口打开) --> 上一次打开的library --> id=0 不打开任何library
+    const firstOpenLibrary: number = (await getStartOpenDB()) || JSON.parse(window.localStorage.getItem('lastActiveLibrary') || '0')
+
+    // 为0到欢迎页，否则打开library页
+    if (firstOpenLibrary !== 0) {
+        openLibrary(firstOpenLibrary)
+    }
 })
 </script>
 
@@ -124,7 +217,7 @@ onMounted(() => {
 
 .menu-row {
     height: 32px;
-    margin: 10px 0;
+    margin-bottom: 10px;
     padding: 0 10px;
     line-height: 32px;
     border-radius: 5px;

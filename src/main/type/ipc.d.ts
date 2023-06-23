@@ -1,4 +1,4 @@
-declare interface IGroup {
+declare type Group = {
     id: number,
     name: string,
     librarys: {

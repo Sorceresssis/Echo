@@ -20,12 +20,12 @@
 </template>
 
 <script setup lang='ts'>
-import { provide, ref } from 'vue'
+import { onMounted, provide, ref } from 'vue'
 import Sidebar from './Sidebar.vue'
 import Titlebar from './Titlebar.vue'
 
 /* 正在打开的Library */
-const activeLibrary = ref<Library>({ id: 0, name: '' })
+const activeLibrary = ref<number>(0)
 provide('activeLibrary', activeLibrary)
 
 /* 侧边开关 */

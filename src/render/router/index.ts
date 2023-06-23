@@ -12,11 +12,7 @@ const routes: Array<RouteRecordRaw> = [
         children: [
             {
                 path: 'author',
-                component: () => import('../views/library/Author.vue')
-            },
-            {
-                path: 'add',
-                component: () => import('../views/library/AddRecord.vue')
+                component: () => import('../views/library/Authors.vue')
             }
         ]
     },
