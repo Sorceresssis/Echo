@@ -1,28 +1,34 @@
+declare type GroupProfile = {
+    id: number,
+    name: string,
+}
+
+declare type LibraryProfile = {
+    id: number,
+    name: string,
+}
+
 declare type Group = {
     id: number,
     name: string,
-    librarys: Library[]
+    librarys: LibraryProfile[]
 }
 
-// library简介
-declare type Library = {
+declare type LibraryDetail = {
     id: number,
     name: string,
+    intro: String,
+    createTime: string,
 }
 
-
-
-declare type AuthorProfile = {
-    id: number,
-    name: string
-}
 
 declare type RecordProfile = {
     id: number,
     title: string,
     rate: number
-    tags: string[],
     hyperlink: string,
+    hasCoverImage: boolean,
+    tags: string[],
     authors: AuthorProfile[],
 
 }
@@ -30,3 +36,7 @@ declare type RecordProfile = {
 
 
 
+declare type AuthorProfile = {
+    id: number,
+    name: string
+}

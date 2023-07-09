@@ -1,17 +1,11 @@
 import fs from 'fs'
 import { DBUtil } from '../util/dbUtil'
-
-
-type Profile = {
-    id: number,
-    name: string,
-}
 class Group {
     id: number
     name: string
-    librarys: Library[]
+    librarys: LibraryProfile[]
 
-    constructor(id: number, name: string, librarys: Library[]) {
+    constructor(id: number, name: string, librarys: LibraryProfile[]) {
         this.id = id
         this.name = name
         this.librarys = librarys
@@ -47,7 +41,7 @@ export class GroupDao {
 
     getGroups(): Group[] {
         // 获得组的信息
-        const gs: Profile[] = this.db.all(`
+        const gs: GroupProfile[] = this.db.all(`
         WITH RECURSIVE group_list AS (
             SELECT * FROM 'group' WHERE prev_id = 0
             UNION ALL

@@ -129,6 +129,7 @@ const records = ref<RecordProfile[]>([
         title: 'title',
         rate: 4,
         hyperlink: 'fdfdf',
+        hasCoverImage: true,
         tags: ['tag1', 'tag2'],
         authors: [
             { id: 1, name: 'author1' },
@@ -140,6 +141,7 @@ const records = ref<RecordProfile[]>([
         title: 'title',
         rate: 4,
         hyperlink: 'fdfdf',
+        hasCoverImage: true,
         tags: ['tag1', 'tag2'],
         authors: [
             { id: 1, name: 'author1' },
@@ -151,6 +153,7 @@ const records = ref<RecordProfile[]>([
         title: 'title',
         rate: 4,
         hyperlink: 'fdfdf',
+        hasCoverImage: true,
         tags: ['tag1', 'tag2'],
         authors: [
             { id: 1, name: 'author1' },
@@ -162,6 +165,7 @@ const records = ref<RecordProfile[]>([
         title: 'title',
         rate: 4,
         hyperlink: 'fdfdf',
+        hasCoverImage: true,
         tags: ['tag1', 'tag2'],
         authors: [
             { id: 1, name: 'author1' },
@@ -173,6 +177,7 @@ const records = ref<RecordProfile[]>([
         title: 'title',
         rate: 4,
         hyperlink: 'fdfdf',
+        hasCoverImage: true,
         tags: ['tag1', 'tag2'],
         authors: [
             { id: 1, name: 'author1' },
@@ -184,6 +189,7 @@ const records = ref<RecordProfile[]>([
         title: 'title',
         rate: 4,
         hyperlink: 'fdfdf',
+        hasCoverImage: true,
         tags: ['tag1', 'tag2'],
         authors: [
             { id: 1, name: 'author1' },
@@ -195,6 +201,7 @@ const records = ref<RecordProfile[]>([
         title: 'title',
         rate: 4,
         hyperlink: 'fdfdf',
+        hasCoverImage: true,
         tags: ['tag1', 'tag2'],
         authors: [
             { id: 1, name: 'author1' },
@@ -206,6 +213,7 @@ const records = ref<RecordProfile[]>([
         title: 'title',
         rate: 4,
         hyperlink: 'fdfdf',
+        hasCoverImage: true,
         tags: ['tag1', 'tag2'],
         authors: [
             { id: 1, name: 'author1' },

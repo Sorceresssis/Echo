@@ -12,7 +12,7 @@
                 If you find my project useful, please consider showing your love by giving it a
                 star!
                 <div>
-                    <a @click.prevent="openUrlExternal('https://github.com/Sorceresssis/echo')"
+                    <a @click.prevent=" "
                        rel="noopener noreferrer"
                        class="externalUrl">
                         to github
@@ -45,7 +45,7 @@
                         paypal
                     </div>
                     <div class="marginTop10">
-                        <a @click.prevent="openUrlExternal('https://www.paypal.com/FoxFairy')"
+                        <a @click.prevent=" "
                            class="externalUrl">
                             www.paypal.com/FoxFairy
                         </a>
@@ -57,7 +57,6 @@
 </template>
 
 <script setup lang='ts'>
-import { openUrlExternal } from '../util/externalOperation';
 </script>
 
 <style scoped>

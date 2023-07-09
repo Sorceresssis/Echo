@@ -4,13 +4,13 @@
             <div class="setting-item__title">视频教程</div>
             <div class="setting-item__content">
                 <div>
-                    <a @click.="openUrlExternal('')"
+                    <a @click.=" "
                        class="externalUrl">
                         Bilibili
                     </a>
                 </div>
                 <div>
-                    <a @click.="openUrlExternal('')"
+                    <a @click.=" "
                        class="externalUrl">
                         Youtube
                     </a>
@@ -67,7 +67,6 @@
 </template>
 
 <script setup lang='ts'>
-import { openUrlExternal } from '../util/externalOperation';
 
 type tutorMenu = {
     menuTitle: string,
