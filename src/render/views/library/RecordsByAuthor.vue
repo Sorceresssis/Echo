@@ -1,5 +1,5 @@
 <template>
-    <div></div>
+    <div>byAuthor</div>
 </template>
 
 <script setup lang='ts'>

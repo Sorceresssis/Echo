@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang='ts'>
-import { onMounted, provide, ref } from 'vue'
+import { provide, ref } from 'vue'
 import Sidebar from './Sidebar.vue'
 import Titlebar from './Titlebar.vue'
 
@@ -66,5 +66,6 @@ const isOpenSideBar = ref<boolean>(true)
 .main-container {
     font-size: 14px;
     margin-right: 16px;
+    padding: 0 10px;
 }
 </style>

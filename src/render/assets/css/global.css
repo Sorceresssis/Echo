@@ -26,6 +26,12 @@
     background-color: #cfcfcf;
 }
 
+.beforeIcon::before {
+    display: inline-block;
+    content: '';
+    min-width: 13px;
+    margin-right: 4px;
+}
 
 /******************** common ********************/
 .flex-col {
@@ -78,7 +84,6 @@
     border-top: 1px dashed #ccc;
     margin: 10px 0;
 }
-
 
 
 

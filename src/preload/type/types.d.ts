@@ -1,4 +1,5 @@
 import type { ipcRenderer } from "electron"
+import { StepInstance } from "element-plus"
 import { type } from "os"
 import path from "path"
 
@@ -9,7 +10,7 @@ export interface IElectronAPI {
 
 
     /******************** db_group ********************/
-    getGroups: () => Promise<Result>
+    getGroups: () => Promise<Group[]>
     addGroup: (groupName: string) => Promise<number | null>
     updataOrderGroup: (groupsId: number[]) => Promise<void>
     renameGroup: (groupID: number, rename: string) => Promise<boolean>
@@ -22,7 +23,7 @@ export interface IElectronAPI {
     moveLibrary: (toGroupId: number, moveLibraryId: number) => Promise<boolean>
 
 
-    getLibraryNameByID: (id: number) => Promise<Result>
+    getLibraryNameByID: (id: number) => Promise<string>
 
     /******************** library ********************/
     libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete[]>

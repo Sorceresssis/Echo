@@ -21,26 +21,26 @@
                 </div>
                 <ul>
                     <li></li>
-                    <li v-for="(group, idx_group) in groups"
+                    <li v-for="(group, idxGroup) in groups"
                         :key="group.id">
                         <div v-if="true"
-                             :class="[isExpandGroup[idx_group] ? 'angle-down' : 'angle-right']"
+                             :class="[isExpandGroup[idxGroup] ? 'angle-down' : 'angle-right']"
                              class="menu-item menu-row menu-group textover--ellopsis"
-                             @click="isExpandGroup[idx_group] = !isExpandGroup[idx_group]"
-                             @contextmenu="openCtm($event, idx_group)">
+                             @click="isExpandGroup[idxGroup] = !isExpandGroup[idxGroup]"
+                             @contextmenu="openCtm($event, idxGroup)">
                             {{ group.name }}
                         </div>
                         <el-input v-else />
-                        <collapse-transition>
-                            <ul v-show="isExpandGroup[idx_group]">
+                        <collapse-transition v-show="isExpandGroup[idxGroup]">
+                            <ul>
                                 <li></li>
-                                <li v-for="(library, idx_library) in group.librarys"
+                                <li v-for="(library, idxLibrary) in group.librarys"
                                     :key="library.id">
                                     <div v-if="true"
                                          :class="{ 'active-library': library.id === activeLibrary }"
                                          class="menu-item menu-row menu-library textover--ellopsis"
                                          @click="openLibrary(library.id)"
-                                         @contextmenu="openCtm($event, idx_group, idx_library)">
+                                         @contextmenu="openCtm($event, idxGroup, idxLibrary)">
                                         {{ library.name }}
                                     </div>
                                     <el-input v-else />
@@ -108,12 +108,7 @@ const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 
 
 const getGroups = async () => {
-    const resp = await window.electronAPI.getGroups()
-    if (resp.code === 1) {
-        groups.value = resp.data
-    } else {
-        ElMessage.error(resp.msg)
-    }
+    groups.value = await window.electronAPI.getGroups()
 }
 const openLibrary = (id: number) => {
     if (id !== activeLibrary.value) {
@@ -135,8 +130,8 @@ const getStartOpenDB = () => {
     })
 }
 
-let _CURRENT_IDX_GROUP_ = -1, _CURRENT_IDX_LIBRARY_ = -1,
-    _TARGET_IDX_GROUP_ = -1, _TARGET_IDX_LIBRARY_ = -1
+let _CURRENT_IDXGROUP_ = -1, _CURRENT_IDXLIBRARY_ = -1,
+    _TARGET_IDXGROUP_ = -1, _TARGET_IDXLIBRARY_ = -1
 /******************** 右键菜单Ctm ********************/
 const ctmOptions = {
     zIndex: 3000,
@@ -146,15 +141,15 @@ const ctmOptions = {
 }
 const isVisibleCtmGroup = ref(false)
 const isVisibleCtmLibrary = ref(false)
-const openCtm = (e: MouseEvent, idx_group: number, idx_library: number = -1) => {
+const openCtm = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
     ctmOptions.x = e.x
     ctmOptions.y = e.y
-    if (idx_library == -1)
+    if (idxLibrary == -1)
         isVisibleCtmGroup.value = true
     else
         isVisibleCtmLibrary.value = true
-    _CURRENT_IDX_GROUP_ = idx_group
-    _CURRENT_IDX_LIBRARY_ = idx_library
+    _CURRENT_IDXGROUP_ = idxGroup
+    _CURRENT_IDXLIBRARY_ = idxLibrary
 }
 
 watch(isExpandGroup, debounce((newVal: boolean[]) => {

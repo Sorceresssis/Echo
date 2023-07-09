@@ -70,7 +70,7 @@ watch(router.currentRoute, async () => {
         const libraryID: number = Number.parseInt(currentPath.match(/\/library\/(\d+)/)![1]);
         activeLibrary.value = libraryID
         // 根据libraryID获取library的名字
-        activeLibraryName.value = (await window.electronAPI.getLibraryNameByID(activeLibrary.value)).data
+        activeLibraryName.value = (await window.electronAPI.getLibraryNameByID(activeLibrary.value))
         document.title = `${activeLibraryName.value} - Echo`
     }
     else {
@@ -79,6 +79,7 @@ watch(router.currentRoute, async () => {
         activeLibraryName.value = ''
         if (currentPath.startsWith('/setting')) {
             document.title = `${t('settings.settings')} - Echo`
+            activeLibraryName.value = t('settings.settings')
         } else {
             document.title = `Echo`
         }

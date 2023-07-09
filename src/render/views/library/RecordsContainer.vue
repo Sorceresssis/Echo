@@ -1,9 +1,27 @@
 <template>
-    <div></div>
+    <div v-if="records.length == 0">
+        该库还没有任何东西哦~
+    </div>
+    <ul v-else>
+        <li v-for="record in records"
+            :key="record.id">
+            {{ record.title }}
+        </li>
+    </ul>
 </template>
 
 <script setup lang='ts'>
-import { ref, reactive } from 'vue'
+import { ref, onMounted } from 'vue'
+
+
+
+const props = withDefaults(defineProps<{
+    records: RecordProfile[]
+    view: string
+}>(), {
+    records: () => [],
+    view: 'thumbnail'
+})
 
 </script>
 

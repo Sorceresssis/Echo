@@ -1,148 +1,106 @@
 <template>
     <div class="flex-col">
-        <div>
-            <div>
-                fgf
-
+        <div class="records-header flex-row">
+            <div class="flex-row">
+                批量操作
             </div>
-            <div id="rightMenu">
-                <el-autocomplete class="inputSearch"
-                                 size="small"
-                                 :placeholder="t('mainContainer.universalSearch')"
-                                 clearable
-                                 v-model="searchWord_all"
-                                 :disabled="componentActiveIndex == 3"
-                                 :trigger-on-focus="false"
-                                 :fetch-suggestions="autoCompSug_all"
-                                 @keyup.enter="search"
+            <div class="flex-row">
+                <el-autocomplete size="small"
                                  onfocus="this.select()">
                     <template #default="{ item }">
                         <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
                     </template>
                 </el-autocomplete>
-                <div :title="t('mainContainer.advancedSearch')"
-                     class="el-dropdown">
-                    <span class="rightMenuItem iconfont"
-                          @click="isVisibleAdvancedSearch = true">
+                <button1 :title="t('mainContainer.advancedSearch')"
+                         class="menuItem menuItem-marginLeft">
+                    <span class="iconfont">
                         &#xe66b;
                     </span>
-                </div>
-                <div :title="t('mainContainer.manageData')"
-                     class="el-dropdown">
-                    <span class="rightMenuItem iconfont"
-                          @click="isVisibleManageData = true">
-                        &#xe7f4;
-                    </span>
-                </div>
-                <el-dropdown :title="t('mainContainer.filter')"
+                </button1>
+                <el-dropdown v-for="dropdown in menuDropdowns"
+                             :title="dropdown.HTMLElementTitle"
+                             class="menuItem"
                              trigger="click"
                              popper-class="dropdown">
-                    <span class="rightMenuItem iconfont">
-                        &#xe7e6;
-                    </span>
+                    <button-1><span class="iconfont"
+                              v-html="dropdown.title"></span></button-1>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item @click="getItemsOption.filterOption[0] = !getItemsOption.filterOption[0]">
-                                <span :class="[getItemsOption.filterOption[filterIndex.noHyperlink] ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.noHyperlink') }}
+                            <el-dropdown-item v-for="item in dropdown.menu"
+                                              @click="item.click"
+                                              :divided="item.divided">
+                                <span :class="[true ? 'dot' : '']"
+                                      class="beforeIcon">
+                                    {{ item.title }}
                                 </span>
-                            </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsOption.filterOption[1] = !getItemsOption.filterOption[1]">
-                                <span :class="[getItemsOption.filterOption[filterIndex.noFile] ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.noFile') }}
-                                </span>
-                            </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsOption.filterOption[2] = !getItemsOption.filterOption[2]">
-                                <span :class="[getItemsOption.filterOption[filterIndex.noImage] ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.noImage') }}
-                                </span>
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
-                <el-dropdown :title="t('mainContainer.sort')"
-                             trigger="click"
-                             popper-class="dropdown">
-                    <span class="rightMenuItem iconfont">
-                        &#xe81f;
-                    </span>
-                    <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item @click="getItemsOption.orderBy = orderField.time">
-                                <span :class="[getItemsOption.orderBy == orderField.time ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.time') }}
-                                </span>
-                            </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsOption.orderBy = orderField.hits">
-                                <span :class="[getItemsOption.orderBy == orderField.hits ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.hits') }}
-                                </span>
-                            </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsOption.orderBy = orderField.title">
-                                <span :class="[getItemsOption.orderBy == orderField.title ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.title') }}
-                                </span>
-                            </el-dropdown-item>
-                            <el-dropdown-item divided
-                                              @click="getItemsOption.isAscending = true">
-                                <span :class="[getItemsOption.isAscending ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.ascending') }}
-                                </span>
-                            </el-dropdown-item>
-                            <el-dropdown-item @click="getItemsOption.isAscending = false">
-                                <span :class="[!getItemsOption.isAscending ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.descending') }}
-                                </span>
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
-                <el-dropdown :title="t('mainContainer.display')"
-                             trigger="click"
-                             popper-class="dropdown">
-                    <span class=" rightMenuItem iconfont">
-                        &#xe6c7;
-                    </span>
-                    <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item @click="displayMode = display.thumbnail">
-                                <span :class="[displayMode == display.thumbnail ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.thumbnail') }}
-                                </span>
-                            </el-dropdown-item>
-                            <el-dropdown-item @click="displayMode = display.extended">
-                                <span :class="[displayMode == display.extended ? 'dot' : 'no-dot']">
-                                    {{ $t('mainContainer.extended') }}
-                                </span>
+
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
             </div>
         </div>
-        <div id="keywordList"
-             v-show="dynamicTags.length != 0 && componentActiveIndex != 3">
-            <el-button class="button-new-tag ml-1"
-                       size="small"
-                       @click="dynamicTags.splice(0)">
-                {{ $t('mainContainer.clear') }}
-            </el-button>
-            <div v-for="tag in dynamicTags"
-                 :key="tag"
-                 class="keyword">
-                {{ tag }}
-            </div>
-        </div>
-        <div class="flex-1">
-        </div>
+        <records-container class="flex-1"
+                           :records="records"
+                           :view="'thumbnail'" />
+        <el-pagination v-model:current-page="currentPage1"
+                       :page-size="10"
+                       :small="small"
+                       layout="prev, pager, next"
+                       :total="10000"
+                       @size-change="handleSizeChange"
+                       @current-change="handleCurrentChange" />
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, reactive, shallowReactive, provide } from 'vue'
+import { ref, } from 'vue'
+import { t } from '../../locales'
+import Button1 from '../../components/Button1.vue'
+import RecordsContainer from './RecordsContainer.vue';
+
+const menuDropdowns = [
+    {
+        HTMLElementTitle: t('mainContainer.filter'),
+        title: '&#xe7e6;',
+        menu: [
+            { title: t('mainContainer.noHyperlink'), divided: false, click: 1 },
+            { title: t('mainContainer.noFile'), divided: false, click: 1 },
+            { title: t('mainContainer.noImage'), divided: false, click: 1 },
+        ]
+    },
+    {
+        HTMLElementTitle: t('mainContainer.sort'),
+        title: '&#xe81f;',
+        menu: [
+            { title: t('mainContainer.time'), divided: false, click: 1 },
+            { title: t('mainContainer.hits'), divided: false, click: 1 },
+            { title: t('mainContainer.title'), divided: false, click: 1 },
+            { title: t('mainContainer.ascending'), divided: true, click: 1 },
+            { title: t('mainContainer.descending'), divided: false, click: 1 },
+        ]
+    },
+    {
+        HTMLElementTitle: t('mainContainer.display'),
+        title: '&#xe6c7;',
+        menu: [
+            { title: t('mainContainer.thumbnail'), divided: false, click: 1 },
+            { title: t('mainContainer.extended'), divided: false, click: 1 },
+        ]
+    }
+]
 
 
 
+const currentPage1 = ref(5)
+const small = ref(false)
+const background = ref(false)
+const disabled = ref(false)
+
+const handleSizeChange = (val: number) => {
+}
+const handleCurrentChange = (val: number) => {
+}
 // /******************** 搜索 autoComplete querywords列表********************/
 // /* 通用搜索 */
 // const searchWord_all = ref<string>('')
@@ -162,90 +120,128 @@ import { ref, reactive, shallowReactive, provide } from 'vue'
 //     }
 // }
 
-// /* queryWord列表 */
-// let dynamicTags = shallowReactive<string[]>([])
-// const handleClose = (tag: string) => {
-//     dynamicTags.splice(dynamicTags.indexOf(tag), 1)
-// }
 
+/******************** Items的筛选和展示方式 ********************/
 
-// /******************** Items的筛选和展示方式 ********************/
-// /* display */
-// enum display { thumbnail, extended }
-// const displayMode = ref<number>(display.thumbnail)
-// provide('displayMode', displayMode)
-
-
-// /* getItems */
-// enum queryType { noQuery = 0, commonQuery, advancedQuery }
-// enum filterIndex { noHyperlink = 0, noFile, noImage }
-// enum orderField { time = 0, hits, title }
-// const getItemsOption = ref<getItemsOption>({
-//     queryType: 0,
-//     queryWords: '',
-//     filterOption: [false, false, false],
-//     orderBy: orderField.title,
-//     isAscending: true,
-//     pageno: 0
-// })
-
-
-// /******************** 对话框 ********************/
-// const isVisibleManageData = ref(false)
-
-
-// const isVisibleAdvancedSearch = ref(false)
+const records = ref<RecordProfile[]>([
+    {
+        id: 1,
+        title: 'title',
+        rate: 4,
+        hyperlink: 'fdfdf',
+        tags: ['tag1', 'tag2'],
+        authors: [
+            { id: 1, name: 'author1' },
+            { id: 2, name: 'author2' },
+        ]
+    },
+    {
+        id: 2,
+        title: 'title',
+        rate: 4,
+        hyperlink: 'fdfdf',
+        tags: ['tag1', 'tag2'],
+        authors: [
+            { id: 1, name: 'author1' },
+            { id: 2, name: 'author2' },
+        ]
+    },
+    {
+        id: 3,
+        title: 'title',
+        rate: 4,
+        hyperlink: 'fdfdf',
+        tags: ['tag1', 'tag2'],
+        authors: [
+            { id: 1, name: 'author1' },
+            { id: 2, name: 'author2' },
+        ]
+    },
+    {
+        id: 4,
+        title: 'title',
+        rate: 4,
+        hyperlink: 'fdfdf',
+        tags: ['tag1', 'tag2'],
+        authors: [
+            { id: 1, name: 'author1' },
+            { id: 2, name: 'author2' },
+        ]
+    },
+    {
+        id: 5,
+        title: 'title',
+        rate: 4,
+        hyperlink: 'fdfdf',
+        tags: ['tag1', 'tag2'],
+        authors: [
+            { id: 1, name: 'author1' },
+            { id: 2, name: 'author2' },
+        ]
+    },
+    {
+        id: 6,
+        title: 'title',
+        rate: 4,
+        hyperlink: 'fdfdf',
+        tags: ['tag1', 'tag2'],
+        authors: [
+            { id: 1, name: 'author1' },
+            { id: 2, name: 'author2' },
+        ]
+    },
+    {
+        id: 7,
+        title: 'title',
+        rate: 4,
+        hyperlink: 'fdfdf',
+        tags: ['tag1', 'tag2'],
+        authors: [
+            { id: 1, name: 'author1' },
+            { id: 2, name: 'author2' },
+        ]
+    },
+    {
+        id: 8,
+        title: 'title',
+        rate: 4,
+        hyperlink: 'fdfdf',
+        tags: ['tag1', 'tag2'],
+        authors: [
+            { id: 1, name: 'author1' },
+            { id: 2, name: 'author2' },
+        ]
+    }
+])
 
 </script>
 
 <style scoped>
-:deep(.inputSearch) {
-    width: 60%;
-    min-width: 130px;
-    max-width: 320px;
-    margin-right: 5px;
+.records-header {
+    height: 36px;
+    line-height: 36px;
+    margin: 6px 0;
+    justify-content: space-between;
+    align-items: center;
 }
 
-.input {
-    height: 24px;
-    border-radius: 12px;
-    width: 100px;
-    margin: 5px 8px 5px 0;
-    background-color: #f0f0f0;
+.menuItem {
+    margin: 0 3px;
 }
 
-.no-dot::before {
-    display: inline-block;
-    content: " ";
-    min-width: 13px;
-    margin-right: 3px;
+.menuItem-marginLeft {
+    margin-left: 10px;
 }
 
 .dot::before {
-    display: inline-block;
-    content: "\e60a";
+    content: '\e60a';
     font-family: "iconfont" !important;
-    min-width: 13px;
     font-size: 13px;
-    margin-right: 3px;
     line-height: 13px;
 }
 
-#keywordList {
-    display: flex;
-    /* max-height: 40px; */
-    justify-content: left;
-    margin: 5px 10px;
-    flex-wrap: wrap;
-}
 
-.keyword {
-    padding: 0 10px;
-    line-height: 20px;
-    margin: 3px 8px;
-    border-radius: 10px;
-    background-color: #9e94f7;
-    font-size: 13px;
-    color: #fff;
+:deep(.el-pager li) {
+    font-size: 14px;
 }
 </style>

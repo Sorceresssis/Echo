@@ -1,41 +1,44 @@
-:root {}
+:root {
+    --el-fill-color-blank: transparent !important;
+    --el-color-primary: #9e94f7 !important;
+}
 
+/* dropdown */
+.el-dropdown-menu__item:not(.is-disabled):focus {
+    --el-dropdown-menuItem-hover-fill: #eee;
+    --el-dropdown-menuItem-hover-color: #000;
+}
+
+/* poper  */
+.el-popper__arrow {
+    display: none;
+}
+
+/* pagination */
+.el-pager li {
+    margin: 0 2px !important;
+
+}
 
 /******************** element-plus ********************/
 
-.el-loading-mask {
+/* .el-loading-mask {
     background-color: #f6f6f8 !important;
 }
 
 .el-overlay {
     background-color: rgba(0, 0, 0, 0.1) !important;
-}
+} */
 
 /* loading */
-.el-loading-spinner .path {
+/* .el-loading-spinner .path {
     stroke: #9e94f7 !important;
-}
+} */
 
-/* dropdown */
-.dropdown .el-dropdown-menu__item {
-    width: 90px;
-    padding: 3px 8px;
-    font-size: 13px;
-}
-
-.dropdown .el-dropdown-menu__item:not(.is-disabled):focus {
-    background-color: #eee;
-    color: #000;
-}
-
-.el-popper__arrow {
-    display: none;
-}
 
 /* input */
 .el-autocomplete {
     flex: 1;
-    /* 为了el-autocomplete el-input button 能水平对齐，搞了两个小时，😡 */
     display: flex !important;
     height: 26px;
     box-sizing: border-box;
@@ -75,7 +78,7 @@
 }
 
 /* el-dialog */
-.el-dialog {
+/* .el-dialog {
     border-radius: 4px !important;
 }
 
@@ -102,4 +105,4 @@
 
 .el-button {
     padding: 4px 25px !important;
-}
+} */
