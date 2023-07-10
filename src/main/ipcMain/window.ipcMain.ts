@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, IpcMainInvokeEvent, app } from 'electron'
+import { BrowserWindow, ipcMain, IpcMainInvokeEvent, app, dialog } from 'electron'
 import { createWindow } from '../window/main.window'
 import { createItemWindow } from '../window/record.window'
 
@@ -8,11 +8,15 @@ export function ipcMainWindow() {
         app.exit()
     })
 
-    ipcMain.handle('window:createMainWindow', (e: IpcMainInvokeEvent, library: library): void => {
-        createWindow(library)
+    ipcMain.handle('window:createMainWindow', (e: IpcMainInvokeEvent, libraryId: number): void => {
+        try {
+            createWindow(libraryId)
+        } catch (e: any) {
+            dialog.showErrorBox('Error', e.message)
+        }
     })
 
-    ipcMain.handle('window:createItemWindow', (e: IpcMainInvokeEvent, libraryID, itemID): void => {
+    ipcMain.handle('window:createItemWindow', (e: IpcMainInvokeEvent, libraryId, itemId): void => {
         createItemWindow()
     })
 

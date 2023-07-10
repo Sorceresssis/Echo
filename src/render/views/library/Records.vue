@@ -43,13 +43,15 @@
         <records-container class="flex-1"
                            :records="records"
                            :view="'thumbnail'" />
-        <el-pagination v-model:current-page="currentPage1"
-                       :page-size="10"
-                       :small="small"
-                       layout="prev, pager, next"
-                       :total="10000"
-                       @size-change="handleSizeChange"
-                       @current-change="handleCurrentChange" />
+        <div class="flex-center">
+            <el-pagination v-model:current-page="currentPage1"
+                           :page-size="10"
+                           :small="small"
+                           layout="prev, pager, next"
+                           :total="10000"
+                           @size-change="handleSizeChange"
+                           @current-change="handleCurrentChange" />
+        </div>
     </div>
 </template>
 

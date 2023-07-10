@@ -23,27 +23,53 @@
                     <li></li>
                     <li v-for="(group, idxGroup) in groups"
                         :key="group.id">
-                        <div v-if="true"
+                        <div v-if="groupIdOfRename !== group.id"
                              :class="[isExpandGroup[idxGroup] ? 'angle-down' : 'angle-right']"
-                             class="menu-item menu-row menu-group textover--ellopsis"
+                             class="menu-row menu-item menu-group textover--ellopsis"
                              @click="isExpandGroup[idxGroup] = !isExpandGroup[idxGroup]"
-                             @contextmenu="openCtm($event, idxGroup)">
+                             @contextmenu="openCtm($event, idxGroup)"
+                             draggable="true"
+                             @dragstart="handleDragstart(idxGroup)"
+                             @dragend=""
+                             @dragenter="handleDragenter($event, idxGroup)"
+                             @dragleave=""
+                             @drop="">
                             {{ group.name }}
                         </div>
-                        <el-input v-else />
+                        <div v-else
+                             class="menu-row menu-group input-wrapper"
+                             :class="[isExpandGroup[idxGroup] ? 'angle-down' : 'angle-right']">
+                            <input v-model="newName"
+                                   onfocus="this.select();"
+                                   v-focus
+                                   maxlength="255"
+                                   spellcheck="false"
+                                   @keyup.enter="($event.target as HTMLInputElement).blur"
+                                   @blur="handleRename">
+                        </div>
                         <collapse-transition v-show="isExpandGroup[idxGroup]">
                             <ul>
                                 <li></li>
                                 <li v-for="(library, idxLibrary) in group.librarys"
                                     :key="library.id">
-                                    <div v-if="true"
+                                    <div v-if="libraryIdOfRename !== library.id"
                                          :class="{ 'active-library': library.id === activeLibrary }"
                                          class="menu-item menu-row menu-library textover--ellopsis"
+                                         draggable="true"
                                          @click="openLibrary(library.id)"
                                          @contextmenu="openCtm($event, idxGroup, idxLibrary)">
                                         {{ library.name }}
                                     </div>
-                                    <el-input v-else />
+                                    <div v-else
+                                         class="menu-row  menu-library input-wrapper">
+                                        <input v-model="newName"
+                                               onfocus="this.select()"
+                                               v-focus
+                                               maxlength="255"
+                                               spellcheck="false"
+                                               @keyup.enter="($event.target as HTMLInputElement).blur"
+                                               @blur="handleRename">
+                                    </div>
                                 </li>
                             </ul>
                         </collapse-transition>
@@ -51,48 +77,45 @@
                 </ul>
             </div>
         </div>
-        <div>
-            <context-menu v-model:show="isVisibleCtmGroup"
-                          :options="ctmOptions">
-                <context-menu-item :label="t('ctm.addLibrary')"
-                                   @click="" />
-                <context-menu-item :label="t('ctm.rename')"
+        <context-menu v-model:show="isVisibleCtmGroup"
+                      :options="ctmOptions">
+            <context-menu-item :label="t('ctm.addLibrary')"
+                               @click="" />
+            <context-menu-item :label="t('ctm.rename')"
+                               @click="openRename" />
+            <context-menu-item label="删除"
+                               @click=" ">
+                <template #icon>
+                    <span class="iconfont">&#xe61a;</span>
+                </template>
+            </context-menu-item>
+        </context-menu>
+        <context-menu v-model:show="isVisibleCtmLibrary"
+                      :options="ctmOptions">
+            <context-menu-item label="在新窗口中打开"
+                               @click="openLibraryInNewWindow" />
+            <context-menu-item label="重命名"
+                               @click="openRename" />
+            <context-menu-item label="删除"
+                               @click=" ">
+                <template #icon>
+                    <span class="iconfont">&#xe61a;</span>
+                </template>
+            </context-menu-item>
+            <context-menu-sperator />
+            <context-menu-group label="移动到">
+                <context-menu-item v-for="group in groups"
+                                   :key="group.id"
+                                   :label="group.name"
                                    @click=" " />
-                <context-menu-item label="删除"
-                                   @click=" ">
-                    <template #icon>
-                        <span class="iconfont">&#xe61a;</span>
-                    </template>
-                </context-menu-item>
-            </context-menu>
-            <context-menu v-model:show="isVisibleCtmLibrary"
-                          :options="ctmOptions">
-                <context-menu-item label="在新窗口中打开"
-                                   @click=" " />
-                <context-menu-item label="重命名"
-                                   @click=" " />
-                <context-menu-item label="删除"
-                                   @click=" ">
-                    <template #icon>
-                        <span class="iconfont">&#xe61a;</span>
-                    </template>
-                </context-menu-item>
-                <context-menu-sperator />
-                <context-menu-group label="移动到">
-                    <context-menu-item v-for="(group, groupIndex) in groups"
-                                       :key="group.id"
-                                       :label="group.name"
-                                       @click=" " />
-                </context-menu-group>
-                <context-menu-item label="导出" />
-            </context-menu>
-        </div>
+            </context-menu-group>
+            <context-menu-item label="导出" />
+        </context-menu>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ElMessage } from 'element-plus';
-import { ref, Ref, watch, inject, onMounted } from 'vue'
+import { ref, Ref, watch, inject, onMounted, Directive } from 'vue'
 import { useRouter } from 'vue-router';
 import { t } from '../locales'
 import { debounce } from '../util/debounce'
@@ -100,39 +123,83 @@ import CollapseTransition from '../components/CollapseTransition.vue'
 
 const router = useRouter()
 
-// 和展开的情况
+onMounted(async () => {
+    // 获取group的展开信息，
+    isExpandGroup.value = JSON.parse(window.localStorage.getItem('isExpandGroup') || "[]")
+
+    // 获取groups 
+    await getGroups()
+
+    // 检查isExpandGroup和groups的对应情况,少就补上false,
+    if (isExpandGroup.value.length < groups.value.length) {
+        isExpandGroup.value.concat(Array(groups.value.length - isExpandGroup.value.length).fill(false))
+    }
+
+    // 获取启动就要打开的library。循序为后台发送来的library(新建窗口打开) --> 上一次打开的library --> id=0 不打开任何library
+    const firstOpenLibrary: number = (await getPrimaryOpenLibrary()) || JSON.parse(window.localStorage.getItem('lastActiveLibrary') || '0')
+
+    // 为0到欢迎页，否则打开library页 
+    if (firstOpenLibrary !== 0) {
+        openLibrary(firstOpenLibrary)
+    }
+})
+
+
+/******************** 页面数据 ********************/
+
 const groups = ref<Group[]>([])
-const isExpandGroup = ref<boolean[]>([false, false, false, false, false, false])
-// 正在打开的Library
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const isExpandGroup = ref<boolean[]>([]) // 是否展开Group
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
 
+// 保存侧边栏的group的展开信息
+watch(isExpandGroup, debounce((newVal: boolean[]) => {
+    window.localStorage.setItem('isExpandGroup', JSON.stringify(newVal))
+}, 200), { deep: true })
+// 保存最后打开的library
+watch(activeLibrary, debounce((newVal: number) => {
+    window.localStorage.setItem('lastActiveLibrary', newVal.toString())
+}, 200))
 
+// 获取侧边栏的group
 const getGroups = async () => {
     groups.value = await window.electronAPI.getGroups()
 }
-const openLibrary = (id: number) => {
-    if (id !== activeLibrary.value) {
-        router.push(`/library/${id}`)
-    }
-}
-
-// TODO 修改
-const getStartOpenDB = () => {
-    return new Promise<library | null>((resolve) => {
-        window.electronAPI.startOpenDB((e: any, library: library) => {
-            if (library) {
-                resolve(library);
-            }
-            else {
-                resolve(null)
-            }
+// 获取优先打开的library
+const getPrimaryOpenLibrary = async (): Promise<number | null> => {
+    return new Promise<number | null>((resolve) => {
+        window.electronAPI.getPrimaryOpenLibrary((e: any, libraryId: number) => {
+            resolve(libraryId ? libraryId : null)
         })
     })
 }
+// 在本窗口打开library
+const openLibrary = (id: number) => {
+    if (id !== activeLibrary.value) {
+        router.push(`/library/${id}`) // params 不能与 path 一起使用, 所以要自己补齐
+    }
+}
+// 在新窗口中打开library
+const openLibraryInNewWindow = () => {
+    window.electronAPI.createMainWindow(
+        groups.value[menuOpIdx.cg].librarys[menuOpIdx.cl].id
+    )
+}
 
-let _CURRENT_IDXGROUP_ = -1, _CURRENT_IDXLIBRARY_ = -1,
-    _TARGET_IDXGROUP_ = -1, _TARGET_IDXLIBRARY_ = -1
 /******************** 右键菜单Ctm ********************/
+
+// 操作的菜单项索引 Operation Index of Menu Item
+const menuOpIdx = {
+    cg: -1, // current group
+    cl: -1, // current library
+    tg: -1, // target group
+    tl: -1, // target library
+}
+const menuOpIdxReset = () => {
+    menuOpIdx.cg = -1
+    menuOpIdx.cl = -1
+    menuOpIdx.tg = -1
+    menuOpIdx.tl = -1
+}
 const ctmOptions = {
     zIndex: 3000,
     minWidth: 300,
@@ -148,38 +215,68 @@ const openCtm = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
         isVisibleCtmGroup.value = true
     else
         isVisibleCtmLibrary.value = true
-    _CURRENT_IDXGROUP_ = idxGroup
-    _CURRENT_IDXLIBRARY_ = idxLibrary
+    menuOpIdx.cg = idxGroup
+    menuOpIdx.cl = idxLibrary
 }
 
-watch(isExpandGroup, debounce((newVal: boolean[]) => {
-    window.localStorage.setItem('isExpandGroup', JSON.stringify(newVal))
-}, 200), { deep: true })
 
-watch(activeLibrary, debounce((newVal: number) => {
-    window.localStorage.setItem('lastActiveLibrary', JSON.stringify(newVal))
-}, 200))
 
-onMounted(async () => {
-    // 获取group的展开信息，
-    isExpandGroup.value = JSON.parse(window.localStorage.getItem('isExpandGroup') || "[]")
 
-    // 获取groups 
-    await getGroups()
 
-    // 检查isExpandGroup和groups的对应情况,少就补上false,
-    while (isExpandGroup.value.length < groups.value.length) {
-        isExpandGroup.value.push(false)
+/******************** 添加 & 重命名 ********************/
+const vFocus: Directive = (el: HTMLElement) => {
+    el.focus()
+}
+const newName = ref<string>('')
+
+
+
+const groupIdOfRename = ref<number>(0)
+const libraryIdOfRename = ref<number>(0)
+// 开启重命名
+const openRename = () => {
+    // 重命名的对象是group还是library
+    if (menuOpIdx.cl == -1) {
+        groupIdOfRename.value = groups.value[menuOpIdx.cg].id
+        newName.value = groups.value[menuOpIdx.cg].name
+    } else {
+        libraryIdOfRename.value = groups.value[menuOpIdx.cg].librarys[menuOpIdx.cl].id
+        newName.value = groups.value[menuOpIdx.cg].librarys[menuOpIdx.cl].name
     }
-
-    // 获取启动就要打开的library。循序为后台发送来的library(新建窗口打开) --> 上一次打开的library --> id=0 不打开任何library
-    const firstOpenLibrary: number = (await getStartOpenDB()) || JSON.parse(window.localStorage.getItem('lastActiveLibrary') || '0')
-
-    // 为0到欢迎页，否则打开library页
-    if (firstOpenLibrary !== 0) {
-        openLibrary(firstOpenLibrary)
+}
+const handleRename = async () => {
+    // 异步方法，保存operation的索引，防止在异步过程中，用户又进行了操作
+    const cg = menuOpIdx.cg
+    const cl = menuOpIdx.cl
+    if (groupIdOfRename.value) {
+        const result: boolean = await window.electronAPI.renameGroup(groupIdOfRename.value, newName.value)
+        if (result) groups.value[cg].name = newName.value // 重命名成功，更新group的名字
+        groupIdOfRename.value = 0 // 重置
+    } else if (libraryIdOfRename.value) {
+        const result: boolean = await window.electronAPI.renameLibrary(libraryIdOfRename.value, newName.value)
+        if (result) groups.value[cg].librarys[cl].name = newName.value
+        libraryIdOfRename.value = 0
     }
-})
+}
+
+
+/******************** 移动和拖动 ********************/
+const handleDragstart = (idxGroup: number, idxLibrary: number = -1) => {
+    menuOpIdx.cg = idxGroup
+    menuOpIdx.cl = idxLibrary
+}
+
+
+const handleDragenter = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
+    e.preventDefault()
+    menuOpIdx.tg = idxGroup
+    menuOpIdx.tl = idxLibrary;
+}
+
+
+/******************** 更新顺序 ********************/
+
+
 </script>
 
 <style scoped>
@@ -211,11 +308,12 @@ onMounted(async () => {
 }
 
 .menu-row {
+    display: flex;
     height: 32px;
     margin-bottom: 10px;
     padding: 0 10px;
     line-height: 32px;
-    border-radius: 5px;
+    box-sizing: border-box;
 }
 
 .menu__title {
@@ -235,6 +333,7 @@ onMounted(async () => {
 }
 
 .menu-item {
+    border-radius: 5px;
     cursor: pointer;
 }
 
@@ -271,17 +370,13 @@ onMounted(async () => {
 }
 
 .input-wrapper {
-    display: flex;
-    height: 30px;
-    margin: 10px 0;
-    padding: 0 10px;
-    font-size: 13px;
-    line-height: 30px;
     border: 1px solid #929292;
     background-color: #fff;
+    overflow: hidden;
 }
 
 .input-wrapper input {
+    width: 100%;
     border: none;
     outline: none;
 }

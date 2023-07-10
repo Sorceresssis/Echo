@@ -3,25 +3,28 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
 enum OpenDialogType { DIR = 0, FILE, IMAGE, VIDEO }
 contextBridge.exposeInMainWorld('electronAPI', {
-    /******************** 开始准备 ********************/
-    startOpenDB: (callback: (e: any, value: Library) => void) => ipcRenderer.on('app:startOpenLibrary', callback),
     config: (index: string, newValue: any = null) => ipcRenderer.invoke('app:config', index, newValue),
 
-    /******************** db_group ********************/
+    /******************** Group ********************/
     getGroups: () => ipcRenderer.invoke('group:getGroups'),
+    renameGroup: (id: number, newName: string) => ipcRenderer.invoke('group:rename', id, newName),
+
+
+    /******************** Library ********************/
+    getPrimaryOpenLibrary: (callback: (e: IpcRendererEvent, libraryId: number) => void) =>
+        ipcRenderer.on('library:primaryOpenLibrary', callback),
+    getLibraryNameByID: (id: number) => ipcRenderer.invoke('library:getLibraryNameByID', id),
+    renameLibrary: (id: number, newName: string) => ipcRenderer.invoke('library:rename', id, newName),
+
+
+
     addGroup: (groupName: string) => ipcRenderer.invoke('group:add', groupName),
     updataOrderGroup: (groupsId: number[]) => ipcRenderer.invoke('group:updataOrder', groupsId),
-    renameGroup: (groupID: number, rename: string) => ipcRenderer.invoke('group:rename', groupID, rename),
     deleteGroup: (groupID: number) => ipcRenderer.invoke('group:delete', groupID),
-
     addLibrary: (groupID: number, LibraryName: string) => ipcRenderer.invoke('library:add', groupID, LibraryName),
     updataOrderLibrary: (groupID: number, librarysId: number[]) => ipcRenderer.invoke('library:updataOrder', groupID, librarysId),
-    renameLibrary: (LibraryID: number, rename: string) => ipcRenderer.invoke('library:rename', LibraryID, rename),
     deleteLibrary: (LibraryID: number) => ipcRenderer.invoke('library:delete', LibraryID),
     moveLibrary: (toGroupId: number, moveLibraryId: number) => ipcRenderer.invoke('library:move', toGroupId, moveLibraryId),
-
-
-    getLibraryNameByID: (id: number) => ipcRenderer.invoke('library:getLibraryNameByID', id),
 
 
 
@@ -51,8 +54,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     /******************** window ********************/
     windowRelaunch: () => ipcRenderer.invoke('window:relaunch'),
-    createMainWindow: (library: Library) => ipcRenderer.invoke('window:createMainWindow', library),
-    createItemWinodw: (libraryID: number, itemID: number) => ipcRenderer.invoke('window:createItemWindow', libraryID, itemID),
+    createMainWindow: (libraryId: number) => ipcRenderer.invoke('window:createMainWindow', libraryId),
+    createItemWinodw: (libraryId: number, itemId: number) => ipcRenderer.invoke('window:createItemWindow', libraryId, itemId),
     windowMinmize: () => ipcRenderer.invoke('window:minmize'),
     windowMaxmize: () => ipcRenderer.invoke('window:maxmize'),
     windowIsMaxmize: (callback: (e: IpcRendererEvent, value: boolean) => void) => ipcRenderer.on('window:isMaxmize', callback),

@@ -20,6 +20,8 @@
         "skipLibCheck": true,
         "strict": true,
         "target": "esnext",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
         "outDir": "../../dist/main",
     },
     "exclude": [

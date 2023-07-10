@@ -25,9 +25,11 @@ export class DBUtil {
     run(sql: string, ...arg: any[]) {
         return this.db.prepare(sql).run(arg)
     }
+
     exec(sql: string) {
         this.db.exec(sql)
     }
+
     function(name: string, fn: (...arg: any[]) => any) {
 
     }

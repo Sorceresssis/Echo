@@ -2,7 +2,12 @@ import { BrowserWindow, app } from "electron"
 import { resolve } from "path"
 const isDev = !app.isPackaged
 
-export function createWindow(library: library | null): BrowserWindow {
+/**
+ * 创建一个主窗口
+ * @param libraryId 窗口创建时需要打开的图书馆id
+ * @returns 窗口实例
+ */
+export function createWindow(libraryId: number | null): BrowserWindow {
     const win = new BrowserWindow({
         width: 1025,
         height: 634,
@@ -26,9 +31,11 @@ export function createWindow(library: library | null): BrowserWindow {
     }
 
     win.once('ready-to-show', () => {
-        win.webContents.send('app:startOpenLibrary', library)
+        win.webContents.send('library:primaryOpenLibrary', libraryId)
         win.show()
     })
+
+    // 窗口操作
     win.on('unmaximize', () => {
         win.webContents.send('window:isMaxmize', false)
     })

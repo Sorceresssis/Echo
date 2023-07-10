@@ -60,22 +60,15 @@ export class GroupDao {
         this.db.run(`INSERT INTO 'group' (name) VALUES (?)`, name)
     }
 
-    deleteGroup(id: number) {
-
-    }
-
-    renameGroup(id: number, newName: string) {
-
-    }
-
-    updateGroupSort(currentId: number, targetId: number) {
-
+    renameGroup(id: number, newName: string): void {
+        this.db.run(`UPDATE 'group' SET name = ? WHERE id = ?;`, newName, id)
     }
 
     getLibraryNameByID(id: number): string {
-        return (this.db.get(`SELECT name FROM library WHERE id = ?;`, id) as { name: string }).name
+        return (this.db.get('SELECT name FROM library WHERE id = ?;', id) as { name: string }).name
     }
 
-    addLibrary(groupID: number, name: string) {
+    renameLibrary(id: number, newName: string): void {
+        this.db.run('UPDATE library SET name = ? WHERE id = ?;', newName, id)
     }
 }
