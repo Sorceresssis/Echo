@@ -1,5 +1,6 @@
 import fs from 'fs'
 import { DBUtil } from '../util/dbUtil'
+
 class Group {
     id: number
     name: string
@@ -64,11 +65,28 @@ export class GroupDao {
         this.db.run(`UPDATE 'group' SET name = ? WHERE id = ?;`, newName, id)
     }
 
+
+    updateSortGroup(currentId: number, targetNextId: number): void {
+        this.db.transaction(() => {
+            const [currentPrev, currentNext] = this.db.prepare(`SELECT prev_id, next_id FROM 'group' WHERE id = ?;`).raw().get(currentId) as [number, number]
+
+            this.db.run(`UPDATE 'group' SET prev_id = ?, next_id = ? WHERE id = ?;`, targetNextId, targetNextId, currentId)
+            this.db.run(`UPDATE 'group' SET next_id = ? WHERE id = ?;`, currentId, targetNextId)
+        })
+    }
+
     getLibraryNameByID(id: number): string {
-        return (this.db.get('SELECT name FROM library WHERE id = ?;', id) as { name: string }).name
+        return this.db.prepare('SELECT name FROM library WHERE id = ?;').pluck().get(id) as string
+    }
+
+    addLibrary(groupID: number, name: string): void {
+
     }
 
     renameLibrary(id: number, newName: string): void {
         this.db.run('UPDATE library SET name = ? WHERE id = ?;', newName, id)
     }
+}
+type group = {
+
 }

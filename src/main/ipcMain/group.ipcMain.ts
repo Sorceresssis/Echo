@@ -8,7 +8,12 @@ export function ipcMainGroup() {
     const groupDao = new GroupDao(path.resolve(config.userDataPath, "database/group.db"))
 
     ipcMain.handle('group:getGroups', (e: IpcMainInvokeEvent): Group[] => {
-        return groupDao.getGroups()
+        try {
+            return groupDao.getGroups()
+        } catch (e: any) {
+            dialog.showErrorBox('GetGroups Error', e.message + `\nThe database of the group is damaged, it is recommended to close the software, delete the file in the path 'userData/database/group.db' and restart it`)
+            return []
+        }
     })
 
     ipcMain.handle('group:add', (e: IpcMainInvokeEvent, a) => {

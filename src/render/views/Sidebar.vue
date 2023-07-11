@@ -14,13 +14,23 @@
                     </div>
                     <div>
                         <span class="iconfont"
-                              @click="">&#xe632;</span>
+                              @click="getGroups">&#xe632;</span>
                         <span class="iconfont"
-                              @click="">&#xe68c;</span>
+                              @click="openAddGroup">&#xe68c;</span>
                     </div>
                 </div>
                 <ul>
-                    <li></li>
+                    <li v-if="isVisAddGroup">
+                        <div class="menu-row menu-group input-wrap">
+                            <input v-model="newName"
+                                   onfocus="this.select();"
+                                   v-focus
+                                   maxlength="255"
+                                   spellcheck="false"
+                                   @keyup.enter="($event.target as HTMLInputElement).blur"
+                                   @blur="">
+                        </div>
+                    </li>
                     <li v-for="(group, idxGroup) in groups"
                         :key="group.id">
                         <div v-if="groupIdOfRename !== group.id"
@@ -30,14 +40,14 @@
                              @contextmenu="openCtm($event, idxGroup)"
                              draggable="true"
                              @dragstart="handleDragstart(idxGroup)"
-                             @dragend=""
-                             @dragenter="handleDragenter($event, idxGroup)"
-                             @dragleave=""
+                             @dragend="handleDragend()"
+                             @dragenter.prevent="handleDragenter($event, idxGroup)"
+                             @dragleave="handleDragleave($event)"
                              @drop="">
                             {{ group.name }}
                         </div>
                         <div v-else
-                             class="menu-row menu-group input-wrapper"
+                             class="menu-row menu-group input-wrap"
                              :class="[isExpandGroup[idxGroup] ? 'angle-down' : 'angle-right']">
                             <input v-model="newName"
                                    onfocus="this.select();"
@@ -49,19 +59,34 @@
                         </div>
                         <collapse-transition v-show="isExpandGroup[idxGroup]">
                             <ul>
-                                <li></li>
+                                <li v-if="false">
+                                    <div class="menu-row  menu-library input-wrap">
+                                        <input v-model="newName"
+                                               onfocus="this.select();"
+                                               v-focus
+                                               maxlength="255"
+                                               spellcheck="false"
+                                               @keyup.enter="($event.target as HTMLInputElement).blur"
+                                               @blur=" ">
+                                    </div>
+                                </li>
                                 <li v-for="(library, idxLibrary) in group.librarys"
                                     :key="library.id">
                                     <div v-if="libraryIdOfRename !== library.id"
                                          :class="{ 'active-library': library.id === activeLibrary }"
                                          class="menu-item menu-row menu-library textover--ellopsis"
-                                         draggable="true"
                                          @click="openLibrary(library.id)"
-                                         @contextmenu="openCtm($event, idxGroup, idxLibrary)">
+                                         @contextmenu="openCtm($event, idxGroup, idxLibrary)"
+                                         draggable="true"
+                                         @dragstart="handleDragstart(idxGroup, idxLibrary)"
+                                         @dragend="handleDragend()"
+                                         @dragenter.prevent="handleDragenter($event, idxGroup, idxLibrary)"
+                                         @dragleave="handleDragleave($event)"
+                                         @drop="">
                                         {{ library.name }}
                                     </div>
                                     <div v-else
-                                         class="menu-row  menu-library input-wrapper">
+                                         class="menu-row  menu-library input-wrap">
                                         <input v-model="newName"
                                                onfocus="this.select()"
                                                v-focus
@@ -77,27 +102,28 @@
                 </ul>
             </div>
         </div>
-        <context-menu v-model:show="isVisibleCtmGroup"
+        <dialog-delete-menu-item v-model="deleteDialogInfo"></dialog-delete-menu-item>
+        <context-menu v-model:show="isVisCtmGroup"
                       :options="ctmOptions">
             <context-menu-item :label="t('ctm.addLibrary')"
                                @click="" />
             <context-menu-item :label="t('ctm.rename')"
                                @click="openRename" />
             <context-menu-item label="删除"
-                               @click=" ">
+                               @click="openDelete">
                 <template #icon>
                     <span class="iconfont">&#xe61a;</span>
                 </template>
             </context-menu-item>
         </context-menu>
-        <context-menu v-model:show="isVisibleCtmLibrary"
+        <context-menu v-model:show="isVisCtmLibrary"
                       :options="ctmOptions">
             <context-menu-item label="在新窗口中打开"
                                @click="openLibraryInNewWindow" />
             <context-menu-item label="重命名"
                                @click="openRename" />
             <context-menu-item label="删除"
-                               @click=" ">
+                               @click="openDelete">
                 <template #icon>
                     <span class="iconfont">&#xe61a;</span>
                 </template>
@@ -120,6 +146,8 @@ import { useRouter } from 'vue-router';
 import { t } from '../locales'
 import { debounce } from '../util/debounce'
 import CollapseTransition from '../components/CollapseTransition.vue'
+import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue';
+import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -142,6 +170,7 @@ onMounted(async () => {
     if (firstOpenLibrary !== 0) {
         openLibrary(firstOpenLibrary)
     }
+
 })
 
 
@@ -206,21 +235,18 @@ const ctmOptions = {
     x: 500,
     y: 200
 }
-const isVisibleCtmGroup = ref(false)
-const isVisibleCtmLibrary = ref(false)
+const isVisCtmGroup = ref(false)
+const isVisCtmLibrary = ref(false)
 const openCtm = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
     ctmOptions.x = e.x
     ctmOptions.y = e.y
     if (idxLibrary == -1)
-        isVisibleCtmGroup.value = true
+        isVisCtmGroup.value = true
     else
-        isVisibleCtmLibrary.value = true
+        isVisCtmLibrary.value = true
     menuOpIdx.cg = idxGroup
     menuOpIdx.cl = idxLibrary
 }
-
-
-
 
 
 /******************** 添加 & 重命名 ********************/
@@ -228,8 +254,14 @@ const vFocus: Directive = (el: HTMLElement) => {
     el.focus()
 }
 const newName = ref<string>('')
+const isVisAddGroup = ref(false)
+const openAddGroup = () => {
+    newName.value = '新建组'
+    isVisAddGroup.value = true
+}
+const handleAddGroup = () => {
 
-
+}
 
 const groupIdOfRename = ref<number>(0)
 const libraryIdOfRename = ref<number>(0)
@@ -245,6 +277,10 @@ const openRename = () => {
     }
 }
 const handleRename = async () => {
+    if (newName.value.trim() === '') {
+        ElMessage.error('不能为空')
+        return
+    }
     // 异步方法，保存operation的索引，防止在异步过程中，用户又进行了操作
     const cg = menuOpIdx.cg
     const cl = menuOpIdx.cl
@@ -260,19 +296,69 @@ const handleRename = async () => {
 }
 
 
+/******************** 删除 ********************/
+const deleteDialogInfo = ref({
+    isVis: false,
+    confirmName: '',
+    confirmInput: ''
+})
+const openDelete = () => {
+    // 显示删除对话框，重置信息
+    deleteDialogInfo.value.confirmInput = ''
+    deleteDialogInfo.value.isVis = true
+    deleteDialogInfo.value.confirmName = menuOpIdx.cl === -1
+        ? groups.value[menuOpIdx.cg].name
+        : groups.value[menuOpIdx.cg].librarys[menuOpIdx.cl].name
+
+}
+const handleDelete = async () => {
+    if (deleteDialogInfo.value.confirmInput !== deleteDialogInfo.value.confirmName) return
+
+
+    deleteDialogInfo.value.isVis = false
+}
 /******************** 移动和拖动 ********************/
 const handleDragstart = (idxGroup: number, idxLibrary: number = -1) => {
     menuOpIdx.cg = idxGroup
     menuOpIdx.cl = idxLibrary
 }
+const handleDragend = () => {
+    const cg = menuOpIdx.cg, cl = menuOpIdx.cl,
+        tg = menuOpIdx.tg, tl = menuOpIdx.tl
+    if (cl === -1) { // 拖动的是group
+        if (tl !== -1 || tg === cg) return // 如果进入的是library或者是自己，不进行操作
+        const sourceGroup = groups.value.splice(cg, 1)[0] // 提出拖动的Group
+        console.log(sourceGroup.id, groups.value[tg]?.id || 0);
 
+        // 第一个id是要移除， 第二个是目标的后面插入
+        groups.value.splice(tg, 0, sourceGroup) // 移动Group 
+        // console.log(sourceGroup.id, groups.value[tg].id);
+        isExpandGroup.value.splice(tg, 0, ...isExpandGroup.value.splice(cg, 1)) // 展开情况  
+        // 向数据库中更新顺序
 
-const handleDragenter = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
-    e.preventDefault()
-    menuOpIdx.tg = idxGroup
-    menuOpIdx.tl = idxLibrary;
+    } else { // 拖动的是library
+        const sourceLibrary = groups.value[cg].librarys.splice(cl, 1)[0]
+        if (tl === -1) { // 拖入的是group
+            if (cg === tg) return
+            // 默认插入到组的第一个位置
+            groups.value[tg].librarys.splice(0, 0, sourceLibrary)
+        } else { // 拖入的是library
+            // 插入到指定位置
+            groups.value[tg].librarys.splice(tl, 0, sourceLibrary)
+        }
+    }
 }
-
+const handleDragenter = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
+    menuOpIdx.tg = idxGroup
+    menuOpIdx.tl = idxLibrary
+    // 把组拖入库，不改变样式
+    if (menuOpIdx.cl === -1 && idxLibrary !== -1) return
+    // 拖入组#409eff，拖入库#f77c7c
+    (e.currentTarget as HTMLElement).style.borderBottom = `2px solid ${idxLibrary === -1 ? '#409eff' : '#f77c7c'}`
+}
+const handleDragleave = (e: MouseEvent) => {
+    (e.currentTarget as HTMLElement).style.borderBottom = 'none';
+}
 
 /******************** 更新顺序 ********************/
 
@@ -369,13 +455,13 @@ const handleDragenter = (e: MouseEvent, idxGroup: number, idxLibrary: number = -
     transform: rotateZ(90deg);
 }
 
-.input-wrapper {
+.input-wrap {
     border: 1px solid #929292;
     background-color: #fff;
     overflow: hidden;
 }
 
-.input-wrapper input {
+.input-wrap input {
     width: 100%;
     border: none;
     outline: none;

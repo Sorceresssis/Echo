@@ -11,6 +11,8 @@
 </template>
 
 <script setup lang='ts'>
+import { ref } from 'vue'
+
 
 const props = withDefaults(defineProps<{
     records: RecordProfile[]
