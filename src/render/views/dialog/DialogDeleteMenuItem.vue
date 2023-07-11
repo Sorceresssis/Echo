@@ -4,22 +4,22 @@
                title="你确定要这样做吗"
                width="350px"
                class="dialog-confirm">
-        <p>
-            此操作<span style="font-weight: 700;">无法</span>撤销。这将永久删除数据
+        <p class="row">
+            此操作无法撤销。这将<span class="fw-bolder">永久删除</span>数据
         </p>
-        <p>
-            请输入 <span style="font-weight: 700; user-select: text;">{{ modelValue.confirmName }}</span>
-            进行确认。
+        <p class="row">
+            请输入<span class="fw-bolder select-contain"> {{ modelValue.confirmName }} </span>进行确认。
         </p>
-        <el-input class="diaglog-input"
-                  v-model="modelValue.confirmInput" />
-        <span class="dialog-footer">
-            <el-button type="primary"
-                       :class="{ 'confirmed': modelValue.confirmName == modelValue.confirmInput }"
-                       @click="emit('')">
+        <div class="row">
+            <el-input v-model="modelValue.confirmInput" />
+        </div>
+        <div class="row">
+            <el-button :class="{ 'confirmed': modelValue.confirmName == modelValue.confirmInput }"
+                       :disabled="modelValue.confirmName != modelValue.confirmInput"
+                       @click="emit('handle-delete')">
                 我明白后果，确认删除
             </el-button>
-        </span>
+        </div>
     </el-dialog>
 </template>
 
@@ -32,8 +32,23 @@ const props = defineProps<{
     }
 }>()
 const emit = defineEmits<{
-    handleDelete: () => void
+    (e: 'handle-delete'): void
 }>() 
 </script>
 
-<style scoped></style>
+<style scoped>
+.row {
+    margin-bottom: 10px;
+}
+
+.el-button {
+    background-color: #a40e26 !important;
+    color: #fff !important;
+}
+
+.confirmed {
+    background-color: #a40e26;
+    ;
+    color: #fff;
+}
+</style>

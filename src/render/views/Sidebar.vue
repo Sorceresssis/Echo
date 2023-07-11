@@ -102,7 +102,8 @@
                 </ul>
             </div>
         </div>
-        <dialog-delete-menu-item v-model="deleteDialogInfo"></dialog-delete-menu-item>
+        <dialog-delete-menu-item v-model="deleteDialogInfo"
+                                 @handle-delete="handleDelete" />
         <context-menu v-model:show="isVisCtmGroup"
                       :options="ctmOptions">
             <context-menu-item :label="t('ctm.addLibrary')"
@@ -309,10 +310,10 @@ const openDelete = () => {
     deleteDialogInfo.value.confirmName = menuOpIdx.cl === -1
         ? groups.value[menuOpIdx.cg].name
         : groups.value[menuOpIdx.cg].librarys[menuOpIdx.cl].name
-
 }
 const handleDelete = async () => {
     if (deleteDialogInfo.value.confirmInput !== deleteDialogInfo.value.confirmName) return
+    const cl = menuOpIdx.cl, tl = menuOpIdx.tl
 
 
     deleteDialogInfo.value.isVis = false

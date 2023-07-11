@@ -91,6 +91,17 @@
     margin: 10px 0;
 }
 
+.select-none {
+    user-select: none;
+}
+
+.select-contain {
+    user-select: contain;
+}
+
+.fw-bolder {
+    font-weight: bolder;
+}
 
 
 /* dialog */
