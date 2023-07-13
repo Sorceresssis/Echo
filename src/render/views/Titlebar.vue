@@ -70,6 +70,7 @@ watch(router.currentRoute, async () => {
         const libraryID: number = Number.parseInt(currentPath.match(/\/library\/(\d+)/)![1]);
         activeLibrary.value = libraryID
         // 根据libraryID获取library的名字
+        // BUG : 如果libraryid查不到数据，会导致电脑任务栏的标题变成undefined
         activeLibraryName.value = (await window.electronAPI.getLibraryNameByID(activeLibrary.value))
         document.title = `${activeLibraryName.value} - Echo`
     }

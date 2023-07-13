@@ -142,12 +142,14 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, watch, inject, onMounted, Directive } from 'vue'
-import { useRouter } from 'vue-router';
+import { ref, Ref, watch, inject, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { t } from '../locales'
 import { debounce } from '../util/debounce'
+import { throttle } from '../util/throttle'
+import { vFocus } from '../util/directive'
 import CollapseTransition from '../components/CollapseTransition.vue'
-import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue';
+import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
@@ -171,7 +173,6 @@ onMounted(async () => {
     if (firstOpenLibrary !== 0) {
         openLibrary(firstOpenLibrary)
     }
-
 })
 
 
@@ -249,15 +250,12 @@ const openCtm = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
 
 
 /******************** 添加 & 重命名 ********************/
-const vFocus: Directive = (el: HTMLElement) => {
-    el.focus()
-}
 const newName = ref<string>('')
 const isVisAddGroup = ref(false)
-const openAddGroup = () => {
+const openAddGroup = throttle(() => {
     newName.value = '新建组'
     isVisAddGroup.value = true
-}
+}, 500)
 const handleAddGroup = async () => {
     isVisAddGroup.value = false
     if (newName.value.trim() === '') return
@@ -320,16 +318,26 @@ const deleteDialogInfo = ref({
 const openDelete = () => {
     // 显示删除对话框，重置信息
     deleteDialogInfo.value.confirmInput = ''
-    deleteDialogInfo.value.isVis = true
     deleteDialogInfo.value.confirmName = ctmOpIdx.cl === -1
         ? ctmCurGrp().name : ctmCurLib().name
+    deleteDialogInfo.value.isVis = true
 }
 const handleDelete = async () => {
     if (deleteDialogInfo.value.confirmInput !== deleteDialogInfo.value.confirmName) return
-    const cl = ctmOpIdx.cl, tl = ctmOpIdx.tl
-
-
+    const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
+    if (cl === -1) {
+        // 处理展开的问题
+        await window.electronAPI.deleteGroup(ctmCurGrp(cg).id)
+        isExpandGroup.value.splice(cg, 1)
+    } else {
+        await window.electronAPI.deleteLibrary(ctmCurLib(cg, cl).id)
+    }
+    /* TODO: 如果一个库被删除了，用户右打开了这个库，那么应该怎么办？
+    * 但是正在打开的是这个库，那么应该怎么办？
+    * 如果用户通过后退按钮，返回到了这个库，那么应该怎么办？，对不存在数据的处理
+    */
     deleteDialogInfo.value.isVis = false
+    getGroups()
 }
 
 /******************** 移动和拖动 ********************/

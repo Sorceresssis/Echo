@@ -383,7 +383,7 @@ import { inject, ref, Ref } from 'vue'
 import i18n from '../../locales/index'
 import { autoCompleteType } from '../../store/enum'
 import { selectFile, selectDir, selectImage } from '../../util/externalOperation';
-import AutoCompleteSuggestion from './AutoCompleteSuggestion.vue';
+import AutoCompleteSuggestion from '../../components/AutoCompleteSuggestion.vue';
 
 const activeLibrary = inject<Ref<library>>('activeLibrary') as Ref<library>
 
@@ -502,7 +502,6 @@ const ed_series_new = ref<string>('')
 }
 
 .manageData__body {
-    height: 290px;
     padding: 0 10px;
     overflow: auto;
 }

@@ -37,7 +37,13 @@ export class GroupDao {
             CREATE INDEX 'idx_library(group_id)' ON library(group_id);
             DROP TABLE IF EXISTS 'library_extra';
             CREATE TABLE 'library_extra'( 'id' INTEGER NOT NULL, 'keyword' VARCHAR(255) DEFAULT '' NOT NULL, 'intro' TEXT DEFAULT '' NOT NULL );
-            CREATE INDEX 'idx_library_extra(id)' ON library_extra(id);`)
+            CREATE INDEX 'idx_library_extra(id)' ON library_extra(id);
+            CREATE VIEW v_libraryDetail AS SELECT l.id, l.name, l.prev_id, l.next_id, l.is_hide, le.keyword, le.intro, l.gmt_create, l.gmt_modified, l.group_id FROM library l LEFT JOIN library_extra le ON l.id = le.id;
+            DROP TRIGGER IF EXISTS del_libraryExtra;
+            CREATE TRIGGER del_libraryExtra AFTER DELETE ON library FOR EACH ROW BEGIN DELETE FROM library_extra WHERE id = OLD.id; END;
+            DROP TRIGGER IF EXISTS ins_libraryExtra;
+            CREATE TRIGGER ins_libraryExtra AFTER INSERT ON library FOR EACH ROW BEGIN INSERT INTO library_extra(id, keyword, intro)VALUES(NEW.id, '', ''); END;
+            `)
         })
     }
 
@@ -91,7 +97,7 @@ export class GroupDao {
             // 获取第一个library的id
             const headId: number = this.db.prepare(`SELECT id FROM 'library' WHERE group_id = ? AND prev_id = 0;`).pluck().get(groupId) as number
             const { changes, lastInsertRowid } = this.db.run(`INSERT INTO 'library'(name, group_id) VALUES(?, ?);`, name, groupId)
-            if (changes) {
+            if (changes === 1) {
                 // 把新添加的library的作为新的链表的头, 
                 if (headId) { this.__insertNode(lastInsertRowid, 0, headId, 'l') }
             } else {
@@ -101,7 +107,7 @@ export class GroupDao {
     }
 
     /**
-     * 在两个gourp之间插入一个group。两个参数就够了，但是为了减少查询次数，所以传入三个参数，注意prevId, nextId可能为0.
+     * 在两个gourp之间插入一个group，不包括写入数据操作，只用于链接。注意prevId, nextId可能为0.
      * @param id 要插入的节点 id
      * @param prevId 插入位置前一个节点 id
      * @param nextId 插入位置后一个节点 id
@@ -111,35 +117,62 @@ export class GroupDao {
         const table = type === 'g' ? `'group'` : `'library'`
         // 1. 修改id的 prevId, nextId
         this.db.run(`UPDATE ${table} SET prev_id = ?, next_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, prevId, nextId, id)
-        // 2. 修改prevId的nextId 为 id, 修改nextId的prevId 为 id
+        // 2. 修改前一个节点的nextId 为 id, 修改后一个节点的prevId 为 id
         this.db.run(`UPDATE ${table} SET next_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, id, prevId)
         this.db.run(`UPDATE ${table} SET prev_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, id, nextId)
     }
 
     deleteGroup(id: number): void {
-        console.log('delete group', id);
-
         this.db.transaction(() => {
+            this.__removeNode(id, 'g') // 删除链接关系 
+            this.db.run(`DELETE FROM 'group' WHERE id = ?;`, id) // 删除group记录
+            // 删除group下的所有library然后会有触发器删除library_extra
+            this.db.run('DELETE FROM library WHERE group_id = ?;', id)
         })
     }
 
     deleteLibrary(id: number): void {
-        console.log('delete library', id);
         this.db.transaction(() => {
+            this.__removeNode(id, 'l') // 删除链接关系
+            this.db.run('DELETE FROM library WHERE id = ?;', id) // 删除library记录
         })
     }
 
-    __removeNode(id: number): void {
-        // 注意删除的group可能是头部，尾部，中间
-
+    /**
+     * 删除节点，不包括删除数据操作，只用于链接。注意删除的节点可能是头部，尾部，中间
+     * @param id 被删除的节点 id
+     * @param type 
+     */
+    __removeNode(id: number | bigint, type: 'g' | 'l'): void {
+        const table = type === 'g' ? `'group'` : `'library'`
+        // 查询被删除的节点的前一个节点和后一个节点
+        const [prevId, nextId] = this.db.prepare(`SELECT prev_id, next_id FROM ${table} WHERE id = ?;`).raw().get(id) as [number, number]
+        // 修改前一个节点的nextId为后一个节点的id
+        if (prevId) {
+            this.db.run(`UPDATE ${table} SET next_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, nextId, prevId)
+        }
+        // 修改后一个节点的prevId为前一个节点的id
+        if (nextId) {
+            this.db.run(`UPDATE ${table} SET prev_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, prevId, nextId)
+        }
     }
 
-    sortGroup(currentId: number, targetNextId: number): void {
+    updateSort(currId: number, tarNextId: number): void {
         this.db.transaction(() => {
-            const [currentPrev, currentNext] = this.db.prepare(`SELECT prev_id, next_id FROM 'group' WHERE id = ?;`).raw().get(currentId) as [number, number]
+            this.__removeNode(currId, 'g') // 删除移动节点旧的链接关系
+            this.db.get('') // 查
+            this.__insertNode(currId, 3, tarNextId, 'g') // 插入移动节点新的链接关系
+        })
+    }
 
-            this.db.run(`UPDATE 'group' SET prev_id = ?, next_id = ? WHERE id = ?;`, targetNextId, targetNextId, currentId)
-            this.db.run(`UPDATE 'group' SET next_id = ? WHERE id = ?;`, currentId, targetNextId)
+    moveLibrary(id: number, groupId: number): void {
+        this.db.transaction(() => {
+            // 修改library的group_id
+
+            // 找到group的头部
+            const headId = 0
+            // 把library插入到新的group的头部
+
         })
     }
 } 

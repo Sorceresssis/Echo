@@ -36,3 +36,40 @@ CREATE TABLE 'library_extra'(
 'intro' TEXT DEFAULT '' NOT NULL -- 介绍
 );
 CREATE INDEX 'idx_library_extra(id)' ON library_extra(id);
+
+
+-- VIEW
+CREATE VIEW v_libraryDetail AS
+SELECT
+    l.id,
+    l.name,
+    l.prev_id,
+    l.next_id,
+    l.is_hide,
+    le.keyword,
+    le.intro,
+    l.gmt_create,
+    l.gmt_modified,
+    l.group_id 
+FROM
+	library l
+	LEFT JOIN library_extra le ON l.id = le.id;
+
+
+
+-- Trigger
+DROP TRIGGER IF EXISTS del_libraryExtra;
+CREATE TRIGGER del_libraryExtra
+AFTER DELETE ON library
+FOR EACH ROW
+BEGIN
+	DELETE FROM library_extra WHERE id = OLD.id;
+END;
+
+DROP TRIGGER IF EXISTS ins_libraryExtra;
+CREATE TRIGGER ins_libraryExtra
+AFTER INSERT ON library
+FOR EACH ROW
+BEGIN
+	INSERT INTO library_extra(id, keyword, intro)VALUES(NEW.id, '', '');
+END;

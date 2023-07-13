@@ -95,8 +95,8 @@
     user-select: none;
 }
 
-.select-contain {
-    user-select: contain;
+.select-text {
+    user-select: text;
 }
 
 .fw-bolder {
