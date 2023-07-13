@@ -24,7 +24,6 @@
         deleteDialogInfo.value.isVisibleDialog = false
     }
 
-
     /******************** 在数据库更新顺序 ********************/
     const updataGroupOrder = debounce(async () => {
         let groupsId: number[] = []
@@ -41,61 +40,6 @@
         })
         await window.electronAPI.updataOrderLibrary(groups.value[groupIndex].id, librarysId)
     }, 200)
-
-
-
-    /* group添加 */
-    const isVisibleInputAddGroup = ref(false)
-    const inputModelAddGroup = ref("新建组")
-    const showInputAddGroup = () => {
-        inputModelAddGroup.value = "新建组"
-        isVisibleInputAddGroup.value = true
-    }
-    const handleInputAddGroup = async () => {
-        // 关闭输入框
-        isVisibleInputAddGroup.value = false
-        // 写入数据库
-        if (inputModelAddGroup.value === "") return
-        let newGroupId: number | null = await window.electronAPI.addGroup(inputModelAddGroup.value)
-        if (newGroupId) {
-            // 发出提示
-            ElMessage.success('添加组成功')
-            groups.value.unshift({ id: newGroupId, name: inputModelAddGroup.value, librarys: [] })
-            if (isExpandGroup.value.length < groups.value.length) {
-                isExpandGroup.value.unshift(false)
-            }
-            // 重新写入顺序
-            updataGroupOrder()
-        }
-        else {
-            ElMessage.error('添加组失败')
-        }
-    }
-
-    /* library添加 */
-    const addLibraryGroupIndex = ref(-1)
-    const inputModelAddLibrary = ref("新建库")
-    const showInputAddLibrary = () => {
-        // 先展开group
-        inputModelAddLibrary.value = "新建库"
-        isExpandGroup.value[_FocusGroupIndex] = true
-        addLibraryGroupIndex.value = _FocusGroupIndex
-    }
-    const handleInputAddLibrary = async (groupId: number) => {
-        let addGroupIndex = addLibraryGroupIndex.value
-        // 关闭输入框
-        addLibraryGroupIndex.value = -1
-        if (inputModelAddLibrary.value === "") return
-        let newlibraryId: number | null = await window.electronAPI.addLibrary(groupId, inputModelAddLibrary.value)
-        if (newlibraryId) {
-            ElMessage.success('添加库成功')
-            groups.value[addGroupIndex].librarys.unshift({ id: newlibraryId, name: inputModelAddLibrary.value })
-            // 重新写入顺序
-            updataLibraryOrder(addGroupIndex)
-        } else {
-            ElMessage.error('添加库失败')
-        }
-    }
 
     /******************** 右键菜单移动library ********************/
     const moveLibrary = async (groupIndex: number) => {

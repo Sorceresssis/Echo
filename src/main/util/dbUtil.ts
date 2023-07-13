@@ -32,7 +32,7 @@ export class DBUtil {
      * @param sql 执行语句
      * @returns statement
      */
-    prepare(sql: string): Statement<unknown[]> | Statement<[{}]> {
+    prepare(sql: string): Statement<unknown[]> {
         /**
          * .pluck()返回它检索的任何行的第一列的值，而不是整个行对象。
          * .expand()使准备好的语句返回按表命名的数据id变成group.id

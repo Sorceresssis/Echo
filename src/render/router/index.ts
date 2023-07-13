@@ -19,6 +19,10 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: 'author',
                 component: () => import('../views/library/Authors.vue')
+            },
+            {
+                path: 'manage',
+                component: () => import('../views/library/manage/Mange.vue')
             }
         ]
     },

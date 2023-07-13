@@ -14,8 +14,8 @@
             <el-input v-model="modelValue.confirmInput" />
         </div>
         <div class="row">
-            <el-button :class="{ 'confirmed': modelValue.confirmName == modelValue.confirmInput }"
-                       :disabled="modelValue.confirmName != modelValue.confirmInput"
+            <el-button :class="[modelValue.confirmName === modelValue.confirmInput ? 'confirmed' : 'no-confirm']"
+                       :disabled="modelValue.confirmName !== modelValue.confirmInput"
                        @click="emit('handle-delete')">
                 我明白后果，确认删除
             </el-button>
@@ -38,17 +38,26 @@ const emit = defineEmits<{
 
 <style scoped>
 .row {
-    margin-bottom: 10px;
+    padding: 5px 0;
 }
 
 .el-button {
-    background-color: #a40e26 !important;
-    color: #fff !important;
+    width: 100%;
+    border-color: #d5d8da;
+}
+
+.row .no-confirm,
+.row .no-confirm:hover {
+    color: #e68d94;
+    background-color: #f6f8fa;
 }
 
 .confirmed {
+    color: #cf222e;
+}
+
+.confirmed:hover {
     background-color: #a40e26;
-    ;
     color: #fff;
 }
 </style>

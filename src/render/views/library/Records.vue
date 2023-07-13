@@ -5,8 +5,7 @@
                 批量操作
             </div>
             <div class="flex-row">
-                <el-autocomplete size="small"
-                                 onfocus="this.select()">
+                <el-autocomplete>
                     <template #default="{ item }">
                         <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
                     </template>
@@ -38,6 +37,12 @@
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
+                <span class="menuItem iconfont">&#xe6c7;</span>
+                <span class="menuItem iconfont">&#xe81f;</span>
+                <div class="menuItem">
+                    <span class="iconfont"
+                          style="background-color: #9999;">&#xe7e6;</span>
+                </div>
             </div>
         </div>
         <records-container class="flex-1"
@@ -232,6 +237,9 @@ const records = ref<RecordProfile[]>([
     line-height: 36px;
     margin: 6px 0;
     justify-content: space-between;
+}
+
+.flex-row {
     align-items: center;
 }
 

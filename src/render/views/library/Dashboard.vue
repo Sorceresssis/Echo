@@ -23,7 +23,6 @@ import Records from './Records.vue';
 import Authors from './Authors.vue';
 import Series from './Series.vue';
 import Info from './Info.vue';
-import Mange from './Mange.vue';
 
 
 const componentList = shallowReactive([
@@ -31,7 +30,7 @@ const componentList = shallowReactive([
     { id: 2, name: '作者', component: Authors },
     { id: 3, name: '系列', component: Series },
     { id: 4, name: '信息表', component: Info },
-    { id: 5, name: '管理', component: Mange }
+
 ])
 const idxActiveComponent = ref<number>(0)
 const switchComponent = (idx: number) => {

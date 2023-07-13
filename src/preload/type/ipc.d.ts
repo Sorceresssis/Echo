@@ -13,7 +13,10 @@ export interface IElectronAPI {
     getGroups: () => Promise<Group[]>
     /** 重命名group */
     renameGroup: (id: number, newName: string) => Promise<boolean>
-
+    /** 添加group */
+    addGroup: (name: string) => Promise<boolean>
+    /** 删除group */
+    deleteGroup: (id: number) => Promise<boolean>
 
     /******************** Library ********************/
     /** 获取优先打开的library */
@@ -22,20 +25,17 @@ export interface IElectronAPI {
     getLibraryNameByID: (id: number) => Promise<string>
     /** 重命名library */
     renameLibrary: (id: number, newName: string) => Promise<boolean>
+    /** 添加library */
+    addLibrary: (groupId: number, name: string) => Promise<boolean>
+    /** 删除library */
+    deleteLibrary: (id: number) => Promise<boolean>
 
 
 
 
-
-
-    addGroup: (groupName: string) => Promise<number | null>
     updataOrderGroup: (groupsId: number[]) => Promise<void>
-    deleteGroup: (groupID: number) => Promise<boolean>
-    addLibrary: (groupID: number, LibraryName: string) => Promise<number | null>
     updataOrderLibrary: (groupID: number, librarysId: number[]) => Promise<void>
-    deleteLibrary: (LibraryID: number) => Promise<boolean>
     moveLibrary: (toGroupId: number, moveLibraryId: number) => Promise<boolean>
-
 
 
     /******************** Record ********************/

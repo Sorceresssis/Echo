@@ -8,6 +8,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     /******************** Group ********************/
     getGroups: () => ipcRenderer.invoke('group:getGroups'),
     renameGroup: (id: number, newName: string) => ipcRenderer.invoke('group:rename', id, newName),
+    addGroup: (name: string) => ipcRenderer.invoke('group:add', name),
+    deleteGroup: (id: number) => ipcRenderer.invoke('group:delete', id),
 
 
     /******************** Library ********************/
@@ -15,15 +17,13 @@ contextBridge.exposeInMainWorld('electronAPI', {
         ipcRenderer.on('library:primaryOpenLibrary', callback),
     getLibraryNameByID: (id: number) => ipcRenderer.invoke('library:getLibraryNameByID', id),
     renameLibrary: (id: number, newName: string) => ipcRenderer.invoke('library:rename', id, newName),
+    addLibrary: (groupId: number, name: string) => ipcRenderer.invoke('library:add', groupId, name),
+    deleteLibrary: (id: number) => ipcRenderer.invoke('library:delete', id),
 
 
 
-    addGroup: (groupName: string) => ipcRenderer.invoke('group:add', groupName),
     updataOrderGroup: (groupsId: number[]) => ipcRenderer.invoke('group:updataOrder', groupsId),
-    deleteGroup: (groupID: number) => ipcRenderer.invoke('group:delete', groupID),
-    addLibrary: (groupID: number, LibraryName: string) => ipcRenderer.invoke('library:add', groupID, LibraryName),
     updataOrderLibrary: (groupID: number, librarysId: number[]) => ipcRenderer.invoke('library:updataOrder', groupID, librarysId),
-    deleteLibrary: (LibraryID: number) => ipcRenderer.invoke('library:delete', LibraryID),
     moveLibrary: (toGroupId: number, moveLibraryId: number) => ipcRenderer.invoke('library:move', toGroupId, moveLibraryId),
 
 
