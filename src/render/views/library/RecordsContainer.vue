@@ -7,6 +7,9 @@
             :key="record.id">
             {{ record.title }}
         </li>
+        <el-card v-for="record in records"
+                 style="background-color: #fff; margin: 20px;">
+        </el-card>
     </ul>
 </template>
 

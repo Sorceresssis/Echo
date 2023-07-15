@@ -1,28 +1,15 @@
 <template>
-    <div>
-        <div id="menu"
-             class="flex-row">
-            <div v-for="(component, idx) in componentList"
-                 :key="component.id"
-                 class="menu-item"
-                 :class="[idxActiveComponent == idx ? 'menu-avtive' : '']"
-                 @click="switchComponent(idx)">
-                {{ component.name }}
-            </div>
-        </div>
-        <component class="flex-1 overflow-hidden"
-                   :is="componentList[idxActiveComponent].component">
-        </component>
-    </div>
+    <main-container :component-list="componentList"></main-container>
 </template>
   
 <script lang="ts" setup>
 import { ref, shallowReactive } from 'vue';
 import { t } from '../../locales'
-import Records from './Records.vue';
-import Authors from './Authors.vue';
-import Series from './Series.vue';
-import Info from './Info.vue';
+import MainContainer from '../../components/MainContainer.vue'
+import Records from './Records.vue'
+import Authors from './Authors.vue'
+import Series from './Series.vue'
+import Info from './Info.vue'
 
 
 const componentList = shallowReactive([
