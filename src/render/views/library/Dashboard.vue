@@ -1,11 +1,11 @@
 <template>
-    <main-container :component-list="componentList"></main-container>
+    <tabs :component-list="componentList"></tabs>
 </template>
   
 <script lang="ts" setup>
 import { ref, shallowReactive } from 'vue';
 import { t } from '../../locales'
-import MainContainer from '../../components/MainContainer.vue'
+import Tabs from '../../components/Tabs.vue'
 import Records from './Records.vue'
 import Authors from './Authors.vue'
 import Series from './Series.vue'

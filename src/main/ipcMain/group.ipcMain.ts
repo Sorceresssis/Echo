@@ -3,6 +3,7 @@ import path from 'path'
 import { config } from '../config'
 import { GroupDao } from '../dao/groupDao'
 
+
 export function ipcMainGroup() {
     const groupDao = new GroupDao(path.resolve(config.userDataPath, "database/group.db"))
 
@@ -29,8 +30,7 @@ export function ipcMainGroup() {
         try {
             groupDao.addGroup(name)
             return true
-        }
-        catch (e: any) {
+        } catch (e: any) {
             dialog.showErrorBox('AddGroup Error', e.message)
             return false
         }
@@ -46,8 +46,12 @@ export function ipcMainGroup() {
         }
     })
 
-    ipcMain.handle('group:sort', (e: IpcMainInvokeEvent, a) => {
-
+    ipcMain.handle('group:sort', (e: IpcMainInvokeEvent, currId: number, tarNextId: number) => {
+        try {
+            groupDao.sortGroup(currId, tarNextId)
+        } catch (e: any) {
+            dialog.showErrorBox('SortGroup Error', e.message)
+        }
     })
 
     ipcMain.handle('library:getLibraryNameByID', (e: IpcMainInvokeEvent, id: number): string => {
@@ -84,11 +88,12 @@ export function ipcMainGroup() {
         }
     })
 
-    ipcMain.handle('library:sort', (e: IpcMainInvokeEvent, a) => {
-
-    })
-
-    ipcMain.handle('library:move', (e: IpcMainInvokeEvent, a) => {
-
+    ipcMain.handle('library:sort', (e: IpcMainInvokeEvent, currId: number, tarNextId: number, groupId: number) => {
+        try {
+            // console.log(currId, tarNextId, groupId);
+            groupDao.sortLibrary(currId, tarNextId, groupId)
+        } catch (e: any) {
+            dialog.showErrorBox('SortLibrary Error', e.message)
+        }
     })
 }

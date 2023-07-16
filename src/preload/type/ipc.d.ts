@@ -17,6 +17,8 @@ export interface IElectronAPI {
     addGroup: (name: string) => Promise<boolean>
     /** 删除group */
     deleteGroup: (id: number) => Promise<boolean>
+    /** 排序group */
+    sortGroup: (currId: number, tarNextId: number) => Promise<void>
 
     /******************** Library ********************/
     /** 获取优先打开的library */
@@ -29,14 +31,8 @@ export interface IElectronAPI {
     addLibrary: (groupId: number, name: string) => Promise<boolean>
     /** 删除library */
     deleteLibrary: (id: number) => Promise<boolean>
-
-
-
-
-    updataOrderGroup: (groupsId: number[]) => Promise<void>
-    updataOrderLibrary: (groupID: number, librarysId: number[]) => Promise<void>
-    moveLibrary: (toGroupId: number, moveLibraryId: number) => Promise<boolean>
-
+    /** 排序library */
+    sortLibrary: (currId: number, tarNextId: number, groupId: number) => Promise<void>
 
     /******************** Record ********************/
     libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete[]>

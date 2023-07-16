@@ -26,13 +26,13 @@
                 <div>
                     <div>微信</div>
                     <div class="marginTop10">
-                        <img src="../assets/images/wechat.png">
+                        <img src="">
                     </div>
                 </div>
                 <div>
                     <div>支付宝</div>
                     <div class="marginTop10">
-                        <img src="../assets/images/alipay.jpg">
+                        <img src="">
                     </div>
                 </div>
             </div>

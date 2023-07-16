@@ -10,7 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     renameGroup: (id: number, newName: string) => ipcRenderer.invoke('group:rename', id, newName),
     addGroup: (name: string) => ipcRenderer.invoke('group:add', name),
     deleteGroup: (id: number) => ipcRenderer.invoke('group:delete', id),
-
+    sortGroup: (currId: number, tarNextId: number) => ipcRenderer.invoke('group:sort', currId, tarNextId),
 
     /******************** Library ********************/
     getPrimaryOpenLibrary: (callback: (e: IpcRendererEvent, libraryId: number) => void) =>
@@ -19,14 +19,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     renameLibrary: (id: number, newName: string) => ipcRenderer.invoke('library:rename', id, newName),
     addLibrary: (groupId: number, name: string) => ipcRenderer.invoke('library:add', groupId, name),
     deleteLibrary: (id: number) => ipcRenderer.invoke('library:delete', id),
-
-
-
-    updataOrderGroup: (groupsId: number[]) => ipcRenderer.invoke('group:updataOrder', groupsId),
-    updataOrderLibrary: (groupID: number, librarysId: number[]) => ipcRenderer.invoke('library:updataOrder', groupID, librarysId),
-    moveLibrary: (toGroupId: number, moveLibraryId: number) => ipcRenderer.invoke('library:move', toGroupId, moveLibraryId),
-
-
+    sortLibrary: (currId: number, tarNextId: number, groupId: number) => ipcRenderer.invoke('library:sort', currId, tarNextId, groupId),
 
     /******************** db_library ********************/
     libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) =>

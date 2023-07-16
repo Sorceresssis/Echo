@@ -32,7 +32,6 @@
                                       class="beforeIcon">
                                     {{ item.title }}
                                 </span>
-
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>

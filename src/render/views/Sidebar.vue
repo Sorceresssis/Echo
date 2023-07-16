@@ -33,28 +33,26 @@
                     </li>
                     <li v-for="(group, idxGroup) in groups"
                         :key="group.id">
-                        <div v-if="groupIdOfRename !== group.id"
-                             :class="[isExpandGroup[idxGroup] ? 'angle-down' : 'angle-right']"
-                             class="menu-row menu-item menu-group textover--ellopsis"
-                             @click="isExpandGroup[idxGroup] = !isExpandGroup[idxGroup]"
-                             @contextmenu="openCtm($event, idxGroup)"
-                             draggable="true"
-                             @dragstart="handleDragstart(idxGroup)"
-                             @dragend="handleDragend()"
-                             @dragenter.prevent="handleDragenter($event, idxGroup)"
-                             @dragleave="handleDragleave($event)">
-                            {{ group.name }}
-                        </div>
-                        <div v-else
-                             class="menu-row menu-group input-wrap"
-                             :class="[isExpandGroup[idxGroup] ? 'angle-down' : 'angle-right']">
-                            <input v-model="newName"
-                                   onfocus="this.select();"
-                                   v-focus
-                                   maxlength="255"
-                                   spellcheck="false"
-                                   @keyup.enter="($event.target as HTMLInputElement).blur()"
-                                   @blur="handleRename">
+                        <div class="menuItem-wrap">
+                            <div :class="[isExpandGroup[idxGroup] ? 'angle-down' : 'angle-right', groupIdOfRename === group.id ? 'input-wrap' : 'menu-item']"
+                                 class="menu-row menu-group textover--ellopsis"
+                                 @click="isExpandGroup[idxGroup] = !isExpandGroup[idxGroup]"
+                                 @contextmenu="openCtm($event, idxGroup)"
+                                 draggable="true"
+                                 @dragstart="handleDragstart(idxGroup)"
+                                 @dragend="handleDragend()"
+                                 @dragenter.prevent="handleDragenter($event, idxGroup)"
+                                 @dragleave="handleDragleave($event)">
+                                <span v-if="groupIdOfRename !== group.id">{{ group.name }}</span>
+                                <input v-else
+                                       v-model="newName"
+                                       onfocus="this.select();"
+                                       v-focus
+                                       maxlength="255"
+                                       spellcheck="false"
+                                       @keyup.enter="($event.target as HTMLInputElement).blur()"
+                                       @blur="handleRename" />
+                            </div>
                         </div>
                         <collapse-transition v-show="isExpandGroup[idxGroup]">
                             <ul>
@@ -71,27 +69,26 @@
                                 </li>
                                 <li v-for="(library, idxLibrary) in group.librarys"
                                     :key="library.id">
-                                    <div v-if="libraryIdOfRename !== library.id"
-                                         :class="{ 'active-library': library.id === activeLibrary }"
-                                         class="menu-item menu-row menu-library textover--ellopsis"
-                                         @click="openLibrary(library.id)"
-                                         @contextmenu="openCtm($event, idxGroup, idxLibrary)"
-                                         draggable="true"
-                                         @dragstart="handleDragstart(idxGroup, idxLibrary)"
-                                         @dragend="handleDragend()"
-                                         @dragenter.prevent="handleDragenter($event, idxGroup, idxLibrary)"
-                                         @dragleave="handleDragleave($event)">
-                                        {{ library.name }}
-                                    </div>
-                                    <div v-else
-                                         class="menu-row  menu-library input-wrap">
-                                        <input v-model="newName"
-                                               onfocus="this.select()"
-                                               v-focus
-                                               maxlength="255"
-                                               spellcheck="false"
-                                               @keyup.enter="($event.target as HTMLInputElement).blur()"
-                                               @blur="handleRename">
+                                    <div class="menuItem-wrap">
+                                        <div :class="[library.id === activeLibrary ? 'active-library' : '', libraryIdOfRename === library.id ? 'input-wrap' : 'menu-item']"
+                                             class="menu-row menu-library textover--ellopsis"
+                                             @click="openLibrary(library.id)"
+                                             @contextmenu="openCtm($event, idxGroup, idxLibrary)"
+                                             draggable="true"
+                                             @dragstart="handleDragstart(idxGroup, idxLibrary)"
+                                             @dragend="handleDragend()"
+                                             @dragenter.prevent="handleDragenter($event, idxGroup, idxLibrary)"
+                                             @dragleave="handleDragleave($event)">
+                                            <span v-if="libraryIdOfRename !== library.id">{{ library.name }}</span>
+                                            <input v-else
+                                                   v-model="newName"
+                                                   onfocus="this.select()"
+                                                   v-focus
+                                                   maxlength="255"
+                                                   spellcheck="false"
+                                                   @keyup.enter="($event.target as HTMLInputElement).blur()"
+                                                   @blur="handleRename" />
+                                        </div>
                                     </div>
                                 </li>
                             </ul>
@@ -131,10 +128,10 @@
             </context-menu-item>
             <context-menu-sperator />
             <context-menu-group label="移动到">
-                <context-menu-item v-for="group in groups"
+                <context-menu-item v-for="(group, idxGroup) in groups"
                                    :key="group.id"
                                    :label="group.name"
-                                   @click="" />
+                                   @click="moveLibrary(idxGroup)" />
             </context-menu-group>
             <context-menu-item label="导出" />
         </context-menu>
@@ -148,33 +145,42 @@ import { t } from '../locales'
 import { debounce } from '../util/debounce'
 import { throttle } from '../util/throttle'
 import { vFocus } from '../util/directive'
+import { sendCrosTabMsg, listenCrosTabMsg } from "../util/CrosTabMsg"
 import CollapseTransition from '../components/CollapseTransition.vue'
 import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
 import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
+const bc = new BroadcastChannel('sideBar')
+const bcMsg = 'getGroups'
+
 onMounted(async () => {
-    // 获取group的展开信息，
-    isExpandGroup.value = JSON.parse(window.localStorage.getItem('isExpandGroup') || "[]")
+    // 监听background发来的消息
+    listenCrosTabMsg(bc, (e: MessageEvent) => {
+        switch (e.data) {
+            case 'getGroups':
+                getGroups()
+                break
+        }
+    })
 
-    // 获取groups 
-    await getGroups()
-
-    // 检查isExpandGroup和groups的对应情况,少就补上false,
-    if (isExpandGroup.value.length < groups.value.length) {
-        isExpandGroup.value.concat(Array(groups.value.length - isExpandGroup.value.length).fill(false))
-    }
-
-    // 获取启动就要打开的library。循序为后台发送来的library(新建窗口打开) --> 上一次打开的library --> id=0 不打开任何library
-    const firstOpenLibrary: number = (await getPrimaryOpenLibrary()) || JSON.parse(window.localStorage.getItem('lastActiveLibrary') || '0')
+    // 获取groups和启动就要打开的library。后台发送来的library(新建窗口打开) --> 上一次打开的library --> id=0 不打开任何library
+    const firstOpenLibrary: number = (await Promise.all([getGroups(), getPrimaryOpenLibrary()]))[1] || JSON.parse(window.localStorage.getItem('lastActiveLibrary') || '0')
 
     // 为0到欢迎页，否则打开library页 
     if (firstOpenLibrary !== 0) {
         openLibrary(firstOpenLibrary)
     }
-})
 
+    // 获取group的展开信息，
+    isExpandGroup.value = JSON.parse(window.localStorage.getItem('isExpandGroup') || "[]")
+
+    // 检查isExpandGroup和groups的对应情况,少就补上false,
+    if (isExpandGroup.value.length < groups.value.length) {
+        isExpandGroup.value.concat(Array(groups.value.length - isExpandGroup.value.length).fill(false))
+    }
+})
 
 /******************** 页面数据 ********************/
 
@@ -192,9 +198,9 @@ watch(activeLibrary, debounce((newVal: number) => {
 }, 200))
 
 // 获取侧边栏的group
-const getGroups = async () => {
+const getGroups = throttle(async () => {
     groups.value = await window.electronAPI.getGroups()
-}
+}, 200)
 // 获取优先打开的library
 const getPrimaryOpenLibrary = async (): Promise<number | null> => {
     return new Promise<number | null>((resolve) => {
@@ -248,7 +254,6 @@ const openCtm = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
     ctmOpIdx.cl = idxLibrary
 }
 
-
 /******************** 添加 & 重命名 ********************/
 const newName = ref<string>('')
 const isVisAddGroup = ref(false)
@@ -262,6 +267,7 @@ const handleAddGroup = async () => {
     const result = await window.electronAPI.addGroup(newName.value.trim())
     if (result) isExpandGroup.value.unshift(false)
     getGroups()
+    sendCrosTabMsg(bc, bcMsg)
 }
 const idxGroupOfAddLibrary = ref<number>(-1)
 const openAddLibrary = () => {
@@ -275,6 +281,7 @@ const handleAddLibrary = async () => {
     if (newName.value.trim() === '') return
     await window.electronAPI.addLibrary(gId, newName.value.trim())
     getGroups()
+    sendCrosTabMsg(bc, bcMsg)
 }
 const groupIdOfRename = ref<number>(0)
 const libraryIdOfRename = ref<number>(0)
@@ -306,8 +313,8 @@ const handleRename = async () => {
         if (result) groups.value[cg].librarys[cl].name = newName.value
         libraryIdOfRename.value = 0
     }
+    sendCrosTabMsg(bc, bcMsg)
 }
-
 
 /******************** 删除 ********************/
 const deleteDialogInfo = ref({
@@ -337,7 +344,7 @@ const handleDelete = async () => {
     * 如果用户通过后退按钮，返回到了这个库，那么应该怎么办？，对不存在数据的处理
     */
     deleteDialogInfo.value.isVis = false
-    getGroups()
+    sendCrosTabMsg(bc, bcMsg)
 }
 
 /******************** 移动和拖动 ********************/
@@ -349,31 +356,29 @@ const handleDragstart = (idxGroup: number, idxLibrary: number = -1) => {
  * 把current向上拖动到target,current代替target的位置，target的位置后移  
  * 把current向下拖动到target,current代替target的位置，target的位置前移
  */
-const handleDragend = () => {
+const handleDragend = async () => {
     const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl,
         tg = ctmOpIdx.tg, tl = ctmOpIdx.tl
     if (cl === -1) { // 拖动的是group
         if (tl !== -1 || tg === cg) return // 如果进入的是library或者是自己，不进行操作
-        const sourceGroup = groups.value.splice(cg, 1)[0] // 提出拖动的Group
-        // console.log(sourceGroup.id, groups.value[tg]?.id || 0);
-
-        // 第一个id是要移除， 第二个是目标的后面插入
-        groups.value.splice(tg, 0, sourceGroup) // 移动Group 
-        // console.log(sourceGroup.id, groups.value[tg].id);
-        isExpandGroup.value.splice(tg, 0, ...isExpandGroup.value.splice(cg, 1)) // 展开情况  
-        // 向数据库中更新顺序
-
+        const sourceGroup = groups.value.splice(cg, 1)[0] // 提出拖动的Group 
+        isExpandGroup.value.splice(tg, 0, ...isExpandGroup.value.splice(cg, 1)) // 展开情况
+        await window.electronAPI.sortGroup(sourceGroup.id, groups.value[tg]?.id || 0)
     } else { // 拖动的是library
+        if (tg === cg && tl === cl) return
         const sourceLibrary = groups.value[cg].librarys.splice(cl, 1)[0]
         if (tl === -1) { // 拖入的是group
             if (cg === tg) return
             // 默认插入到组的第一个位置
-            groups.value[tg].librarys.splice(0, 0, sourceLibrary)
-        } else { // 拖入的是library
-            // 插入到指定位置
-            groups.value[tg].librarys.splice(tl, 0, sourceLibrary)
+            await window.electronAPI.sortLibrary(sourceLibrary.id,
+                groups.value[tg].librarys[0]?.id || 0, groups.value[tg].id)
+        } else { // 拖入的是library  
+            await window.electronAPI.sortLibrary(sourceLibrary.id,
+                groups.value[tg].librarys[tl]?.id || 0, groups.value[tg].id)
         }
     }
+    getGroups()
+    sendCrosTabMsg(bc, bcMsg)
 }
 const handleDragenter = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
     ctmOpIdx.tg = idxGroup
@@ -387,9 +392,22 @@ const handleDragleave = (e: MouseEvent) => {
     (e.currentTarget as HTMLElement).style.borderBottom = 'none';
 }
 
-/******************** 更新顺序 ********************/
-
-
+/******************** 移动 ********************/
+const moveLibrary = async (idxGroup: number) => {
+    const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
+    // 如果是移动到自己的组，不进行操作
+    if (cg === idxGroup) {
+        console.log('移动到自己的组，不进行操作');
+        return
+    }
+    // 把library移动到groupId组的第一个位置
+    await window.electronAPI.sortLibrary(
+        groups.value[cg].librarys[cl].id,
+        groups.value[idxGroup].librarys[0]?.id || 0,
+        groups.value[idxGroup].id);
+    getGroups()
+    sendCrosTabMsg(bc, bcMsg)
+}
 </script>
 
 <style scoped>
@@ -419,10 +437,14 @@ const handleDragleave = (e: MouseEvent) => {
     border-radius: 2px;
 }
 
+.menuItem-wrap {
+    padding: 5px 0;
+}
+
 .menu-row {
     display: flex;
     height: 32px;
-    margin-bottom: 10px;
+    /* margin-bottom: 10px; */
     padding: 0 10px;
     line-height: 32px;
     box-sizing: border-box;

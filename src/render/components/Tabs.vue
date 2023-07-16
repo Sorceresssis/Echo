@@ -1,6 +1,8 @@
 <template>
     <div>
-        <!-- TODO 添加插槽 -->
+        <div>
+            <slot name="header"></slot>
+        </div>
         <div id="menu"
              class="flex-row">
             <div v-for="(component, idx) in componentList"
@@ -34,23 +36,22 @@ const switchComponent = (idx: number) => {
 }
 </script>
 
-<style scoped>
-#menu {
-    margin: 6px 0;
-}
+<style scoped> #menu {
+     margin: 6px 0;
+ }
 
-.menu-item {
-    height: 22px;
-    margin-right: 40px;
-    cursor: pointer;
-}
+ .menu-item {
+     height: 22px;
+     margin-right: 40px;
+     cursor: pointer;
+ }
 
-.menu-item:hover {
-    color: #9e94f7;
-}
+ .menu-item:hover {
+     color: #9e94f7;
+ }
 
-.menu-avtive {
-    color: #9e94f7;
-    border-bottom: solid 3px #9e94f7;
-}
+ .menu-avtive {
+     color: #9e94f7;
+     border-bottom: solid 3px #9e94f7;
+ }
 </style>

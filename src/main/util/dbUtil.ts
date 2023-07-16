@@ -8,6 +8,7 @@ export class DBUtil {
     constructor(path: string) {
         this.db = new DatabaseConstructor(path)
         this.db.pragma('journal_mode = WAL')
+        this.db.pragma('busy_timeout = 2000')
     }
 
     /**

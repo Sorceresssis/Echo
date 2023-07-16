@@ -97,12 +97,9 @@ export class GroupDao {
             // 获取第一个library的id
             const headId: number = this.db.prepare(`SELECT id FROM 'library' WHERE group_id = ? AND prev_id = 0;`).pluck().get(groupId) as number
             const { changes, lastInsertRowid } = this.db.run(`INSERT INTO 'library'(name, group_id) VALUES(?, ?);`, name, groupId)
-            if (changes === 1) {
-                // 把新添加的library的作为新的链表的头, 
-                if (headId) { this.__insertNode(lastInsertRowid, 0, headId, 'l') }
-            } else {
-                throw new Error('insert library error')
-            }
+            if (changes !== 1) { throw new Error('insert library error') }
+            // 把新添加的library的作为新的链表的头, 
+            if (headId) { this.__insertNode(lastInsertRowid, 0, headId, 'l') }
         })
     }
 
@@ -157,22 +154,30 @@ export class GroupDao {
         }
     }
 
-    updateSort(currId: number, tarNextId: number): void {
+    sortGroup(currId: number, tarNextId: number): void {
+        // 自己移动到自己的位置,会使代码崩溃
+        if (this.db.prepare("SELECT next_id = ? FROM 'group' WHERE id = ?;").pluck().get(tarNextId, currId) as number) return
         this.db.transaction(() => {
             this.__removeNode(currId, 'g') // 删除移动节点旧的链接关系
-            this.db.get('') // 查
-            this.__insertNode(currId, 3, tarNextId, 'g') // 插入移动节点新的链接关系
+            // 插入位置的前一个节点的id
+            const tarPrevId = this.db.prepare("SELECT id FROM 'group' WHERE next_id = ?;").pluck().get(tarNextId) as number
+            this.__insertNode(currId, tarPrevId || 0, tarNextId, 'g') // 插入移动节点新的链接关系
         })
     }
 
-    moveLibrary(id: number, groupId: number): void {
+    sortLibrary(currId: number, tarNextId: number, groupId: number): void {
+        // 自己移动到自己的位置
+        const [currNextId, currGroupId] = this.db.prepare('SELECT next_id, group_id FROM library WHERE id = ?').raw().get(currId) as [number, number]
+        if (currNextId === tarNextId && currGroupId === groupId) return
         this.db.transaction(() => {
-            // 修改library的group_id
-
-            // 找到group的头部
-            const headId = 0
-            // 把library插入到新的group的头部
-
+            this.__removeNode(currId, 'l')
+            // 插入位置的前一个节点的id,如果tarNextI为0，library有很多，所有需要group_id来确定
+            const tarPrevId = this.db.prepare("SELECT id FROM library WHERE next_id = ? AND group_id = ?;").pluck().get(tarNextId, groupId) as number
+            this.__insertNode(currId, tarPrevId || 0, tarNextId, 'l')
+            // 把当前library的group_id改为目标group的id 
+            if (this.db.run(`UPDATE library SET group_id = ? WHERE id = ?;`, groupId, currId).changes !== 1) {
+                throw new Error('update library group_id error')
+            }
         })
     }
-} 
+}
