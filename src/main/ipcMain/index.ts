@@ -2,9 +2,9 @@ import { app, ipcMain, IpcMainInvokeEvent } from "electron";
 import { setConfig } from '../config'
 import { IPCMain_external } from "./ipcMain-external";
 import { IPCMain_dialog } from "./ipcMain-dialog";
-import { IPCMain_dbLibrary } from "./ipcMain-dbLibrary";
 
 import { ipcMainGroup } from './group.ipcMain';
+import { ipcMainRecord } from './record.ipcMain';
 import { ipcMainWindow } from "./window.ipcMain";
 
 
@@ -18,12 +18,13 @@ export function IPCMain() {
     })
     IPCMain_dialog()
     IPCMain_external()
-    IPCMain_dbLibrary()
 
     /******************** 其他 ********************/
     ipcMain.handle('dev:test', async () => {
         return 'test'
     })
-    ipcMainWindow()
+
     ipcMainGroup()
+    ipcMainRecord()
+    ipcMainWindow()
 }

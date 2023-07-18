@@ -2,7 +2,8 @@
     <div v-if="records.length == 0">
         该库还没有任何东西哦~
     </div>
-    <ul v-else>
+    <ul v-else
+        class="scrollbar-y">
         <li v-for="record in records"
             :key="record.id">
             {{ record.title }}

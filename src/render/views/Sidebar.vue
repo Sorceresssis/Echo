@@ -344,6 +344,7 @@ const handleDelete = async () => {
     * 如果用户通过后退按钮，返回到了这个库，那么应该怎么办？，对不存在数据的处理
     */
     deleteDialogInfo.value.isVis = false
+    getGroups()
     sendCrosTabMsg(bc, bcMsg)
 }
 
@@ -476,7 +477,7 @@ const moveLibrary = async (idxGroup: number) => {
 }
 
 .active-library {
-    background-color: #887cf7;
+    background-color: var(--echo-theme-color);
     color: #fff;
 }
 

@@ -1,25 +1,38 @@
 <template>
-    <tabs :component-list="componentList">
+    <tabs :components="components">
         <template v-slot:header>
-            这是头
+            <div class="tab-header fw-bold">
+                管理数据
+            </div>
         </template>
     </tabs>
-    <!-- <dialog-manage-data></dialog-manage-data> -->
 </template>
  
 <script lang="ts" setup>
-import { shallowReactive } from 'vue';
-import Tabs from '../../../components/Tabs.vue';
-import DialogManageData from '../DialogManageData.vue';
+import { ref, shallowReactive } from 'vue'
+import Tabs from '../../../components/Tabs.vue'
+import AddRecord from './AddRecord.vue'
+import DeleteRecord from './DeleteRecord.vue'
+import EditAuthor from './EditAuthor.vue'
+import EditAttributes from './EditAttributes.vue'
 
-
-const componentList = shallowReactive([
-    { id: 1, name: '添加记录', component: null },
-    { id: 2, name: 'dd', component: null },
-    { id: 3, name: 'cc', component: null },
-    { id: 4, name: 'dd', component: null },
-
-])  
+const components = shallowReactive([
+    { id: 1, name: '添加记录', component: AddRecord },
+    { id: 2, name: '批量删除', component: DeleteRecord },
+    { id: 4, name: '编辑作者', component: EditAuthor },
+    { id: 3, name: '编辑属性', component: EditAttributes },
+])
+const idxActiveComponent = ref<number>(0)
+const switchComponent = (idx: number) => {
+    idxActiveComponent.value = idx
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.tab-header {
+    height: 40px;
+    line-height: 40px;
+    font-size: 30px;
+    padding: 10px 0;
+}
+</style>

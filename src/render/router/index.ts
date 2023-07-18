@@ -12,23 +12,27 @@ const routes: Array<RouteRecordRaw> = [
         children: [
             {
                 path: '',
-                component: () => import('../views/library/Dashboard.vue'),
+                component: () => import('../views/library/dashboard/Dashboard.vue'),
                 children: [
+                    {
+                        path: '',
+                        component: () => import('../views/library/dashboard/Records.vue')
+                    }
                 ]
             },
-            {
-                path: 'author',
-                component: () => import('../views/library/Authors.vue')
-            },
+            // {
+            //     path: 'author',
+            //     component: () => import('../views/library/Authors.vue')
+            // },
             {
                 path: 'manage',
-                component: () => import('../views/library/manage/Mange.vue')
-            }
+                component: () => import('../views/library/manage/Mange.vue'),
+            },
         ]
     },
     {
         path: '/setting',
-        component: () => import('../views/Settings/Settings.vue')
+        component: () => import('../views/settings/Settings.vue')
     }
 ]
 

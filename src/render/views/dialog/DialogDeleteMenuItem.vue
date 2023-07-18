@@ -5,11 +5,11 @@
                width="350px"
                class="dialog-confirm">
         <p class="row">
-            此操作无法撤销。这将<span class="fw-bolder">永久删除</span>数据。
-            <br>如果删除的是组，那么组下面的库<span class="fw-bolder">都会被删除</span>。
+            此操作无法撤销。这将<span class="fw-bold">永久删除</span>数据。
+            <br>如果删除的是组，那么组下面的库<span class="fw-bold">都会被删除</span>。
         </p>
         <p class="row">
-            请输入<span class="fw-bolder select-text"> {{ modelValue.confirmName }} </span>进行确认。
+            请输入<span class="fw-bold select-text"> {{ modelValue.confirmName }} </span>进行确认。
         </p>
         <div class="row">
             <el-input v-model="modelValue.confirmInput"

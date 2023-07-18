@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-col">
+    <div class="flex-col overflow-hidden">
         <div class="records-header flex-row">
             <div class="flex-row">
                 批量操作
@@ -61,9 +61,11 @@
 
 <script setup lang='ts'>
 import { ref, } from 'vue'
-import { t } from '../../locales'
-import Button1 from '../../components/Button1.vue'
-import RecordsContainer from './RecordsContainer.vue';
+import { t } from '../../../locales'
+import Button1 from '../../../components/Button1.vue'
+import RecordsCommon from './RecordsCommon.vue'
+import RecordsByAuthor from './RecordsByAuthor.vue'
+import RecordsContainer from './RecordsContainer.vue'
 
 const menuDropdowns = [
     {

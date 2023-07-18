@@ -65,7 +65,7 @@ const isOpenSideBar = ref<boolean>(true)
 
 .main-container {
     font-size: 14px;
-    margin-right: 16px;
+    /* margin-right: 16px; */
     padding: 0 10px;
 }
 </style>

@@ -1,11 +1,11 @@
 <template>
-    <tabs :component-list="componentList"></tabs>
+    <tabs :components="componentList"></tabs>
 </template>
   
 <script lang="ts" setup>
 import { ref, shallowReactive } from 'vue';
-import { t } from '../../locales'
-import Tabs from '../../components/Tabs.vue'
+import { t } from '../../../locales'
+import Tabs from '../../../components/Tabs.vue'
 import Records from './Records.vue'
 import Authors from './Authors.vue'
 import Series from './Series.vue'
@@ -17,12 +17,9 @@ const componentList = shallowReactive([
     { id: 2, name: '作者', component: Authors },
     { id: 3, name: '系列', component: Series },
     { id: 4, name: '信息表', component: Info },
-
 ])
-const idxActiveComponent = ref<number>(0)
-const switchComponent = (idx: number) => {
-    idxActiveComponent.value = idx
-}
+
+
 </script>
 
 <style scoped>

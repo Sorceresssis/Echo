@@ -1,7 +1,7 @@
 /******************** echo ********************/
 :root {
     --echo-background-color: #f6f6f8;
-    --echo-theme-color: #887cf7;
+    --echo-theme-color: #9e94f7;
     --echo-button-color: #413ae2;
     --echo-text-color1: #000000;
     --echo-text-color2: #333333;
@@ -87,8 +87,8 @@
 
 /* 分割线 */
 .divider {
-    border-top: 1px dashed #ccc;
-    margin: 10px 0;
+    border-bottom: 1px dashed #ccc;
+    padding-bottom: 10px;
 }
 
 .select-none {
@@ -99,9 +99,16 @@
     user-select: text;
 }
 
-.fw-bolder {
-    font-weight: bolder;
+.fw-bold {
+    font-weight: bold;
 }
+
+
+
+
+
+
+
 
 
 /* dialog */
