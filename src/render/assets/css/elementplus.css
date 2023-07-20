@@ -22,7 +22,11 @@
 
 }
 
-
+/* form */
+.el-form-item__content {
+    display: block !important;
+    flex-direction: column;
+}
 
 
 

@@ -1,11 +1,35 @@
-import { ipcMain, IpcMainInvokeEvent } from "electron";
+import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
+import tokenizer from "../util/tokenizer"
+import { LibraryDao } from "../dao/libraryDao"
 
-import { config } from '../config'
-const path = require('path');
+export function ipcMainLibrary() {
+    ipcMain.handle('record:add', (e: IpcMainInvokeEvent, libraryId: number, RecordForm: any, option: any): boolean => {
+        let libraryDao
+        try {
+            libraryDao = new LibraryDao(libraryId)
+            return true
+        } catch {
+            // dialog.showErrorBox()
+            return false
+        } finally {
+            libraryDao?.destroy()
+        }
+    })
 
-export function ipcMainRecord() {
-    ipcMain.handle('record:add', (e: IpcMainInvokeEvent, libraryId: number, query: any, option: any) => {
+    ipcMain.handle('record:queryProfiles', (e: IpcMainInvokeEvent, libraryId: number, option: any): any => {
+        let libraryDao = new LibraryDao(libraryId)
 
+        // // 开始分词
+        // console.log(tokenizer.doSegment('这是一个基于Node.js的中文分词模块。'))
+        // return libraryDao.test()
+
+        return tokenizer.doSegment('这是一个基于Node.js的中文分词模块。')
+    })
+
+    ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, option: any): ACSuggestion[] => {
+        let libraryDao = new LibraryDao(libraryId)
+        libraryDao.autoComplete(option.type, option.queryWord, option.pagesize)
+        return []
     })
 
 

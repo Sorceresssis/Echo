@@ -8,7 +8,7 @@ export interface IElectronAPI {
     config: (index: string, newValue: any = null) => Promise<any>
 
 
-    /******************** Group ********************/
+    /******************** GroupDB ********************/
     /** 获取所有的group和library */
     getGroups: () => Promise<Group[]>
     /** 重命名group */
@@ -19,8 +19,6 @@ export interface IElectronAPI {
     deleteGroup: (id: number) => Promise<boolean>
     /** 排序group */
     sortGroup: (currId: number, tarNextId: number) => Promise<void>
-
-    /******************** Library ********************/
     /** 获取优先打开的library */
     getPrimaryOpenLibrary: (callback: (e: IpcRendererEvent, libraryId: number) => void) => void,
     /** 通过libraryId获取libraryName */
@@ -34,7 +32,11 @@ export interface IElectronAPI {
     /** 排序library */
     sortLibrary: (currId: number, tarNextId: number, groupId: number) => Promise<void>
 
-    /******************** Record ********************/
+    /******************** RecordDB ********************/
+    queryRecordProfiles: (libraryId: number, option: any) => Promise<any>
+
+
+
     libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete[]>
     getItems: (libraryID: number) => Promise<itemProfile[]>
     getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => Promise<itemProfile[]>

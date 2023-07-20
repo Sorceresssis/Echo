@@ -132,6 +132,8 @@ export class GroupDao {
         this.db.transaction(() => {
             this.__removeNode(id, 'l') // 删除链接关系
             this.db.run('DELETE FROM library WHERE id = ?;', id) // 删除library记录
+            // TODO 删除library文件
+
         })
     }
 

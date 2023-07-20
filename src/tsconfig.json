@@ -22,10 +22,11 @@
         "target": "esnext",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
-        "outDir": "../../dist/main",
+        "outDir": "../dist",
     },
     "exclude": [
-        "node_modules"
+        "node_modules",
+        "render/**/*"
     ],
     "include": [
         "**/*.ts",

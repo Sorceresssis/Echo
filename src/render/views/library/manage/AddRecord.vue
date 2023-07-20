@@ -3,13 +3,19 @@
              label-position="left"
              :model="recordForm"
              :rules="rules"
-             label-width="100px"
+             label-width="120px"
              require-asterisk-position="right"
              status-icon>
-        <el-form-item label="文件路径"
-                      v-if="!isBatch"
-                      prop="name">
-            <div class="flex-1">
+        <div v-if="isBatch">
+            <el-form-item label="批量导入源">
+            </el-form-item>
+            <!-- TODO 记录是否存在  将文件夹里的文件名作为标题名快速导入, 添加一个 icon, 用户hover就有提示 -->
+            <el-form-item label="过滤存在"
+                          v-if="isBatch"></el-form-item>
+        </div>
+        <div v-else>
+            <el-form-item label="文件路径"
+                          prop="name">
                 <el-row>
                     <el-input v-model="recordForm.dirname"></el-input>
                 </el-row>
@@ -17,28 +23,29 @@
                     <el-input v-model="recordForm.basename" />
                 </el-row>
                 <el-row>
-                    <el-button>批量添加</el-button>
+                    <button2>选择文件</button2>
+                    <button2>选择文件夹</button2>
                 </el-row>
-            </div>
+            </el-form-item>
+            <el-form-item label="标题"
+                          prop="count">
+                <el-input v-model="recordForm.title" />
+            </el-form-item>
+        </div>
+        <el-form-item class="divider">
+            <el-row>
+                <el-button @click="isBatch = !isBatch">批量添加</el-button>
+            </el-row>
         </el-form-item>
         <el-form-item label="链接"
-                      prop="region"
-                      class="divider">
+                      prop="region">
             <el-input v-model="recordForm.hyperlink" />
         </el-form-item>
-        <el-form-item label="标题"
-                      prop="count">
-            <el-input v-model="recordForm.title" />
-        </el-form-item>
-        <el-form-item label="封面">
-            <el-row>
-                <el-col :span="12">
-                    <el-input v-model="recordForm.coverImage" />
-                </el-col>
-                <el-col :span="12">
-                    <el-button>选择图片</el-button>
-                </el-col>
-            </el-row>
+        <el-form-item label="选择封面">
+            <div class="flex-1 flex-row">
+                <el-input v-model="recordForm.coverImage" />
+                <button2>选择图片</button2>
+            </div>
         </el-form-item>
         <el-form-item label="评分">
             <el-rate v-model="recordForm.rate"
@@ -50,14 +57,22 @@
         </el-form-item>
         <el-form-item label="标签"
                       prop="type">
-
+            <div class="flex-row">
+                <el-input :placeholder="'点击添加 如果输入的标签不存在，会自动创建标签'" />
+                <button2>添加</button2>
+            </div>
+            <div>
+                joifgijfiojiojiojoi
+            </div>
         </el-form-item>
         <el-form-item label="系列"
                       prop="resource">
-            <div class="flex-1">
-                <!-- <el-input v-model="  "
-                      :placeholder="'如果输入的系列不存在，会自动创建系列'" /> -->
-
+            <div class="flex-row">
+                <el-input :placeholder="'点击添加 如果输入的系列不存在，会自动创建系列'" />
+                <button2>添加到该系列</button2>
+            </div>
+            <div>
+                fdf
             </div>
         </el-form-item>
         <el-form-item label="介绍"
@@ -90,6 +105,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import Button2 from '../../../components/Button2.vue'
 
 const colors = ref(['#b5adf7', '#887cf7', '#9e94f7'])
 const isBatch = ref(false)
@@ -114,7 +130,6 @@ type Options = {
     checkRecordExist: boolean // 添加时是否检查记录是否存在
 }
 
-
 const recordFormRef = ref<FormInstance>()
 const recordForm = reactive<RecordForm>({
     dirname: '',
@@ -130,19 +145,46 @@ const recordForm = reactive<RecordForm>({
     info: ''
 })
 
+// 添加单个Record和编辑Record
+const add = reactive<RecordForm>({
+    dirname: '',
+    basename: '',
+    hyperlink: '',
+    title: '',
+    coverImage: '',
+    rate: 0,
+    authors: [],
+    tags: [],
+    series: [],
+    intro: '',
+    info: ''
+})
+// 批量添加Record
+const batchAdd = reactive<RecordForm>({
+    dirname: '',
+    basename: '',
+    hyperlink: '',
+    title: '',
+    coverImage: '',
+    rate: 0,
+    authors: [],
+    tags: [],
+    series: [],
+    intro: '',
+    info: ''
+})
+
+
+
 const rules = reactive<FormRules>({
     name: [
         { min: 3, max: 5, message: 'Length should be 3 to 5', trigger: 'blur' },
     ],
     region: [
-        {
-            required: true,
-            message: 'Please select Activity zone',
-            trigger: 'change',
-        },
+
     ],
     desc: [
-        { required: true, message: 'Please input activity form', trigger: 'blur' },
+        // { required: true, message: 'Please input activity form', trigger: 'blur' },
     ],
 })
 
@@ -164,11 +206,11 @@ const resetForm = (formEl: FormInstance | undefined) => {
 </script>
   
 <style>
-.el-row {
+/* .el-row {
     margin-bottom: 5px;
 }
 
 .el-row:last-child {
     margin-bottom: 0;
-}
+} */
 </style>

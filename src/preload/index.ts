@@ -5,14 +5,12 @@ enum OpenDialogType { DIR = 0, FILE, IMAGE, VIDEO }
 contextBridge.exposeInMainWorld('electronAPI', {
     config: (index: string, newValue: any = null) => ipcRenderer.invoke('app:config', index, newValue),
 
-    /******************** Group ********************/
+    /******************** GroupDB ********************/
     getGroups: () => ipcRenderer.invoke('group:getGroups'),
     renameGroup: (id: number, newName: string) => ipcRenderer.invoke('group:rename', id, newName),
     addGroup: (name: string) => ipcRenderer.invoke('group:add', name),
     deleteGroup: (id: number) => ipcRenderer.invoke('group:delete', id),
     sortGroup: (currId: number, tarNextId: number) => ipcRenderer.invoke('group:sort', currId, tarNextId),
-
-    /******************** Library ********************/
     getPrimaryOpenLibrary: (callback: (e: IpcRendererEvent, libraryId: number) => void) =>
         ipcRenderer.on('library:primaryOpenLibrary', callback),
     getLibraryNameByID: (id: number) => ipcRenderer.invoke('library:getLibraryNameByID', id),
@@ -21,7 +19,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     deleteLibrary: (id: number) => ipcRenderer.invoke('library:delete', id),
     sortLibrary: (currId: number, tarNextId: number, groupId: number) => ipcRenderer.invoke('library:sort', currId, tarNextId, groupId),
 
-    /******************** db_library ********************/
+    /******************** LibraryDB ********************/
+    queryRecordProfiles: (libraryId: number, option: any) => ipcRenderer.invoke('record:queryProfiles', libraryId, option),
+
+
+
+
     libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) =>
         ipcRenderer.invoke('library:autoComplete', LibraryID, type, queryWords, pagesize),
     getItems: (libraryID: number) => ipcRenderer.invoke('library:getItems', libraryID),

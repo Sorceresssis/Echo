@@ -3,7 +3,13 @@ import zhCN from './zhCN'
 import enUS from './enUS'
 import jaJP from './jaJP'
 
-const locale = (await window.electronAPI.config('lang')).locale || 'enUS'
+
+// let locale = (window.electronAPI.config('lang')).locale || 'enUS'
+let locale
+window.electronAPI.config('lang').then((res) => {
+    locale = res.locale || 'enUS'
+})
+
 const i18n = createI18n({
     legacy: false,
     globalInjection: true,

@@ -14,6 +14,14 @@ declare type Group = {
     librarys: LibraryProfile[]
 }
 
+declare type ACSuggestion = {
+    type: ConcatArray,
+    id: number,
+    label: string,
+}
+
+
+
 declare type LibraryDetail = {
     id: number,
     name: string,

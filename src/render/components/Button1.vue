@@ -1,5 +1,6 @@
 <template>
-    <div class="button-1">
+    <div class="button-1"
+         type="button">
         <span>
             <slot></slot>
         </span>
@@ -9,7 +10,7 @@
 <script setup lang='ts'>
 </script>
 
-<style scoped>
+<style>
 .button-1 {
     min-width: 18px;
     height: 18px;
@@ -35,6 +36,6 @@
 }
 
 .button-1:active span {
-    transform: translate(0px, .5px);
+    transform: translate(0, .5px);
 }
 </style>

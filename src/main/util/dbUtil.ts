@@ -77,7 +77,7 @@ export class DBUtil {
     }
 
     function(name: string, fn: (...arg: any[]) => any) {
-
+        this.db.function(name, fn);
     }
 
     /**
