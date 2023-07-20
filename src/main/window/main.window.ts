@@ -17,7 +17,8 @@ export function createWindow(libraryId: number | null): BrowserWindow {
         frame: false, // 取消默认的标题栏
         backgroundColor: "#ffffff",
         webPreferences: {
-            preload: resolve(__dirname, "../../preload/index.js")
+            preload: resolve(__dirname, "../../preload/index.js"),
+            webSecurity: false, // 为了开发方便，关闭安全策略，打包时打开
         }
     })
 

@@ -1,4 +1,5 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
+import { v4 as uuidv4 } from 'uuid'
 import tokenizer from "../util/tokenizer"
 import { LibraryDao } from "../dao/libraryDao"
 
@@ -18,12 +19,7 @@ export function ipcMainLibrary() {
 
     ipcMain.handle('record:queryProfiles', (e: IpcMainInvokeEvent, libraryId: number, option: any): any => {
         let libraryDao = new LibraryDao(libraryId)
-
-        // // 开始分词
-        // console.log(tokenizer.doSegment('这是一个基于Node.js的中文分词模块。'))
-        // return libraryDao.test()
-
-        return tokenizer.doSegment('这是一个基于Node.js的中文分词模块。')
+        return
     })
 
     ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, option: any): ACSuggestion[] => {

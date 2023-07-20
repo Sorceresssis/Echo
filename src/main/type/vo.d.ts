@@ -15,12 +15,10 @@ declare type Group = {
 }
 
 declare type ACSuggestion = {
-    type: ConcatArray,
+    type: AutoCompleteType,
     id: number,
     label: string,
 }
-
-
 
 declare type LibraryDetail = {
     id: number,

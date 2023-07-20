@@ -2,7 +2,7 @@ import fs from 'fs'
 import { DBUtil } from '../util/dbUtil'
 
 import { config } from '../config'
-import { AutoCompleteType } from '../../share/enum/ipc.enum'
+import { AutoCompleteType } from '../enum/ipc.enum'
 
 
 
