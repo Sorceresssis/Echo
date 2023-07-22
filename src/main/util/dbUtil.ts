@@ -2,7 +2,7 @@ import DatabaseConstructor, { Database, Statement } from "better-sqlite3";
 
 
 
-export class DBUtil {
+export default class DBUtil {
     db: Database
 
     constructor(path: string) {

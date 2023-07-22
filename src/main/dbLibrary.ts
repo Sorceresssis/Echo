@@ -1,7 +1,4 @@
 import Sqlite from './util/Sqlite'
-import { config } from './config'
-import { mkdirsSync } from './util/FileManager'
-const path = require('path');
 const fs = require('fs')
 
 
@@ -310,9 +307,4 @@ export class DBLibrary {
     async addItemsFromFolder() {
 
     }
-}
-
-export function checkImageDir(lilbraryID: number) {
-    mkdirsSync(path.resolve(config.userDataPath, `image/${lilbraryID}/authorProfile`))
-    mkdirsSync(path.resolve(config.userDataPath, `image/${lilbraryID}/coverImage`))
 }

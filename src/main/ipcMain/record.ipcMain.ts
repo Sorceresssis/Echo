@@ -1,9 +1,8 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
-import { v4 as uuidv4 } from 'uuid'
-import tokenizer from "../util/tokenizer"
-import { LibraryDao } from "../dao/libraryDao"
+import LibraryDao from "../dao/libraryDao"
 
-export function ipcMainLibrary() {
+// 多个窗口可能同时调用，所有不能使用唯一的LibraryDao
+export default function ipcMainLibrary() {
     ipcMain.handle('record:add', (e: IpcMainInvokeEvent, libraryId: number, RecordForm: any, option: any): boolean => {
         let libraryDao
         try {
@@ -19,7 +18,9 @@ export function ipcMainLibrary() {
 
     ipcMain.handle('record:queryProfiles', (e: IpcMainInvokeEvent, libraryId: number, option: any): any => {
         let libraryDao = new LibraryDao(libraryId)
-        return
+
+
+        return ''
     })
 
     ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, option: any): ACSuggestion[] => {

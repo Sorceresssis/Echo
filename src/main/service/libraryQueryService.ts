@@ -1,0 +1,43 @@
+import LibraryDao from "../dao/libraryDao"
+import { DynamicSqlBuilder } from "../util/DynamicSqlBuilder"
+import tokenizer from "../util/tokenizer"
+
+export default class LibraryQueryService {
+    libraryDao: LibraryDao
+
+    constructor(libraryId: number) {
+        this.libraryDao = new LibraryDao(libraryId)
+    }
+
+    autoComplete(type: AutoCompleteType, queryWord: string, ps: number): ACSuggestion[] {
+        const sqlBuilder = new DynamicSqlBuilder()
+
+
+        return []
+    }
+
+    __generateFilters(input: string[]): string[] {
+        const result: string[] = []
+        const current: string[] = new Array(input.length)
+        this.__generateFilter(input, 0, current, result)
+        return result
+    }
+
+    __generateFilter(input: string[], index: number, current: string[], result: string[]): void {
+        if (index === input.length) {
+            // 写入一个结果，退出递归
+            result.push(current.join(''))
+            return
+        }
+        // 如果是0，既可以是0，也可以是1，如果是1，只能是1
+        if (input[index] === '0') {
+            current[index] = '0'
+            this.__generateFilter(input, ++index, current, result)
+            current[index] = '1'
+            this.__generateFilter(input, ++index, current, result)
+        } else if (input[index] === '1') {
+            current[index] = '1'
+            this.__generateFilter(input, ++index, current, result)
+        }
+    }
+}

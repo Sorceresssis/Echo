@@ -2,7 +2,7 @@ import { BrowserWindow, ipcMain, IpcMainInvokeEvent, app, dialog } from 'electro
 import { createWindow } from '../window/main.window'
 import { createItemWindow } from '../window/record.window'
 
-export function ipcMainWindow() {
+export default function ipcMainWindow() {
     ipcMain.handle('window:relaunch', (): void => {
         app.relaunch()
         app.exit()

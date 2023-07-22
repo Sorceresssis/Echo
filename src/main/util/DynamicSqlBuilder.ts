@@ -1,5 +1,5 @@
 // 动态sql类
-export class DynamicSqlBuilder {
+export default class DynamicSqlBuilder {
     private sql: string = '';
     private params: any[] = [];
 

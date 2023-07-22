@@ -1,11 +1,10 @@
 import { dialog, ipcMain, IpcMainInvokeEvent } from 'electron'
-import path from 'path'
-import { config } from '../config'
-import { GroupDao } from '../dao/groupDao'
+import config from '../app/config'
+import GroupDao from '../dao/groupDao'
 
 
-export function ipcMainGroup() {
-    const groupDao = new GroupDao(path.resolve(config.userDataPath, "database/group.db"))
+export default function ipcMainGroup() {
+    const groupDao = new GroupDao(config.getGroupDBPath())
 
     ipcMain.handle('group:getGroups', (): Group[] => {
         try {
@@ -90,7 +89,6 @@ export function ipcMainGroup() {
 
     ipcMain.handle('library:sort', (e: IpcMainInvokeEvent, currId: number, tarNextId: number, groupId: number) => {
         try {
-            // console.log(currId, tarNextId, groupId);
             groupDao.sortLibrary(currId, tarNextId, groupId)
         } catch (e: any) {
             dialog.showErrorBox('SortLibrary Error', e.message)

@@ -4,7 +4,8 @@ import enUS from './enUS'
 import jaJP from './jaJP'
 
 
-const locale = (await window.electronAPI.config('lang')).locale || 'enUS'
+// const locale = (await window.electronAPI.config('locale')) || 'enUS'
+const locale = 'zhCN'
 
 const i18n = createI18n({
     legacy: false,

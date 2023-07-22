@@ -1,5 +1,5 @@
 import fs from 'fs'
-import { DBUtil } from '../util/dbUtil'
+import DBUtil from '../util/dbUtil'
 
 class Group {
     id: number
@@ -13,7 +13,7 @@ class Group {
     }
 }
 
-export class GroupDao {
+export default class GroupDao {
     db: DBUtil
 
     constructor(path: string) {

@@ -1,3 +1,5 @@
+declare type ConfigLabel = 'userDataPath' | 'locale'
+
 type Filter = 'image' | 'fafa' | 'dirname'
 
 

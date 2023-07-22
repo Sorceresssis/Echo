@@ -1,4 +1,3 @@
-// main-window.ts
 import { app, BrowserWindow, Menu } from "electron";
 import { resolve } from "path";
 const isDev = !app.isPackaged;

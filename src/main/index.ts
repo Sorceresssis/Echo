@@ -1,21 +1,13 @@
 import { BrowserWindow, app } from "electron";
-import { createWindow } from "./window/main.window";
-import { config, readConfig } from './config'
-import { mkdirsSync } from './util/FileManager'
-import { IPCMain } from './ipcMain'
-const path = require('path');
+import { createWindow } from "./window/main.window"
+import bootCheck from "./app/Bootcheck"
+import IPCMain from './ipcMain'
 
 async function bootstrap() {
     app.on("ready", () => {
-        // 读取配置信息
-        readConfig()
-        // 检查文件夹
-        checkBootDir()
-        // 开启监听
-        IPCMain()
-        // 启动窗口
-        createWindow(null)
-
+        bootCheck()         // 检查启动项
+        IPCMain()           // 开启通信
+        createWindow(null)  // 启动窗口
         app.on('activate', () => {
             if (BrowserWindow.getAllWindows().length === 0) createWindow(null)
         })
@@ -28,12 +20,3 @@ app.on('window-all-closed', () => {
         app.quit();
     }
 });
-
-
-// 检查文件夹是否存在 ，否则sqlite报错
-export function checkBootDir() {
-    // 检查数据库文件夹
-    mkdirsSync(path.resolve(config.userDataPath, "database"))
-    // 图片存放位置
-    mkdirsSync(path.resolve(config.userDataPath, "image"))
-}
