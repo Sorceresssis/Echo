@@ -14,12 +14,6 @@ declare type Group = {
     librarys: LibraryProfile[]
 }
 
-declare type ACSuggestion = {
-    type: AutoCompleteType,
-    id: number,
-    label: string,
-}
-
 declare type LibraryDetail = {
     id: number,
     name: string,
@@ -27,6 +21,13 @@ declare type LibraryDetail = {
     createTime: string,
 }
 
+/******************** record ********************/
+declare type AcSuggestion = {
+    type: string,
+    id: number,
+    value: string,
+    image?: string
+}
 
 declare type RecordProfile = {
     id: number,

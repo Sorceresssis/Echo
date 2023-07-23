@@ -20,13 +20,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
     sortLibrary: (currId: number, tarNextId: number, groupId: number) => ipcRenderer.invoke('library:sort', currId, tarNextId, groupId),
 
     /******************** LibraryDB ********************/
+    autoCompleteRecord: (libraryId: number, option: AcOption) => ipcRenderer.invoke('record:autoComplete', libraryId, option),
     queryRecordProfiles: (libraryId: number, option: any) => ipcRenderer.invoke('record:queryProfiles', libraryId, option),
 
 
-
-
-    libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) =>
-        ipcRenderer.invoke('library:autoComplete', LibraryID, type, queryWords, pagesize),
     getItems: (libraryID: number) => ipcRenderer.invoke('library:getItems', libraryID),
     getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => ipcRenderer.invoke('library:getItemsByAuthor', libraryID, getItemsOption, authorID),
     getItemsOfFav: (libraryID: number, getItemsOption: getItemsOption) => ipcRenderer.invoke('library:getItemsOfFav', libraryID, getItemsOption),
@@ -34,8 +31,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     getAttributes: (libraryID: number, type: number, pageno: number) => ipcRenderer.invoke('library:getAttributes', libraryID, type, pageno),
 
 
-    /******************** 其他 ********************/
-    devTest: () => ipcRenderer.invoke('dev:test'),
+
 
 
     /******************** dialog ********************/

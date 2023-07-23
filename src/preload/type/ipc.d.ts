@@ -33,11 +33,12 @@ export interface IElectronAPI {
     sortLibrary: (currId: number, tarNextId: number, groupId: number) => Promise<void>
 
     /******************** RecordDB ********************/
+    /** 自动补齐 */
+    autoCompleteRecord: (libraryId: number, option: AcOption) => Promise<ACSuggestion>
+    /** 查询记录的简介 */
     queryRecordProfiles: (libraryId: number, option: any) => Promise<any>
 
 
-
-    libraryAutoComplete: (LibraryID: number, type: number, queryWords: string, pagesize: number) => Promise<AutoComplete[]>
     getItems: (libraryID: number) => Promise<itemProfile[]>
     getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => Promise<itemProfile[]>
     getItemsOfFav: (libraryID: number, getItemsOption: getItemsOption) => Promise<itemProfile[]>
@@ -45,8 +46,6 @@ export interface IElectronAPI {
     getAttributes: (libraryID: number, type: number, pageno: number) => Promise<LibraryAttribute[]>
 
 
-    /******************** 其他 ********************/
-    devTest: () => Promise<any>
 
 
     /******************** dialog ********************/

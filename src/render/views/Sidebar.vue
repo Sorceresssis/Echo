@@ -232,7 +232,7 @@ const ctmOpIdx = {
 const ctmCurGrp = (idxG?: number): Group => {
     return groups.value[idxG || ctmOpIdx.cg]
 }
-const ctmCurLib = (idxG?: number, idxL?: number): Library => {
+const ctmCurLib = (idxG?: number, idxL?: number): LibraryProfile => {
     return groups.value[idxG || ctmOpIdx.cg].librarys[idxL || ctmOpIdx.cl]
 }
 const ctmOptions = {

@@ -105,6 +105,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
+import EchoAutocomplete from '../../../components/EchoAutocomplete.vue'
 import Button2 from '../../../components/Button2.vue'
 
 const colors = ref(['#b5adf7', '#887cf7', '#9e94f7'])

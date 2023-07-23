@@ -1,8 +1,14 @@
-declare type ConfigLabel = 'userDataPath' | 'locale'
+declare type ConfigName = 'userDataPath' | 'locale'
 
-type Filter = 'image' | 'fafa' | 'dirname'
+declare type AcType = 'search' | 'record' | 'author' | 'tag' | 'series' | 'dirname'
 
+declare type AcOption = {
+    type: AcType,
+    queryWord: string,
+    ps: number
+}
 
+declare type Filter = 'image' | 'fafa' | 'dirname'
 declare type QueryRecord = {
     libraryId: number,
     authorId: number,
@@ -15,6 +21,3 @@ declare type QueryRecord = {
     pn: number, // pageNo 
     ps: number, // pageSize 
 }
-
-let queryRecord: QueryRecord;
-queryRecord.filters

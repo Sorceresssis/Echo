@@ -1,11 +1,11 @@
 import fs from 'fs'
 import config from '../app/config'
 import DBUtil from '../util/dbUtil'
-import { AutoCompleteType } from '../enum/ipc.enum'
-
+import DynamicSqlBuilder from '../util/DynamicSqlBuilder'
 
 export default class LibraryDao {
     db: DBUtil
+
     constructor(libraryId: number) {
         const path = config.getLibraryDBPath(libraryId)
         // 判断文件是否存在
@@ -16,7 +16,7 @@ export default class LibraryDao {
         this.db = new DBUtil(path)
     }
 
-    createDBLibrary(): void {
+    private createDBLibrary(): void {
         this.db.transaction(() => {
             this.db.exec(`
             DROP TABLE IF EXISTS 'record';
@@ -27,8 +27,8 @@ export default class LibraryDao {
             DROP TABLE IF EXISTS 'record_extra';
             CREATE TABLE 'record_extra' ( 'id' INTEGER PRIMARY KEY, 'intro' TEXT DEFAULT '' NOT NULL, 'info' TEXT DEFAULT '' NOT NULL );
             DROP TABLE IF EXISTS 'dirname';
-            CREATE TABLE 'dirname' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'dirname' TEXT NOT NULL );
-            CREATE UNIQUE INDEX 'uk_dirname(dirname)' ON dirname (dirname);
+            CREATE TABLE 'dirname' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'path' TEXT NOT NULL );
+            CREATE UNIQUE INDEX 'uk_dirname(path)' ON dirname (path);
             DROP TABLE IF EXISTS 'author';
             CREATE TABLE 'author' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL, 'avatar' VARCHAR(32), 'intro' TEXT DEFAULT '' NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL );
             DROP TABLE IF EXISTS 'record_author';
@@ -54,25 +54,63 @@ export default class LibraryDao {
             `)
         })
     }
-    // TODO 检查文件夹是否存在
-    autoComplete(type: AutoCompleteType, queryWord: string, ps: number): ACSuggestion[] {
-        // type id label
-        console.log(AutoCompleteType.TITLE);
 
-        return []
+    public autoComplete(type: AcType, queryWord: string[], ps: number): AcSuggestion[] {
+        const table = [
+            "SELECT 'record' AS type, id, title AS value, cover AS image, REGEXP(title) AS sore FROM record WHERE sore > 0",
+            "SELECT 'author' AS type, id, name AS value, avatar AS image, REGEXP(name) AS sore FROM author WHERE sore > 0",
+            "SELECT 'tag' AS type, id, title AS value, NULL AS image, REGEXP(title) AS sore FROM tag WHERE sore > 0",
+            "SELECT 'dirname' AS type, id, path AS value, NULL AS image, REGEXP(path) AS sore FROM dirname WHERE sore > 0",
+            "SELECT 'series' AS type, id, name AS value, NULL AS image, REGEXP(name) AS sore FROM  series WHERE sore > 0",
+        ]
+        const sqlBuilder = new DynamicSqlBuilder()
+        sqlBuilder.append("SELECT type, id, value, image FROM (")
+        let tIdxs: number[]
+        switch (type) {
+            case 'search':
+                tIdxs = [0, 1, 2]
+                break
+            case 'record':
+                tIdxs = [0]
+                break
+            case 'author':
+                tIdxs = [1]
+                break
+            case 'tag':
+                tIdxs = [2]
+                break
+            case 'series':
+                tIdxs = [3]
+                break
+            case 'dirname':
+                tIdxs = [4]
+                break
+            default:
+                return []
+        }
+        // 把所有需要查询的表放入sql
+        tIdxs.forEach((v, i) => {
+            if (i > 0) { sqlBuilder.append('UNION ALL') }
+            sqlBuilder.append(table[v])
+        })
+        sqlBuilder.append(') ORDER BY sore DESC LIMIT 0, ?;', ps)
+        // 生成REGEXP函数
+        this.generateREGEXPFn(queryWord)
+        console.log(sqlBuilder.getSql(), sqlBuilder.getParams());
+        return this.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
     }
 
-    test(): any {
-        // const tmp = new DBUtil('F:/Project/Github/echoDB/record.db')
-        // const keywords = ['h', 'c', 't'];
-        // // TmpREGEXP
-        // tmp.function('REGEXP', (text: string) => {
-        //     const pattern = new RegExp(keywords.join('|'), 'gi'); // 使用 'gi' 标志进行全局和忽略大小写匹配
-        //     const matches = text.match(pattern);
-        //     return matches ? matches.length : 0; // 输出 2，因为匹配到了 "Hello" 和 "World" 两个关键词
-        // })
-        // return tmp.all("SELECT REGEXP(title) FROM record;")
+    /** 给数据库添加一个自定义的REGEXP函数，在查询时使用 */
+    private generateREGEXPFn(keywords: string[]): void {
+        this.db.function('REGEXP', (text: string) => {
+            // 使用 'gi' 标志进行全局和忽略大小写匹配
+            const pattern = new RegExp(keywords.join('|'), 'gi')
+            const matches = text.match(pattern)
+            return matches ? matches.length : 0
+        })
     }
+
+    // TODO 添加图片时检查文件夹是否存在
 
     // 释放资源
     destroy(): void {

@@ -30,9 +30,9 @@ class Config {
         }
     }
 
-    public set(label: ConfigLabel, value: any): any {
+    public set(name: ConfigName, value: any): any {
         let newValue = null
-        switch (label) {
+        switch (name) {
             case 'userDataPath':
                 if (value) this.c.userDataPath = value
                 newValue = this.c.userDataPath

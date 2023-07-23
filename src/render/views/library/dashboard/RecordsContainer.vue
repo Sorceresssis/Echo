@@ -8,6 +8,8 @@
             :key="record.id">
             {{ record.title }}
         </li>
+        <echo-autocomplete v-model="s"
+                           @select="handleSelect" />
         <el-card v-for="record in records"
                  style="background-color: #fff; margin: 20px;">
         </el-card>
@@ -15,8 +17,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ref } from 'vue'
-
+import { ref, watch } from 'vue'
+import EchoAutocomplete from '../../../components/EchoAutocomplete.vue'
 
 const props = withDefaults(defineProps<{
     records: RecordProfile[]
@@ -26,6 +28,11 @@ const props = withDefaults(defineProps<{
     view: 'thumbnail'
 })
 
+const handleSelect = (item: Record<string, any>) => {
+    console.log(item)
+}
+
+const s = ref('') 
 </script>
 
 <style scoped></style>

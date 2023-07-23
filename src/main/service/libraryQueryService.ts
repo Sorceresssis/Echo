@@ -1,5 +1,4 @@
 import LibraryDao from "../dao/libraryDao"
-import { DynamicSqlBuilder } from "../util/DynamicSqlBuilder"
 import tokenizer from "../util/tokenizer"
 
 export default class LibraryQueryService {
@@ -9,23 +8,21 @@ export default class LibraryQueryService {
         this.libraryDao = new LibraryDao(libraryId)
     }
 
-    autoComplete(type: AutoCompleteType, queryWord: string, ps: number): ACSuggestion[] {
-        const sqlBuilder = new DynamicSqlBuilder()
-
-
-        return []
+    public autoComplete(type: AcType, queryWord: string, ps: number): AcSuggestion[] {
+        const result = this.libraryDao.autoComplete(type, tokenizer(queryWord), ps)
+        this.libraryDao.destroy()
+        return result
     }
 
-    __generateFilters(input: string[]): string[] {
+    private __generateFilters(input: string[]): string[] {
         const result: string[] = []
         const current: string[] = new Array(input.length)
         this.__generateFilter(input, 0, current, result)
         return result
     }
 
-    __generateFilter(input: string[], index: number, current: string[], result: string[]): void {
+    private __generateFilter(input: string[], index: number, current: string[], result: string[]): void {
         if (index === input.length) {
-            // 写入一个结果，退出递归
             result.push(current.join(''))
             return
         }

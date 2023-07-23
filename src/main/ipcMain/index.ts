@@ -1,8 +1,8 @@
 import { IPCMain_external } from './ipcMain-external'
-import { IPCMain_dialog } from './ipcMain-dialog'
+import { IPCMain_dialog } from './dialog.ipcMain'
 
 import ipcMainGroup from './group.ipcMain'
-import ipcMainLibrary from './record.ipcMain'
+import ipcMainLibrary from './library.ipcMain'
 import ipcMainWindow from './window.ipcMain'
 import ipcMainApp from './app.ipcMain'
 

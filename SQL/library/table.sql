@@ -50,9 +50,9 @@ DROP TABLE IF EXISTS 'dirname';
 CREATE TABLE 'dirname'
 (
     'id'      INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
-    'dirname' TEXT NOT NULL                      -- 保存在的目录
+    'path' TEXT NOT NULL                      -- 保存在的目录
 );
-CREATE UNIQUE INDEX 'uk_dirname(dirname)' ON dirname (dirname);
+CREATE UNIQUE INDEX 'uk_dirname(path)' ON dirname (path);
 
 
 -- ----------------------------
