@@ -17,19 +17,25 @@
             <el-form-item label="文件路径"
                           prop="name">
                 <el-row>
-                    <el-input v-model="recordForm.dirname"></el-input>
+                    <echo-autocomplete v-model="recordForm.dirname"
+                                       type="dirname"
+                                       :ps="20" />
                 </el-row>
                 <el-row>
                     <el-input v-model="recordForm.basename" />
                 </el-row>
                 <el-row>
-                    <button2>选择文件</button2>
+                    <button2 @click="selectFile">选择文件</button2>
                     <button2>选择文件夹</button2>
                 </el-row>
             </el-form-item>
             <el-form-item label="标题"
                           prop="count">
-                <el-input v-model="recordForm.title" />
+                <div>
+                    <echo-autocomplete v-model="recordForm.title"
+                                       type="record"
+                                       :ps="20" />
+                </div>
             </el-form-item>
         </div>
         <el-form-item class="divider">
@@ -42,6 +48,11 @@
             <el-input v-model="recordForm.hyperlink" />
         </el-form-item>
         <el-form-item label="选择封面">
+            <div class="flex-1 flex-row"
+                 style="max-width:800px;">
+                <el-input v-model="recordForm.coverImage" />
+                <button2>选择图片</button2>
+            </div>
             <div class="flex-1 flex-row">
                 <el-input v-model="recordForm.coverImage" />
                 <button2>选择图片</button2>
@@ -53,12 +64,19 @@
         </el-form-item>
         <el-form-item label="作者"
                       prop="delivery">
+            <div>
+                <echo-autocomplete v-model="recordForm.title"
+                                   type="author"
+                                   :ps="20" />
+            </div>
 
         </el-form-item>
         <el-form-item label="标签"
                       prop="type">
             <div class="flex-row">
-                <el-input :placeholder="'点击添加 如果输入的标签不存在，会自动创建标签'" />
+                <echo-autocomplete v-model="recordForm.title"
+                                   type="tag"
+                                   :ps="20" />
                 <button2>添加</button2>
             </div>
             <div>
@@ -68,7 +86,9 @@
         <el-form-item label="系列"
                       prop="resource">
             <div class="flex-row">
-                <el-input :placeholder="'点击添加 如果输入的系列不存在，会自动创建系列'" />
+                <echo-autocomplete v-model="recordForm.title"
+                                   type="series"
+                                   :ps="20" />
                 <button2>添加到该系列</button2>
             </div>
             <div>
@@ -175,7 +195,9 @@ const batchAdd = reactive<RecordForm>({
     info: ''
 })
 
-
+const selectFile = () => {
+    window.electronAPI.openDialog('file', true)
+}
 
 const rules = reactive<FormRules>({
     name: [

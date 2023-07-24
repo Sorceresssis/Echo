@@ -27,16 +27,3 @@ export function openFileInExplorer(path: string) {
  */
 export function openFile(path: string) {
 }
-
-/******************************  对话框选择文件 ******************************/
-enum OpenDialogType { DIR = 0, FILE, IMAGE, VIDEO }
-export const selectFile = async (multiSelections: boolean, callback: (path: string | string[]) => void) => {
-    callback((await window.electronAPI.openDialog(OpenDialogType.FILE, multiSelections)))
-}
-
-export const selectDir = async (multiSelections: boolean, callback: (path: string | string[]) => void) => {
-    callback((await window.electronAPI.openDialog(OpenDialogType.DIR, multiSelections)))
-}
-export const selectImage = async (multiSelections: boolean, callback: (path: string | string[]) => void) => {
-    callback((await window.electronAPI.openDialog(OpenDialogType.IMAGE, multiSelections)))
-}

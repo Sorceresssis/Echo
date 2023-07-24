@@ -8,11 +8,13 @@
             :key="record.id">
             {{ record.title }}
         </li>
-        <echo-autocomplete v-model="s"
-                           @select="handleSelect" />
-        <el-card v-for="record in records"
-                 style="background-color: #fff; margin: 20px;">
-        </el-card>
+        <!-- <div style="width: 300px; height: 300px;">
+            <img class="img--contain"
+                 src="file://F:\Desktop\images\2.jpg"
+                 alt="">
+        </div> -->
+        <!-- <el-card style="background-color: #fff; margin: 20px;">
+        </el-card> -->
     </ul>
 </template>
 

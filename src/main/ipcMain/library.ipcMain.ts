@@ -18,13 +18,6 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('record:queryProfiles', (e: IpcMainInvokeEvent, libraryId: number, option: any): any => {
-        // let libraryDao = new LibraryDao(libraryId)
-
-
-        return
-    })
-
     ipcMain.handle('record:add', (e: IpcMainInvokeEvent, libraryId: number, RecordForm: any, option: any): boolean => {
         // let libraryDao
         // try {
@@ -37,6 +30,13 @@ export default function ipcMainLibrary() {
         //     libraryDao?.destroy()
         // }
         return true
+    })
+
+    ipcMain.handle('record:queryProfiles', (e: IpcMainInvokeEvent, libraryId: number, option: any): any => {
+        // let libraryDao = new LibraryDao(libraryId)
+
+
+        return
     })
 
     // ipcMain.handle('library:getItems', async (e: IpcMainInvokeEvent, libraryID: number) => {

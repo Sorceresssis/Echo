@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
     <div class="manageData-wrap">
         <div class="Menu">
             <div v-for="(menuItem, index) in menuItems"
@@ -234,4 +234,4 @@ const ed_tag = ref<string>('')
 const ed_tag_new = ref<string>('')
 const ed_series = ref<string>('')
 const ed_series_new = ref<string>('')
-</script>
+</script> -->

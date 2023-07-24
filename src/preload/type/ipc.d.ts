@@ -49,7 +49,7 @@ export interface IElectronAPI {
 
 
     /******************** dialog ********************/
-    openDialog: (type: OpenDialogType, multiSelections: boolean) => Promise<string | string[]>
+    openDialog: (type: OpenDialogType, multiSelect: boolean) => Promise<string[]>
 
 
     /******************** external ********************/

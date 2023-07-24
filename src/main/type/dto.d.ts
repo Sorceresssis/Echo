@@ -8,6 +8,10 @@ declare type AcOption = {
     ps: number
 }
 
+declare type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
+
+
+
 declare type Filter = 'image' | 'fafa' | 'dirname'
 declare type QueryRecord = {
     libraryId: number,

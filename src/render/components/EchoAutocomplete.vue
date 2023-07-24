@@ -3,10 +3,22 @@
                      @input="(value) => emit('update:modelValue', value)"
                      clearable
                      :trigger-on-focus="false"
+                     :fit-input-width="true"
                      :fetch-suggestions="querySearch"
                      @select="item => emit('select', item)">
         <template #default="{ item }">
-            {{ item.value }}
+            <div class="flex-row"
+                 :class="''">
+                <div class="flex-1 echo-ac-suggestion_text">
+                    {{ item.value }}jfgjj oijjojioj oija骄傲的哦加哦i经济急哦急哦及安排时间哦i骄傲飞机傲娇急啊家的佛i就安排金佛倨傲iv
+                    jfgjj oijjojioj oija骄傲的哦加哦i经济急哦急哦及安排时间哦i骄傲飞机傲娇急啊家的佛i就安排金佛倨傲iv
+                </div>
+                <div class="echo-ac-suggestion_imgWrap">
+                    <img :class="[item.type === 'author' ? 'fit--cover' : 'fit--contain']"
+                         src="file://F:/Desktop/images/2.jpg"
+                         alt="error">
+                </div>
+            </div>
         </template>
     </el-autocomplete>
 </template>
@@ -44,4 +56,18 @@ const querySearch = (queryWord: string, cb: any) => {
 }
 </script>
 
-<style scoped></style>
+<style>
+.echo-ac-suggestion_text {
+    display: -webkit-box;
+    overflow: hidden;
+    white-space: normal;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    text-overflow: ellipsis;
+}
+
+.echo-ac-suggestion_imgWrap {
+    width: 80px;
+    height: 100px;
+}
+</style>

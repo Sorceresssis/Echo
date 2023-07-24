@@ -28,59 +28,23 @@
     flex-direction: column;
 }
 
-
-
-/* loading */
-/* .el-loading-mask {
-    background-color: #f6f6f8 !important;
-} */
-
-/* .el-loading-spinner .path {
-    stroke: #9e94f7 !important;
-} */
-
-
 /* input*/
+.el-input {
+    --el-input-bg-color: #fff !important;
+}
+
+.el-textarea {
+    --el-input-bg-color: #fff !important;
+}
+
 .el-autocomplete {
     display: flex !important;
-    background-color: #fff;
 }
 
-/* 
-.el-input {
-    display: inline-block;
-    margin-top: 0 !important;
-}
- */
 .el-textarea__inner,
 .el-input__wrapper {
-    /* height: 26px; */
     border-radius: 0 !important;
-    /* font-size: 13px !important; */
-    /* box-sizing: border-box; */
-    /* background-color: #f0f0f0 !important; */
 }
-
-/* 
-.el-textarea__inner:focus,
-.is-focus {
-    box-shadow: 0 0 0 1px #9e94f7 inset !important;
-}
-
-
-.el-autocomplete-suggestion__wrap {
-    padding: 5px 0 !important;
-}
-
-.el-autocomplete-suggestion li {
-    line-height: initial !important;
-    padding: 0 10px !important;
-}
-
-.el-backtop {
-    --el-backtop-text-color: #9e94f7 !important;
-} */
-
 
 /* el-dialog */
 .el-dialog__headerbtn {
@@ -96,7 +60,35 @@
     border-bottom: 2px solid #ededed;
 }
 
-
 .el-dialog__body {
     padding: var(--el-dialog-padding-primary) !important
 }
+
+
+/* loading */
+/* .el-loading-mask {
+    background-color: #f6f6f8 !important;
+} */
+
+/* .el-loading-spinner .path {
+    stroke: #9e94f7 !important;
+} */
+
+/* 
+.el-textarea__inner:focus,
+.is-focus {
+    box-shadow: 0 0 0 1px #9e94f7 inset !important;
+}
+
+.el-autocomplete-suggestion__wrap {
+    padding: 5px 0 !important;
+}
+
+.el-autocomplete-suggestion li {
+    line-height: initial !important;
+    padding: 0 10px !important;
+}
+
+.el-backtop {
+    --el-backtop-text-color: #9e94f7 !important;
+} */

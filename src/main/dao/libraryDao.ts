@@ -60,8 +60,8 @@ export default class LibraryDao {
             "SELECT 'record' AS type, id, title AS value, cover AS image, REGEXP(title) AS sore FROM record WHERE sore > 0",
             "SELECT 'author' AS type, id, name AS value, avatar AS image, REGEXP(name) AS sore FROM author WHERE sore > 0",
             "SELECT 'tag' AS type, id, title AS value, NULL AS image, REGEXP(title) AS sore FROM tag WHERE sore > 0",
-            "SELECT 'dirname' AS type, id, path AS value, NULL AS image, REGEXP(path) AS sore FROM dirname WHERE sore > 0",
             "SELECT 'series' AS type, id, name AS value, NULL AS image, REGEXP(name) AS sore FROM  series WHERE sore > 0",
+            "SELECT 'dirname' AS type, id, path AS value, NULL AS image, REGEXP(path) AS sore FROM dirname WHERE sore > 0",
         ]
         const sqlBuilder = new DynamicSqlBuilder()
         sqlBuilder.append("SELECT type, id, value, image FROM (")
@@ -96,7 +96,6 @@ export default class LibraryDao {
         sqlBuilder.append(') ORDER BY sore DESC LIMIT 0, ?;', ps)
         // 生成REGEXP函数
         this.generateREGEXPFn(queryWord)
-        console.log(sqlBuilder.getSql(), sqlBuilder.getParams());
         return this.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
     }
 

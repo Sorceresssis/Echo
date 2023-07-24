@@ -1,4 +1,4 @@
-import { ipcMain, dialog, IpcMainInvokeEvent } from "electron";
+import { ipcMain, dialog, IpcMainInvokeEvent } from "electron"
 
 /*
 filters: [
@@ -7,25 +7,35 @@ filters: [
 { name: 'Custom File Type', extensions: ['as'] },
 { name: 'All Files', extensions: ['*'] } ] 
 */
-
-enum OpenDialogType { DIR = 0, FILE, IMAGE, VIDEO }
-export function IPCMain_dialog() {
-    ipcMain.handle('dialog:openDialog', async (e: IpcMainInvokeEvent, type: OpenDialogType, multiSelections: boolean) => {
-        let option: Electron.OpenDialogOptions = new Object()
-        option.properties = type === OpenDialogType.DIR ? ['openDirectory'] : ['openFile']
-        switch (type) {
-            case OpenDialogType.FILE:
-                option.filters = [{ name: 'All Files', extensions: ['*'] }]
-                break
-            case OpenDialogType.IMAGE:
-                option.filters = [{ name: 'Images', extensions: ['jpg', 'png', 'jpeg'] }]
-                break
-            case OpenDialogType.VIDEO:
-                option.filters = [{ name: 'Videos', extensions: ['mkv', 'avi', 'mp4'] }]
-                break
+export default function ipcMainDialog() {
+    ipcMain.handle('dialog:open', async (e: IpcMainInvokeEvent, type: OpenDialogType, multiSelect: boolean): Promise<string[]> => {
+        const option: Electron.OpenDialogOptions = { filters: [], properties: [] }
+        option.properties!.push('createDirectory', 'promptToCreate', 'dontAddToRecent')
+        //判断选择的是文件还是文件夹
+        if (type === 'dir') {
+            option.properties!.push('openDirectory')
         }
-        if (multiSelections) option.properties.push('multiSelections')
-        const { canceled, filePaths } = await dialog.showOpenDialog(option)
-        return canceled ? '' : multiSelections ? filePaths : filePaths[0]
+        else {
+            option.properties!.push('openFile')
+            switch (type) {
+                case 'file':
+                    option.filters!.push({ name: 'All Files', extensions: ['*'] })
+                    break
+                case 'image':
+                    option.filters!.push({ name: 'Images', extensions: ['jpg', 'png', 'jpeg'] })
+                    break
+                case 'video':
+                    option.filters!.push({ name: 'Videos', extensions: ['mkv', 'avi', 'mp4'] })
+                    break
+            }
+        }
+        // 判断是否多选
+        if (multiSelect) option.properties!.push('multiSelections')
+        const { filePaths } = await dialog.showOpenDialog(option)
+        return filePaths
+    })
+
+    ipcMain.handle('dialog:save', async (e: IpcMainInvokeEvent, type: '', multiSelections: boolean) => {
+
     })
 }

@@ -1,12 +1,16 @@
 declare type ConfigName = 'userDataPath' | 'locale'
 
-declare type AcType = 'all' | 'record' | 'author' | 'tag' | 'series' | 'dirname'
+declare type AcType = 'search' | 'record' | 'author' | 'tag' | 'series' | 'dirname'
 
 declare type AcOption = {
     type: AcType,
     queryWord: string,
     ps: number
 }
+
+declare type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
+
+
 
 declare type Filter = 'image' | 'fafa' | 'dirname'
 declare type QueryRecord = {

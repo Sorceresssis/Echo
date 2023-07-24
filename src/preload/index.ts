@@ -1,7 +1,5 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
-
-enum OpenDialogType { DIR = 0, FILE, IMAGE, VIDEO }
 contextBridge.exposeInMainWorld('electronAPI', {
     config: (index: string, newValue: any = null) => ipcRenderer.invoke('app:config', index, newValue),
 
@@ -35,8 +33,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
 
     /******************** dialog ********************/
-    openDialog: (type: OpenDialogType, multiSelections: boolean) => ipcRenderer.invoke('dialog:openDialog', type, multiSelections),
-
+    openDialog: (type: OpenDialogType, multiSelect: boolean) => ipcRenderer.invoke('dialog:open', type, multiSelect),
 
     /******************** external ********************/
     openUrl: (url: string) => ipcRenderer.invoke('external:openUrlExternal', url),
