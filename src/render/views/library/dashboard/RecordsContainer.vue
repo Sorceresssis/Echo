@@ -21,6 +21,7 @@
 <script setup lang='ts'>
 import { ref, watch } from 'vue'
 import EchoAutocomplete from '../../../components/EchoAutocomplete.vue'
+import Button2 from '../../../components/Button2.vue'
 
 const props = withDefaults(defineProps<{
     records: RecordProfile[]

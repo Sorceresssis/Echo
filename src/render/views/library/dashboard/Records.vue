@@ -10,7 +10,7 @@
                         <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
                     </template>
                 </el-autocomplete>
-                <button1 :title="t('mainContainer.advancedSearch')"
+                <button1 :title="$t('mainContainer.advancedSearch')"
                          class="menuItem menuItem-marginLeft">
                     <span class="iconfont">
                         &#xe66b;
@@ -61,7 +61,7 @@
 
 <script setup lang='ts'>
 import { ref, } from 'vue'
-import { t } from '../../../locales'
+import { $t } from '../../../locales'
 import Button1 from '../../../components/Button1.vue'
 import RecordsCommon from './RecordsCommon.vue'
 import RecordsByAuthor from './RecordsByAuthor.vue'
@@ -69,31 +69,31 @@ import RecordsContainer from './RecordsContainer.vue'
 
 const menuDropdowns = [
     {
-        HTMLElementTitle: t('mainContainer.filter'),
+        HTMLElementTitle: $t('mainContainer.filter'),
         title: '&#xe7e6;',
         menu: [
-            { title: t('mainContainer.noHyperlink'), divided: false, click: 1 },
-            { title: t('mainContainer.noFile'), divided: false, click: 1 },
-            { title: t('mainContainer.noImage'), divided: false, click: 1 },
+            { title: $t('mainContainer.noHyperlink'), divided: false, click: 1 },
+            { title: $t('mainContainer.noFile'), divided: false, click: 1 },
+            { title: $t('mainContainer.noImage'), divided: false, click: 1 },
         ]
     },
     {
-        HTMLElementTitle: t('mainContainer.sort'),
+        HTMLElementTitle: $t('mainContainer.sort'),
         title: '&#xe81f;',
         menu: [
-            { title: t('mainContainer.time'), divided: false, click: 1 },
-            { title: t('mainContainer.hits'), divided: false, click: 1 },
-            { title: t('mainContainer.title'), divided: false, click: 1 },
-            { title: t('mainContainer.ascending'), divided: true, click: 1 },
-            { title: t('mainContainer.descending'), divided: false, click: 1 },
+            { title: $t('mainContainer.time'), divided: false, click: 1 },
+            { title: $t('mainContainer.hits'), divided: false, click: 1 },
+            { title: $t('mainContainer.title'), divided: false, click: 1 },
+            { title: $t('mainContainer.ascending'), divided: true, click: 1 },
+            { title: $t('mainContainer.descending'), divided: false, click: 1 },
         ]
     },
     {
-        HTMLElementTitle: t('mainContainer.display'),
+        HTMLElementTitle: $t('mainContainer.display'),
         title: '&#xe6c7;',
         menu: [
-            { title: t('mainContainer.thumbnail'), divided: false, click: 1 },
-            { title: t('mainContainer.extended'), divided: false, click: 1 },
+            { title: $t('mainContainer.thumbnail'), divided: false, click: 1 },
+            { title: $t('mainContainer.extended'), divided: false, click: 1 },
         ]
     }
 ]

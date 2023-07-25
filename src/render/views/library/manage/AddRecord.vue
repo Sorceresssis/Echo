@@ -6,55 +6,63 @@
              label-width="120px"
              require-asterisk-position="right"
              status-icon>
-        <div v-if="isBatch">
+        <div v-if="option.isBatch">
             <el-form-item label="批量导入源">
             </el-form-item>
             <!-- TODO 记录是否存在  将文件夹里的文件名作为标题名快速导入, 添加一个 icon, 用户hover就有提示 -->
-            <el-form-item label="过滤存在"
-                          v-if="isBatch"></el-form-item>
+            <el-form-item label="过滤存在">
+            </el-form-item>
         </div>
         <div v-else>
             <el-form-item label="文件路径"
                           prop="name">
-                <el-row>
+                <div>
                     <echo-autocomplete v-model="recordForm.dirname"
                                        type="dirname"
-                                       :ps="20" />
-                </el-row>
-                <el-row>
-                    <el-input v-model="recordForm.basename" />
-                </el-row>
-                <el-row>
+                                       :placeholder="'目标所在的目录'"
+                                       :ps="autocompletePs" />
+                </div>
+                <div>
+                    <el-input v-model="recordForm.basename"
+                              spellcheck="false"
+                              :placeholder="'目标名，可以是文件，也可以是文件夹'" />
+                </div>
+                <div>
                     <button2 @click="selectFile">选择文件</button2>
                     <button2>选择文件夹</button2>
-                </el-row>
+                </div>
             </el-form-item>
             <el-form-item label="标题"
                           prop="count">
                 <div>
                     <echo-autocomplete v-model="recordForm.title"
                                        type="record"
-                                       :ps="20" />
+                                       :ps="autocompletePs" />
                 </div>
             </el-form-item>
         </div>
         <el-form-item class="divider">
-            <el-row>
-                <el-button @click="isBatch = !isBatch">批量添加</el-button>
-            </el-row>
+            <div>
+                <el-popover placement="top-start"
+                            title="Title"
+                            :width="200"
+                            trigger="hover"
+                            content="this is content, this is content, this is content">
+                    <template #reference>
+                        <span class="iconfont">&#xe722;</span>
+                    </template>
+                </el-popover> <el-button @click="switchAddMode">批量添加</el-button>
+            </div>
         </el-form-item>
         <el-form-item label="链接"
                       prop="region">
             <el-input v-model="recordForm.hyperlink" />
         </el-form-item>
         <el-form-item label="选择封面">
-            <div class="flex-1 flex-row"
-                 style="max-width:800px;">
-                <el-input v-model="recordForm.coverImage" />
-                <button2>选择图片</button2>
-            </div>
-            <div class="flex-1 flex-row">
-                <el-input v-model="recordForm.coverImage" />
+            <div class="flex-row">
+                <el-input v-model="recordForm.coverImage"
+                          spellcheck="false"
+                          :placeholder="'支持格式: jpg  png  jpeg'" />
                 <button2>选择图片</button2>
             </div>
         </el-form-item>
@@ -64,42 +72,51 @@
         </el-form-item>
         <el-form-item label="作者"
                       prop="delivery">
-            <div>
-                <echo-autocomplete v-model="recordForm.title"
+            <div class="flex-row">
+                <echo-autocomplete v-model="authorInput"
+                                   class="flex-1"
                                    type="author"
-                                   :ps="20" />
+                                   :ps="autocompletePs"
+                                   :placeholder="'只能添加已经存在的作者'" />
+                <button2>添加</button2>
             </div>
-
         </el-form-item>
         <el-form-item label="标签"
                       prop="type">
             <div class="flex-row">
-                <echo-autocomplete v-model="recordForm.title"
+                <echo-autocomplete v-model="tagInput"
+                                   class="flex-1"
                                    type="tag"
-                                   :ps="20" />
-                <button2>添加</button2>
+                                   :ps="autocompletePs"
+                                   :placeholder="'库中没有则会自动添加'" />
+                <button2 @click="handleAddAttrubute('tag')">添加</button2>
             </div>
-            <div>
-                joifgijfiojiojiojoi
+            <div class="flex-row">
+                <div v-for="tag in recordForm.tags">{{ tag }}</div>
             </div>
         </el-form-item>
         <el-form-item label="系列"
                       prop="resource">
             <div class="flex-row">
-                <echo-autocomplete v-model="recordForm.title"
+                <echo-autocomplete v-model="seriesInput"
+                                   class="flex-1"
                                    type="series"
-                                   :ps="20" />
-                <button2>添加到该系列</button2>
+                                   :ps="autocompletePs"
+                                   :placeholder="'库中没有则会自动添加'" />
+                <button2 @click="handleAddAttrubute('series')">添加</button2>
             </div>
-            <div>
-                fdf
+            <div class=" ">
+                <div v-for="series in recordForm.series">
+                    {{ series }}
+                </div>
             </div>
         </el-form-item>
         <el-form-item label="介绍"
                       prop="desc">
             <el-input v-model="recordForm.intro"
                       type="textarea"
-                      :autosize="{ minRows: 4 }"
+                      spellcheck="false"
+                      :autosize="inputAutoSize"
                       resize="none"
                       clearable
                       placeholder="记录的介绍" />
@@ -107,7 +124,8 @@
         <el-form-item label="信息">
             <el-input v-model="recordForm.info"
                       type="textarea"
-                      :autosize="{ minRows: 4 }"
+                      spellcheck="false"
+                      :autosize="inputAutoSize"
                       resize="none"
                       clearable
                       placeholder="记录的额外信息，比如文件备份的保存位置。" />
@@ -128,8 +146,13 @@ import type { FormInstance, FormRules } from 'element-plus'
 import EchoAutocomplete from '../../../components/EchoAutocomplete.vue'
 import Button2 from '../../../components/Button2.vue'
 
+/******************** 基础 ********************/
 const colors = ref(['#b5adf7', '#887cf7', '#9e94f7'])
-const isBatch = ref(false)
+const autocompletePs = 20
+const inputAutoSize = {
+    minRows: 4,
+    maxRows: 4
+}
 
 type RecordForm = {
     id?: number,
@@ -145,14 +168,19 @@ type RecordForm = {
     intro: string,
     info: string
 }
-type Options = {
-    type: 0 | 1, // 添加还是修改
+type RecordFormOption = {
+    type: boolean, // 添加还是修改
     isBatch: boolean, // 是否批量添加
     checkRecordExist: boolean // 添加时是否检查记录是否存在
 }
 
 const recordFormRef = ref<FormInstance>()
-const recordForm = reactive<RecordForm>({
+const option = reactive<RecordFormOption>({
+    type: true,
+    isBatch: false,
+    checkRecordExist: false
+})
+const formData = {
     dirname: '',
     basename: '',
     hyperlink: '',
@@ -164,40 +192,46 @@ const recordForm = reactive<RecordForm>({
     series: [],
     intro: '',
     info: ''
-})
-
-// 添加单个Record和编辑Record
-const add = reactive<RecordForm>({
-    dirname: '',
-    basename: '',
-    hyperlink: '',
-    title: '',
-    coverImage: '',
-    rate: 0,
-    authors: [],
-    tags: [],
-    series: [],
-    intro: '',
-    info: ''
-})
-// 批量添加Record
-const batchAdd = reactive<RecordForm>({
-    dirname: '',
-    basename: '',
-    hyperlink: '',
-    title: '',
-    coverImage: '',
-    rate: 0,
-    authors: [],
-    tags: [],
-    series: [],
-    intro: '',
-    info: ''
-})
-
-const selectFile = () => {
-    window.electronAPI.openDialog('file', true)
 }
+const formDataOfBatch = {
+    dirname: '',
+    basename: '',
+    hyperlink: '',
+    title: '',
+    coverImage: '',
+    rate: 0,
+    authors: [],
+    tags: [],
+    series: [],
+    intro: '',
+    info: ''
+}
+const recordForm = ref<RecordForm>(formData)
+// 切换添加模式函数
+const switchAddMode = () => {
+    option.isBatch = !option.isBatch
+    recordForm.value = option.isBatch ? formData : formDataOfBatch
+}
+
+const authorInput = ref('')
+const tagInput = ref('')
+const seriesInput = ref('')
+
+const handleAddAttrubute = (type: 'tag' | 'series') => {
+    // TODO 去重
+    switch (type) {
+        case 'tag':
+            if (tagInput.value.trim() === '') return
+            recordForm.value.tags.push(tagInput.value)
+            break
+        case 'series':
+            if (seriesInput.value.trim() === '') return
+            recordForm.value.series.push(seriesInput.value)
+            break
+    }
+}
+
+
 
 const rules = reactive<FormRules>({
     name: [
@@ -225,6 +259,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 const resetForm = (formEl: FormInstance | undefined) => {
     if (!formEl) return
     formEl.resetFields()
+}
+const selectFile = async () => {
+    // recordForm.dirname = (await window.electronAPI.openDialog('file', true))[0]
 }
 </script>
   

@@ -34,8 +34,4 @@ export default function ipcMainDialog() {
         const { filePaths } = await dialog.showOpenDialog(option)
         return filePaths
     })
-
-    ipcMain.handle('dialog:save', async (e: IpcMainInvokeEvent, type: '', multiSelections: boolean) => {
-
-    })
 }

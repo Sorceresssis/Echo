@@ -6,86 +6,18 @@
              label-width="100px"
              require-asterisk-position="right"
              status-icon>
-        <el-form-item label="文件路径"
-                      v-if="!isBatch"
-                      prop="name">
-            <div class="flex-1">
-                <el-row>
-                    <el-input v-model="recordForm.dirname"></el-input>
-                </el-row>
-                <el-row>
-                    <el-input v-model="recordForm.basename" />
-                </el-row>
-                <el-row>
-                    <el-button>批量添加</el-button>
-                </el-row>
-            </div>
-        </el-form-item>
-        <el-form-item label="链接"
-                      prop="region"
-                      class="divider">
-            <el-input v-model="recordForm.hyperlink" />
-        </el-form-item>
-        <el-form-item label="标题"
+        <el-form-item label="目录名"
                       prop="count">
             <el-input v-model="recordForm.title" />
         </el-form-item>
-        <el-form-item label="封面">
-            <el-col :span="11">
-                <el-form-item prop="date1">
-                    <el-date-picker v-model="recordForm.coverImage"
-                                    type="date"
-                                    label="Pick a date"
-                                    placeholder="Pick a date"
-                                    style="width: 100%" />
-                </el-form-item>
-            </el-col>
-            <el-col class="text-center"
-                    :span="2">
-                <span class="text-gray-500">-</span>
-            </el-col>
-            <el-col :span="11">
-                <el-form-item prop="date2">
-
-                </el-form-item>
-            </el-col>
-        </el-form-item>
-        <el-form-item label="评分">
-            <el-rate v-model="recordForm.rate"
-                     :colors="colors" />
-        </el-form-item>
         <el-form-item label="作者"
                       prop="delivery">
-
         </el-form-item>
         <el-form-item label="标签"
                       prop="type">
-
         </el-form-item>
         <el-form-item label="系列"
                       prop="resource">
-            <div class="flex-1">
-                <!-- <el-input v-model="  "
-                      :placeholder="'如果输入的系列不存在，会自动创建系列'" /> -->
-
-            </div>
-        </el-form-item>
-        <el-form-item label="介绍"
-                      prop="desc">
-            <el-input v-model="recordForm.intro"
-                      type="textarea"
-                      :autosize="{ minRows: 4 }"
-                      resize="none"
-                      clearable
-                      placeholder="介绍" />
-        </el-form-item>
-        <el-form-item label="信息">
-            <el-input v-model="recordForm.info"
-                      type="textarea"
-                      :autosize="{ minRows: 4 }"
-                      resize="none"
-                      clearable
-                      placeholder="介绍" />
         </el-form-item>
         <el-form-item>
             <el-button type="primary"
@@ -100,6 +32,9 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
+
+// 1. 根据 目录批量删除，根据作者批量删除，根据标签批量删除，根据系列批量删除
+// 删除记录时，是否时候删除该属性，
 
 const colors = ref(['#b5adf7', '#887cf7', '#9e94f7'])
 const isBatch = ref(false)
@@ -211,12 +146,4 @@ const resetForm = (formEl: FormInstance | undefined) => {
 }
 </script>
   
-<style>
-.el-row {
-    margin-bottom: 5px;
-}
-
-.el-row:last-child {
-    margin-bottom: 0;
-}
-</style>
+<style></style>

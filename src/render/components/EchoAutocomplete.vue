@@ -4,14 +4,15 @@
                      clearable
                      :trigger-on-focus="false"
                      :fit-input-width="true"
+                     spellcheck="false"
                      :fetch-suggestions="querySearch"
+                     :placeholder="placeholder"
                      @select="item => emit('select', item)">
         <template #default="{ item }">
             <div class="flex-row"
                  :class="''">
                 <div class="flex-1 echo-ac-suggestion_text">
-                    {{ item.value }}jfgjj oijjojioj oija骄傲的哦加哦i经济急哦急哦及安排时间哦i骄傲飞机傲娇急啊家的佛i就安排金佛倨傲iv
-                    jfgjj oijjojioj oija骄傲的哦加哦i经济急哦急哦及安排时间哦i骄傲飞机傲娇急啊家的佛i就安排金佛倨傲iv
+                    {{ item.value }}
                 </div>
                 <div class="echo-ac-suggestion_imgWrap">
                     <img :class="[item.type === 'author' ? 'fit--cover' : 'fit--contain']"
@@ -30,9 +31,11 @@ const props = withDefaults(defineProps<{
     type?: AcType
     modelValue: string
     ps?: number
+    placeholder?: string
 }>(), {
     type: 'search',
-    ps: 10
+    ps: 10,
+    placeholder: ''
 })
 
 const emit = defineEmits<{

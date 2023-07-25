@@ -23,9 +23,8 @@
     vertical-align: middle;
     transition: .1s;
     padding: 0 15px;
-    background-color: #fff;
+    background-color: #f5f7fa;
     border: 1px solid #dcdfe6;
-    box-shadow: 0 0 4px 1px #eaeaea inset;
     font-size: 14px;
 }
 
@@ -34,11 +33,12 @@
 }
 
 .button-2 span {
+    display: inline-block;
     min-width: 65px;
     line-height: var(--button-2-height);
 }
 
 .button-2:active span {
-    transform: translate(0, .5px);
+    transform: translate(0px, 0.5px);
 }
 </style>

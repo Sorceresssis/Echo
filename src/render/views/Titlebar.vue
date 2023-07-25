@@ -41,7 +41,7 @@
 <script setup lang='ts'>
 import { onMounted, ref, Ref, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { t } from '../locales'
+import { $t } from '../locales'
 
 const router = useRouter()
 
@@ -79,8 +79,8 @@ watch(router.currentRoute, async () => {
         activeLibrary.value = 0
         activeLibraryName.value = ''
         if (currentPath.startsWith('/setting')) {
-            document.title = `${t('settings.settings')} - Echo`
-            activeLibraryName.value = t('settings.settings')
+            document.title = `${$t('settings.settings')} - Echo`
+            activeLibraryName.value = $t('settings.settings')
         } else {
             document.title = `Echo`
         }

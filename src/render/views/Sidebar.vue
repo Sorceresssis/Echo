@@ -101,9 +101,9 @@
                                  @handle-delete="handleDelete" />
         <context-menu v-model:show="isVisCtmGroup"
                       :options="ctmOptions">
-            <context-menu-item :label="t('ctm.addLibrary')"
+            <context-menu-item :label="$t('ctm.addLibrary')"
                                @click="openAddLibrary" />
-            <context-menu-item :label="t('ctm.rename')"
+            <context-menu-item :label="$t('ctm.rename')"
                                @click="openRename" />
             <context-menu-item label="删除"
                                @click="openDelete">
@@ -141,7 +141,7 @@
 <script setup lang='ts'>
 import { ref, Ref, watch, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { t } from '../locales'
+import { $t } from '../locales'
 import { debounce } from '../util/debounce'
 import { throttle } from '../util/throttle'
 import { vFocus } from '../util/directive'
