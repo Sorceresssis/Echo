@@ -37,6 +37,10 @@ export interface IElectronAPI {
     autoCompleteRecord: (libraryId: number, option: AcOption) => Promise<ACSuggestion>
     /** 查询记录的简介 */
     queryRecordProfiles: (libraryId: number, option: any) => Promise<any>
+    /** 根据authorId查询作者的详情信息 */
+    queryAuthorDetail: (libraryId: number, authorId: number) => Promise<AuthorDetail | undefined>
+    /** 编辑作者 */
+    editAuthor: (libraryId: number, authorForm: AuthorForm) => Promise<boolean>
 
 
     getItems: (libraryID: number) => Promise<itemProfile[]>

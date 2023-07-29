@@ -6,6 +6,8 @@
                      :fit-input-width="true"
                      spellcheck="false"
                      :fetch-suggestions="querySearch"
+                     :show-word-limit="showWordLimit"
+                     :maxlength="maxlength"
                      :placeholder="placeholder"
                      @select="item => emit('select', item)">
         <template #default="{ item }">
@@ -32,10 +34,14 @@ const props = withDefaults(defineProps<{
     modelValue: string
     ps?: number
     placeholder?: string
+    showWordLimit?: boolean
+    maxlength?: string
 }>(), {
     type: 'search',
     ps: 10,
-    placeholder: ''
+    placeholder: '',
+    showWordLimit: false,
+    maxlength: undefined
 })
 
 const emit = defineEmits<{

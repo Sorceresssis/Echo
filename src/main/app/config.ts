@@ -63,6 +63,10 @@ class Config {
     public getLibraryDBPath(libraryId: number): string {
         return path.resolve(this.c.userDataPath, `database/${libraryId}.db`)
     }
+
+    public getLibraryImageDir(libraryId: number): string {
+        return path.resolve(this.c.userDataPath, `images/${libraryId}`)
+    }
 }
 
 const config = new Config()

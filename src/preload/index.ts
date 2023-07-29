@@ -19,6 +19,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     /******************** LibraryDB ********************/
     autoCompleteRecord: (libraryId: number, option: AcOption) => ipcRenderer.invoke('record:autoComplete', libraryId, option),
+    queryAuthorDetail: (libraryId: number, authorId: number) => ipcRenderer.invoke('author:queryDetail', libraryId, authorId),
+    editAuthor: (libraryId: number, authorForm: AuthorForm) => ipcRenderer.invoke('author:edit', libraryId, authorForm),
+
+
     queryRecordProfiles: (libraryId: number, option: any) => ipcRenderer.invoke('record:queryProfiles', libraryId, option),
 
 

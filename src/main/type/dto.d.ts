@@ -10,6 +10,36 @@ declare type AcOption = {
 
 declare type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
 
+type AuthorForm = {
+    id: number,
+    name: string,
+    avatar?: string,
+    intro: string,
+}
+
+
+
+
+
+declare type RecordForm = {
+    id?: number,
+    dirname: string,
+    basename: string,
+    hyperlink: string,
+    title: string,
+    coverImage: string,
+    rate: number,
+    authors: number[]
+    tags: string[],
+    series: string[],
+    intro: string,
+    info: string
+}
+type RecordFormOption = {
+    type: boolean, // 添加还是修改
+    isBatch: boolean, // 是否批量添加
+    checkRecordExist: boolean // 添加时是否检查记录是否存在
+}
 
 
 declare type Filter = 'image' | 'fafa' | 'dirname'

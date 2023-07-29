@@ -21,6 +21,11 @@ export default defineConfig(({ mode }) => {
     base: "./",
     // 修改vue渲染入口路径
     root: resolve(__dirname, "./src/render"),
+    resolve: {
+      alias: {
+        "@": resolve(__dirname, "./src/render"),
+      },
+    },
     build,
     plugins: [vue(),
     vueI18n({
@@ -29,6 +34,6 @@ export default defineConfig(({ mode }) => {
     topLevelAwait({
       promiseExportName: '__tla',
       promiseImportName: i => `__tla_${i}`
-    })]
+    })],
   }
 });

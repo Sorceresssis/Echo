@@ -11,6 +11,12 @@ declare type AcOption = {
 declare type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
 
 
+type AuthorForm = {
+    id: number,
+    name: string,
+    avatar?: string,
+    intro: string,
+}
 
 declare type Filter = 'image' | 'fafa' | 'dirname'
 declare type QueryRecord = {

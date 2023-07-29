@@ -99,6 +99,35 @@ export default class LibraryDao {
         return this.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
     }
 
+    public addRecord(): void {
+    }
+
+    public addRecordTag(): void {
+    }
+
+    public deleteRecordTag(): void {
+    }
+
+    public addRecordAuthor(): void {
+    }
+
+    public deleteRecordAuthor(): void {
+    }
+
+    public addAuthor(): void {
+    }
+
+    public queryAuthorDetail(id: number): AuthorDetail {
+        return {
+            id: 1,
+            name: 'test',
+            avatar: 'test',
+            intro: 'test',
+            createTime: 'test',
+            modifiedTime: 'test',
+        }
+    }
+
     /** 给数据库添加一个自定义的REGEXP函数，在查询时使用 */
     private generateREGEXPFn(keywords: string[]): void {
         this.db.function('REGEXP', (text: string) => {

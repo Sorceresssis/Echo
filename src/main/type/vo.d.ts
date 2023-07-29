@@ -29,6 +29,21 @@ declare type AcSuggestion = {
     image?: string
 }
 
+declare type AuthorProfile = {
+    id: number,
+    name: string
+    avatar?: string,
+}
+
+declare type AuthorDetail = {
+    id: number,
+    name: string,
+    avatar?: string,
+    intro: string,
+    createTime: string,
+    modifiedTime: string,
+}
+
 declare type RecordProfile = {
     id: number,
     title: string,
@@ -40,10 +55,3 @@ declare type RecordProfile = {
 
 }
 
-
-
-
-declare type AuthorProfile = {
-    id: number,
-    name: string
-}

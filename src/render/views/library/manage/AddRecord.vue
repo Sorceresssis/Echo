@@ -19,8 +19,8 @@
                 <div>
                     <echo-autocomplete v-model="recordForm.dirname"
                                        type="dirname"
-                                       :placeholder="'目标所在的目录'"
-                                       :ps="autocompletePs" />
+                                       :ps="autocompletePs"
+                                       :placeholder="'目标所在的目录'" />
                 </div>
                 <div>
                     <el-input v-model="recordForm.basename"
@@ -37,7 +37,8 @@
                 <div>
                     <echo-autocomplete v-model="recordForm.title"
                                        type="record"
-                                       :ps="autocompletePs" />
+                                       :ps="autocompletePs"
+                                       :placeholder="'记录的标题'" />
                 </div>
             </el-form-item>
         </div>
@@ -56,13 +57,14 @@
         </el-form-item>
         <el-form-item label="链接"
                       prop="region">
-            <el-input v-model="recordForm.hyperlink" />
+            <el-input v-model="recordForm.hyperlink"
+                      :placeholder="'直达超链接'" />
         </el-form-item>
         <el-form-item label="选择封面">
             <div class="flex-row">
                 <el-input v-model="recordForm.coverImage"
                           spellcheck="false"
-                          :placeholder="'支持格式: jpg  png  jpeg'" />
+                          :placeholder="'格式: jpg  png  jpeg'" />
                 <button2>选择图片</button2>
             </div>
         </el-form-item>
@@ -79,6 +81,9 @@
                                    :ps="autocompletePs"
                                    :placeholder="'只能添加已经存在的作者'" />
                 <button2>添加</button2>
+            </div>
+            <div>
+
             </div>
         </el-form-item>
         <el-form-item label="标签"
@@ -105,10 +110,12 @@
                                    :placeholder="'库中没有则会自动添加'" />
                 <button2 @click="handleAddAttrubute('series')">添加</button2>
             </div>
-            <div class=" ">
-                <div v-for="series in recordForm.series">
-                    {{ series }}
-                </div>
+            <div style="max-height: 100px   ; overflow: hidden; display: flex;">
+                <ul class="flex-1 scrollbar-y">
+                    <li v-for="series in recordForm.series">
+                        {{ series }}
+                    </li>
+                </ul>
             </div>
         </el-form-item>
         <el-form-item label="介绍"
@@ -143,8 +150,9 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import EchoAutocomplete from '../../../components/EchoAutocomplete.vue'
-import Button2 from '../../../components/Button2.vue'
+import Button2 from '@/components/Button2.vue'
+import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
+
 
 /******************** 基础 ********************/
 const colors = ref(['#b5adf7', '#887cf7', '#9e94f7'])
@@ -152,26 +160,6 @@ const autocompletePs = 20
 const inputAutoSize = {
     minRows: 4,
     maxRows: 4
-}
-
-type RecordForm = {
-    id?: number,
-    dirname: string,
-    basename: string,
-    hyperlink: string,
-    title: string,
-    coverImage: string,
-    rate: number,
-    authors: number[]
-    tags: string[],
-    series: string[],
-    intro: string,
-    info: string
-}
-type RecordFormOption = {
-    type: boolean, // 添加还是修改
-    isBatch: boolean, // 是否批量添加
-    checkRecordExist: boolean // 添加时是否检查记录是否存在
 }
 
 const recordFormRef = ref<FormInstance>()
@@ -223,10 +211,12 @@ const handleAddAttrubute = (type: 'tag' | 'series') => {
         case 'tag':
             if (tagInput.value.trim() === '') return
             recordForm.value.tags.push(tagInput.value)
+            tagInput.value = ''
             break
         case 'series':
             if (seriesInput.value.trim() === '') return
             recordForm.value.series.push(seriesInput.value)
+            seriesInput.value = ''
             break
     }
 }
