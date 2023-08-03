@@ -114,18 +114,35 @@ export default class LibraryDao {
     public deleteRecordAuthor(): void {
     }
 
-    public addAuthor(): void {
+    /**
+     * return: 新增的作者的id
+     */
+    public addAuthor(author: AuthorForm): number | bigint {
+        return this.db.run("INSERT INTO author(name, avatar, intro) VALUES(?,?,?);",
+            author.name,
+            author.avatar,
+            author.intro
+        ).lastInsertRowid
     }
 
-    public queryAuthorDetail(id: number): AuthorDetail {
-        return {
-            id: 1,
-            name: 'test',
-            avatar: 'test',
-            intro: 'test',
-            createTime: 'test',
-            modifiedTime: 'test',
-        }
+    /**
+     * @returns 返回修改的行数
+     */
+    public editAuthor(author: AuthorForm): number {
+        return this.db.run("UPDATE author SET name=?, avatar=?, intro=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;",
+            author.name,
+            author.avatar,
+            author.intro,
+            author.id
+        ).changes
+    }
+
+    public deleteAuthor(id: number): number {
+        return this.db.run("DELETE FROM author WHERE id = ?;", id).changes
+    }
+
+    public queryAuthorDetail(id: number): AuthorDetail | undefined {
+        return this.db.get("SELECT id, name, avatar, intro, DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM author WHERE id = ?;", id)
     }
 
     /** 给数据库添加一个自定义的REGEXP函数，在查询时使用 */
@@ -137,8 +154,6 @@ export default class LibraryDao {
             return matches ? matches.length : 0
         })
     }
-
-    // TODO 添加图片时检查文件夹是否存在
 
     // 释放资源
     destroy(): void {

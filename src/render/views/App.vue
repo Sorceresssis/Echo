@@ -45,7 +45,7 @@ const isOpenSideBar = ref<boolean>(true)
 }
 
 .slide-thumb:hover {
-    color: var(--echo-button-color);
+    color: var(--echo-theme-color);
 }
 
 .slide-enter-from,
@@ -65,7 +65,6 @@ const isOpenSideBar = ref<boolean>(true)
 
 .main-container {
     font-size: 14px;
-    /* margin-right: 16px; */
     padding: 0 10px;
 }
 </style>

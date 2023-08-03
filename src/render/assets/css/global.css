@@ -1,11 +1,21 @@
 /******************** echo ********************/
 :root {
-    --echo-background-color: #f6f6f8;
     --echo-theme-color: #9e94f7;
-    --echo-button-color: #413ae2;
+    --echo-theme-color-light1: #b5adf7;
+    --echo-theme-color-light2: #e1dff7;
+    --echo-theme-color-light3: #f1f0fe;
     --echo-text-color1: #000000;
     --echo-text-color2: #333333;
     --echo-text-color3: #474747;
+}
+
+html,
+body,
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background-color: #f6f6f8;
 }
 
 .titlebar {
@@ -87,9 +97,9 @@
 }
 
 /* 分割线 */
-.divider {
+.divider:not(:last-child) {
     border-bottom: 1px dashed #ccc;
-    padding-bottom: 10px;
+    padding-bottom: 20px;
 }
 
 .select-none {
@@ -104,6 +114,9 @@
     font-weight: bold;
 }
 
+.padding-b8 {
+    padding-bottom: 8px;
+}
 
 
 

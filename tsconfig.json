@@ -19,6 +19,27 @@
     "types": [
       "element-plus/global"
     ],
+    "baseUrl": "./src/render",
+    "paths": {
+      "@/*": [
+        "*"
+      ],
+      "@components/*": [
+        "components/*"
+      ],
+      "@util/*": [
+        "util/*"
+      ],
+      "@store/*": [
+        "store/*"
+      ],
+      "@locales/*": [
+        "locales/*"
+      ],
+      "@images/*": [
+        "assets/images/*"
+      ],
+    }
   },
   "vueCompilerOptions": {
     "strictNullChecksTypeScript": true

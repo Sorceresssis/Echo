@@ -10,7 +10,7 @@
 </template>
  
 <script lang="ts" setup>
-import { onMounted, shallowReactive } from 'vue'
+import { shallowReactive } from 'vue'
 import { useRoute } from 'vue-router'
 import Tabs from '@/components/Tabs.vue'
 import AddRecord from './AddRecord.vue'

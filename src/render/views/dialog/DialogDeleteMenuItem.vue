@@ -1,8 +1,8 @@
 <template>
     <el-dialog v-model="modelValue.isVis"
                align-center
-               title="你确定要这样做吗"
-               width="350px"
+               title="危险操作"
+               width="420px"
                class="dialog-confirm">
         <p class="row">
             此操作无法撤销。这将<span class="fw-bold">永久删除</span>数据。

@@ -5,7 +5,7 @@ import vueI18n from '@intlify/vite-plugin-vue-i18n'
 import topLevelAwait from 'vite-plugin-top-level-await'
 import { resolve } from "path";
 
-export default defineConfig(({ mode }) => {
+export default defineConfig(() => {
   const build: BuildOptions = {
     minify: true,
     outDir: resolve(__dirname, "./dist/render"),
@@ -19,11 +19,16 @@ export default defineConfig(({ mode }) => {
 
   return {
     base: "./",
-    // 修改vue渲染入口路径
+    // vue渲染入口路径
     root: resolve(__dirname, "./src/render"),
     resolve: {
       alias: {
-        "@": resolve(__dirname, "./src/render"),
+        "@": "",
+        "@components": "components",
+        "@util": "util",
+        "@store": "store",
+        "@locales": "locales",
+        "@assets": "assets",
       },
     },
     build,

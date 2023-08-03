@@ -6,14 +6,16 @@
              label-width="120px"
              require-asterisk-position="right"
              status-icon>
-        <div v-if="option.isBatch">
+        <div v-if="option.isBatch"
+             style="height: 180px;">
             <el-form-item label="批量导入源">
             </el-form-item>
             <!-- TODO 记录是否存在  将文件夹里的文件名作为标题名快速导入, 添加一个 icon, 用户hover就有提示 -->
             <el-form-item label="过滤存在">
             </el-form-item>
         </div>
-        <div v-else>
+        <div v-else
+             style="height: 180px;">
             <el-form-item label="文件路径"
                           prop="name">
                 <div>
@@ -50,9 +52,9 @@
                             trigger="hover"
                             content="this is content, this is content, this is content">
                     <template #reference>
-                        <span class="iconfont">&#xe722;</span>
+                        <button2 @click="switchAddMode">批量添加</button2>
                     </template>
-                </el-popover> <el-button @click="switchAddMode">批量添加</el-button>
+                </el-popover>
             </div>
         </el-form-item>
         <el-form-item label="链接"
@@ -150,8 +152,8 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import Button2 from '@/components/Button2.vue'
-import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
+import Button2 from '@components/Button2.vue'
+import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 
 
 /******************** 基础 ********************/

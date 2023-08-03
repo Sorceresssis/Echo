@@ -13,7 +13,7 @@ declare type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
 type AuthorForm = {
     id: number,
     name: string,
-    avatar?: string,
+    avatar: string,
     intro: string,
 }
 

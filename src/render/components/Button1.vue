@@ -1,40 +1,42 @@
 <template>
-    <div class="button-1"
-         type="button">
+    <button class="button1"
+            type="button">
         <span>
             <slot></slot>
         </span>
-    </div>
+    </button>
 </template>
 
 <script setup lang='ts'></script>
 
 <style>
-.button-1 {
-    min-width: 18px;
-    height: 18px;
-    padding: 4px;
+.button1 {
+    min-width: 28px;
+    height: 28px;
     border-radius: 4px;
-    border: 2px solid #dedee0;
-    line-height: 18px;
+    border: 1.6px solid #dedee0;
     background-color: #fff;
     cursor: pointer;
-    text-align: center;
+    box-sizing: border-box;
 }
 
-.button-1:hover {
+.button1 .iconfont {
+    font-size: 14px;
+}
+
+.button1:hover {
     background-color: #f5f5f5;
 }
 
-.button-1 span {
+.button1 span {
     display: inline-block;
 }
 
-.button-1:active {
+.button1:active {
     background-color: #d9d9d9;
 }
 
-.button-1:active span {
+.button1:active span {
     transform: translate(0, .5px);
 }
 </style>

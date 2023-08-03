@@ -3,7 +3,6 @@
 </template>
 
 <script setup lang='ts'>
-import exp from 'constants';
 import { ref, reactive } from 'vue'
 
 

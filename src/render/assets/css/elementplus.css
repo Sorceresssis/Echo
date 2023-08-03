@@ -1,7 +1,7 @@
 :root {
     --el-fill-color-blank: transparent !important;
-    --el-color-primary: #9e94f7 !important;
-    --el-overlay-color-lighter: rgba(0, 0, 0, 0.1) !important;
+    --el-color-primary: var(--echo-theme-color) !important;
+    --el-overlay-color-lighter: rgba(17, 8, 8, 0.1) !important;
     --el-text-color-regular: #000 !important;
 }
 
@@ -17,10 +17,9 @@
 }
 
 /* pagination */
-.el-pager li {
+/* .el-pager li {
     margin: 0 2px !important;
-
-}
+} */
 
 /* form */
 .el-form-item__content {
@@ -51,6 +50,7 @@
     top: 0 !important;
 }
 
+.el-message-box__header,
 .el-dialog__header {
     border-top-left-radius: var(--el-border-radius-small);
     border-top-right-radius: var(--el-border-radius-small);
@@ -60,49 +60,30 @@
     border-bottom: 2px solid #ededed;
 }
 
+.el-message-box .el-button {
+    width: 120px !important;
+}
+
 .el-dialog__body {
     padding: var(--el-dialog-padding-primary) !important
 }
 
 /* button */
-.el-button {
-    border-radius: 16px !important;
-    padding: 8px 40px !important;
+body .el-button {
+    padding: 0 25px !important;
+    line-height: 32px !important;
 }
 
-.el-button--primary:hover,
-.el-button--primary:focus {
-    background: var(--el-color-primary) !important;
-    border-color: var(--el-color-primary) !important;
+.el-form-item .el-button {
+    padding: 0 40px !important;
+}
+
+.el-button--primary:focus,
+.el-button--primary:hover {
+    background: var(--echo-theme-color) !important;
+    border-color: var(--echo-theme-color) !important;
+}
+
+.el-button--primary:hover {
     opacity: 0.8;
 }
-
-
-
-/* loading */
-/* .el-loading-mask {
-    background-color: #f6f6f8 !important;
-} */
-
-/* .el-loading-spinner .path {
-    stroke: #9e94f7 !important;
-} */
-
-/* 
-.el-textarea__inner:focus,
-.is-focus {
-    box-shadow: 0 0 0 1px #9e94f7 inset !important;
-}
-
-.el-autocomplete-suggestion__wrap {
-    padding: 5px 0 !important;
-}
-
-.el-autocomplete-suggestion li {
-    line-height: initial !important;
-    padding: 0 10px !important;
-}
-
-.el-backtop {
-    --el-backtop-text-color: #9e94f7 !important;
-} */

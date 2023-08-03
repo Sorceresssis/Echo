@@ -5,7 +5,7 @@ import config from '../app/config'
 import generateUid from "../util/uid"
 import { mkdirsSync } from '../util/FileManager'
 
-class ImageService {
+export default class ImageService {
     private static readonly MIN_SIZE = 300
     image: NativeImage
     libId: number
@@ -29,7 +29,7 @@ class ImageService {
     /**
      * 处理Author的avatar
      */
-    public handleAuthorAvatar(libId: number): string | undefined {
+    public handleAuthorAvatar(): string | undefined {
         if (this.image.isEmpty()) {
             this.cropSquare()
             this.compress()

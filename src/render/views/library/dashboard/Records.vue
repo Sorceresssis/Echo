@@ -1,21 +1,25 @@
 <template>
     <div class="flex-col overflow-hidden">
-        <div class="records-header flex-row">
-            <div class="flex-row">
-                批量操作
+        <div v-if="isBatchOperation"
+             class="records-header flex-row">
+            <div>
+                <button1 @click="isBatchOperation = false">退出,返回</button1>
+                全选，删除
             </div>
+            <div>
+                已经选择0个记录
+            </div>
+        </div>
+        <div v-else
+             class="records-header flex-row">
             <div class="flex-row">
-                <el-autocomplete>
-                    <template #default="{ item }">
-                        <AutoCompleteSuggestion :item="item"></AutoCompleteSuggestion>
-                    </template>
-                </el-autocomplete>
-                <button1 :title="$t('mainContainer.advancedSearch')"
-                         class="menuItem menuItem-marginLeft">
-                    <span class="iconfont">
-                        &#xe66b;
-                    </span>
-                </button1>
+                <button1 @click="isBatchOperation = true">批量操作</button1>
+            </div>
+            <div class="flex-row"
+                 style="width: 60%; justify-content: flex-end;">
+                <echo-autocomplete class="menuItem"
+                                   style="width: 50%;"
+                                   v-model="s" />
                 <el-dropdown v-for="dropdown in menuDropdowns"
                              :title="dropdown.HTMLElementTitle"
                              class="menuItem"
@@ -37,7 +41,6 @@
                     </template>
                 </el-dropdown>
                 <span class="menuItem iconfont">&#xe6c7;</span>
-                <span class="menuItem iconfont">&#xe81f;</span>
                 <div class="menuItem">
                     <span class="iconfont"
                           style="background-color: #9999;">&#xe7e6;</span>
@@ -47,22 +50,14 @@
         <records-container class="flex-1"
                            :records="records"
                            :view="'thumbnail'" />
-        <div class="flex-center">
-            <el-pagination v-model:current-page="currentPage1"
-                           :page-size="10"
-                           :small="small"
-                           layout="prev, pager, next"
-                           :total="10000"
-                           @size-change="handleSizeChange"
-                           @current-change="handleCurrentChange" />
-        </div>
     </div>
 </template>
 
 <script setup lang='ts'>
 import { ref, } from 'vue'
-import { $t } from '../../../locales'
-import Button1 from '../../../components/Button1.vue'
+import { $t } from '@locales/index'
+import Button1 from '@components/Button1.vue'
+import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 import RecordsCommon from './RecordsCommon.vue'
 import RecordsByAuthor from './RecordsByAuthor.vue'
 import RecordsContainer from './RecordsContainer.vue'
@@ -99,7 +94,8 @@ const menuDropdowns = [
 ]
 
 
-
+// 开启批量操作
+const isBatchOperation = ref(false)
 const currentPage1 = ref(5)
 const small = ref(false)
 const background = ref(false)
@@ -110,6 +106,7 @@ const handleSizeChange = (val: number) => {
 const handleCurrentChange = (val: number) => {
 }
 // /******************** 搜索 autoComplete querywords列表********************/
+const s = ref<string>('')
 // /* 通用搜索 */
 // const searchWord_all = ref<string>('')
 // const autoCompSug_all = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.ALL, queryString, 20).then((a) => { cb(a) }) }
@@ -131,104 +128,8 @@ const handleCurrentChange = (val: number) => {
 
 /******************** Items的筛选和展示方式 ********************/
 
-const records = ref<RecordProfile[]>([
-    {
-        id: 1,
-        title: 'title',
-        rate: 4,
-        hyperlink: 'fdfdf',
-        hasCoverImage: true,
-        tags: ['tag1', 'tag2'],
-        authors: [
-            { id: 1, name: 'author1' },
-            { id: 2, name: 'author2' },
-        ]
-    },
-    {
-        id: 2,
-        title: 'title',
-        rate: 4,
-        hyperlink: 'fdfdf',
-        hasCoverImage: true,
-        tags: ['tag1', 'tag2'],
-        authors: [
-            { id: 1, name: 'author1' },
-            { id: 2, name: 'author2' },
-        ]
-    },
-    {
-        id: 3,
-        title: 'title',
-        rate: 4,
-        hyperlink: 'fdfdf',
-        hasCoverImage: true,
-        tags: ['tag1', 'tag2'],
-        authors: [
-            { id: 1, name: 'author1' },
-            { id: 2, name: 'author2' },
-        ]
-    },
-    {
-        id: 4,
-        title: 'title',
-        rate: 4,
-        hyperlink: 'fdfdf',
-        hasCoverImage: true,
-        tags: ['tag1', 'tag2'],
-        authors: [
-            { id: 1, name: 'author1' },
-            { id: 2, name: 'author2' },
-        ]
-    },
-    {
-        id: 5,
-        title: 'title',
-        rate: 4,
-        hyperlink: 'fdfdf',
-        hasCoverImage: true,
-        tags: ['tag1', 'tag2'],
-        authors: [
-            { id: 1, name: 'author1' },
-            { id: 2, name: 'author2' },
-        ]
-    },
-    {
-        id: 6,
-        title: 'title',
-        rate: 4,
-        hyperlink: 'fdfdf',
-        hasCoverImage: true,
-        tags: ['tag1', 'tag2'],
-        authors: [
-            { id: 1, name: 'author1' },
-            { id: 2, name: 'author2' },
-        ]
-    },
-    {
-        id: 7,
-        title: 'title',
-        rate: 4,
-        hyperlink: 'fdfdf',
-        hasCoverImage: true,
-        tags: ['tag1', 'tag2'],
-        authors: [
-            { id: 1, name: 'author1' },
-            { id: 2, name: 'author2' },
-        ]
-    },
-    {
-        id: 8,
-        title: 'title',
-        rate: 4,
-        hyperlink: 'fdfdf',
-        hasCoverImage: true,
-        tags: ['tag1', 'tag2'],
-        authors: [
-            { id: 1, name: 'author1' },
-            { id: 2, name: 'author2' },
-        ]
-    }
-])
+const records = ref<RecordProfile[]>([])
+
 
 </script>
 
@@ -236,8 +137,12 @@ const records = ref<RecordProfile[]>([
 .records-header {
     height: 36px;
     line-height: 36px;
-    margin: 6px 0;
+    margin-bottom: 6px;
     justify-content: space-between;
+}
+
+:deep(.el-input__wrapper) {
+    height: 28px !important;
 }
 
 .flex-row {
@@ -245,7 +150,7 @@ const records = ref<RecordProfile[]>([
 }
 
 .menuItem {
-    margin: 0 3px;
+    margin-left: 6px;
 }
 
 .menuItem-marginLeft {
@@ -258,7 +163,6 @@ const records = ref<RecordProfile[]>([
     font-size: 13px;
     line-height: 13px;
 }
-
 
 :deep(.el-pager li) {
     font-size: 14px;

@@ -1,5 +1,6 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
 import LibraryQueryService from "../service/libraryQueryService"
+import ImageService from "../service/ImageService"
 import LibraryDao from "../dao/libraryDao"
 import tokenizer from "../util/tokenizer"
 
@@ -34,16 +35,21 @@ export default function ipcMainLibrary() {
     ipcMain.handle('author:edit', (e: IpcMainInvokeEvent, libraryId: number, authorForm: AuthorForm) => {
         let libraryDao
         try {
-            libraryDao = new LibraryDao(libraryId)
-            // 图片处理
+            // 判断是否要处理图片
+            // if (authorForm.avatar) {
+            //     const imageService = new ImageService(authorForm.avatar, libraryId)
+            //     imageService.handleAuthorAvatar()
+            //     设置为null
+            // }
+            if (authorForm.avatar === '') {
+            }
 
+            libraryDao = new LibraryDao(libraryId)
             // 判断添加还是修改
-            if (authorForm.id) {
-                // 修改
-                // return libraryDao.editAuthor(authorForm)
+            if (authorForm.id === 0) {
+                libraryDao.addAuthor(authorForm)
             } else {
-                // 添加
-                // return libraryDao.addAuthor(authorForm)
+                libraryDao.editAuthor(authorForm)
             }
             return true
         } catch (e: any) {

@@ -141,12 +141,12 @@
 <script setup lang='ts'>
 import { ref, Ref, watch, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { $t } from '../locales'
-import { debounce } from '../util/debounce'
-import { throttle } from '../util/throttle'
-import { vFocus } from '../util/directive'
-import { sendCrosTabMsg, listenCrosTabMsg } from "../util/CrosTabMsg"
-import CollapseTransition from '../components/CollapseTransition.vue'
+import { $t } from '@locales/index'
+import { debounce } from '@util/debounce'
+import { throttle } from '@util/throttle'
+import { vFocus } from '@util/directive'
+import { sendCrosTabMsg, listenCrosTabMsg } from "@util/CrosTabMsg"
+import CollapseTransition from '@components/CollapseTransition.vue'
 import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
 import { ElMessage } from 'element-plus'
 
@@ -445,7 +445,6 @@ const moveLibrary = async (idxGroup: number) => {
 .menu-row {
     display: flex;
     height: 32px;
-    /* margin-bottom: 10px; */
     padding: 0 10px;
     line-height: 32px;
     box-sizing: border-box;
@@ -473,12 +472,12 @@ const moveLibrary = async (idxGroup: number) => {
 }
 
 .menu-item:hover:not(.active-library) {
-    background-color: #f1f0fe;
+    background-color: var(--echo-theme-color-light3);
 }
 
 .active-library {
-    background-color: var(--echo-theme-color);
     color: #fff;
+    background-color: var(--echo-theme-color);
 }
 
 .menu-group::before {

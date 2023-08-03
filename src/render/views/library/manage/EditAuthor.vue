@@ -49,7 +49,7 @@
 import { ref, Ref, toRaw, reactive, inject, onMounted, } from 'vue'
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { useRoute, useRouter } from 'vue-router'
-import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
+import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -86,15 +86,16 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             window.electronAPI.editAuthor(activeLibrary.value, toRaw(authorForm)).then(
                 (vlaue: boolean) => {
                     ElMessage.success('修改成功')
-                    router.back()
                 })
         }
     })
 }
+
 onMounted(async () => {
     const id = route.query.author_id as string | undefined
     if (id) {
         const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, Number.parseInt(id))
+        console.log(author)
         if (author) {
             authorForm.id = author.id
             authorForm.name = author.name

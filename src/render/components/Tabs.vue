@@ -40,8 +40,6 @@ const switchComponent = (idx: number) => {
 
 onMounted(() => {
     if (props.activeComponentId) {
-        console.log(props.activeComponentId);
-
         const idx = props.components.findIndex(component => component.id === props.activeComponentId)
         if (idx !== -1) {
             switchComponent(idx)
@@ -56,18 +54,30 @@ onMounted(() => {
 }
 
 .menu-item {
+    position: relative;
     height: 22px;
     margin-right: 40px;
     cursor: pointer;
 }
 
 .menu-item:hover {
-    color: #9e94f7;
+    color: var(--echo-theme-color);
 }
 
 .menu-avtive {
-    color: #9e94f7;
-    border-bottom: solid 3px #9e94f7;
+    color: var(--echo-theme-color);
+}
+
+.menu-avtive::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    height: 3px;
+    width: 25px;
+    border-radius: 1.5px;
+    background-color: var(--echo-theme-color);
 }
 
 .scrollbar-y::-webkit-scrollbar {

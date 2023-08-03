@@ -32,13 +32,13 @@ declare type AcSuggestion = {
 declare type AuthorProfile = {
     id: number,
     name: string
-    avatar?: string,
+    avatar: string | null,
 }
 
 declare type AuthorDetail = {
     id: number,
     name: string,
-    avatar?: string,
+    avatar: string | null,
     intro: string,
     createTime: string,
     modifiedTime: string,
