@@ -11,4 +11,4 @@ onMounted(async () => {
 
 </script>
 
-<style scoped></style>
+<style></style>

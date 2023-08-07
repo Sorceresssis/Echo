@@ -36,8 +36,8 @@
       "@locales/*": [
         "locales/*"
       ],
-      "@images/*": [
-        "assets/images/*"
+      "@assets/*": [
+        "assets/*"
       ],
     }
   },

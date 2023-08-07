@@ -9,15 +9,16 @@ const isDev = !app.isPackaged
  */
 export function createWindow(libraryId: number | null): BrowserWindow {
     const win = new BrowserWindow({
-        width: 1025,
-        height: 634,
-        minWidth: 853,
-        minHeight: 454,
+        width: 1050,
+        height: 649,
+        minWidth: 1000,
+        minHeight: 618,
         show: false,
         frame: false, // 取消默认的标题栏
         backgroundColor: "#ffffff",
         webPreferences: {
             preload: resolve(__dirname, "../../preload/index.js"),
+            sandbox: true, // 开启沙箱模式
             webSecurity: false, // 为了开发方便，关闭安全策略，打包时打开
         }
     })

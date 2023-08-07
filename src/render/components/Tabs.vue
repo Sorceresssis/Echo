@@ -14,7 +14,7 @@
             </div>
         </div>
         <keep-alive>
-            <component class="flex-1 scrollbar-y tab-content"
+            <component class="flex-1 overflow-hidden tab-content"
                        :is="components[idxActiveComponent].component">
             </component>
         </keep-alive>
@@ -89,7 +89,7 @@ onMounted(() => {
 }
 
 .tab-content {
-    padding-right: 8px;
+    /* padding-right: 8px; */
     padding-top: 8px;
 }
 </style>

@@ -39,11 +39,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     /******************** dialog ********************/
     openDialog: (type: OpenDialogType, multiSelect: boolean) => ipcRenderer.invoke('dialog:open', type, multiSelect),
 
-    /******************** external ********************/
-    openUrl: (url: string) => ipcRenderer.invoke('external:openUrlExternal', url),
-    showItemInFolder: (fulllPath: string) => ipcRenderer.invoke('external:showItemInFolder', fulllPath),
-    clibboardWriteText: (text: string) => ipcRenderer.invoke('external:clibboardWriteText', text),
-
+    /******************** system ********************/
+    openExternal: (url: string) => ipcRenderer.invoke('system:openExternal', url),
+    openInExplorer: (fullPath: string) => ipcRenderer.invoke('system:openInExplorer', fullPath),
+    openFile: (fullPath: string) => ipcRenderer.invoke('system:openFile', fullPath),
+    writeClipboard: (text: string) => ipcRenderer.invoke('system:writeClipboard', text),
 
     /******************** window ********************/
     windowRelaunch: () => ipcRenderer.invoke('window:relaunch'),

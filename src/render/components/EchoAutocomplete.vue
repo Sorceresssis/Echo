@@ -13,13 +13,13 @@
         <template #default="{ item }">
             <div class="flex-row"
                  :class="''">
-                <div class="flex-1 echo-ac-suggestion_text">
-                    {{ item.value }}
-                </div>
                 <div class="echo-ac-suggestion_imgWrap">
                     <img :class="[item.type === 'author' ? 'fit--cover' : 'fit--contain']"
                          src="file://F:/Desktop/images/2.jpg"
                          alt="error">
+                </div>
+                <div class="flex-1 echo-ac-suggestion_text">
+                    {{ item.value }}
                 </div>
             </div>
         </template>

@@ -14,7 +14,9 @@ export function createItemWindow(): BrowserWindow {
         // frame: false,
         backgroundColor: "#ffffff",
         webPreferences: {
-            preload: resolve(__dirname, "../../preload/index.js")
+            preload: resolve(__dirname, "../../preload/index.js"),
+            sandbox: true, // 开启沙箱模式
+            webSecurity: false, // 为了开发方便，关闭安全策略，打包时打开
         }
     });
 

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3790846 */
-  src: url('iconfont.woff2?t=1687367214748') format('woff2'),
-       url('iconfont.woff?t=1687367214748') format('woff'),
-       url('iconfont.ttf?t=1687367214748') format('truetype');
+  src: url('iconfont.woff2?t=1691253500749') format('woff2'),
+       url('iconfont.woff?t=1691253500749') format('woff'),
+       url('iconfont.ttf?t=1691253500749') format('truetype');
 }
 
 .iconfont {
@@ -13,12 +13,44 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-close:before {
-  content: "\e69e";
+.icon-delete:before {
+  content: "\e6f9";
 }
 
-.icon-close1:before {
-  content: "\e64d";
+.icon-contentcopy:before {
+  content: "\e6fe";
+}
+
+.icon-folder3:before {
+  content: "\e73e";
+}
+
+.icon-folder21:before {
+  content: "\e73f";
+}
+
+.icon-keyboardarrowdown:before {
+  content: "\e76f";
+}
+
+.icon-keyboardarrowleft:before {
+  content: "\e779";
+}
+
+.icon-keyboardarrowright:before {
+  content: "\e77a";
+}
+
+.icon-keyboardarrowup:before {
+  content: "\e77b";
+}
+
+.icon-launch:before {
+  content: "\e789";
+}
+
+.icon-openinbrowser:before {
+  content: "\e7e9";
 }
 
 .icon-close2:before {
@@ -37,28 +69,12 @@
   content: "\e607";
 }
 
-.icon-window-restore1:before {
-  content: "\e669";
-}
-
-.icon-window-restore2:before {
-  content: "\e673";
-}
-
 .icon-Library:before {
   content: "\e69c";
 }
 
 .icon-edit:before {
   content: "\e722";
-}
-
-.icon-edit1:before {
-  content: "\e62e";
-}
-
-.icon-edit2:before {
-  content: "\e60d";
 }
 
 .icon-sousuo:before {
@@ -73,28 +89,8 @@
   content: "\e86e";
 }
 
-.icon-copy1:before {
-  content: "\e633";
-}
-
 .icon-file-copy-fill:before {
   content: "\e85c";
-}
-
-.icon-fuzhi:before {
-  content: "\ec7a";
-}
-
-.icon-copy2:before {
-  content: "\e6f5";
-}
-
-.icon-copy3:before {
-  content: "\e9fe";
-}
-
-.icon-copy4:before {
-  content: "\e839";
 }
 
 .icon-ai211:before {
@@ -181,32 +177,12 @@
   content: "\e6c8";
 }
 
-.icon-shuaxin:before {
-  content: "\e782";
-}
-
 .icon-xuexiao:before {
   content: "\e632";
 }
 
-.icon-shuaxin2:before {
-  content: "\e629";
-}
-
-.icon-shuaxin3:before {
-  content: "\e612";
-}
-
-.icon-piliangguanli:before {
-  content: "\e670";
-}
-
 .icon-shuaxin4:before {
   content: "\e61f";
-}
-
-.icon-ziyuanxhdpi:before {
-  content: "\e64c";
 }
 
 .icon-batch:before {
@@ -245,20 +221,12 @@
   content: "\e653";
 }
 
-.icon-clock:before {
-  content: "\e6bb";
-}
-
 .icon-angleright1:before {
   content: "\e616";
 }
 
 .icon-angle-right1:before {
   content: "\e608";
-}
-
-.icon-windowclose:before {
-  content: "\ebbf";
 }
 
 .icon-add:before {
@@ -311,21 +279,5 @@
 
 .icon-window-maximize:before {
   content: "\e606";
-}
-
-.icon-window-minimize1:before {
-  content: "\e609";
-}
-
-.icon-window-minimize2:before {
-  content: "\e66a";
-}
-
-.icon-window-maximize2:before {
-  content: "\e679";
-}
-
-.icon-maximize:before {
-  content: "\e7bf";
 }
 

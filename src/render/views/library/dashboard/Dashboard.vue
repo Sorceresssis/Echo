@@ -3,42 +3,21 @@
 </template>
   
 <script lang="ts" setup>
-import { ref, shallowReactive } from 'vue';
+import { ref, shallowReactive } from 'vue'
 import { $t } from '@locales/index'
 import Tabs from '../../../components/Tabs.vue'
 import Records from './Records.vue'
 import Authors from './Authors.vue'
-import Series from './Series.vue'
-import Info from './Info.vue'
+import Tags from './Tags.vue'
+import Dirnames from './Dirnames.vue'
 
 
 const componentList = shallowReactive([
     { id: 1, name: '记录', component: Records },
     { id: 2, name: '作者', component: Authors },
-    { id: 3, name: '系列', component: Series },
-    { id: 4, name: '信息表', component: Info },
+    { id: 3, name: '标签', component: Tags },
+    { id: 4, name: '目录', component: Dirnames },
 ])
-
-
 </script>
 
-<style scoped>
-#menu {
-    margin: 6px 0;
-}
-
-.menu-item {
-    height: 22px;
-    margin-right: 40px;
-    cursor: pointer;
-}
-
-.menu-item:hover {
-    color: #9e94f7;
-}
-
-.menu-avtive {
-    color: #9e94f7;
-    border-bottom: solid 3px #9e94f7;
-}
-</style>
+<style></style>

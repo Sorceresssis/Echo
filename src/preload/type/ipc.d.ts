@@ -7,7 +7,6 @@ export interface IElectronAPI {
     /******************** 开始准备 ********************/
     config: (index: string, newValue: any = null) => Promise<any>
 
-
     /******************** GroupDB ********************/
     /** 获取所有的group和library */
     getGroups: () => Promise<Group[]>
@@ -55,12 +54,11 @@ export interface IElectronAPI {
     /******************** dialog ********************/
     openDialog: (type: OpenDialogType, multiSelect: boolean) => Promise<string[]>
 
-
     /******************** external ********************/
-    openUrl: (url: string) => Promise<void>
-    showItemInFolder: (fullPath: string) => Promise<string>
-    clibboardWriteText: (text: string) => Promise<void>
-
+    openExternal: (url: string) => Promise<void>
+    openInExplorer: (fullPath: string) => Promise<void>
+    openFile: (fullPath: string) => Promise<void>
+    writeClipboard: (text: string) => Promise<void>
 
     /******************** window ********************/
     createMainWindow: (libraryId: number) => Promise<boolean>

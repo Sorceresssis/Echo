@@ -50,6 +50,15 @@
         <records-container class="flex-1"
                            :records="records"
                            :view="'thumbnail'" />
+        <div class="dashboard-pagination">
+            <el-pagination v-model:current-page="currentPage1"
+                           layout="prev, pager, next, jumper"
+                           :total="200"
+                           background
+                           small
+                           :page-size="20"
+                           @current-change="handleCurrentChange" />
+        </div>
     </div>
 </template>
 
@@ -96,41 +105,33 @@ const menuDropdowns = [
 
 // 开启批量操作
 const isBatchOperation = ref(false)
-const currentPage1 = ref(5)
-const small = ref(false)
-const background = ref(false)
-const disabled = ref(false)
-
-const handleSizeChange = (val: number) => {
-}
-const handleCurrentChange = (val: number) => {
-}
 // /******************** 搜索 autoComplete querywords列表********************/
 const s = ref<string>('')
-// /* 通用搜索 */
-// const searchWord_all = ref<string>('')
-// const autoCompSug_all = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.ALL, queryString, 20).then((a) => { cb(a) }) }
-
-// /* 高级搜索 */
-// const searchWord_title = ref<string>('')
-// const autoCompSug_title = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.ITEM_TITLE, queryString, 20).then((a) => { cb(a) }) }
-// const searchWord_author = ref<string>('')
-// const autoCompSug_author = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.AUTHOR_NAME, queryString, 20).then((a) => { cb(a) }) }
-// const searchWord_tag = ref<string>('')
-// const autoCompSug_tag = (queryString: string, cb: any) => { window.electronAPI.libraryAutoComplete(activeLibrary.value.id, autoCompleteType.TAG_TITLE, queryString, 20).then((a) => { cb(a) }) }
-
-// const search = async (type: number) => {
-//     if (searchWord_all.value != '') {
-//         dynamicTags.splice(0, dynamicTags.length, ...searchWord_all.value.trim().split(/\s+/))
-//     }
-// }
-
-
 /******************** Items的筛选和展示方式 ********************/
 
-const records = ref<RecordProfile[]>([])
+const records = ref<any[]>([
+    {
+        id: 1,
+        title: '1',
+        rate: 5,
+        hyperlink: 'www',
+        imag: 'file://F:/Desktop/images/2.jpg',
+        tags: [
+            'fdf',
+            'fdf',
+            'fdf',
+        ],
+        authors: {
+            id: 1,
+            name: 'fdf',
+        }
+    },
+])
 
 
+const currentPage1 = ref(5)
+const handleCurrentChange = (val: number) => {
+}
 </script>
 
 <style scoped>
@@ -141,7 +142,7 @@ const records = ref<RecordProfile[]>([])
     justify-content: space-between;
 }
 
-:deep(.el-input__wrapper) {
+:deep(.records-header .el-input__wrapper) {
     height: 28px !important;
 }
 
@@ -162,9 +163,5 @@ const records = ref<RecordProfile[]>([])
     font-family: "iconfont" !important;
     font-size: 13px;
     line-height: 13px;
-}
-
-:deep(.el-pager li) {
-    font-size: 14px;
 }
 </style>

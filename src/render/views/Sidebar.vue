@@ -6,8 +6,8 @@
             Echo
         </div>
         <div id="menu-wrap"
-             class="flex-1 scrollbar-y">
-            <div class="menu">
+             class="flex-1 scrollbar-y-w4">
+            <div>
                 <div class="menu__title menu-row flex-row">
                     <div>
                         <span>{{ $t('siderBar.createdGroup') }}</span>
@@ -428,14 +428,6 @@ const moveLibrary = async (idxGroup: number) => {
     box-sizing: border-box;
     padding: 0 15px;
     font-size: 13px;
-}
-
-.scrollbar-y::-webkit-scrollbar {
-    width: 4px;
-}
-
-.scrollbar-y::-webkit-scrollbar-thumb {
-    border-radius: 2px;
 }
 
 .menuItem-wrap {

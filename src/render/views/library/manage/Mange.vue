@@ -28,7 +28,7 @@ const components = shallowReactive([
 const activeComponentId = route.query.author_id ? 3 : undefined
 </script>
 
-<style scoped>
+<style>
 .tab-header {
     height: 40px;
     line-height: 40px;

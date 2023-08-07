@@ -24,16 +24,48 @@ body,
     -webkit-app-region: drag;
 }
 
-.scrollbar-y {
+/* scrollbar */
+.scrollbar-y-w4 {
+    overflow-x: hidden;
     overflow-y: scroll;
 }
 
-.scrollbar-y::-webkit-scrollbar {
+.scrollbar-y-w4::-webkit-scrollbar {
+    width: 4px;
     background-color: transparent;
 }
 
-.scrollbar-y::-webkit-scrollbar-thumb {
+.scrollbar-y-w4::-webkit-scrollbar-thumb {
+    border-radius: 2px;
     background-color: #cfcfcf;
+}
+
+.scrollbar-y-w8 {
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
+.scrollbar-y-w8::-webkit-scrollbar {
+    width: 8px;
+    background-color: transparent;
+}
+
+.scrollbar-y-w8::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: #cfcfcf;
+}
+
+/* fit */
+.fit--cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.fit--contain {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
 }
 
 .beforeIcon::before {
@@ -77,19 +109,6 @@ body,
     min-width: 0;
 }
 
-/* fit */
-.fit--cover {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-.fit--contain {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-}
-
 .textover--ellopsis {
     white-space: nowrap;
     overflow: hidden;
@@ -98,8 +117,7 @@ body,
 
 /* 分割线 */
 .divider:not(:last-child) {
-    border-bottom: 1px dashed #ccc;
-    padding-bottom: 20px;
+    border-bottom: 1px solid #d6dee5;
 }
 
 .select-none {
@@ -118,8 +136,13 @@ body,
     padding-bottom: 8px;
 }
 
-
-
+/* dashboard */
+.dashboard-pagination {
+    height: 42px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 
 
 /* dialog */

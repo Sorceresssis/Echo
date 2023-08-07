@@ -1,5 +1,6 @@
 <template>
-    <el-form ref="recordFormRef"
+    <el-form class="scrollbar-y"
+             ref="recordFormRef"
              label-position="left"
              :model="recordForm"
              :rules="rules"
@@ -257,12 +258,4 @@ const selectFile = async () => {
 }
 </script>
   
-<style>
-/* .el-row {
-    margin-bottom: 5px;
-}
-
-.el-row:last-child {
-    margin-bottom: 0;
-} */
-</style>
+<style></style>
