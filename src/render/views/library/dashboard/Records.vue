@@ -1,56 +1,50 @@
 <template>
     <div class="flex-col overflow-hidden">
         <div v-if="isBatchOperation"
-             class="records-header flex-row">
+             class="dashboard__header">
             <div>
                 <button1 @click="isBatchOperation = false">退出,返回</button1>
                 全选，删除
             </div>
             <div>
-                已经选择0个记录
             </div>
         </div>
         <div v-else
-             class="records-header flex-row">
-            <div class="flex-row">
-                <button1 @click="isBatchOperation = true">批量操作</button1>
+             class="dashboard__header">
+            <div class="left-menu">
+                <div @click="isBatchOperation = true">批量操作</div>
             </div>
-            <div class="flex-row"
-                 style="width: 60%; justify-content: flex-end;">
-                <echo-autocomplete class="menuItem"
-                                   style="width: 50%;"
-                                   v-model="s" />
-                <el-dropdown v-for="dropdown in menuDropdowns"
-                             :title="dropdown.HTMLElementTitle"
-                             class="menuItem"
+            <div class="right-menu">
+                <echo-autocomplete class="menu-item"
+                                   v-model="s"
+                                   :placeholder="'搜索'" />
+                <el-dropdown v-for="menu in dropdownmenu"
+                             :title="menu.HTMLElementTitle"
+                             class="menu-item"
                              trigger="click"
-                             popper-class="dropdown">
+                             popper-class="dashboard__dropdown-menu">
                     <button-1><span class="iconfont"
-                              v-html="dropdown.title"></span></button-1>
+                              v-html="menu.title"></span></button-1>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item v-for="item in dropdown.menu"
-                                              @click="item.click"
+                            <el-dropdown-item v-for="item in menu.items"
+                                              @click="item.click()"
                                               :divided="item.divided">
-                                <span :class="[true ? 'dot' : '']"
-                                      class="beforeIcon">
+                                <span class="emptyFonticon"
+                                      :class="[item.dot() ? 'dot' : '']">
                                     {{ item.title }}
                                 </span>
                             </el-dropdown-item>
                         </el-dropdown-menu>
                     </template>
                 </el-dropdown>
-                <span class="menuItem iconfont">&#xe6c7;</span>
-                <div class="menuItem">
-                    <span class="iconfont"
-                          style="background-color: #9999;">&#xe7e6;</span>
-                </div>
             </div>
         </div>
-        <records-container class="flex-1"
-                           :records="records"
-                           :view="'thumbnail'" />
-        <div class="dashboard-pagination">
+        <div class="dashboard__content scrollbar-y-w8">
+            <records-container :records="records"
+                               :view="recordsDashStore.view" />
+        </div>
+        <div class="dashboard__pagination">
             <el-pagination v-model:current-page="currentPage1"
                            layout="prev, pager, next, jumper"
                            :total="200"
@@ -65,39 +59,95 @@
 <script setup lang='ts'>
 import { ref, } from 'vue'
 import { $t } from '@locales/index'
+import useRecordsDashStore from '@/store/useRecordsDashStore'
 import Button1 from '@components/Button1.vue'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
-import RecordsCommon from './RecordsCommon.vue'
-import RecordsByAuthor from './RecordsByAuthor.vue'
 import RecordsContainer from './RecordsContainer.vue'
 
-const menuDropdowns = [
+const recordsDashStore = useRecordsDashStore()
+
+const enum FilterKey {
+    cover = 0,
+    hyperlink,
+    basename,
+}
+const dropdownmenu: DashboardDropdownMenu[] = [
     {
         HTMLElementTitle: $t('mainContainer.filter'),
         title: '&#xe7e6;',
-        menu: [
-            { title: $t('mainContainer.noHyperlink'), divided: false, click: 1 },
-            { title: $t('mainContainer.noFile'), divided: false, click: 1 },
-            { title: $t('mainContainer.noImage'), divided: false, click: 1 },
+        items: [
+            {
+                title: '有封面',
+                divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.cover),
+                dot: () => recordsDashStore.filter[FilterKey.cover]
+            },
+            {
+                title: '有链接',
+                divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.hyperlink),
+                dot: () => recordsDashStore.filter[FilterKey.hyperlink]
+            },
+            {
+                title: '有文件',
+                divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.basename),
+                dot: () => recordsDashStore.filter[FilterKey.basename]
+            },
         ]
     },
     {
         HTMLElementTitle: $t('mainContainer.sort'),
         title: '&#xe81f;',
-        menu: [
-            { title: $t('mainContainer.time'), divided: false, click: 1 },
-            { title: $t('mainContainer.hits'), divided: false, click: 1 },
-            { title: $t('mainContainer.title'), divided: false, click: 1 },
-            { title: $t('mainContainer.ascending'), divided: true, click: 1 },
-            { title: $t('mainContainer.descending'), divided: false, click: 1 },
+        items: [
+            {
+                title: $t('mainContainer.time'),
+                divided: false,
+                click: () => recordsDashStore.handleSortField('date'),
+                dot: () => recordsDashStore.sortField === 'date'
+            },
+            {
+                title: '名称',
+                divided: false,
+                click: () => recordsDashStore.handleSortField('title'),
+                dot: () => recordsDashStore.sortField === 'title'
+            },
+            {
+                title: '评分',
+                divided: false,
+                click: () => recordsDashStore.handleSortField('rate'),
+                dot: () => recordsDashStore.sortField === 'rate'
+            },
+            {
+                title: $t('mainContainer.ascending'),
+                divided: true,
+                click: () => recordsDashStore.handleAsc(true),
+                dot: () => recordsDashStore.asc
+            },
+            {
+                title: $t('mainContainer.descending'),
+                divided: false,
+                click: () => recordsDashStore.handleAsc(false),
+                dot: () => !recordsDashStore.asc
+            },
         ]
     },
     {
-        HTMLElementTitle: $t('mainContainer.display'),
+        HTMLElementTitle: '视图',
         title: '&#xe6c7;',
-        menu: [
-            { title: $t('mainContainer.thumbnail'), divided: false, click: 1 },
-            { title: $t('mainContainer.extended'), divided: false, click: 1 },
+        items: [
+            {
+                title: $t('mainContainer.thumbnail'),
+                divided: false,
+                click: () => recordsDashStore.handleView('thumbnail'),
+                dot: () => recordsDashStore.view === 'thumbnail'
+            },
+            {
+                title: $t('mainContainer.extended'),
+                divided: false,
+                click: () => recordsDashStore.handleView('extended'),
+                dot: () => recordsDashStore.view === 'extended'
+            },
         ]
     }
 ]
@@ -134,34 +184,4 @@ const handleCurrentChange = (val: number) => {
 }
 </script>
 
-<style scoped>
-.records-header {
-    height: 36px;
-    line-height: 36px;
-    margin-bottom: 6px;
-    justify-content: space-between;
-}
-
-:deep(.records-header .el-input__wrapper) {
-    height: 28px !important;
-}
-
-.flex-row {
-    align-items: center;
-}
-
-.menuItem {
-    margin-left: 6px;
-}
-
-.menuItem-marginLeft {
-    margin-left: 10px;
-}
-
-.dot::before {
-    content: '\e60a';
-    font-family: "iconfont" !important;
-    font-size: 13px;
-    line-height: 13px;
-}
-</style>
+<style scoped></style>

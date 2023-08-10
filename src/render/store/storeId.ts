@@ -1,5 +1,5 @@
 const enum StoreId {
-    QRECORDS_QPTION = 'QRecords_Option',
+    RECORDS_DASH = 'Records_Dash',
 }
 
 export default StoreId

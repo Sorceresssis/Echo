@@ -20,12 +20,13 @@ export default class GroupDao {
         // 判断文件是否存在
         if (!fs.existsSync(path)) {
             this.db = new DBUtil(path)
-            this.createDBGroup()
+            this.createTable()
+            return
         }
         this.db = new DBUtil(path)
     }
 
-    createDBGroup(): void {
+    createTable(): void {
         this.db.transaction(() => {
             this.db.exec(`
             DROP TABLE IF EXISTS 'group';

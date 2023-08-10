@@ -1,11 +1,15 @@
 import { createI18n } from 'vue-i18n'
 import zhCN from './zhCN'
-import enUS from './enUS'
-import jaJP from './jaJP'
+import en from './en'
+import ja from './ja'
 
+export const enum Locale {
+    zhCN = 'zhCN',
+    en = 'en',
+    ja = 'ja',
+}
 
-// const locale = (await window.electronAPI.config('locale')) || 'enUS'
-const locale = 'zhCN'
+const locale = await window.electronAPI.config('locale') || Locale.zhCN
 
 const i18n = createI18n({
     legacy: false,
@@ -14,8 +18,8 @@ const i18n = createI18n({
     fallbackLocale: locale,
     messages: {
         zhCN,
-        enUS,
-        jaJP,
+        en,
+        ja,
     }
 });
 

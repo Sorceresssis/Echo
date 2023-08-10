@@ -14,7 +14,7 @@
             </div>
         </div>
         <keep-alive>
-            <component class="flex-1 overflow-hidden tab-content"
+            <component class="flex-1 overflow-hidden"
                        :is="components[idxActiveComponent].component">
             </component>
         </keep-alive>
@@ -78,18 +78,5 @@ onMounted(() => {
     width: 25px;
     border-radius: 1.5px;
     background-color: var(--echo-theme-color);
-}
-
-.scrollbar-y::-webkit-scrollbar {
-    width: 8px;
-}
-
-.scrollbar-y::-webkit-scrollbar-thumb {
-    border-radius: 4px;
-}
-
-.tab-content {
-    /* padding-right: 8px; */
-    padding-top: 8px;
 }
 </style>

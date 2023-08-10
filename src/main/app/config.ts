@@ -31,20 +31,11 @@ class Config {
     }
 
     public set(name: ConfigName, value: any): any {
-        let newValue = null
-        switch (name) {
-            case 'userDataPath':
-                if (value) this.c.userDataPath = value
-                newValue = this.c.userDataPath
-                break
-            case 'locale':
-                if (value) this.c.locale = value
-                newValue = this.c.locale
-                break
-            default:
-                return newValue
+        if (value) {
+            this.c[name] = value
+            this.write()
         }
-        if (value) { this.write() }
+        let newValue = this.c[name]
         return newValue
     }
 

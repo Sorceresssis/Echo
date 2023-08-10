@@ -11,12 +11,13 @@ export default class LibraryDao {
         // 判断文件是否存在
         if (!fs.existsSync(path)) {
             this.db = new DBUtil(path)
-            this.createDBLibrary()
+            this.createTable()
+            return
         }
         this.db = new DBUtil(path)
     }
 
-    private createDBLibrary(): void {
+    private createTable(): void {
         this.db.transaction(() => {
             this.db.exec(`
             DROP TABLE IF EXISTS 'record';
@@ -153,6 +154,21 @@ export default class LibraryDao {
             const matches = text.match(pattern)
             return matches ? matches.length : 0
         })
+    }
+
+    queryTags(queryWord: string, sortField: 'date' | 'text') {
+
+    }
+
+
+    editTag(id: number, newValue: string): number {
+        return this.db.run("UPDATE tag SET title=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;",
+
+        ).changes
+    }
+
+    deleteTag(): number {
+        return this.db.run('').changes;
     }
 
     // 释放资源

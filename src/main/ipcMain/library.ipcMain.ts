@@ -103,28 +103,19 @@ export default function ipcMainLibrary() {
     //     let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
     //     return await library.getItems({ queryType: 0, queryWords: '', filterOption: [false, false, false], orderBy: 0, isAscending: true, pageno: 0 })
     // })
-
-    // ipcMain.handle('library:getItemsByAuthor', async (e: IpcMainInvokeEvent, libraryID: number, getItemsOption: getItemsOption, authorID: number) => {
-    //     let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
-    //     return await library.getItemsByAuthor(getItemsOption, authorID)
-    // })
-    // ipcMain.handle('library:getAuthorList', async (e: IpcMainInvokeEvent, libraryID: number, type: number, queryWords: string | [string, string, string]) => {
-    //     let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
-    //     let authorList: authorProfile[] = await library.getAuthorList(type, queryWords)
-    //     for (let i = 0; i < authorList.length; i++) {
-    //         let str = authorList[i].itemIDs
-    //         const fourthCommaIndex = str.indexOf(',', str.indexOf(',', str.indexOf(',') + 1) + 1)
-    //         if (fourthCommaIndex != -1) {
-    //             // 截取前面三个逗号的部分
-    //             authorList[i].itemIDs = str.slice(0, fourthCommaIndex)
-    //         }
-    //     }
-    //     return authorList
-    // })
     // ipcMain.handle('library:getAttributes', async (e: IpcMainInvokeEvent, libraryID: number, type: number, pageno: number) => {
     //     let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
     //     return await library.getAttributes(type, pageno)
     // })
-    // ipcMain.handle('library:addItem', (e: IpcMainInvokeEvent, libraryID: number) => {
-    // })
+    ipcMain.handle('tag:delete', (e: IpcMainInvokeEvent, libraryId: number, tagId: number) => {
+
+    })
+
+    ipcMain.handle('tag:edit', (e: IpcMainInvokeEvent,) => {
+
+    })
+
+    ipcMain.handle('tag:query', (e: IpcMainInvokeEvent, libraryId: number, pn: number, ps: number, keyword) => {
+
+    })
 }

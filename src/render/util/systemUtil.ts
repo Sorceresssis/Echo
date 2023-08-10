@@ -28,8 +28,9 @@ export const openFile = (fullPath: string) => {
  * 把文本复制到剪切板
  * @param text 复制的文本
  */
-export function writeClibboard(text: string) {
+export const writeClibboard = (text: string) => {
     window.electronAPI.writeClipboard(text)
+    ElMessage.closeAll()
     ElMessage.success('已复制')
 }
 

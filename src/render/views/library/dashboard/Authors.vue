@@ -1,10 +1,13 @@
 <template>
     <div class="flex-col">
-        <div style="height: 40px; padding: 4px 18px 4px 4px;">
-            <echo-autocomplete v-model="search"
-                               type="author" />
+        <div class="dashboard__header">
+            <div class="right-menu">
+                <echo-autocomplete v-model="search"
+                                   type="author"
+                                   :placeholder="'搜索'" />
+            </div>
         </div>
-        <div class="author-recommendations-wrap flex-1 scrollbar-y-w8">
+        <div class="dashboard__content scrollbar-y-w8">
             <ul class="author-recommendations">
                 <li v-for="i in 20"
                     class="author-recommendation-item divider">
@@ -35,8 +38,8 @@
                 </li>
             </ul>
         </div>
-        <div class="dashboard-pagination">
-            <el-pagination v-model:current-page="currentPage1"
+        <div class="dashboard__pagination">
+            <el-pagination v-model:current-page="currentPage"
                            background
                            small
                            :page-size="20"
@@ -48,14 +51,15 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, reactive, effect, onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
+import { $t } from '@locales/index'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
-import { type } from 'os';
-
-
 
 const search = ref<string>('')
-
+const currentPage = ref<number>(1)
+const handleCurrentChange = (page: number) => {
+    currentPage.value = page
+}
 onMounted(() => {
     const data = {
         total: 100,
@@ -78,10 +82,6 @@ onMounted(() => {
 </script>
 
 <style>
-.author-recommendations-wrap {
-    padding: 4px 10px 4px 4px;
-}
-
 .author-recommendations {
     padding: 10px 0;
     border-radius: 5px;
