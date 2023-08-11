@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
+import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
 
 type RecordsView = 'thumbnail' | 'extended'
 type SortField = 'date' | 'title' | 'rate'
@@ -12,34 +13,39 @@ type RecordsDashState = {
 
 const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
     state: (): RecordsDashState => {
-        // 读取本地存储
-        window.localStorage.getItem(StoreId.RECORDS_DASH)
-
-        return {
+        // 默认值
+        const defaultState: RecordsDashState = {
             view: "thumbnail",
             filter: [false, false, false],
             sortField: "date",
             asc: true,
         }
+        // 读取本地存储
+        const saved = getLocalStorage(StoreId.RECORDS_DASH)
+        if (saved) {
+            return saved
+        } else {
+            setLocalStorage(StoreId.RECORDS_DASH, defaultState)
+            return defaultState
+        }
     },
     actions: {
         handleView(view: RecordsView) {
             this.view = view
-            this.__save()
+            setLocalStorage(StoreId.RECORDS_DASH, this.$state)
         },
         handleFilter(key: number) {
             this.filter[key] = !this.filter[key]
-            this.__save()
+            setLocalStorage(StoreId.RECORDS_DASH, this.$state)
         },
         handleSortField(field: SortField) {
             this.sortField = field
+            setLocalStorage(StoreId.RECORDS_DASH, this.$state)
         },
         handleAsc(asc: boolean) {
             this.asc = asc
+            setLocalStorage(StoreId.RECORDS_DASH, this.$state)
         },
-        __save() {
-            window.localStorage.setItem(StoreId.RECORDS_DASH, JSON.stringify(this.$state))
-        }
     }
 })
 

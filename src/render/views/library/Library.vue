@@ -6,7 +6,7 @@
 import { onMounted } from 'vue'
 
 onMounted(async () => {
-    // console.log((await window.electronAPI.queryRecordProfiles(1, { type: 0, queryWord: 'fdf', ps: 2 })))
+    // console.log((await window.electronAPI.queryDirnames(26, { queryWork: '', sortField: 'date', asc: false, pn: 1, ps: 10 })))
 })
 
 </script>

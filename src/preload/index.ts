@@ -22,6 +22,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     queryAuthorDetail: (libraryId: number, authorId: number) => ipcRenderer.invoke('author:queryDetail', libraryId, authorId),
     editAuthor: (libraryId: number, authorForm: AuthorForm) => ipcRenderer.invoke('author:edit', libraryId, authorForm),
 
+    queryTags: (libraryId: number, options: QueryAttributesOptions) => ipcRenderer.invoke('tag:query', libraryId, options),
+    queryDirnames: (libraryId: number, options: QueryAttributesOptions) => ipcRenderer.invoke('dirname:query', libraryId, options),
 
     queryRecordProfiles: (libraryId: number, option: any) => ipcRenderer.invoke('record:queryProfiles', libraryId, option),
 

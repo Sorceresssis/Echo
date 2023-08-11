@@ -1,4 +1,4 @@
-type DashboardDropdownMenu = {
+type DashDropMenu = {
     HTMLElementTitle: string,
     title: string,
     items: {

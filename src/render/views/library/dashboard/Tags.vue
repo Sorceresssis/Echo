@@ -6,24 +6,8 @@
                                    type="tag"
                                    class="menu-item"
                                    :placeholder="'搜索'" />
-                <el-dropdown :title="dropdown.HTMLElementTitle"
-                             class="menu-item"
-                             trigger="click">
-                    <button-1><span class="iconfont"
-                              v-html="dropdown.title"></span></button-1>
-                    <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item v-for="item in dropdown.menu"
-                                              @click="item.click"
-                                              :divided="item.divided">
-                                <span :class="[true ? 'dot' : '']"
-                                      class="beforeIcon">
-                                    {{ item.title }}
-                                </span>
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
+                <dash-drop-menu :menu="dropdownMenu"
+                                class="menu-item" />
             </div>
         </div>
         <div class="dashboard__content scrollbar-y-w8">
@@ -33,76 +17,106 @@
                 <li class="dashboard-text-card"
                     v-for="tag in tags"
                     :key="tag.id">
-                    <span>{{ tag.value }}</span>
-                    <span class="operate">
+                    <div>
+                        <span>{{ tag.value }}</span>
+                        <span class="count">{{ tag.count }}</span>
+                    </div>
+                    <div class="operate">
                         <span class="iconfont"
                               @click="writeClibboard(tag.value)">&#xe85c;</span>
                         <span class="iconfont"
                               @click="">&#xe722;</span>
                         <span class="iconfont"
                               @click="">&#xe636;</span>
-                    </span>
+                    </div>
                 </li>
             </ul>
         </div>
-        <div class="dashboard__pagination">
-            <el-pagination v-model:current-page="currentPage"
-                           background
-                           small
-                           :page-size="20"
-                           layout="prev, pager, next, jumper"
-                           :total="200"
-                           @current-change="" />
-        </div>
+        <el-pagination v-model:current-page="currentPage"
+                       class="dashboard__footer"
+                       background
+                       small
+                       :page-size="pageSize"
+                       layout="prev, pager, next, jumper"
+                       :total="total"
+                       @current-change="" />
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, watch, onMounted } from 'vue'
+import { ref, Ref, watch, onMounted, inject, handleError, } from 'vue'
 import { writeClibboard } from '@/util/systemUtil'
 import { $t } from '@/locales/index'
-import Button1 from '@/components/Button1.vue'
+import useTagsDashStore from '@/store/useTagsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
+import DashDropMenu from '@/components/DashDropMenu.vue'
 import Empty from '@/components/Empty.vue'
+
+const tagsDashStore = useTagsDashStore()
+const dropdownMenu = {
+    HTMLElementTitle: $t('mainContainer.sort'),
+    title: '&#xe81f;',
+    items: [
+        {
+            title: $t('mainContainer.time'),
+            divided: false,
+            click: () => tagsDashStore.handleSortField('date'),
+            dot: () => tagsDashStore.sortField === 'date'
+        },
+        {
+            title: '文本',
+            divided: false,
+            click: () => tagsDashStore.handleSortField('text'),
+            dot: () => tagsDashStore.sortField === 'text'
+        },
+        {
+            title: $t('mainContainer.ascending'),
+            divided: true,
+            click: () => tagsDashStore.handleAsc(true),
+            dot: () => tagsDashStore.asc
+        },
+        {
+            title: $t('mainContainer.descending'),
+            divided: false,
+            click: () => tagsDashStore.handleAsc(false),
+            dot: () => !tagsDashStore.asc
+        },
+    ]
+}
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const pageSize = 50
+const tags = ref<TextAttribute[]>([])
 
 const search = ref<string>('')
 const currentPage = ref<number>(1)
-const pageSize = ref<number>(40)
-const dropdown = {
-    HTMLElementTitle: $t('mainContainer.sort'),
-    title: '&#xe81f;',
-    menu: [
-        { title: $t('mainContainer.time'), divided: false, click: 1 },
-        { title: $t('mainContainer.hits'), divided: false, click: 1 },
-        { title: $t('mainContainer.title'), divided: false, click: 1 },
-        { title: $t('mainContainer.ascending'), divided: true, click: 1 },
-        { title: $t('mainContainer.descending'), divided: false, click: 1 },
-    ]
-}
-onMounted(() => {
+const total = ref<number>(0)
+watch(() => [activeLibrary.value, currentPage.value, tagsDashStore.sortField, tagsDashStore.asc], () => {
+    queryTags()
 })
 
-type QueryAttributesOptions = {
-    queryWork: string
-    sortField: 'date' | 'text'
-    asc: boolean
-    pn: number
-    ps: number
+const queryTags = async () => {
+    const resp = await window.electronAPI.queryTags(
+        activeLibrary.value,
+        {
+            queryWork: search.value,
+            sortField: tagsDashStore.sortField,
+            asc: tagsDashStore.asc,
+            pn: currentPage.value,
+            ps: pageSize
+        }
+    )
+    tags.value = resp.data
+    total.value = resp.total 
 }
 
-const tags = ref<any[]>([
-])
-watch(() => [search, currentPage], () => [
-
-])
-
-const queryTags = (pn: number, ps: number, keyWork: string) => {
-
-}
+onMounted(() => {
+    queryTags()
+})
 </script>
 
 <style scoped>
 .adaptive-grid {
+    row-gap: 8px;
     grid-template-columns: repeat(auto-fill, 350px);
 }
 </style>

@@ -97,25 +97,37 @@ export default function ipcMainLibrary() {
         return
     })
 
-    // ipcMain.handle('library:getItems', async (e: IpcMainInvokeEvent, libraryID: number) => {
-    //     //TODO 检查文件夹image/1/authorProfile coverimage
-    //     checkImageDir(libraryID)
-    //     let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
-    //     return await library.getItems({ queryType: 0, queryWords: '', filterOption: [false, false, false], orderBy: 0, isAscending: true, pageno: 0 })
-    // })
-    // ipcMain.handle('library:getAttributes', async (e: IpcMainInvokeEvent, libraryID: number, type: number, pageno: number) => {
-    //     let library: DBLibrary = new DBLibrary(path.resolve(config.userDataPath, `database/${libraryID}.db`))
-    //     return await library.getAttributes(type, pageno)
-    // })
+    ipcMain.handle('tag:query', (e: IpcMainInvokeEvent, libraryId: number, options: QueryAttributesOptions) => {
+        let libraryDao
+        try {
+            libraryDao = new LibraryDao(libraryId)
+            return libraryDao.queryTags(options.queryWork, options.sortField, options.asc, options.pn, options.ps)
+        } catch (e: any) {
+            dialog.showErrorBox('tag:query', e.message)
+            return
+        } finally {
+            libraryDao?.destroy()
+        }
+    })
+
+    ipcMain.handle('tag:edit', (e: IpcMainInvokeEvent, libraryId: number,) => {
+
+    })
+
     ipcMain.handle('tag:delete', (e: IpcMainInvokeEvent, libraryId: number, tagId: number) => {
 
     })
 
-    ipcMain.handle('tag:edit', (e: IpcMainInvokeEvent,) => {
-
-    })
-
-    ipcMain.handle('tag:query', (e: IpcMainInvokeEvent, libraryId: number, pn: number, ps: number, keyword) => {
-
+    ipcMain.handle('dirname:query', (e: IpcMainInvokeEvent, libraryId: number, options: QueryAttributesOptions) => {
+        let libraryDao
+        try {
+            libraryDao = new LibraryDao(libraryId)
+            return libraryDao.queryDirnames(options.queryWork, options.sortField, options.asc, options.pn, options.ps)
+        } catch (e: any) {
+            dialog.showErrorBox('dirname:query', e.message)
+            return
+        } finally {
+            libraryDao?.destroy()
+        }
     })
 }

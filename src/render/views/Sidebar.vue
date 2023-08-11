@@ -114,6 +114,14 @@
         </context-menu>
         <context-menu v-model:show="isVisCtmLibrary"
                       :options="ctmOptions">
+            <context-menu-item label="面板"
+                               @click="router.push(`/library/${ctmCurLib().id}`)">
+            </context-menu-item>
+            <context-menu-item label="管理数据"
+                               @click="router.push(`/library/${ctmCurLib().id}/manage`)">
+                <template #icon> <span class="iconfont"></span> </template>
+            </context-menu-item>
+            <context-menu-sperator />
             <context-menu-item label="在新窗口中打开"
                                @click="openLibraryInNewWindow" />
             <context-menu-item label="重命名"
@@ -122,11 +130,6 @@
                                @click="openDelete">
                 <template #icon> <span class="iconfont">&#xe61a;</span> </template>
             </context-menu-item>
-            <context-menu-item label="管理数据"
-                               @click="router.push(`/library/${ctmCurLib().id}/manage`)">
-                <template #icon> <span class="iconfont"></span> </template>
-            </context-menu-item>
-            <context-menu-sperator />
             <context-menu-group label="移动到">
                 <context-menu-item v-for="(group, idxGroup) in groups"
                                    :key="group.id"
@@ -183,7 +186,6 @@ onMounted(async () => {
 })
 
 /******************** 页面数据 ********************/
-
 const groups = ref<Group[]>([])
 const isExpandGroup = ref<boolean[]>([]) // 是否展开Group
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library

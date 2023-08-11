@@ -1,6 +1,6 @@
 <template>
-    <tabs :components="components"
-          :active-component-id="activeComponentId">
+    <tabs v-model="activeComponentIdx"
+          :components="components">
         <template v-slot:header>
             <div class="tab-header fw-bold">
                 管理数据
@@ -10,7 +10,7 @@
 </template>
  
 <script lang="ts" setup>
-import { shallowReactive } from 'vue'
+import { ref, shallowReactive } from 'vue'
 import { useRoute } from 'vue-router'
 import Tabs from '@/components/Tabs.vue'
 import AddRecord from './AddRecord.vue'
@@ -25,7 +25,7 @@ const components = shallowReactive([
     { id: 3, name: '编辑作者', component: EditAuthor },
     { id: 4, name: '编辑属性', component: EditAttributes },
 ])
-const activeComponentId = route.query.author_id ? 3 : undefined
+const activeComponentIdx = ref<number>(route.query.author_id ? 2 : 0) 
 </script>
 
 <style>

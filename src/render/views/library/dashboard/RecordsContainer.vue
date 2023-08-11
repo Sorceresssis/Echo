@@ -87,10 +87,10 @@ const openCtm = (e: MouseEvent) => {
 }
 </script>
 
-<style >
+<style scoped>
 .adaptive-grid {
-    column-gap: 20px;
-    row-gap: 20px;
+    column-gap: 25px;
+    row-gap: 25px;
     user-select: text;
 }
 

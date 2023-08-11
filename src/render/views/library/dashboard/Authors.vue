@@ -38,15 +38,14 @@
                 </li>
             </ul>
         </div>
-        <div class="dashboard__pagination">
-            <el-pagination v-model:current-page="currentPage"
-                           background
-                           small
-                           :page-size="20"
-                           layout="prev, pager, next, jumper"
-                           :total="200"
-                           @current-change="handleCurrentChange" />
-        </div>
+        <el-pagination v-model:current-page="currentPage"
+                       class="dashboard__footer"
+                       background
+                       small
+                       :page-size="20"
+                       layout="prev, pager, next, jumper"
+                       :total="200"
+                       @current-change="" />
     </div>
 </template>
 

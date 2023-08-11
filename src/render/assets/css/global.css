@@ -192,7 +192,7 @@ body,
     padding: 4px 10px 4px 4px;
 }
 
-.dashboard__pagination {
+.dashboard__footer {
     height: 42px;
     display: flex;
     justify-content: center;
@@ -201,11 +201,10 @@ body,
 
 /* dashboard text card*/
 .dashboard-text-card {
-    height: 40px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
+    padding: 13px 20px;
     border-radius: 5px;
     font-size: 13px;
 }
@@ -216,6 +215,11 @@ body,
         0px 0px 0.3px rgba(0, 0, 0, 0.033),
         0px 0px 1.1px rgba(0, 0, 0, 0.044),
         0px 0px 5px rgba(0, 0, 0, 0.07);
+}
+
+.dashboard-text-card .count {
+    margin-left: 4px;
+    color: #258fb8;
 }
 
 .dashboard-text-card .operate {

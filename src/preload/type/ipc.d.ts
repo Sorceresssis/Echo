@@ -41,6 +41,8 @@ export interface IElectronAPI {
     /** 编辑作者 */
     editAuthor: (libraryId: number, authorForm: AuthorForm) => Promise<boolean>
 
+    queryTags: (libraryId: number, options: QueryAttributesOptions) => Promise<Page>
+    queryDirnames: (libraryId: number, options: QueryAttributesOptions) => Promise<Page>
 
     getItems: (libraryID: number) => Promise<itemProfile[]>
     getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => Promise<itemProfile[]>
@@ -48,13 +50,10 @@ export interface IElectronAPI {
     getAuthorList: (libraryID: number, type: number, queryWords: string | [string, string, string]) => Promise<authorProfile[]>
     getAttributes: (libraryID: number, type: number, pageno: number) => Promise<LibraryAttribute[]>
 
-
-
-
     /******************** dialog ********************/
     openDialog: (type: OpenDialogType, multiSelect: boolean) => Promise<string[]>
 
-    /******************** external ********************/
+    /******************** system ********************/
     openExternal: (url: string) => Promise<void>
     openInExplorer: (fullPath: string) => Promise<void>
     openFile: (fullPath: string) => Promise<void>

@@ -29,6 +29,19 @@ declare type AcSuggestion = {
     image?: string
 }
 
+type Page = {
+    total: number,
+    data: any[]
+}
+
+type TextAttribute = {
+    id: number,
+    value: string,
+    count: number,
+}
+
+
+
 declare type AuthorProfile = {
     id: number,
     name: string

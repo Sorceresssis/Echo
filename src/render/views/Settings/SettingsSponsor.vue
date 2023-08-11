@@ -12,7 +12,7 @@
                 If you find my project useful, please consider showing your love by giving it a
                 star!
                 <div>
-                    <a @click.prevent=" "
+                    <a @click.prevent=""
                        rel="noopener noreferrer"
                        class="externalUrl">
                         to github

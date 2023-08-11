@@ -2,6 +2,7 @@ import fs from 'fs'
 import config from '../app/config'
 import DBUtil from '../util/dbUtil'
 import DynamicSqlBuilder from '../util/DynamicSqlBuilder'
+import tokenizer from "../util/tokenizer"
 
 export default class LibraryDao {
     db: DBUtil
@@ -66,31 +67,16 @@ export default class LibraryDao {
         ]
         const sqlBuilder = new DynamicSqlBuilder()
         sqlBuilder.append("SELECT type, id, value, image FROM (")
-        let tIdxs: number[]
-        switch (type) {
-            case 'search':
-                tIdxs = [0, 1, 2]
-                break
-            case 'record':
-                tIdxs = [0]
-                break
-            case 'author':
-                tIdxs = [1]
-                break
-            case 'tag':
-                tIdxs = [2]
-                break
-            case 'series':
-                tIdxs = [3]
-                break
-            case 'dirname':
-                tIdxs = [4]
-                break
-            default:
-                return []
+        const tableIdxs = {
+            search: [0, 1, 2],
+            record: [0],
+            author: [1],
+            tag: [2],
+            series: [3],
+            dirname: [4],
         }
         // 把所有需要查询的表放入sql
-        tIdxs.forEach((v, i) => {
+        tableIdxs[type].forEach((v, i) => {
             if (i > 0) { sqlBuilder.append('UNION ALL') }
             sqlBuilder.append(table[v])
         })
@@ -139,6 +125,7 @@ export default class LibraryDao {
     }
 
     public deleteAuthor(id: number): number {
+
         return this.db.run("DELETE FROM author WHERE id = ?;", id).changes
     }
 
@@ -156,19 +143,78 @@ export default class LibraryDao {
         })
     }
 
-    queryTags(queryWord: string, sortField: 'date' | 'text') {
-
+    queryTags(queryWord: string, sortField: AttributeSortField, asc: boolean, pn: number, ps: number) {
+        const dataSql = new DynamicSqlBuilder()
+        const totalSql = new DynamicSqlBuilder()
+        dataSql.append("SELECT t.id, t.title AS value, COUNT(rt.record_id) AS count FROM tag t LEFT JOIN record_tag rt ON t.id = rt.tag_id")
+        totalSql.append("SELECT COUNT(id) FROM tag")
+        if (queryWord.length !== 0) {
+            dataSql.append("WHERE REGEXP(t.title) > 0")
+            totalSql.append("WHERE REGEXP(title) > 0")
+            this.generateREGEXPFn(tokenizer(queryWord))
+        }
+        dataSql.append("GROUP BY t.id")
+        if (sortField === 'text') {
+            dataSql.append('ORDER BY t.title')
+        } else {
+            dataSql.append('ORDER BY t.id')
+        }
+        if (!asc) {
+            dataSql.append('DESC')
+        }
+        dataSql.append('LIMIT ?, ?;', (pn - 1) * ps, ps)
+        return {
+            total: this.db.prepare(totalSql.getSql()).pluck().get(),
+            data: this.db.all(dataSql.getSql(), ...dataSql.getParams())
+        }
     }
-
 
     editTag(id: number, newValue: string): number {
-        return this.db.run("UPDATE tag SET title=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;",
-
-        ).changes
+        return this.db.run("UPDATE tag SET title = ? WHERE id = ?;", newValue, id).changes
     }
 
-    deleteTag(): number {
-        return this.db.run('').changes;
+    deleteTag(id: number): void {
+        this.db.transaction(() => {
+            this.db.run('DELETE FROM tag WHERE id = ?;', id)
+            this.db.run('DELETE FROM record_tag WHERE tag_id = ?;', id)
+        })
+    }
+
+    queryDirnames(queryWord: string, sortField: AttributeSortField, asc: boolean, pn: number, ps: number) {
+        const dataSql = new DynamicSqlBuilder()
+        const totalSql = new DynamicSqlBuilder()
+        dataSql.append("SELECT d.id, d.path AS value, COUNT(r.id) AS count FROM dirname d LEFT JOIN record r ON d.id = r.dirname_id")
+        totalSql.append("SELECT COUNT(id) FROM dirname")
+        if (queryWord.length !== 0) {
+            dataSql.append("WHERE REGEXP(d.path) > 0")
+            totalSql.append("WHERE REGEXP(path) > 0")
+            this.generateREGEXPFn(tokenizer(queryWord))
+        }
+        dataSql.append("GROUP BY d.id")
+        if (sortField === 'text') {
+            dataSql.append('ORDER BY d.title')
+        } else {
+            dataSql.append('ORDER BY d.id')
+        }
+        if (!asc) {
+            dataSql.append('DESC')
+        }
+        dataSql.append('LIMIT ?, ?;', (pn - 1) * ps, ps)
+        return {
+            total: this.db.prepare(totalSql.getSql()).pluck().get(),
+            data: this.db.all(dataSql.getSql(), ...dataSql.getParams())
+        }
+    }
+
+    editDirname(id: number, newValue: string): number {
+        return this.db.run("UPDATE dirname SET path = ? WHERE id = ?;", newValue, id).changes
+    }
+
+    deleteDirname(id: number): void {
+        this.db.transaction(() => {
+            this.db.run('DELETE FROM dirname WHERE id = ?;', id)
+            this.db.run('DELETE FROM record WHERE dirname_id = ?;', id)
+        })
     }
 
     // 释放资源

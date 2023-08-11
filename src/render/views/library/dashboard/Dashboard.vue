@@ -1,9 +1,10 @@
 <template>
-    <tabs :components="componentList"></tabs>
+    <tabs :components="componentList"
+          v-model="activeComponentIdx" />
 </template>
   
 <script lang="ts" setup>
-import { ref, shallowReactive } from 'vue'
+import { shallowReactive, ref, Ref, inject, watch } from 'vue'
 import { $t } from '@locales/index'
 import Tabs from '../../../components/Tabs.vue'
 import Records from './Records.vue'
@@ -11,6 +12,12 @@ import Authors from './Authors.vue'
 import Tags from './Tags.vue'
 import Dirnames from './Dirnames.vue'
 
+// library变化时，重新渲染组件
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const activeComponentIdx = ref<number>(0)
+watch(() => activeLibrary.value, () => {
+    activeComponentIdx.value = 0
+})
 
 const componentList = shallowReactive([
     { id: 1, name: '记录', component: Records },

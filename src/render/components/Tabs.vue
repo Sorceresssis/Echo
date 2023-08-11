@@ -8,44 +8,32 @@
             <div v-for="(component, idx) in components"
                  :key="component.id"
                  class="menu-item"
-                 :class="[idxActiveComponent == idx ? 'menu-avtive' : '']"
-                 @click="switchComponent(idx)">
+                 :class="[modelValue == idx ? 'menu-avtive' : '']"
+                 @click="emit('update:modelValue', idx)">
                 {{ component.name }}
             </div>
         </div>
         <keep-alive>
             <component class="flex-1 overflow-hidden"
-                       :is="components[idxActiveComponent].component">
+                       :is="components[modelValue].component">
             </component>
         </keep-alive>
     </div>
 </template>
  
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
-
 const props = defineProps<{
     components: {
         id: number,
         name: string,
         component: any,
     }[],
-    activeComponentId?: number
+    modelValue: number
 }>()
 
-const idxActiveComponent = ref<number>(0)
-const switchComponent = (idx: number) => {
-    idxActiveComponent.value = idx
-}
-
-onMounted(() => {
-    if (props.activeComponentId) {
-        const idx = props.components.findIndex(component => component.id === props.activeComponentId)
-        if (idx !== -1) {
-            switchComponent(idx)
-        }
-    }
-})
+const emit = defineEmits<{
+    (e: 'update:modelValue', value: number): void
+}>() 
 </script>
 
 <style scoped>

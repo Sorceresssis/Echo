@@ -3,7 +3,7 @@
         <div v-if="isBatchOperation"
              class="dashboard__header">
             <div>
-                <button1 @click="isBatchOperation = false">退出,返回</button1>
+                <span @click="isBatchOperation = false">退出,返回</span>
                 全选，删除
             </div>
             <div>
@@ -18,41 +18,23 @@
                 <echo-autocomplete class="menu-item"
                                    v-model="s"
                                    :placeholder="'搜索'" />
-                <el-dropdown v-for="menu in dropdownmenu"
-                             :title="menu.HTMLElementTitle"
-                             class="menu-item"
-                             trigger="click"
-                             popper-class="dashboard__dropdown-menu">
-                    <button-1><span class="iconfont"
-                              v-html="menu.title"></span></button-1>
-                    <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item v-for="item in menu.items"
-                                              @click="item.click()"
-                                              :divided="item.divided">
-                                <span class="emptyFonticon"
-                                      :class="[item.dot() ? 'dot' : '']">
-                                    {{ item.title }}
-                                </span>
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
+                <dash-drop-menu v-for="menu in dropdownMenus"
+                                :menu="menu"
+                                class="menu-item" />
             </div>
         </div>
         <div class="dashboard__content scrollbar-y-w8">
             <records-container :records="records"
                                :view="recordsDashStore.view" />
         </div>
-        <div class="dashboard__pagination">
-            <el-pagination v-model:current-page="currentPage1"
-                           layout="prev, pager, next, jumper"
-                           :total="200"
-                           background
-                           small
-                           :page-size="20"
-                           @current-change="handleCurrentChange" />
-        </div>
+        <el-pagination v-model:current-page="currentPage"
+                       class="dashboard__footer"
+                       background
+                       small
+                       :page-size="20"
+                       layout="prev, pager, next, jumper"
+                       :total="200"
+                       @current-change="" />
     </div>
 </template>
 
@@ -60,8 +42,8 @@
 import { ref, } from 'vue'
 import { $t } from '@locales/index'
 import useRecordsDashStore from '@/store/useRecordsDashStore'
-import Button1 from '@components/Button1.vue'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
+import DashDropMenu from '@/components/DashDropMenu.vue'
 import RecordsContainer from './RecordsContainer.vue'
 
 const recordsDashStore = useRecordsDashStore()
@@ -71,7 +53,7 @@ const enum FilterKey {
     hyperlink,
     basename,
 }
-const dropdownmenu: DashboardDropdownMenu[] = [
+const dropdownMenus: DashDropMenu[] = [
     {
         HTMLElementTitle: $t('mainContainer.filter'),
         title: '&#xe7e6;',
@@ -179,7 +161,7 @@ const records = ref<any[]>([
 ])
 
 
-const currentPage1 = ref(5)
+const currentPage = ref(5)
 const handleCurrentChange = (val: number) => {
 }
 </script>
