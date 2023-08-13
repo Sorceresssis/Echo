@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-col overflow-hidden">
+    <div class="flex-col">
         <div v-if="isBatchOperation"
              class="dashboard__header">
             <div>

@@ -55,7 +55,7 @@ class Config {
         return path.resolve(this.c.userDataPath, `database/${libraryId}.db`)
     }
 
-    public getLibraryImageDir(libraryId: number): string {
+    public getLibraryImagesDir(libraryId: number): string {
         return path.resolve(this.c.userDataPath, `images/${libraryId}`)
     }
 }

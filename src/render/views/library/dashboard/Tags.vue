@@ -25,9 +25,9 @@
                         <span class="iconfont"
                               @click="writeClibboard(tag.value)">&#xe85c;</span>
                         <span class="iconfont"
-                              @click="">&#xe722;</span>
+                              @click="editTag(tag.id, tag.value)">&#xe722;</span>
                         <span class="iconfont"
-                              @click="">&#xe636;</span>
+                              @click="deleteTag(tag.id)">&#xe636;</span>
                     </div>
                 </li>
             </ul>
@@ -44,8 +44,9 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, watch, onMounted, inject, handleError, } from 'vue'
+import { ref, Ref, watch, onMounted, inject } from 'vue'
 import { writeClibboard } from '@/util/systemUtil'
+import { deleteConfirm, editPrompt } from '@/util/MessageBox'
 import { $t } from '@/locales/index'
 import useTagsDashStore from '@/store/useTagsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
@@ -93,7 +94,18 @@ const total = ref<number>(0)
 watch(() => [activeLibrary.value, currentPage.value, tagsDashStore.sortField, tagsDashStore.asc], () => {
     queryTags()
 })
-
+const deleteTag = (id: number) => {
+    deleteConfirm(async () => {
+        await window.electronAPI.deleteTag(activeLibrary.value, id)
+        queryTags()
+    })
+}
+const editTag = (id: number, oldValue: string) => {
+    editPrompt(async (value: string) => {
+        await window.electronAPI.editTag(activeLibrary.value, id, value)
+        queryTags()
+    }, oldValue)
+}
 const queryTags = async () => {
     const resp = await window.electronAPI.queryTags(
         activeLibrary.value,
@@ -106,7 +118,7 @@ const queryTags = async () => {
         }
     )
     tags.value = resp.data
-    total.value = resp.total 
+    total.value = resp.total
 }
 
 onMounted(() => {
@@ -119,4 +131,4 @@ onMounted(() => {
     row-gap: 8px;
     grid-template-columns: repeat(auto-fill, 350px);
 }
-</style>
+</style>@/util/MessageBox

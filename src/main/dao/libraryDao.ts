@@ -1,13 +1,16 @@
 import fs from 'fs'
+import path from 'path'
 import config from '../app/config'
 import DBUtil from '../util/dbUtil'
 import DynamicSqlBuilder from '../util/DynamicSqlBuilder'
 import tokenizer from "../util/tokenizer"
 
 export default class LibraryDao {
-    db: DBUtil
+    private libraryId: number
+    private db: DBUtil
 
     constructor(libraryId: number) {
+        this.libraryId = libraryId
         const path = config.getLibraryDBPath(libraryId)
         // 判断文件是否存在
         if (!fs.existsSync(path)) {
@@ -57,6 +60,16 @@ export default class LibraryDao {
         })
     }
 
+    /** 给数据库添加一个自定义的REGEXP函数，在查询时使用 */
+    private generateREGEXPFn(keywords: string[]): void {
+        this.db.function('REGEXP', (text: string) => {
+            // 使用 'gi' 标志进行全局和忽略大小写匹配
+            const pattern = new RegExp(keywords.join('|'), 'gi')
+            const matches = text.match(pattern)
+            return matches ? matches.length : 0
+        })
+    }
+
     public autoComplete(type: AcType, queryWord: string[], ps: number): AcSuggestion[] {
         const table = [
             "SELECT 'record' AS type, id, title AS value, cover AS image, REGEXP(title) AS sore FROM record WHERE sore > 0",
@@ -101,21 +114,25 @@ export default class LibraryDao {
     public deleteRecordAuthor(): void {
     }
 
-    /**
-     * return: 新增的作者的id
-     */
-    public addAuthor(author: AuthorForm): number | bigint {
+    public queryAuthorDetail(id: number): AuthorDetail | undefined {
+        return this.db.get(`SELECT id, name, ? || avatar AS avatar, intro, DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime 
+            FROM author WHERE id = ?;`, config.getLibraryImagesDir(this.libraryId) + path.sep, id)
+    }
+
+    /* author Recommendation */
+    public queryAuthorRecmd(): AuthorRecmd[] {
+        return []
+    }
+
+    public addAuthor(author: EditAuthorForm): number | bigint {
         return this.db.run("INSERT INTO author(name, avatar, intro) VALUES(?,?,?);",
             author.name,
-            author.avatar,
+            author.avatar || null,
             author.intro
         ).lastInsertRowid
     }
 
-    /**
-     * @returns 返回修改的行数
-     */
-    public editAuthor(author: AuthorForm): number {
+    public editAuthor(author: EditAuthorForm): number {
         return this.db.run("UPDATE author SET name=?, avatar=?, intro=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;",
             author.name,
             author.avatar,
@@ -124,26 +141,14 @@ export default class LibraryDao {
         ).changes
     }
 
-    public deleteAuthor(id: number): number {
-
-        return this.db.run("DELETE FROM author WHERE id = ?;", id).changes
-    }
-
-    public queryAuthorDetail(id: number): AuthorDetail | undefined {
-        return this.db.get("SELECT id, name, avatar, intro, DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM author WHERE id = ?;", id)
-    }
-
-    /** 给数据库添加一个自定义的REGEXP函数，在查询时使用 */
-    private generateREGEXPFn(keywords: string[]): void {
-        this.db.function('REGEXP', (text: string) => {
-            // 使用 'gi' 标志进行全局和忽略大小写匹配
-            const pattern = new RegExp(keywords.join('|'), 'gi')
-            const matches = text.match(pattern)
-            return matches ? matches.length : 0
+    public deleteAuthor(id: number): void {
+        this.db.transaction(() => {
+            this.db.run("DELETE FROM author WHERE id = ?;", id)
+            this.db.run("DELETE FROM record_author WHERE author_id = ?;", id)
         })
     }
 
-    queryTags(queryWord: string, sortField: AttributeSortField, asc: boolean, pn: number, ps: number) {
+    public queryTags(queryWord: string, sortField: AttributeSortField, asc: boolean, pn: number, ps: number) {
         const dataSql = new DynamicSqlBuilder()
         const totalSql = new DynamicSqlBuilder()
         dataSql.append("SELECT t.id, t.title AS value, COUNT(rt.record_id) AS count FROM tag t LEFT JOIN record_tag rt ON t.id = rt.tag_id")
@@ -169,18 +174,18 @@ export default class LibraryDao {
         }
     }
 
-    editTag(id: number, newValue: string): number {
-        return this.db.run("UPDATE tag SET title = ? WHERE id = ?;", newValue, id).changes
+    public editTag(id: number, newValue: string): number {
+        return this.db.run("UPDATE tag SET title = ? WHERE id = ?;", newValue.trim(), id).changes
     }
 
-    deleteTag(id: number): void {
+    public deleteTag(id: number): void {
         this.db.transaction(() => {
             this.db.run('DELETE FROM tag WHERE id = ?;', id)
             this.db.run('DELETE FROM record_tag WHERE tag_id = ?;', id)
         })
     }
 
-    queryDirnames(queryWord: string, sortField: AttributeSortField, asc: boolean, pn: number, ps: number) {
+    public queryDirnames(queryWord: string, sortField: AttributeSortField, asc: boolean, pn: number, ps: number) {
         const dataSql = new DynamicSqlBuilder()
         const totalSql = new DynamicSqlBuilder()
         dataSql.append("SELECT d.id, d.path AS value, COUNT(r.id) AS count FROM dirname d LEFT JOIN record r ON d.id = r.dirname_id")
@@ -206,11 +211,11 @@ export default class LibraryDao {
         }
     }
 
-    editDirname(id: number, newValue: string): number {
-        return this.db.run("UPDATE dirname SET path = ? WHERE id = ?;", newValue, id).changes
+    public editDirname(id: number, newValue: string): number {
+        return this.db.run("UPDATE dirname SET path = ? WHERE id = ?;", newValue.trim(), id).changes
     }
 
-    deleteDirname(id: number): void {
+    public deleteDirname(id: number): void {
         this.db.transaction(() => {
             this.db.run('DELETE FROM dirname WHERE id = ?;', id)
             this.db.run('DELETE FROM record WHERE dirname_id = ?;', id)
@@ -218,7 +223,7 @@ export default class LibraryDao {
     }
 
     // 释放资源
-    destroy(): void {
+    public destroy(): void {
         this.db.close()
     }
 }

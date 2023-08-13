@@ -17,7 +17,7 @@
                         <h1>ASK</h1>
                         <p class="meta inline-list">
                             <span>作品数</span>
-                            <a>109</a>
+                            <a class="count">109</a>
                         </p>
                         <p class="caption">不允许二次加工，转载请标明出处
                             私信不常看非常抱歉
@@ -127,6 +127,7 @@ onMounted(() => {
     font-weight: bold;
     min-width: 0;
     color: #258fb8;
+    cursor: pointer;
 }
 
 .author-recommendation-item .meta {

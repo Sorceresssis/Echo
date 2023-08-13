@@ -1,30 +1,33 @@
 <template>
-    <el-form ref="recordFormRef"
-             label-position="left"
-             :model="delectRecordForm"
-             label-width="100px"
-             require-asterisk-position="right"
-             status-icon>
-        <el-form-item v-for="f in formItems"
-                      :label="f.label"
-                      prop="count">
-            <echo-autocomplete v-model="delectRecordForm.dirnamePath"
-                               type="dirname"
-                               :show-word-limit="true"
-                               placeholder="作者的名字"
-                               maxlength="255" />
-        </el-form-item>
-        <el-form-item label="并删除属性"
-                      prop="resource">
-            <el-switch v-model="delectRecordForm.deleteAttribute" />
-        </el-form-item>
-        <el-form-item>
-            <el-button type="primary"
-                       @click="submitForm(recordFormRef)">
-                删除
-            </el-button>
-        </el-form-item>
-    </el-form>
+    <div class="flex-col">
+        <el-form class="dashboard__content scrollbar-y-w8"
+                 ref="recordFormRef"
+                 label-position="left"
+                 :model="delectRecordForm"
+                 label-width="100px"
+                 require-asterisk-position="right"
+                 status-icon>
+            <el-form-item v-for="f in formItems"
+                          :label="f.label"
+                          prop="count">
+                <echo-autocomplete v-model="delectRecordForm.dirnamePath"
+                                   type="dirname"
+                                   :show-word-limit="true"
+                                   placeholder="作者的名字"
+                                   maxlength="255" />
+            </el-form-item>
+            <el-form-item label="并删除属性"
+                          prop="resource">
+                <el-switch v-model="delectRecordForm.deleteAttribute" />
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary"
+                           @click="submitForm(recordFormRef)">
+                    删除
+                </el-button>
+            </el-form-item>
+        </el-form>
+    </div>
 </template>
   
 <script lang="ts" setup>

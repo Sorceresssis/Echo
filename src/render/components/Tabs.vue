@@ -3,8 +3,7 @@
         <div>
             <slot name="header"></slot>
         </div>
-        <div id="menu"
-             class="flex-row">
+        <div class="tab-menu flex-row">
             <div v-for="(component, idx) in components"
                  :key="component.id"
                  class="menu-item"
@@ -37,7 +36,7 @@ const emit = defineEmits<{
 </script>
 
 <style scoped>
-#menu {
+.tab-menu {
     margin: 6px 0;
 }
 

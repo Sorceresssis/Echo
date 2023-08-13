@@ -116,6 +116,51 @@ body,
     text-overflow: ellipsis;
 }
 
+.image-select-btn {
+    display: flex;
+    opacity: .8;
+    position: absolute;
+    bottom: 0;
+    align-items: center;
+    font-size: 12px;
+    color: #fff;
+    justify-content: center;
+    text-align: center;
+    width: 100%;
+    z-index: 1;
+    background: rgba(0, 0, 0, .6);
+    cursor: pointer;
+    padding: 6px 0;
+    box-sizing: border-box;
+    height: 28px;
+}
+
+.image-select-btn::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 1px;
+    top: 6px;
+    bottom: 6px;
+    background-color: #fff;
+}
+
+.image-select-btn span {
+    cursor: pointer;
+    height: 28px;
+    line-height: 28px;
+    width: 50%;
+}
+
+.image-select-btn span:hover {
+    color: rgba(255 255, 255, 0.7);
+}
+
+.image-select-btn .disabled {
+    cursor: not-allowed;
+    color: rgba(255 255, 255, 0.7);
+}
+
 /* 分割线 */
 .divider:not(:last-child) {
     border-bottom: 1px solid #d6dee5;
@@ -141,6 +186,14 @@ body,
 .adaptive-grid {
     display: grid;
     justify-content: space-around;
+}
+
+/******************** components ********************/
+.tab-header {
+    height: 40px;
+    line-height: 40px;
+    font-size: 30px;
+    padding: 10px 0;
 }
 
 /******************** View ********************/
@@ -217,7 +270,7 @@ body,
         0px 0px 5px rgba(0, 0, 0, 0.07);
 }
 
-.dashboard-text-card .count {
+.count {
     margin-left: 4px;
     color: #258fb8;
 }

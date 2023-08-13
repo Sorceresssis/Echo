@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="dashboard__content flex-col scrollbar-y-w8">
         <div class="setting-item">
             <div class="setting-item__title">{{ $t('settings.lang') }}</div>
             <div class="setting-item__content">

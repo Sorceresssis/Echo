@@ -23,16 +23,9 @@ const components = shallowReactive([
     { id: 1, name: '添加记录', component: AddRecord },
     { id: 2, name: '批量删除', component: DeleteRecord },
     { id: 3, name: '编辑作者', component: EditAuthor },
-    { id: 4, name: '编辑属性', component: EditAttributes },
+    { id: 4, name: '编辑目录', component: EditAttributes },
 ])
 const activeComponentIdx = ref<number>(route.query.author_id ? 2 : 0) 
 </script>
 
-<style>
-.tab-header {
-    height: 40px;
-    line-height: 40px;
-    font-size: 30px;
-    padding: 10px 0;
-}
-</style>
+<style></style>

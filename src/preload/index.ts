@@ -18,25 +18,19 @@ contextBridge.exposeInMainWorld('electronAPI', {
     sortLibrary: (currId: number, tarNextId: number, groupId: number) => ipcRenderer.invoke('library:sort', currId, tarNextId, groupId),
 
     /******************** LibraryDB ********************/
-    autoCompleteRecord: (libraryId: number, option: AcOption) => ipcRenderer.invoke('record:autoComplete', libraryId, option),
-    queryAuthorDetail: (libraryId: number, authorId: number) => ipcRenderer.invoke('author:queryDetail', libraryId, authorId),
-    editAuthor: (libraryId: number, authorForm: AuthorForm) => ipcRenderer.invoke('author:edit', libraryId, authorForm),
-
+    autoCompleteRecord: (libraryId: number, options: AcOptions) => ipcRenderer.invoke('record:autoComplete', libraryId, options),
     queryTags: (libraryId: number, options: QueryAttributesOptions) => ipcRenderer.invoke('tag:query', libraryId, options),
+    deleteTag: (libraryId: number, tagId: number) => ipcRenderer.invoke('tag:delete', libraryId, tagId),
+    editTag: (libraryId: number, tagId: number, newValue: string) => ipcRenderer.invoke('tag:edit', libraryId, tagId, newValue),
     queryDirnames: (libraryId: number, options: QueryAttributesOptions) => ipcRenderer.invoke('dirname:query', libraryId, options),
+    deleteDirname: (libraryId: number, dirnameId: number) => ipcRenderer.invoke('dirname:delete', libraryId, dirnameId),
+    editDirname: (libraryId: number, dirnameId: number, newValue: string) => ipcRenderer.invoke('dirname:edit', libraryId, dirnameId, newValue),
 
+
+    queryAuthorDetail: (libraryId: number, authorId: number) => ipcRenderer.invoke('author:queryDetail', libraryId, authorId),
+    editAuthor: (libraryId: number, formData: EditAuthorForm) => ipcRenderer.invoke('author:edit', libraryId, formData),
     queryRecordProfiles: (libraryId: number, option: any) => ipcRenderer.invoke('record:queryProfiles', libraryId, option),
-
-
     getItems: (libraryID: number) => ipcRenderer.invoke('library:getItems', libraryID),
-    getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => ipcRenderer.invoke('library:getItemsByAuthor', libraryID, getItemsOption, authorID),
-    getItemsOfFav: (libraryID: number, getItemsOption: getItemsOption) => ipcRenderer.invoke('library:getItemsOfFav', libraryID, getItemsOption),
-    getAuthorList: (libraryID: number, type: number, queryWords: string | [string, string, string]) => ipcRenderer.invoke('library:getAuthorList', libraryID, type, queryWords),
-    getAttributes: (libraryID: number, type: number, pageno: number) => ipcRenderer.invoke('library:getAttributes', libraryID, type, pageno),
-
-
-
-
 
     /******************** dialog ********************/
     openDialog: (type: OpenDialogType, multiSelect: boolean) => ipcRenderer.invoke('dialog:open', type, multiSelect),

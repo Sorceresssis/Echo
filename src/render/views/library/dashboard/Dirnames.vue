@@ -22,9 +22,9 @@
                         <span class="iconfont"
                               @click="writeClibboard(dirname.value)">&#xe85c;</span>
                         <span class="iconfont"
-                              @click="">&#xe722;</span>
+                              @click="editDirname(dirname.id, dirname.value)">&#xe722;</span>
                         <span class="iconfont"
-                              @click="">&#xe636;</span>
+                              @click="deleteDirname(dirname.id)">&#xe636;</span>
                     </div>
                 </li>
             </ul>
@@ -42,10 +42,12 @@
 
 <script setup lang='ts'>
 import { ref, Ref, inject, onMounted } from 'vue'
-import { $t } from '@/locales/index'
 import { writeClibboard } from '@/util/systemUtil'
+import { deleteConfirm, editPrompt } from '@/util/MessageBox'
+import { $t } from '@/locales/index'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
-
+import DashDropMenu from '@/components/DashDropMenu.vue'
+import Empty from '@/components/Empty.vue'
 
 // const dropdownMenu = {
 //     HTMLElementTitle: $t('mainContainer.sort'),
@@ -84,6 +86,19 @@ const dirnames = ref<TextAttribute[]>([])
 const search = ref<string>('')
 const currentPage = ref<number>(1)
 const total = ref<number>(0)
+
+const deleteDirname = (id: number) => {
+    deleteConfirm(async () => {
+        await window.electronAPI.deleteDirname(activeLibrary.value, id)
+        queryDirnames()
+    })
+}
+const editDirname = (id: number, oldValue: string) => {
+    editPrompt(async (value: string) => {
+        await window.electronAPI.editDirname(activeLibrary.value, id, value)
+        queryDirnames()
+    }, oldValue)
+}
 const queryDirnames = async () => {
     const resp = await window.electronAPI.queryDirnames(
         activeLibrary.value,

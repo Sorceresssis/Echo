@@ -1,16 +1,15 @@
-declare type ConfigName = 'userDataPath' | 'locale'
-
+type ConfigName = 'userDataPath' | 'locale'
 
 /* Autocomplete */
-declare type AcType = 'search' | 'record' | 'author' | 'tag' | 'series' | 'dirname'
-declare type AcOption = {
+type AcType = 'search' | 'record' | 'author' | 'tag' | 'series' | 'dirname'
+type AcOptions = {
     type: AcType,
     queryWord: string,
     ps: number
 }
 
 /* openDialog */
-declare type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
+type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
 
 /* Attribute Query */
 type AttributeSortField = 'date' | 'text'
@@ -22,26 +21,22 @@ type QueryAttributesOptions = {
     ps: number
 }
 
-
-
-
-
-
-
-
-
-type AuthorForm = {
+type EditAuthorForm = {
     id: number,
     name: string,
     avatar: string,
     intro: string,
 }
 
+type EditAuthorOptions = {
+    avatarChanged: boolean
+}
 
+type EditRecordOptions = {
+    coverChanged: boolean
+}
 
-
-
-declare type RecordForm = {
+type RecordForm = {
     id?: number,
     dirname: string,
     basename: string,
@@ -55,15 +50,14 @@ declare type RecordForm = {
     intro: string,
     info: string
 }
-type RecordFormOption = {
+type RecordFormOptions = {
     type: boolean, // 添加还是修改
     isBatch: boolean, // 是否批量添加
     checkRecordExist: boolean // 添加时是否检查记录是否存在
 }
 
-
-declare type Filter = 'image' | 'fafa' | 'dirname'
-declare type QueryRecord = {
+type Filter = 'image' | 'fafa' | 'dirname'
+type QueryRecord = {
     libraryId: number,
     authorId: number,
     filters: Filter[]

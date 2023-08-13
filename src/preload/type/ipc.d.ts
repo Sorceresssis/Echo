@@ -33,22 +33,23 @@ export interface IElectronAPI {
 
     /******************** RecordDB ********************/
     /** 自动补齐 */
-    autoCompleteRecord: (libraryId: number, option: AcOption) => Promise<ACSuggestion>
-    /** 查询记录的简介 */
-    queryRecordProfiles: (libraryId: number, option: any) => Promise<any>
-    /** 根据authorId查询作者的详情信息 */
+    autoCompleteRecord: (libraryId: number, options: AcOption) => Promise<ACSuggestion>
+    queryTags: (libraryId: number, options: QueryAttributesOptions) => Promise<Page>
+    deleteTag: (libraryId: number, tagId: number) => Promise<boolean>
+    editTag: (libraryId: number, tagId: number, newValue: string) => Promise<boolean>
+    queryDirnames: (libraryId: number, options: QueryAttributesOptions) => Promise<Page>
+    deleteDirname: (libraryId: number, dirnameId: number) => Promise<boolean>
+    editDirname: (libraryId: number, dirnameId: number, newValue: string) => Promise<boolean>
     queryAuthorDetail: (libraryId: number, authorId: number) => Promise<AuthorDetail | undefined>
     /** 编辑作者 */
-    editAuthor: (libraryId: number, authorForm: AuthorForm) => Promise<boolean>
+    editAuthor: (libraryId: number, formData: EditAuthorForm, options: EditAuthorOption) => Promise<boolean>
 
-    queryTags: (libraryId: number, options: QueryAttributesOptions) => Promise<Page>
-    queryDirnames: (libraryId: number, options: QueryAttributesOptions) => Promise<Page>
 
+
+    /** 查询记录的简介 */
+    queryRecordProfiles: (libraryId: number, option: any) => Promise<any>
     getItems: (libraryID: number) => Promise<itemProfile[]>
     getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => Promise<itemProfile[]>
-    getItemsOfFav: (libraryID: number, getItemsOption: getItemsOption) => Promise<itemProfile[]>
-    getAuthorList: (libraryID: number, type: number, queryWords: string | [string, string, string]) => Promise<authorProfile[]>
-    getAttributes: (libraryID: number, type: number, pageno: number) => Promise<LibraryAttribute[]>
 
     /******************** dialog ********************/
     openDialog: (type: OpenDialogType, multiSelect: boolean) => Promise<string[]>
@@ -69,78 +70,15 @@ export interface IElectronAPI {
     windowClose: () => Promise<void>
 }
 
-export interface IVersionAPI {
-    appVersion: () => Promise<string>
-    electronVersion: string
-    chromeVersion: string
-    nodeVersion: string
-}
-
 declare global {
     interface Window {
         electronAPI: IElectronAPI
         versionAPI: IVersionAPI
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-    interface group {
-        id: number
-        name: string
-        librarys: library[]
-    }
-
-    declare interface itemProfile {
-        id: number
-        title: string
-        createTime: string
-        hits: number
-        hasImage: number
-        isFav: number
-        hyperlink: string
-        folder_id: number
-        authorIDs: string
-        authorNames: string
-        tags: string
-    }
-    type AutoComplete = {
-        type: string
-        id: number
-        value: string
-    }
-    type getItemsOption = {
-        // queryType: noQuery, commonQuery, advancedQuery
-        queryType: number,
-        queryWords: string | [string, string, string],
-        // filterOptionIndex: [noHyperlink, noFile, noImage]
-        filterOption: [boolean, boolean, boolean],
-        // orderField: time, hits, title
-        orderBy: number,
-        isAscending: boolean,
-        pageno: number
-    }
-
-    declare type authorProfile = {
-        id: number
-        name: string
-        intro: string
-        itemCount: number
-        itemIDs: string
-    }
-
-    type LibraryAttribute = {
-        id: number
-        value: string
-        itemCount: number
+    interface IVersionAPI {
+        appVersion: () => Promise<string>
+        electronVersion: string
+        chromeVersion: string
+        nodeVersion: string
     }
 }

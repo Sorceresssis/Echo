@@ -40,19 +40,26 @@ type TextAttribute = {
     count: number,
 }
 
-declare type AuthorProfile = {
-    id: number,
-    name: string
-    avatar?: string,
-}
-
-declare type AuthorDetail = {
+type AuthorDetail = {
     id: number,
     name: string,
-    avatar?: string,
+    avatar: string | null,
     intro: string,
     createTime: string,
     modifiedTime: string,
+}
+
+type AuthorRecmd = {
+    id: number,
+    name: string,
+    avatar: string | null,
+    intro: string,
+    createTime: string,
+    modifiedTime: string,
+    count: number,
+    // masterpiece
+    Mstrpcs: [
+    ]
 }
 
 declare type RecordProfile = {
@@ -66,10 +73,3 @@ declare type RecordProfile = {
 
 }
 
-
-
-
-declare type AuthorProfile = {
-    id: number,
-    name: string
-}

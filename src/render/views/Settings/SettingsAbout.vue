@@ -2,7 +2,7 @@
     <div class="wrap">
         <div class="about">
             <div>
-                <img src=" "
+                <img src="./../../assets/images/logo.png"
                      alt="logo"
                      width="200"
                      height="200">
@@ -35,7 +35,6 @@ const appVersion = ref<string>()
 const electronVersion = ref<string>()
 const chromeVersion = ref<string>()
 const nodeVersion = ref<string>()
-
 </script>
 
 <style scoped>
