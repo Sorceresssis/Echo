@@ -1,6 +1,6 @@
 <template>
     <tabs :components="componentList"
-          v-model="activeComponentIdx" />
+          v-model="activeComponentIdx"> </tabs>
 </template>
   
 <script lang="ts" setup>

@@ -16,26 +16,22 @@ export default class ImageService {
     }
 
     /**
-     * 处理Record的cover
+     * 处理Record的cover，返回文件名
      */
     public handleRecordCover(): string | undefined {
-        if (this.image.isEmpty()) {
-            this.compress()
-            return this.save()
-        }
-        return
+        if (this.image.isEmpty()) return
+        this.compress()
+        return this.save()
     }
 
     /**
-     * 处理Author的avatar
+     * 处理Author的avatar, 返回文件名
      */
     public handleAuthorAvatar(): string | undefined {
-        if (this.image.isEmpty()) {
-            this.cropSquare()
-            this.compress()
-            return this.save()
-        }
-        return
+        if (this.image.isEmpty()) return
+        this.cropSquare()
+        this.compress()
+        return this.save()
     }
 
     /**
@@ -79,9 +75,9 @@ export default class ImageService {
         // 检查文件夹是否存在，不存在则创建 
         const dirname = config.getLibraryImagesDir(this.libId)
         mkdirsSync(dirname)
-        // 保存图片
-        const savePath = resolve(dirname, generateUid() + '.jpg')
-        fs.writeFileSync(savePath, this.image.toJPEG(100))
-        return savePath
+        const basename = generateUid() + '.jpg'
+        // 保存图片 
+        fs.writeFileSync(resolve(dirname, basename), this.image.toJPEG(100))
+        return basename
     }
 }

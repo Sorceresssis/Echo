@@ -25,11 +25,8 @@ type EditAuthorForm = {
     id: number,
     name: string,
     avatar: string,
+    originAvatar: string,
     intro: string,
-}
-
-type EditAuthorOptions = {
-    avatarChanged: boolean
 }
 
 type EditRecordOptions = {

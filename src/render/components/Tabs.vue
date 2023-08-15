@@ -22,11 +22,7 @@
  
 <script lang="ts" setup>
 const props = defineProps<{
-    components: {
-        id: number,
-        name: string,
-        component: any,
-    }[],
+    components: TabsComponent[],
     modelValue: number
 }>()
 

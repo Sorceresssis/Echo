@@ -1,13 +1,8 @@
-import type { ipcRenderer } from "electron"
-import { StepInstance } from "element-plus"
-import { type } from "os"
-import path from "path"
-
 export interface IElectronAPI {
-    /******************** 开始准备 ********************/
+    /******************** app ********************/
     config: (index: string, newValue: any = null) => Promise<any>
 
-    /******************** GroupDB ********************/
+    /******************** group ********************/
     /** 获取所有的group和library */
     getGroups: () => Promise<Group[]>
     /** 重命名group */
@@ -19,6 +14,9 @@ export interface IElectronAPI {
     /** 排序group */
     sortGroup: (currId: number, tarNextId: number) => Promise<void>
     /** 获取优先打开的library */
+
+    /******************** library ********************/
+    /** 获取后台发送要打开的library */
     getPrimaryOpenLibrary: (callback: (e: IpcRendererEvent, libraryId: number) => void) => void,
     /** 通过libraryId获取libraryName */
     getLibraryNameByID: (id: number) => Promise<string>
@@ -31,25 +29,25 @@ export interface IElectronAPI {
     /** 排序library */
     sortLibrary: (currId: number, tarNextId: number, groupId: number) => Promise<void>
 
-    /******************** RecordDB ********************/
+    /******************** record ********************/
     /** 自动补齐 */
     autoCompleteRecord: (libraryId: number, options: AcOption) => Promise<ACSuggestion>
+
+    /******************** author ********************/
+    queryAuthorDetail: (libraryId: number, authorId: number) => Promise<AuthorDetail | undefined>
+    /** 编辑作者 */
+    editAuthor: (libraryId: number, formData: EditAuthorForm) => Promise<boolean>
+
+    /******************** tag ********************/
     queryTags: (libraryId: number, options: QueryAttributesOptions) => Promise<Page>
     deleteTag: (libraryId: number, tagId: number) => Promise<boolean>
     editTag: (libraryId: number, tagId: number, newValue: string) => Promise<boolean>
+
+    /******************** dirname ********************/
     queryDirnames: (libraryId: number, options: QueryAttributesOptions) => Promise<Page>
     deleteDirname: (libraryId: number, dirnameId: number) => Promise<boolean>
     editDirname: (libraryId: number, dirnameId: number, newValue: string) => Promise<boolean>
-    queryAuthorDetail: (libraryId: number, authorId: number) => Promise<AuthorDetail | undefined>
-    /** 编辑作者 */
-    editAuthor: (libraryId: number, formData: EditAuthorForm, options: EditAuthorOption) => Promise<boolean>
-
-
-
-    /** 查询记录的简介 */
-    queryRecordProfiles: (libraryId: number, option: any) => Promise<any>
-    getItems: (libraryID: number) => Promise<itemProfile[]>
-    getItemsByAuthor: (libraryID: number, getItemsOption: getItemsOption, authorID: number) => Promise<itemProfile[]>
+    startsWithReplaceDirname: (libraryId: number, target: string, replace: string) => Promise<Result>,
 
     /******************** dialog ********************/
     openDialog: (type: OpenDialogType, multiSelect: boolean) => Promise<string[]>

@@ -65,11 +65,15 @@
                           :placeholder="'直达超链接'" />
             </el-form-item>
             <el-form-item label="选择封面">
-                <div class="flex-row">
-                    <el-input v-model="recordForm.coverImage"
-                              spellcheck="false"
-                              :placeholder="'格式: jpg  png  jpeg'" />
-                    <button2>选择图片</button2>
+                <div class="cover">
+                    <img :src="formData.cover ? `file:///${formData.cover}` : '../../../assets/images/no-img.png'"
+                         alt="图片失效"
+                         class="fit--cover">
+                    <div class="image-select-btn">
+                        <span @click="selectCover">选择图片</span>
+                        <span :class="[formData.cover === formData.originCover ? 'disabled' : '']"
+                              @click="resetAvatar">重置</span>
+                    </div>
                 </div>
             </el-form-item>
             <el-form-item label="评分">
@@ -158,7 +162,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import Button2 from '@components/Button2.vue'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 
-
+// 提示用户， 批量添加的值所有都会加上相同的值
 /******************** 基础 ********************/
 const colors = ref(['#b5adf7', '#887cf7', '#9e94f7'])
 const autocompletePs = 20
@@ -259,5 +263,14 @@ const selectFile = async () => {
     // recordForm.dirname = (await window.electronAPI.openDialog('file', true))[0]
 }
 </script>
-  
-<style></style>
+
+<style scoped>
+.cover {
+    width: 260px;
+    height: 200px;
+    display: block;
+    position: relative;
+    border: 1px solid #e1e1e1;
+    box-sizing: border-box;
+}
+</style>

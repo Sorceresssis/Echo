@@ -1,4 +1,4 @@
-import { ElMessage } from 'element-plus'
+import Message from "@/util/Message"
 
 /**
  * 用于打开外部 URL 或文件资源。例如，你可以使用这个方法在用户默认的浏览器中打开一个网页。
@@ -30,8 +30,7 @@ export const openFile = (fullPath: string) => {
  */
 export const writeClibboard = (text: string) => {
     window.electronAPI.writeClipboard(text)
-    ElMessage.closeAll()
-    ElMessage.success('已复制')
+    Message.success('已复制')
 }
 
 export default { openExternal, openInExplorer, openFile, writeClibboard }

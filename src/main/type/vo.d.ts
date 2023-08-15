@@ -34,6 +34,12 @@ type Page = {
     data: any[]
 }
 
+type Result = {
+    code: number,
+    msg?: string,
+    data?: any
+}
+
 type TextAttribute = {
     id: number,
     value: string,

@@ -38,7 +38,7 @@ const props = withDefaults(defineProps<{
     maxlength?: string
 }>(), {
     type: 'search',
-    ps: 10,
+    ps: 20,
     placeholder: '',
     showWordLimit: false,
     maxlength: undefined

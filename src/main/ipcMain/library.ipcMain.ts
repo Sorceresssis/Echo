@@ -2,28 +2,22 @@ import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
 import LibraryQueryService from "../service/libraryQueryService"
 import ImageService from "../service/ImageService"
 import LibraryDao from "../dao/libraryDao"
+import { unlinkSync, isLegalAbsolutePath } from "../util/FileManager"
 import tokenizer from "../util/tokenizer"
 
 // 多个窗口可能同时调用，所有不能使用唯一的LibraryDao
 export default function ipcMainLibrary() {
     ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, options: AcOptions): AcSuggestion[] => {
-        let libraryDao
+        const libraryDao = new LibraryDao(libraryId)
         try {
-            libraryDao = new LibraryDao(libraryId)
             return libraryDao.autoComplete(options.type, tokenizer(options.queryWord), options.ps)
         } catch (e: any) {
             dialog.showErrorBox('record:autoComplete', e.message)
             return []
         } finally {
-            libraryDao?.destroy()
+            libraryDao.destroy()
         }
     })
-
-    ipcMain.handle('author:queryAs', (e: IpcMainInvokeEvent) => {
-
-    })
-
-
 
     ipcMain.handle('record:queryProfiles', (e: IpcMainInvokeEvent, libraryId: number, option: any): any => {
         // let libraryDao = new LibraryDao(libraryId)
@@ -60,83 +54,119 @@ export default function ipcMainLibrary() {
         return true
     })
 
-    ipcMain.handle('author:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, authorId: number): AuthorDetail | undefined => {
-        let libraryDao
+    ipcMain.handle('record:delete', (e: IpcMainInvokeEvent, libraryId: number, recordId: number) => {
+
+    })
+
+    ipcMain.handle('record:batchDelete', (e: IpcMainInvokeEvent, libraryId: number,) => {
+
+    })
+
+    ipcMain.handle('author:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number) => {
+        const libraryDao = new LibraryDao(libraryId)
         try {
-            libraryDao = new LibraryDao(libraryId)
+
+        } catch (e: any) {
+            dialog.showErrorBox('author:queryRecmds', e.message)
+            return
+        } finally {
+            libraryDao.destroy()
+        }
+    })
+
+    ipcMain.handle('author:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, authorId: number): AuthorDetail | undefined => {
+        const libraryDao = new LibraryDao(libraryId)
+        try {
             return libraryDao.queryAuthorDetail(authorId)
         } catch (e: any) {
             dialog.showErrorBox('author:queryDetail', e.message)
             return
         } finally {
-            libraryDao?.destroy()
+            libraryDao.destroy()
         }
     })
 
-    ipcMain.handle('author:edit', (e: IpcMainInvokeEvent, libraryId: number, authorForm: EditAuthorForm) => {
-        let libraryDao
+    ipcMain.handle('author:edit', async (e: IpcMainInvokeEvent, libraryId: number, formData: EditAuthorForm,) => {
+        const libraryDao = new LibraryDao(libraryId)
         try {
-            // 判断是否要处理图片
-            // if (authorForm.avatar) {
-            //     const imageService = new ImageService(authorForm.avatar, libraryId)
-            //     imageService.handleAuthorAvatar()
-            //     设置为null
-            // }
-            if (authorForm.avatar === '') {
+            const author: Author = {
+                id: formData.id,
+                name: formData.name.trim(),
+                avatar: formData.avatar.length ? formData.avatar : null,
+                intro: formData.intro.trim(),
             }
-
-            libraryDao = new LibraryDao(libraryId)
+            if (formData.avatar !== formData.originAvatar) {
+                // 删除旧的头像
+                if (formData.originAvatar.length) {
+                    unlinkSync(formData.originAvatar)
+                }
+                // 保存新的头像
+                const imageService = new ImageService(formData.avatar, libraryId)
+                const avatar = imageService.handleAuthorAvatar()
+                if (avatar) {
+                    author.avatar = avatar
+                }
+            }
             // 判断添加还是修改
-            if (authorForm.id === 0) {
-                libraryDao.addAuthor(authorForm)
+            if (formData.id === 0) {
+                libraryDao.addAuthor(author)
             } else {
-                libraryDao.editAuthor(authorForm)
+                libraryDao.editAuthor(author)
             }
             return true
         } catch (e: any) {
             dialog.showErrorBox('author:edit', e.message)
             return false
         } finally {
-            libraryDao?.destroy()
+            libraryDao.destroy()
+        }
+    })
+
+    ipcMain.handle('author:delete', (e: IpcMainInvokeEvent, libraryId: number, authorId: number) => {
+        const libraryDao = new LibraryDao(libraryId)
+        try {
+            return libraryDao.deleteAuthor(authorId)
+        } catch (e: any) {
+            dialog.showErrorBox('author:delete', e.message)
+            return
+        } finally {
+            libraryDao.destroy()
         }
     })
 
     ipcMain.handle('tag:query', (e: IpcMainInvokeEvent, libraryId: number, options: QueryAttributesOptions) => {
-        let libraryDao
+        const libraryDao = new LibraryDao(libraryId)
         try {
-            libraryDao = new LibraryDao(libraryId)
             return libraryDao.queryTags(options.queryWork, options.sortField, options.asc, options.pn, options.ps)
         } catch (e: any) {
             dialog.showErrorBox('tag:query', e.message)
             return
         } finally {
-            libraryDao?.destroy()
+            libraryDao.destroy()
         }
     })
 
     ipcMain.handle('tag:edit', (e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string) => {
-        let libraryDao
+        const libraryDao = new LibraryDao(libraryId)
         try {
-            libraryDao = new LibraryDao(libraryId)
             return libraryDao.editTag(tagId, newValue)
         } catch (e: any) {
             dialog.showErrorBox('tag:edit', e.message)
             return
         } finally {
-            libraryDao?.destroy()
+            libraryDao.destroy()
         }
     })
 
     ipcMain.handle('tag:delete', (e: IpcMainInvokeEvent, libraryId: number, tagId: number) => {
-        let libraryDao
+        const libraryDao = new LibraryDao(libraryId)
         try {
-            libraryDao = new LibraryDao(libraryId)
             return libraryDao.deleteTag(tagId)
         } catch (e: any) {
             dialog.showErrorBox('tag:delete', e.message)
             return
         } finally {
-            libraryDao?.destroy()
+            libraryDao.destroy()
         }
     })
 
@@ -154,28 +184,45 @@ export default function ipcMainLibrary() {
     })
 
     ipcMain.handle('dirname:edit', (e: IpcMainInvokeEvent, libraryId: number, dirnameId: number, newValue: string) => {
-        let libraryDao
+        const libraryDao = new LibraryDao(libraryId)
         try {
-            libraryDao = new LibraryDao(libraryId)
             return libraryDao.editDirname(dirnameId, newValue)
         } catch (e: any) {
             dialog.showErrorBox('dirname:edit', e.message)
             return
         } finally {
-            libraryDao?.destroy()
+            libraryDao.destroy()
         }
     })
 
     ipcMain.handle('dirname:delete', (e: IpcMainInvokeEvent, libraryId: number, dirnameId: number) => {
-        let libraryDao
+        const libraryDao = new LibraryDao(libraryId)
         try {
-            libraryDao = new LibraryDao(libraryId)
             return libraryDao.deleteDirname(dirnameId)
         } catch (e: any) {
             dialog.showErrorBox('dirname:delete', e.message)
             return
         } finally {
-            libraryDao?.destroy()
+            libraryDao.destroy()
+        }
+    })
+
+    ipcMain.handle('dirname:startsWithReplace', (e: IpcMainInvokeEvent, libraryId: number, target: string, replace: string) => {
+        const libraryDao = new LibraryDao(libraryId)
+        try {
+            // 过滤掉window的 不合法的盘符
+            if (isLegalAbsolutePath(target) && isLegalAbsolutePath(replace)) {
+                libraryDao.startsWithReplaceDirname(target, replace)
+                return { code: 1 }
+            }
+            else {
+                return { code: 0, msg: '路径不合法' }
+            }
+        } catch (e: any) {
+            dialog.showErrorBox('dirname:startsWithReplace', e.message)
+            return { code: 0, msg: e.message }
+        } finally {
+            libraryDao.destroy()
         }
     })
 }

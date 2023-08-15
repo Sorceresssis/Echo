@@ -31,28 +31,31 @@
                        class="dashboard__footer"
                        background
                        small
-                       :page-size="20"
+                       :page-size="pageSize"
                        layout="prev, pager, next, jumper"
-                       :total="200"
+                       :total="total"
                        @current-change="" />
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, } from 'vue'
+import { onMounted, ref, } from 'vue'
 import { $t } from '@locales/index'
+import { useRoute } from 'vue-router'
 import useRecordsDashStore from '@/store/useRecordsDashStore'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import RecordsContainer from './RecordsContainer.vue'
-
-const recordsDashStore = useRecordsDashStore()
 
 const enum FilterKey {
     cover = 0,
     hyperlink,
     basename,
 }
+const pageSize = 20
+const total = ref(200)
+const recordsDashStore = useRecordsDashStore()
+const route = useRoute()
 const dropdownMenus: DashDropMenu[] = [
     {
         HTMLElementTitle: $t('mainContainer.filter'),
@@ -133,7 +136,10 @@ const dropdownMenus: DashDropMenu[] = [
         ]
     }
 ]
-
+onMounted(() => {
+    // 读取作者参数 id
+})
+// sort attribute order
 
 // 开启批量操作
 const isBatchOperation = ref(false)

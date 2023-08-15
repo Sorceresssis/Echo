@@ -8,7 +8,7 @@ type Conf = {
 }
 
 class Config {
-    private static readonly CONFIG_FILE_PATH: string = path.resolve(path.dirname(app.getPath('exe')), "config.json")
+    private static readonly CONFIG_FILE_PATH = path.resolve(path.dirname(app.getPath('exe')), "config.json")
     private static readonly DEFAULT_CONFIG: Conf = {
         userDataPath: path.resolve(path.dirname(app.getPath('exe')), "userData"),
         locale: 'zhCN',

@@ -8,3 +8,9 @@ type DashDropMenu = {
         dot: (...args: any[]) => boolean
     }[]
 }
+
+type TabsComponent = {
+    id: number,
+    name: string,
+    component: any,
+} 

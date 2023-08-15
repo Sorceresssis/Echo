@@ -20,10 +20,10 @@ const routes: Array<RouteRecordRaw> = [
                     }
                 ]
             },
-            // {
-            //     path: 'author',
-            //     component: () => import('../views/library/Authors.vue')
-            // },
+            {
+                path: 'author',
+                component: () => import('../views/library/author/Author.vue'),
+            },
             {
                 path: 'manage',
                 component: () => import('../views/library/manage/Mange.vue'),

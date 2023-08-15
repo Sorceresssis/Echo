@@ -16,14 +16,14 @@ import Tabs from '@/components/Tabs.vue'
 import AddRecord from './AddRecord.vue'
 import DeleteRecord from './DeleteRecord.vue'
 import EditAuthor from './EditAuthor.vue'
-import EditAttributes from './EditAttributes.vue'
+import EditDirname from './EditDirname.vue'
 
 const route = useRoute()
-const components = shallowReactive([
+const components = shallowReactive<TabsComponent[]>([
     { id: 1, name: '添加记录', component: AddRecord },
     { id: 2, name: '批量删除', component: DeleteRecord },
     { id: 3, name: '编辑作者', component: EditAuthor },
-    { id: 4, name: '编辑目录', component: EditAttributes },
+    { id: 4, name: '编辑目录', component: EditDirname },
 ])
 const activeComponentIdx = ref<number>(route.query.author_id ? 2 : 0) 
 </script>

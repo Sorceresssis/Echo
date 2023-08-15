@@ -60,8 +60,10 @@ export default class LibraryDao {
         })
     }
 
-    /** 给数据库添加一个自定义的REGEXP函数，在查询时使用 */
-    private generateREGEXPFn(keywords: string[]): void {
+    /** 
+     * 给数据库添加一个自定义的REGEXP函数，在查询时使用
+     */
+    private registerSQLFnRegexp(keywords: string[]): void {
         this.db.function('REGEXP', (text: string) => {
             // 使用 'gi' 标志进行全局和忽略大小写匹配
             const pattern = new RegExp(keywords.join('|'), 'gi')
@@ -95,8 +97,15 @@ export default class LibraryDao {
         })
         sqlBuilder.append(') ORDER BY sore DESC LIMIT 0, ?;', ps)
         // 生成REGEXP函数
-        this.generateREGEXPFn(queryWord)
+        this.registerSQLFnRegexp(queryWord)
         return this.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
+    }
+
+    // 根据属性删除记录
+    public deleteRecordByAttribute(): void {
+        this.db.transaction(() => {
+
+        })
     }
 
     public addRecord(): void {
@@ -114,25 +123,25 @@ export default class LibraryDao {
     public deleteRecordAuthor(): void {
     }
 
-    public queryAuthorDetail(id: number): AuthorDetail | undefined {
-        return this.db.get(`SELECT id, name, ? || avatar AS avatar, intro, DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime 
-            FROM author WHERE id = ?;`, config.getLibraryImagesDir(this.libraryId) + path.sep, id)
-    }
-
     /* author Recommendation */
     public queryAuthorRecmd(): AuthorRecmd[] {
         return []
     }
 
-    public addAuthor(author: EditAuthorForm): number | bigint {
+    public queryAuthorDetail(id: number): AuthorDetail | undefined {
+        return this.db.get(`SELECT id, name, ? || avatar AS avatar, intro, DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime 
+            FROM author WHERE id = ?;`, config.getLibraryImagesDir(this.libraryId) + path.sep, id)
+    }
+
+    public addAuthor(author: Author): number | bigint {
         return this.db.run("INSERT INTO author(name, avatar, intro) VALUES(?,?,?);",
             author.name,
-            author.avatar || null,
+            author.avatar,
             author.intro
         ).lastInsertRowid
     }
 
-    public editAuthor(author: EditAuthorForm): number {
+    public editAuthor(author: Author): number {
         return this.db.run("UPDATE author SET name=?, avatar=?, intro=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;",
             author.name,
             author.avatar,
@@ -156,7 +165,7 @@ export default class LibraryDao {
         if (queryWord.length !== 0) {
             dataSql.append("WHERE REGEXP(t.title) > 0")
             totalSql.append("WHERE REGEXP(title) > 0")
-            this.generateREGEXPFn(tokenizer(queryWord))
+            this.registerSQLFnRegexp(tokenizer(queryWord))
         }
         dataSql.append("GROUP BY t.id")
         if (sortField === 'text') {
@@ -174,8 +183,20 @@ export default class LibraryDao {
         }
     }
 
-    public editTag(id: number, newValue: string): number {
-        return this.db.run("UPDATE tag SET title = ? WHERE id = ?;", newValue.trim(), id).changes
+    public editTag(id: number, newValue: string) {
+        // 如果要修改的tag已经存在，进行重定向
+        const tag = newValue.trim()
+        const existTag = this.db.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(tag)
+        if (existTag) {
+            this.db.transaction(() => {
+                // 把record_tag中的tag_id重定向到existTag
+                this.db.run('UPDATE record_tag SET tag_id = ? WHERE tag_id = ?;', existTag, id)
+                // 然后删除tag
+                this.db.run('DELETE FROM tag WHERE id = ?;', id)
+            })
+        } else {
+            this.db.run("UPDATE tag SET title = ? WHERE id = ?;", tag, id) // 修改tag的title 
+        }
     }
 
     public deleteTag(id: number): void {
@@ -193,7 +214,7 @@ export default class LibraryDao {
         if (queryWord.length !== 0) {
             dataSql.append("WHERE REGEXP(d.path) > 0")
             totalSql.append("WHERE REGEXP(path) > 0")
-            this.generateREGEXPFn(tokenizer(queryWord))
+            this.registerSQLFnRegexp(tokenizer(queryWord))
         }
         dataSql.append("GROUP BY d.id")
         if (sortField === 'text') {
@@ -211,8 +232,19 @@ export default class LibraryDao {
         }
     }
 
-    public editDirname(id: number, newValue: string): number {
-        return this.db.run("UPDATE dirname SET path = ? WHERE id = ?;", newValue.trim(), id).changes
+    public editDirname(id: number, newValue: string) {
+        const dirname = newValue.trim()
+        const existDirname = this.db.prepare('SELECT id FROM dirname WHERE path = ?;').pluck().get(dirname)
+        if (existDirname) {
+            this.db.transaction(() => {
+                // 把record中的dirname_id重定向到existDirname
+                this.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', existDirname, id)
+                // 然后删除dirname
+                this.db.run('DELETE FROM dirname WHERE id = ?;', id)
+            })
+        } else {
+            this.db.run("UPDATE dirname SET path = ? WHERE id = ?;", dirname, id) // 修改dirname的path 
+        }
     }
 
     public deleteDirname(id: number): void {
@@ -220,6 +252,34 @@ export default class LibraryDao {
             this.db.run('DELETE FROM dirname WHERE id = ?;', id)
             this.db.run('DELETE FROM record WHERE dirname_id = ?;', id)
         })
+    }
+
+    /**
+     * 以目录为基本单位匹配不是以字符为基本单位匹配 F:\foor\b 是无法与 F:\foor\b 匹配的
+     * 一下是C:\foo\bar\baz\qux 的匹配表
+     * C:\foo\bar\baz\q     不符合
+     * C:\foo\bar\ba        不符合
+     * C:\foo\bar\baz\qux   符合
+     * C:\foo\bar\baz       符合
+     * C:\                  符合 
+     * C:                   非法路径
+     * C                    非法路径
+     * @param target 
+     * @param replace 
+     */
+    public startsWithReplaceDirname(target: string, replace: string) {
+        const normalizeTarget = path.normalize(target + path.sep) // 带尾部分隔符的标准化路径,来体现以dir为基本单位匹配
+        const normalizeReplace = path.normalize(replace)
+        this.db.function('NEED_REPLACE_DP', (source: string) => {
+            // F:\foo\与F:\foo\a和F:\foo都匹配
+            const normalizeSource = path.normalize(source + path.sep)
+            return normalizeSource.startsWith(normalizeTarget) ? 1 : 0
+        })
+        this.db.function('REPLACE_DP', (source: string) => {
+            // 都是经过标准化的路径，用substring直接截取不会出现问题
+            return path.resolve(normalizeReplace, path.normalize(source).substring(normalizeTarget.length))
+        })
+        this.db.run('UPDATE dirname SET path = REPLACE_DP(path) WHERE NEED_REPLACE_DP(path);')
     }
 
     // 释放资源

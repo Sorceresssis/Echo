@@ -4,7 +4,7 @@
                  ref="recordFormRef"
                  label-position="left"
                  :model="delectRecordForm"
-                 label-width="100px"
+                 label-width="120px"
                  require-asterisk-position="right"
                  status-icon>
             <el-form-item v-for="f in formItems"
@@ -35,6 +35,8 @@ import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 
+// 提示， 要完全匹配才能删除
+
 const formItems = reactive([
     { id: 1, label: '目录名', prop: 'dirnamePath', type: 'dirname', placeholder: '作者的名字', maxlength: 255 },
     { id: 2, label: '标签', prop: 'tagTitle', type: 'tag', placeholder: '作者的名字', maxlength: 255 },
@@ -54,6 +56,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (valid) {
+            // 等待结果 显示加载 disabled
             console.log('submit!')
         } else {
             console.log('error submit!', fields)

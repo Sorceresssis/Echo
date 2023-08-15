@@ -178,10 +178,6 @@ body,
     font-weight: bold;
 }
 
-.padding-b8 {
-    padding-bottom: 8px;
-}
-
 /* adaptive-grid */
 .adaptive-grid {
     display: grid;
@@ -190,8 +186,6 @@ body,
 
 /******************** components ********************/
 .tab-header {
-    height: 40px;
-    line-height: 40px;
     font-size: 30px;
     padding: 10px 0;
 }

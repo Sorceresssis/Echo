@@ -5,22 +5,20 @@
                  label-position="left"
                  :model="formData"
                  :rules="rules"
-                 label-width="100px"
+                 label-width="120px"
                  require-asterisk-position="right"
                  status-icon>
             <el-form-item label="头像"
                           prop="avatar">
                 <div class="avatar">
-                    <img :src="formData.avatar"
-                         alt="图片不存在"
+                    <img :src="formData.avatar ? `file:///${formData.avatar}` : '../../../assets/images/no-img.png'"
+                         alt="图片失效"
                          class="fit--cover">
                     <div class="image-select-btn">
                         <span @click="selectAvatar">选择图片</span>
-                        <span :class="[editAuthorOptions.avatarChanged ? '' : 'disabled']"
+                        <span :class="[formData.avatar === formData.originAvatar ? 'disabled' : '']"
                               @click="resetAvatar">重置</span>
                     </div>
-                </div>
-                <div>
                 </div>
             </el-form-item>
             <el-form-item label="名字"
@@ -44,7 +42,7 @@
             <el-form-item>
                 <el-button type="primary"
                            @click="submitForm(authorFormRef)">
-                    Create
+                    {{ submitBtnText }}
                 </el-button>
             </el-form-item>
         </el-form>
@@ -52,57 +50,61 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, toRaw, reactive, inject, onMounted, } from 'vue'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-import { useRoute } from 'vue-router'
+import { ref, Ref, toRaw, reactive, inject, onMounted } from 'vue'
+import { useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { addConfirm, editConfirm } from '@/util/MessageBox'
+import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
+import Message from '@/util/Message'
 
 const inputAutoSize = {
     minRows: 4,
     maxRows: 4
 }
 const route = useRoute()
+const submitBtnText = ref('添加')
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 
 onMounted(async () => {
     const id = route.query.author_id as string | undefined
     if (id) {
-        const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, Number.parseInt(id))
-        if (author) {
-            formData.id = author.id
-            formData.name = author.name
-            formData.intro = author.intro
-            // 保存原始头像地址
-            formData.avatar = originAvatarUrl.value = author.avatar ? `file:///${author.avatar}` : originAvatarUrl.value
-            return
-        }
+        submitBtnText.value = '修改'
+        queryAuthorDetail(Number.parseInt(id))
     }
-    formData.avatar = originAvatarUrl.value
 })
-const originAvatarUrl = ref<string>('../../../assets/images/no-img.png')
+onBeforeRouteUpdate(async (to, from, next) => {
+    // console.log(to, from)
+    next()
+})
+
 const authorFormRef = ref()
 const formData = reactive<EditAuthorForm>({
     id: 0,
     name: '',
     avatar: '',
+    originAvatar: '',
     intro: '',
 })
-const editAuthorOptions = reactive<EditAuthorOptions>({
-    avatarChanged: false,
-})
-
+const queryAuthorDetail = async (id: number) => {
+    const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, id)
+    if (author) {
+        formData.id = author.id
+        formData.name = author.name
+        formData.intro = author.intro
+        if (author.avatar) {
+            formData.avatar = formData.originAvatar = author.avatar
+        }
+    }
+}
 const selectAvatar = async () => {
     const imgPath = (await window.electronAPI.openDialog('image', false))[0]
-    if (!imgPath) return
-    formData.avatar = imgPath
-    editAuthorOptions.avatarChanged = true
+    if (imgPath) {
+        formData.avatar = imgPath
+    }
 }
-
 const resetAvatar = () => {
-    formData.avatar = originAvatarUrl.value
-    editAuthorOptions.avatarChanged = false
+    formData.avatar = formData.originAvatar
 }
-
 const rules = reactive<FormRules>({
     name: [{
         validator: (rule, value: string, callback) => {
@@ -114,15 +116,37 @@ const rules = reactive<FormRules>({
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid) => {
-        if (valid) {
-            window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData), toRaw(editAuthorOptions)).then(
-                (vlaue: boolean) => {
-                    ElMessage.success('修改成功')
+        if (!valid) return
+        if (formData.id) {
+            editConfirm(() => {
+                // 编辑成功重新获取数据
+                window.electronAPI.editAuthor(
+                    activeLibrary.value,
+                    toRaw(formData)
+                ).then((result) => {
+                    if (result) {
+                        Message.success('编辑成功')
+                        queryAuthorDetail(formData.id)
+                    }
                 })
+            })
+        }
+        else {
+            addConfirm(() => {
+                // 添加成功要清空表单
+                window.electronAPI.editAuthor(
+                    activeLibrary.value,
+                    toRaw(formData)
+                ).then((result) => {
+                    if (result) {
+                        Message.success('添加成功')
+                        authorFormRef.value?.resetFields()
+                    }
+                })
+            })
         }
     })
 }
-
 </script>
 
 <style scoped>

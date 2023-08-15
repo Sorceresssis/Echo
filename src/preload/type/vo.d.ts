@@ -29,6 +29,12 @@ declare type AcSuggestion = {
     image?: string
 }
 
+type Result = {
+    code: number,
+    msg?: string,
+    data?: any
+}
+
 type Page = {
     total: number,
     data: any[]

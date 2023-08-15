@@ -30,12 +30,12 @@
             </ul>
         </div>
         <el-pagination v-model:current-page="currentPage"
-                       class="dashboard__footer"
+                       :page-size="pageSize"
+                       :total="total"
+                       layout="prev, pager, next, jumper"
                        background
                        small
-                       :page-size="pageSize"
-                       layout="prev, pager, next, jumper"
-                       :total="total"
+                       class="dashboard__footer"
                        @current-change="" />
     </div>
 </template>

@@ -3,7 +3,7 @@ import { exec } from "child_process"
 import path from "path"
 import fs from "fs"
 
-export function ipcMainSystem() {
+export default function ipcMainSystem() {
     // 用系统默认方式打开url
     ipcMain.handle('system:openExternal', (e: IpcMainInvokeEvent, url: string) => {
         if (url === '') return
