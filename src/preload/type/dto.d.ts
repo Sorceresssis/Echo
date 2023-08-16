@@ -1,4 +1,4 @@
-type ConfigName = 'userDataPath' | 'locale'
+type ConfigKey = 'userDataPath' | 'locale'
 
 /* Autocomplete */
 type AcType = 'search' | 'record' | 'author' | 'tag' | 'series' | 'dirname'

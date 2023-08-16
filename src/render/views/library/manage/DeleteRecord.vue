@@ -1,28 +1,44 @@
 <template>
     <div class="flex-col">
         <el-form class="dashboard__content scrollbar-y-w8"
-                 ref="recordFormRef"
+                 ref="formRef"
                  label-position="left"
-                 :model="delectRecordForm"
+                 :model="formData"
+                 :rules="rules"
                  label-width="120px"
                  require-asterisk-position="right"
                  status-icon>
-            <el-form-item v-for="f in formItems"
-                          :label="f.label"
-                          prop="count">
-                <echo-autocomplete v-model="delectRecordForm.dirnamePath"
+            <el-form-item label="目录"
+                          prop="dirnamePath">
+                <echo-autocomplete v-model="formData.dirnamePath"
                                    type="dirname"
-                                   :show-word-limit="true"
-                                   placeholder="作者的名字"
+                                   show-word-limit
+                                   placeholder="目录路径"
+                                   maxlength="255" />
+            </el-form-item>
+            <el-form-item label="标签"
+                          prop="tagTitle">
+                <echo-autocomplete v-model="formData.tagTitle"
+                                   type="tag"
+                                   show-word-limit
+                                   placeholder="标签名"
+                                   maxlength="255" />
+            </el-form-item>
+            <el-form-item label="系列"
+                          prop="seriesName">
+                <echo-autocomplete v-model="formData.seriesName"
+                                   type="series"
+                                   show-word-limit
+                                   placeholder="系列名"
                                    maxlength="255" />
             </el-form-item>
             <el-form-item label="并删除属性"
                           prop="resource">
-                <el-switch v-model="delectRecordForm.deleteAttribute" />
+                <el-switch v-model="formData.deleteAttribute" />
             </el-form-item>
             <el-form-item>
                 <el-button type="primary"
-                           @click="submitForm(recordFormRef)">
+                           @click="submitForm(formRef)">
                     删除
                 </el-button>
             </el-form-item>
@@ -31,36 +47,30 @@
 </template>
   
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
-import type { FormInstance, FormRules } from 'element-plus'
+import { ref, reactive } from 'vue'
+import type { FormInstance, FormRules, } from 'element-plus'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 
-// 提示， 要完全匹配才能删除
-
-const formItems = reactive([
-    { id: 1, label: '目录名', prop: 'dirnamePath', type: 'dirname', placeholder: '作者的名字', maxlength: 255 },
-    { id: 2, label: '标签', prop: 'tagTitle', type: 'tag', placeholder: '作者的名字', maxlength: 255 },
-    { id: 3, label: '系列', prop: 'seriesName', type: 'series', placeholder: '作者的名字', maxlength: 255 },
-])
-// 1. 根据 目录批量删除，根据作者批量删除，根据标签批量删除，根据系列批量删除
-// 删除记录时，是否时候删除该属性，
-const delectRecordForm = reactive({
-    tagTitle: '',
+const formRef = ref<FormInstance>()
+const formData = reactive({
     dirnamePath: '',
-    authorName: '',
+    tagTitle: '',
     seriesName: '',
     deleteAttribute: false,
 })
 
+const emptyFormValidator = (rule: any, value: string, callback: (error?: string | Error | undefined) => void) => {
+    return formData.dirnamePath || formData.tagTitle || formData.seriesName ? callback() : callback(new Error('请至少填写一个表单项'))
+}
+const rules: FormRules = {
+    dirnamePath: [{ validator: emptyFormValidator, trigger: 'blur' }],
+    tagTitle: [{ validator: emptyFormValidator, trigger: 'blur' }],
+    seriesName: [{ validator: emptyFormValidator, trigger: 'blur' }],
+}
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
-        if (valid) {
-            // 等待结果 显示加载 disabled
-            console.log('submit!')
-        } else {
-            console.log('error submit!', fields)
-        }
+        if (!valid) return
     })
 } 
 </script>

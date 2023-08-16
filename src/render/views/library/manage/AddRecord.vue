@@ -159,11 +159,13 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance, FormRules } from 'element-plus'
-import Button2 from '@components/Button2.vue'
-import EchoAutocomplete from '@components/EchoAutocomplete.vue'
+import Button2 from '@/components/Button2.vue'
+import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
+import noImg from '@/assets/images/no-img.png'
 
 // 提示用户， 批量添加的值所有都会加上相同的值
 /******************** 基础 ********************/
+// rate 颜色
 const colors = ref(['#b5adf7', '#887cf7', '#9e94f7'])
 const autocompletePs = 20
 const inputAutoSize = {

@@ -1,6 +1,6 @@
 export interface IElectronAPI {
     /******************** app ********************/
-    config: (index: string, newValue: any = null) => Promise<any>
+    config: (key: string, newValue?: any) => Promise<any>
 
     /******************** group ********************/
     /** 获取所有的group和library */
@@ -74,9 +74,9 @@ declare global {
         versionAPI: IVersionAPI
     }
     interface IVersionAPI {
-        appVersion: () => Promise<string>
-        electronVersion: string
-        chromeVersion: string
-        nodeVersion: string
+        app: () => Promise<string>
+        electron: string
+        chrome: string
+        node: string
     }
 }

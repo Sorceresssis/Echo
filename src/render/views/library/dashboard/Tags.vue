@@ -46,7 +46,7 @@
 <script setup lang='ts'>
 import { ref, Ref, watch, onMounted, inject } from 'vue'
 import { writeClibboard } from '@/util/systemUtil'
-import { deleteConfirm, editPrompt } from '@/util/MessageBox'
+import { deleteConfirm, editPrompt } from '@/util/ADEMessageBox'
 import { $t } from '@/locales/index'
 import useTagsDashStore from '@/store/useTagsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
@@ -119,6 +119,8 @@ const queryTags = async () => {
     )
     tags.value = resp.data
     total.value = resp.total
+    // 滚动到顶部
+    document.querySelector('.dashboard__content')?.scrollTo(0, 0)
 }
 
 onMounted(() => {
@@ -131,4 +133,4 @@ onMounted(() => {
     row-gap: 8px;
     grid-template-columns: repeat(auto-fill, 350px);
 }
-</style>@/util/MessageBox
+</style>@/util/MessageBox@/util/DAEMessageBox

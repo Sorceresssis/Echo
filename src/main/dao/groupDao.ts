@@ -30,20 +30,16 @@ export default class GroupDao {
         this.db.transaction(() => {
             this.db.exec(`
             DROP TABLE IF EXISTS 'group';
-            CREATE TABLE 'group'( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL, 'prev_id' INTEGER DEFAULT 0 NOT NULL, 'next_id' INTEGER DEFAULT 0 NOT NULL, 'is_hide' BOOLEAN DEFAULT 0 NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ); CREATE INDEX 'idx_group(prev_id)' ON 'group'(prev_id); CREATE INDEX 'idx_group(next_id)' ON 'group'(next_id);
+            CREATE TABLE 'group'( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL, 'prev_id' INTEGER DEFAULT 0 NOT NULL, 'next_id' INTEGER DEFAULT 0 NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL );
+            CREATE INDEX 'idx_group(prev_id)' ON 'group'(prev_id);
+            CREATE INDEX 'idx_group(next_id)' ON 'group'(next_id);
             DROP TABLE IF EXISTS 'library';
-            CREATE TABLE 'library'( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL, 'prev_id' INTEGER DEFAULT 0 NOT NULL, 'next_id' INTEGER DEFAULT 0 NOT NULL, 'is_hide' BOOLEAN DEFAULT 0 NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'group_id' INTEGER NOT NULL );
+            CREATE TABLE 'library'( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL, 'prev_id' INTEGER DEFAULT 0 NOT NULL, 'next_id' INTEGER DEFAULT 0 NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'group_id' INTEGER NOT NULL );
             CREATE INDEX 'idx_library(prev_id)' ON library(prev_id);
-            CREATE INDEX 'idx_library(next_id)' ON library(next_id);
-            CREATE INDEX 'idx_library(group_id)' ON library(group_id);
+            CREATE INDEX 'idx_library(next_id)' ON library(next_id); CREATE INDEX 'idx_library(group_id)' ON library(group_id);
             DROP TABLE IF EXISTS 'library_extra';
             CREATE TABLE 'library_extra'( 'id' INTEGER NOT NULL, 'keyword' VARCHAR(255) DEFAULT '' NOT NULL, 'intro' TEXT DEFAULT '' NOT NULL );
             CREATE INDEX 'idx_library_extra(id)' ON library_extra(id);
-            CREATE VIEW v_libraryDetail AS SELECT l.id, l.name, l.prev_id, l.next_id, l.is_hide, le.keyword, le.intro, l.gmt_create, l.gmt_modified, l.group_id FROM library l LEFT JOIN library_extra le ON l.id = le.id;
-            DROP TRIGGER IF EXISTS del_libraryExtra;
-            CREATE TRIGGER del_libraryExtra AFTER DELETE ON library FOR EACH ROW BEGIN DELETE FROM library_extra WHERE id = OLD.id; END;
-            DROP TRIGGER IF EXISTS ins_libraryExtra;
-            CREATE TRIGGER ins_libraryExtra AFTER INSERT ON library FOR EACH ROW BEGIN INSERT INTO library_extra(id, keyword, intro)VALUES(NEW.id, '', ''); END;
             `)
         })
     }
@@ -56,17 +52,17 @@ export default class GroupDao {
         // 获得组的信息
         const gs: GroupProfile[] = this.db.all(`
         WITH RECURSIVE group_list AS (
-            SELECT * FROM 'group' WHERE prev_id = 0
+            SELECT id, name, prev_id, next_id FROM 'group' WHERE prev_id = 0
             UNION ALL
-            SELECT g.* FROM 'group' g JOIN group_list gl ON g.id = gl.next_id WHERE gl.next_id != 0
-        ) SELECT id, name, is_hide FROM group_list;`)
+            SELECT g.id, g.name, g.prev_id, g.next_id FROM 'group' g JOIN group_list gl ON g.id = gl.next_id WHERE gl.next_id != 0
+        ) SELECT id, name FROM group_list;`)
         // 根据组的id获得组下的书籍
         return gs.map((g) => new Group(g.id, g.name, this.db.all(`
         WITH RECURSIVE library_list AS (
-            SELECT * FROM 'library' WHERE group_id = ? AND prev_id = 0
+            SELECT id, name, prev_id, next_id FROM 'library' WHERE group_id = ? AND prev_id = 0
             UNION ALL
-            SELECT l.* FROM 'library' l JOIN library_list ll ON l.id = ll.next_id WHERE l.group_id = ? AND ll.next_id != 0
-        ) SELECT id, name, is_hide FROM library_list;`, g.id, g.id)))
+            SELECT l.id, l.name, l.prev_id, l.next_id FROM 'library' l JOIN library_list ll ON l.id = ll.next_id WHERE l.group_id = ? AND ll.next_id != 0
+        ) SELECT id, name FROM library_list;`, g.id, g.id)))
     }
 
     renameGroup(id: number, newName: string): void {

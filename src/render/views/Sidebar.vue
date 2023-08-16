@@ -273,9 +273,9 @@ const handleAddGroup = async () => {
 }
 const idxGroupOfAddLibrary = ref<number>(-1)
 const openAddLibrary = () => {
-    isExpandGroup.value[idxGroupOfAddLibrary.value] = true
     newName.value = '新建库'
     idxGroupOfAddLibrary.value = ctmOpIdx.cg
+    isExpandGroup.value[idxGroupOfAddLibrary.value] = true
 }
 const handleAddLibrary = async () => {
     const gId = groups.value[idxGroupOfAddLibrary.value].id

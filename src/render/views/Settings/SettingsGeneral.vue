@@ -1,48 +1,51 @@
 <template>
-    <div class="dashboard__content flex-col scrollbar-y-w8">
-        <div class="setting-item">
-            <div class="setting-item__title">{{ $t('settings.lang') }}</div>
-            <div class="setting-item__content">
-                <el-dropdown trigger="click"
-                             popper-class="dropdown">
-                    <span>
-                        {{ currentLang.label }}
-                    </span>
-                    <template #dropdown>
-                        <el-dropdown-menu>
-                            <el-dropdown-item v-for="lang in langList"
-                                              @click="changelang(lang)"
-                                              class="langSelect">
-                                {{ lang.label }}
-                            </el-dropdown-item>
-                        </el-dropdown-menu>
-                    </template>
-                </el-dropdown>
+    <div>
+        <div class="dashboard__content scrollbar-y-w8">
+            <div class="settings-item">
+                <h2 class="settings-item__title">语言</h2>
+                <div class="settings-item__content">
+                    <div class="row">
+                        <el-select v-model="i18n.global.locale.value">
+                            <el-option v-for="locale in localeList"
+                                       :key="locale.value"
+                                       :label="locale.label"
+                                       :value="locale.value"
+                                       @change="changeLocale(locale.value)" />
+                        </el-select>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="setting-item">
-            <div class="setting-item__title">保存位置</div>
-            <div class="setting-item__content">
-                <input type="text"
-                       readonly
-                       class="setting-input"
-                       v-model="dataSavePath">
-                <button @click=""
-                        class="button"><span> 更改目录</span></button>
+            <div class="settings-item">
+                <h2 class="settings-item__title">数据保存位置</h2>
+                <div class="settings-item__content">
+                    <div class="row">
+                        <el-input v-model="userDataPath"
+                                  readonly />
+                        <button2 @click="selectUserDataPath">更改目录</button2>
+                        <button2 @click="openInExplorer(userDataPath)">打开文件夹</button2>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="setting-item">
-            <div class="setting-item__title">数据的导入导出</div>
-            <div class="setting-item__content">
-                <button class="button">导出</button>
-                开始导入qu
+            <div class="settings-item">
+                <h2 class="settings-item__title">数据</h2>
+                <div class="settings-item__content">
+                    <div class="row">
+                        <!-- 导入成功刷新 -->
+                        <button2 @click="">导出数据</button2>
+                        <button2 @click="">导入数据</button2>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div class="setting-item">
-            <div class="setting-item__title">文件映射</div>
-            <div class="setting-item__content">
-                <p class="dot">aaa</p>
-                <p class="no-dot">aaa</p>
+            <div class="settings-item">
+                <h2 class="settings-item__title">升级</h2>
+                <div class="settings-item__content">
+                    <div class="row">
+
+                    </div>
+                </div>
+            </div>
+            <div>
+                恢复默认设置
             </div>
         </div>
     </div>
@@ -51,48 +54,38 @@
 <script setup lang='ts'>
 import { ref, onMounted } from 'vue'
 import { ElMessageBox } from 'element-plus'
+import { $t, i18n, localeList, changeLocale } from '@/locales'
+import { openInExplorer } from '@/util/systemUtil'
+
+import Button2 from '@/components/Button2.vue'
+
 
 onMounted(async () => {
-    currentLang.value = await window.electronAPI.config('lang') || langList[0]
-    dataSavePath.value = await window.electronAPI.config('userDataPath');
+    userDataPath.value = await window.electronAPI.config('userDataPath');
 })
 
-
-/******************** 语言切换 ********************/
-type lang = {
-    label: string,
-    locale: string
-}
-const langList = ([
-    { label: '简体中文', locale: 'zhCN' },
-    { label: 'English', locale: 'enUS' },
-    { label: '日本語', locale: 'jaJP' },
-    { label: '繁體中文', locale: 'zhTW' },
-    { label: '한국어', locale: 'koKR' },
-    { label: 'Deutsch', locale: 'de' },
-    { label: 'Français', locale: 'fr' },
-    { label: 'Pyccĸий', locale: 'ru' }
-])
-const currentLang = ref<lang>(langList[0])
-const changelang = async (lang: lang) => {
-    if (lang.locale === currentLang.value.locale) return
-    // 切换语言要用户确认重启
-    ElMessageBox.confirm(
-        '您现在必须重启Echo才能更改语言设置',
-        {
-            confirmButtonText: '重启echo',
-            cancelButtonText: '取消',
-        }).then(async () => {
-            await window.electronAPI.config('lang', lang)
-            window.electronAPI.windowRelaunch()
-        })
-}
-
-
 /******************** 数据保存位置 ********************/
-const dataSavePath = ref<string>()
-
-
+const userDataPath = ref<string>('')
+const selectUserDataPath = () => {
+    window.electronAPI.openDialog('dir', false
+    ).then((p) => {
+        return window.electronAPI.config('userDataPath', p[0])
+    }).then((value) => {
+        userDataPath.value = value
+        // 建议您重启应用程序以使更改生效
+        return ElMessageBox.confirm(
+            "由于数据保存位置被改变，建议您重启应用程序以加载正确的数据",
+            "建议重启",
+            {
+                confirmButtonText: "重启",
+                cancelButtonText: "取消",
+                type: "info",
+            }
+        )
+    }).then(() => {
+        window.electronAPI.windowRelaunch()
+    })
+}
 </script>
 
 <style scoped></style>

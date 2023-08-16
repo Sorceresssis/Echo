@@ -1,53 +1,36 @@
 <template>
     <div>
-        <div class="setting-item">
-            <div class="setting-item__title">联系方式</div>
-            <div class="setting-item__content">
-                <div>Email: sorceresssis@gmail.com</div>
-            </div>
-        </div>
-        <div class="setting-item">
-            <div class="setting-item__title">GitHub Star</div>
-            <div class="setting-item__content">
-                If you find my project useful, please consider showing your love by giving it a
-                star!
-                <div>
-                    <a @click.prevent=""
-                       rel="noopener noreferrer"
-                       class="externalUrl">
-                        to github
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="setting-item">
-            <div class="setting-item__title">经济支持(中国)</div>
-            <div class="setting-item__content flexRow">
-                <div>
-                    <div>微信</div>
-                    <div class="marginTop10">
-                        <img src="">
-                    </div>
-                </div>
-                <div>
-                    <div>支付宝</div>
-                    <div class="marginTop10">
-                        <img src="">
+        <div class="dashboard__content scrollbar-y-w8">
+            <div class="settings-item">
+                <h2 class="settings-item__title">加个星</h2>
+                <div class="settings-item__content">
+                    <div class="row">
+                        如果你觉得我的项目对你有帮助，请考虑给它一个星星！
+                        <!-- If you find my project useful, please consider showing your love by giving it a star! -->
+                        <a class="openExternal"
+                           @click.prevent="openExternal(repositoryUrl)"> Github </a>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="setting-item">
-            <div class="setting-item__title">经济支持(非中国)</div>
-            <div class="setting-item__content">
-                <div>
-                    <div>
-                        paypal
+            <div class="settings-item">
+                <h2 class="settings-item__title">经济支持</h2>
+                <div class="settings-item__content flexRow">
+                    <div class="row"> 中国 </div>
+                    <div class="row">
+                        <img class="col"
+                             src="../../assets/images/wechat.png">
+                        <img class="col"
+                             src="../../assets/images/alipay.jpg">
                     </div>
-                    <div class="marginTop10">
-                        <a @click.prevent=" "
-                           class="externalUrl">
-                            www.paypal.com/FoxFairy
+                    <div class="row"> 其他 </div>
+                    <div class="row">
+                        <a @click.prevent="openExternal(paypalUrl)"
+                           class="openExternal col">
+                            Paypal
+                        </a>
+                        <a @click.prevent="openExternal(patreonUrl)"
+                           class="openExternal col">
+                            Patreon
                         </a>
                     </div>
                 </div>
@@ -57,10 +40,11 @@
 </template>
 
 <script setup lang='ts'>
+import { openExternal } from '@/util/systemUtil'
+
+const repositoryUrl = "https://github.com/Sorceresssis/echo"
+const paypalUrl = "https://www.paypal.me/FoxFairy"
+const patreonUrl = "https://patreon.com/Sorceresssis"
 </script>
 
-<style scoped>
-img {
-    width: 150px;
-}
-</style>
+<style scoped></style>

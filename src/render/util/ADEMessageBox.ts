@@ -1,4 +1,4 @@
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { ElMessageBox } from 'element-plus'
 
 export const deleteConfirm = (cb: () => void): void => {
   ElMessageBox.confirm(
@@ -38,13 +38,15 @@ export const editConfirm = (cb: () => void): void => {
 
 export const editPrompt = (cb: (value: string) => void, oldValue?: string): void => {
   ElMessageBox.prompt('请输入新值', '编辑', {
-    confirmButtonText: '修改',
+    confirmButtonText: '完成',
     cancelButtonText: '取消',
     inputErrorMessage: '输入错误',
     inputValue: oldValue || '',
   }).then(({ value }) => {
-    cb(value)
+    editConfirm(() => {
+      cb(value)
+    })
   }).catch(() => { })
 }
 
-export default { deleteConfirm }
+export default { deleteConfirm, addConfirm, editConfirm, editPrompt }

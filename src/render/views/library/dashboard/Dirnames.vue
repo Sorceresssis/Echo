@@ -43,7 +43,7 @@
 <script setup lang='ts'>
 import { ref, Ref, inject, onMounted } from 'vue'
 import { writeClibboard } from '@/util/systemUtil'
-import { deleteConfirm, editPrompt } from '@/util/MessageBox'
+import { deleteConfirm, editPrompt } from '@/util/ADEMessageBox'
 import { $t } from '@/locales/index'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
@@ -124,4 +124,4 @@ onMounted(() => {
     row-gap: 8px;
     grid-template-columns: 1fr;
 }
-</style>
+</style>@/util/DAEMessageBox

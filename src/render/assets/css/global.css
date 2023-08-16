@@ -116,6 +116,18 @@ body,
     text-overflow: ellipsis;
 }
 
+.openExternal {
+    text-decoration: none;
+    color: var(--echo-theme-color);
+}
+
+.openExternal::after {
+    font-family: "iconfont" !important;
+    content: "\e8a9";
+    font-size: 16px;
+    cursor: pointer;
+}
+
 .image-select-btn {
     display: flex;
     opacity: .8;
@@ -283,4 +295,38 @@ body,
 
 .dashboard-text-card .operate span:hover {
     color: var(--echo-theme-color);
+}
+
+/******************** Settings ********************/
+.settings-item {
+    max-width: 800px;
+    display: flex;
+    padding: 18px 0;
+    border-bottom: 1px solid #e8e8e8;
+    line-height: 32px;
+    -webkit-user-drag: none;
+}
+
+.settings-item__title {
+    width: 120px;
+}
+
+.settings-item__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+.settings-item__content .row {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.settings-item__content .row>*:nth-child(n+2) {
+    margin-left: 10px;
+}
+
+.settings-item__content .col {
+    width: 180px;
 }

@@ -1,7 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    config: (index: string, newValue: any = null) => ipcRenderer.invoke('app:config', index, newValue),
+    config: (key: string, newValue?: any) => ipcRenderer.invoke('app:config', key, newValue),
 
     /******************** group ********************/
     getGroups: () => ipcRenderer.invoke('group:getGroups'),
@@ -21,6 +21,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     /******************** record ********************/
     autoCompleteRecord: (libraryId: number, options: AcOptions) => ipcRenderer.invoke('record:autoComplete', libraryId, options),
+    deleteRecordByAttribute: (libraryId: number, attribute: string, value: string) => ipcRenderer.invoke('record:deleteByAttribute', libraryId, attribute, value),
+    batchProcessingRecord: (libraryId: number, type: 'delect', recordIds: number[]) => ipcRenderer.invoke('record:batchProcessing', libraryId, type, recordIds),
+    addRecord: (libraryId: number, formData: any) => ipcRenderer.invoke('record:add', libraryId, formData),
 
     /******************** author ********************/
     queryAuthorDetail: (libraryId: number, authorId: number) => ipcRenderer.invoke('author:queryDetail', libraryId, authorId),
@@ -58,8 +61,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 })
 
 contextBridge.exposeInMainWorld('versionAPI', {
-    appVersion: () => ipcRenderer.invoke('app:version'),
-    electronVersion: process.versions.electron,
-    chromeVersion: process.versions.chrome,
-    nodeVersion: process.versions.node,
+    app: () => ipcRenderer.invoke('app:version'),
+    electron: process.versions.electron,
+    chrome: process.versions.chrome,
+    node: process.versions.node,
 })

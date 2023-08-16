@@ -8,7 +8,6 @@ CREATE TABLE 'group'
     'name'         VARCHAR(255)                       NOT NULL, -- 组的名字
     'prev_id'      INTEGER  DEFAULT 0                 NOT NULL, -- 上一条记录
     'next_id'      INTEGER  DEFAULT 0                 NOT NULL, -- 下一条记录
-    'is_hide'      BOOLEAN  DEFAULT 0                 NOT NULL, -- 是否隐藏
     'gmt_create'   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
     'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
 );
@@ -23,7 +22,6 @@ CREATE TABLE 'library'
     'name'         VARCHAR(255)                       NOT NULL, -- 库的名字
     'prev_id'      INTEGER  DEFAULT 0                 NOT NULL, -- 上一条记录
     'next_id'      INTEGER  DEFAULT 0                 NOT NULL, -- 下一条记录
-    'is_hide'      BOOLEAN  DEFAULT 0                 NOT NULL, -- 是否隐藏
     'gmt_create'   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
     'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 最近一次修改时间
     'group_id'     INTEGER                            NOT NULL  -- 所属的组
@@ -41,25 +39,6 @@ CREATE TABLE 'library_extra'
     'intro'   TEXT         DEFAULT '' NOT NULL  -- 介绍
 );
 CREATE INDEX 'idx_library_extra(id)' ON library_extra (id);
-
-
--- ----------------------------
---           view
--- ----------------------------
-CREATE VIEW v_libraryDetail AS
-SELECT l.id,
-       l.name,
-       l.prev_id,
-       l.next_id,
-       l.is_hide,
-       le.keyword,
-       le.intro,
-       l.gmt_create,
-       l.gmt_modified,
-       l.group_id
-FROM library l
-         LEFT JOIN library_extra le ON l.id = le.id;
-
 
 -- ----------------------------
 --          Trigger

@@ -11,7 +11,7 @@
             <el-form-item label="头像"
                           prop="avatar">
                 <div class="avatar">
-                    <img :src="formData.avatar ? `file:///${formData.avatar}` : '../../../assets/images/no-img.png'"
+                    <img :src="formData.avatar ? `file:///${formData.avatar}` : noImg"
                          alt="图片失效"
                          class="fit--cover">
                     <div class="image-select-btn">
@@ -52,10 +52,11 @@
 <script setup lang='ts'>
 import { ref, Ref, toRaw, reactive, inject, onMounted } from 'vue'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
-import { addConfirm, editConfirm } from '@/util/MessageBox'
+import { addConfirm, editConfirm } from '@/util/ADEMessageBox'
+import Message from '@/util/Message'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
-import Message from '@/util/Message'
+import noImg from '@/assets/images/no-img.png'
 
 const inputAutoSize = {
     minRows: 4,
@@ -158,4 +159,4 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     border: 1px solid #e1e1e1;
     box-sizing: border-box;
 }
-</style>
+</style>@/util/DAEMessageBox

@@ -187,7 +187,8 @@ export default class LibraryDao {
         // 如果要修改的tag已经存在，进行重定向
         const tag = newValue.trim()
         const existTag = this.db.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(tag)
-        if (existTag) {
+        // 如果没有修改，给的是原值, 会错误的被删除。
+        if (existTag && id !== existTag) {
             this.db.transaction(() => {
                 // 把record_tag中的tag_id重定向到existTag
                 this.db.run('UPDATE record_tag SET tag_id = ? WHERE tag_id = ?;', existTag, id)
@@ -235,7 +236,7 @@ export default class LibraryDao {
     public editDirname(id: number, newValue: string) {
         const dirname = newValue.trim()
         const existDirname = this.db.prepare('SELECT id FROM dirname WHERE path = ?;').pluck().get(dirname)
-        if (existDirname) {
+        if (existDirname && id !== existDirname) {
             this.db.transaction(() => {
                 // 把record中的dirname_id重定向到existDirname
                 this.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', existDirname, id)

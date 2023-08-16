@@ -40,10 +40,10 @@
 
 <script setup lang='ts'>
 import { onMounted, ref, } from 'vue'
-import { $t } from '@locales/index'
+import { $t } from '@/locales/index'
 import { useRoute } from 'vue-router'
 import useRecordsDashStore from '@/store/useRecordsDashStore'
-import EchoAutocomplete from '@components/EchoAutocomplete.vue'
+import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import RecordsContainer from './RecordsContainer.vue'
 

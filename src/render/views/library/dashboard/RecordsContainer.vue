@@ -12,7 +12,7 @@
                      class="cover">
             </div>
             <div>
-                <p class="title row fw-bold">[SNL经典]我真的看不懂了，这就是艺术吗？</p>
+                <div class="title row fw-bold">[SNL经典]我真的看不懂了，这就是艺术吗？</div>
                 <div class="row flex-row">
                     <span class="author"
                           v-for="tag in ['小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2', '小丑', '作者1', '标签2',]">
@@ -85,6 +85,8 @@ const openCtm = (e: MouseEvent) => {
     contextMenuOptions.y = e.y
     isVisibleCtmItem.value = true
 }
+// 链接， 浏览器搜索， 在新窗口中打开， 在资源管理器中打开
+// 删除， 移动到， 导出
 </script>
 
 <style scoped>

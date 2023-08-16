@@ -30,7 +30,7 @@ class Config {
         }
     }
 
-    public set(name: ConfigName, value: any): any {
+    public set(name: ConfigKey, value: any): any {
         if (value) {
             this.c[name] = value
             this.write()

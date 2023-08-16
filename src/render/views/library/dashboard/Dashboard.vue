@@ -5,7 +5,7 @@
   
 <script lang="ts" setup>
 import { shallowReactive, ref, Ref, inject, watch } from 'vue'
-import { $t } from '@locales/index'
+import { $t } from '@/locales/index'
 import Tabs from '@/components/Tabs.vue'
 import Records from './Records.vue'
 import Authors from './Authors.vue'
