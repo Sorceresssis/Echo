@@ -21,4 +21,9 @@ export default class DynamicSqlBuilder {
         this.params.push(...params)
         return this
     }
+
+    public appendParam(...params: any[]): DynamicSqlBuilder {
+        this.params.push(...params)
+        return this
+    }
 }

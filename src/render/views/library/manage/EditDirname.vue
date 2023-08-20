@@ -33,7 +33,7 @@
                             :title="'目录从头部分替换'"
                             trigger="hover">
                     <template #reference>
-                        <span class="manage-explain">功能解释</span>
+                        <span class="tips__reference">功能解释</span>
                     </template>
                     <div style="font-size: 12px;">
                         以文件夹目录为基本单位，批量从头开始替换路径。
@@ -120,8 +120,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         })
     })
 }
-
-// 目录操作都很危险 编辑是判断是否存在，
 </script>
 
 <style scoped>

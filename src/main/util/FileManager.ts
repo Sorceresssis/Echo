@@ -32,6 +32,17 @@ export function isLegalAbsolutePath(path: string): boolean {
         return false
     }
     // 路径
+    /* windows平台测试
+    path.isAbsolute('/')  true
+    path.isAbsolute('/root')  true
+    path.isAbsolute('/root/')  true
+    path.isAbsolute('C')  false
+    path.isAbsolute('C:')  false
+    path.isAbsolute('C:.')  false
+    path.isAbsolute('C:\\')  true
+    path.isAbsolute('C:\\foo')  true
+    path.isAbsolute('C:\\foo\\')  true
+    */
     if (!nodePath.isAbsolute(path)) {
         return false
     }
@@ -54,4 +65,4 @@ export function isLegalFileName(fileName: string): boolean {
     return true
 }
 
-export default { mkdirsSync, unlinkSync }
+export default { mkdirsSync, unlinkSync, isLegalAbsolutePath, isLegalFileName }

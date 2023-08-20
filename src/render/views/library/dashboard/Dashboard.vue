@@ -11,6 +11,7 @@ import Records from './Records.vue'
 import Authors from './Authors.vue'
 import Tags from './Tags.vue'
 import Dirnames from './Dirnames.vue'
+import Recycled from './Recycled.vue'
 import About from './About.vue'
 
 // library变化时，重新渲染组件
@@ -25,7 +26,8 @@ const componentList = shallowReactive([
     { id: 2, name: '作者', component: Authors },
     { id: 3, name: '标签', component: Tags },
     { id: 4, name: '目录', component: Dirnames },
-    { id: 5, name: '关于', component: About }
+    { id: 5, name: '回收站', component: Recycled },
+    { id: 6, name: '关于', component: About }
 ])
 </script>
 

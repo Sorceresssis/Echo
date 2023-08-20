@@ -22,8 +22,7 @@
                 </div>
             </el-form-item>
             <el-form-item label="名字"
-                          prop="name"
-                          required>
+                          prop="name">
                 <echo-autocomplete v-model="formData.name"
                                    :show-word-limit="true"
                                    placeholder="作者的名字"
@@ -50,8 +49,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, toRaw, reactive, inject, onMounted } from 'vue'
-import { useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { ref, Ref, toRaw, reactive, inject, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { addConfirm, editConfirm } from '@/util/ADEMessageBox'
 import Message from '@/util/Message'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -65,18 +64,6 @@ const inputAutoSize = {
 const route = useRoute()
 const submitBtnText = ref('添加')
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
-
-onMounted(async () => {
-    const id = route.query.author_id as string | undefined
-    if (id) {
-        submitBtnText.value = '修改'
-        queryAuthorDetail(Number.parseInt(id))
-    }
-})
-onBeforeRouteUpdate(async (to, from, next) => {
-    // console.log(to, from)
-    next()
-})
 
 const authorFormRef = ref()
 const formData = reactive<EditAuthorForm>({
@@ -148,6 +135,24 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         }
     })
 }
+
+const init = () => {
+    const id = route.query.author_id as string | undefined
+    if (id) {
+        submitBtnText.value = '修改'
+        queryAuthorDetail(Number.parseInt(id))
+    } else {
+        submitBtnText.value = '添加'
+        // 清空表单
+        formData.id = 0
+        formData.name = ''
+        formData.avatar = ''
+        formData.originAvatar = ''
+        formData.intro = ''
+    }
+}
+watch(route, init)
+onMounted(init)
 </script>
 
 <style scoped>
@@ -159,4 +164,4 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     border: 1px solid #e1e1e1;
     box-sizing: border-box;
 }
-</style>@/util/DAEMessageBox
+</style>

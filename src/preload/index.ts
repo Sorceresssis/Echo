@@ -66,3 +66,7 @@ contextBridge.exposeInMainWorld('versionAPI', {
     chrome: process.versions.chrome,
     node: process.versions.node,
 })
+
+contextBridge.exposeInMainWorld('systemAPI', {
+    pathSep: () => ipcRenderer.invoke('system:pathSep')
+})

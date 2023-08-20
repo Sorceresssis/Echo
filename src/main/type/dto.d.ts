@@ -29,6 +29,20 @@ type EditAuthorForm = {
     intro: string,
 }
 
+type BatchDeleteForm = {
+    dirnamePath: string
+    tagTitle: string
+    seriesName: string
+    deleteAttribute: boolean
+}
+
+
+type RecordDetail = {
+    id: number,
+    // file
+}
+
+
 type EditRecordOptions = {
     coverChanged: boolean
 }

@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3790846 */
-  src: url('iconfont.woff2?t=1691253500749') format('woff2'),
-       url('iconfont.woff?t=1691253500749') format('woff'),
-       url('iconfont.ttf?t=1691253500749') format('truetype');
+  src: url('iconfont.woff2?t=1692454467955') format('woff2'),
+       url('iconfont.woff?t=1692454467955') format('woff'),
+       url('iconfont.ttf?t=1692454467955') format('truetype');
 }
 
 .iconfont {
@@ -13,20 +13,64 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-delete:before {
-  content: "\e6f9";
+.icon-fork:before {
+  content: "\e603";
 }
 
-.icon-contentcopy:before {
-  content: "\e6fe";
+.icon-tags:before {
+  content: "\ecdd";
+}
+
+.icon-tagso:before {
+  content: "\e654";
+}
+
+.icon-tags1:before {
+  content: "\e66a";
+}
+
+.icon-tag:before {
+  content: "\e7e4";
+}
+
+.icon-tags2:before {
+  content: "\e7e5";
+}
+
+.icon-liebiao:before {
+  content: "\eaf8";
+}
+
+.icon-List:before {
+  content: "\e6e8";
+}
+
+.icon-xilie:before {
+  content: "\e60d";
+}
+
+.icon-hashtag-solid:before {
+  content: "\e6c5";
+}
+
+.icon-List1:before {
+  content: "\e69e";
+}
+
+.icon-hashtag:before {
+  content: "\e687";
+}
+
+.icon-hashtag1:before {
+  content: "\e786";
+}
+
+.icon-hashtag2:before {
+  content: "\e701";
 }
 
 .icon-folder3:before {
   content: "\e73e";
-}
-
-.icon-folder21:before {
-  content: "\e73f";
 }
 
 .icon-keyboardarrowdown:before {
@@ -113,18 +157,6 @@
   content: "\e69d";
 }
 
-.icon-folder1:before {
-  content: "\e7d1";
-}
-
-.icon-folder-open-fill:before {
-  content: "\e85e";
-}
-
-.icon-folder2:before {
-  content: "\e6e8";
-}
-
 .icon-open-outline:before {
   content: "\e9fc";
 }
@@ -185,10 +217,6 @@
   content: "\e61f";
 }
 
-.icon-batch:before {
-  content: "\e62c";
-}
-
 .icon-piliangxuanze:before {
   content: "\e622";
 }
@@ -205,24 +233,12 @@
   content: "\e658";
 }
 
-.icon-icons-:before {
-  content: "\e66b";
-}
-
-.icon-huishouzhan:before {
-  content: "\e61a";
-}
-
 .icon-huishouzhan1:before {
   content: "\e636";
 }
 
 .icon-diandian:before {
   content: "\e653";
-}
-
-.icon-angleright1:before {
-  content: "\e616";
 }
 
 .icon-angle-right1:before {

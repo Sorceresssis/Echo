@@ -12,7 +12,8 @@
                 <li v-for="i in 20"
                     class="author-recommendation-item divider">
                     <img src="file://F:\Desktop\images\息屏.png"
-                         class="author-icon fit--cover">
+                         class="author-icon fit--cover"
+                         @click="">
                     <div class="author-text">
                         <h1>ASK</h1>
                         <p class="meta inline-list">
@@ -51,8 +52,11 @@
 
 <script setup lang='ts'>
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { $t } from '@locales/index'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
+
+const router = useRouter()
 
 const search = ref<string>('')
 const currentPage = ref<number>(1)
@@ -107,12 +111,6 @@ onMounted(() => {
     display: inline-block;
     width: var(--author-recommend-item-height);
     height: var(--author-recommend-item-height);
-    vertical-align: middle;
-    background-repeat: no-repeat;
-    background-position: top;
-    background-size: cover;
-    background-color: #fff;
-    border-radius: 50%;
     cursor: pointer;
 }
 

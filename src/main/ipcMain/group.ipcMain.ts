@@ -4,7 +4,7 @@ import GroupDao from '../dao/groupDao'
 
 
 export default function ipcMainGroup() {
-    const groupDao = new GroupDao(config.getGroupDBPath())
+    const groupDao = new GroupDao(config.getGroupDBFile())
 
     ipcMain.handle('group:getGroups', (): Group[] => {
         try {

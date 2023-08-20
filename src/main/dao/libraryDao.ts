@@ -11,7 +11,7 @@ export default class LibraryDao {
 
     constructor(libraryId: number) {
         this.libraryId = libraryId
-        const path = config.getLibraryDBPath(libraryId)
+        const path = config.getLibraryDBFile(libraryId)
         // 判断文件是否存在
         if (!fs.existsSync(path)) {
             this.db = new DBUtil(path)
@@ -72,10 +72,18 @@ export default class LibraryDao {
         })
     }
 
-    public autoComplete(type: AcType, queryWord: string[], ps: number): AcSuggestion[] {
+    private registerSQLFnPathResolve(): void {
+        this.db.function('PATH_RESOLVE', (dirname, basename) => {
+            return dirname && basename ?
+                path.resolve(dirname, basename)
+                : null
+        })
+    }
+
+    public autoComplete(type: AcType, queryWord: string, ps: number): AcSuggestion[] {
         const table = [
-            "SELECT 'record' AS type, id, title AS value, cover AS image, REGEXP(title) AS sore FROM record WHERE sore > 0",
-            "SELECT 'author' AS type, id, name AS value, avatar AS image, REGEXP(name) AS sore FROM author WHERE sore > 0",
+            "SELECT 'record' AS type, id, title AS value, PATH_RESOLVE(?, cover) AS image, REGEXP(title) AS sore FROM record WHERE sore > 0",
+            "SELECT 'author' AS type, id, name AS value, PATH_RESOLVE(?, avatar) AS image, REGEXP(name) AS sore FROM author WHERE sore > 0",
             "SELECT 'tag' AS type, id, title AS value, NULL AS image, REGEXP(title) AS sore FROM tag WHERE sore > 0",
             "SELECT 'series' AS type, id, name AS value, NULL AS image, REGEXP(name) AS sore FROM  series WHERE sore > 0",
             "SELECT 'dirname' AS type, id, path AS value, NULL AS image, REGEXP(path) AS sore FROM dirname WHERE sore > 0",
@@ -94,11 +102,33 @@ export default class LibraryDao {
         tableIdxs[type].forEach((v, i) => {
             if (i > 0) { sqlBuilder.append('UNION ALL') }
             sqlBuilder.append(table[v])
+            if (v === 0 || v === 1) {
+                sqlBuilder.appendParam(config.getLibraryImagesDir(this.libraryId))
+            }
         })
         sqlBuilder.append(') ORDER BY sore DESC LIMIT 0, ?;', ps)
         // 生成REGEXP函数
-        this.registerSQLFnRegexp(queryWord)
+        this.registerSQLFnRegexp(tokenizer(queryWord))
+        this.registerSQLFnPathResolve()
         return this.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
+    }
+
+    public queryRecordDetail(id: number): RecordDetail | undefined {
+
+        this.registerSQLFnPathResolve()
+        return
+    }
+
+    private queryTagsByRecordId(id: number): string[] {
+        return []
+    }
+
+    private queryAuthorsByRecordId(id: number): Author[] {
+        return []
+    }
+
+    private querySeriesByRecordId(id: number): any[] {
+        return []
     }
 
     // 根据属性删除记录

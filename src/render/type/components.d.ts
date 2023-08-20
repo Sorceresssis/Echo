@@ -13,4 +13,5 @@ type TabsComponent = {
     id: number,
     name: string,
     component: any,
+    disabled?: boolean,
 } 

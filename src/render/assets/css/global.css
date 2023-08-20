@@ -1,12 +1,15 @@
 /******************** echo ********************/
 :root {
-    --echo-theme-color: #9e94f7;
-    --echo-theme-color-light1: #b5adf7;
-    --echo-theme-color-light2: #e1dff7;
-    --echo-theme-color-light3: #f1f0fe;
-    --echo-text-color1: #000000;
-    --echo-text-color2: #333333;
-    --echo-text-color3: #474747;
+    /* --echo-theme-color: #00aacb; */
+    --echo-theme-color: #8e75ff;
+    --echo-theme-color-light1: #9780ff;
+    --echo-theme-color-light2: #ac99ff;
+    --echo-theme-color-light3: #c1b3ff;
+    --echo-theme-color-light4: #d5ccff;
+    --echo-theme-color-light5: #eae6ff;
+    --echo-theme-color-light6: #f4f2ff;
+    --echo-emphasis-color: #258fb8;
+    --echo-warning-color: #f56c6c;
 }
 
 html,
@@ -178,6 +181,14 @@ body,
     border-bottom: 1px solid #d6dee5;
 }
 
+.author-icon {
+    display: inline-block;
+    border-radius: 50%;
+    border: 1px solid #e1e1e1;
+    background-color: #fff;
+    object-fit: cover;
+}
+
 .select-none {
     user-select: none;
 }
@@ -329,4 +340,14 @@ body,
 
 .settings-item__content .col {
     width: 180px;
+}
+
+/* tips */
+.tips__reference {
+    color: #9499a0;
+    font-size: 12px;
+}
+
+.tips__content {
+    font-size: 13px;
 }

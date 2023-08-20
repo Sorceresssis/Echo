@@ -115,8 +115,7 @@
         <context-menu v-model:show="isVisCtmLibrary"
                       :options="ctmOptions">
             <context-menu-item label="面板"
-                               @click="router.push(`/library/${ctmCurLib().id}`)">
-            </context-menu-item>
+                               @click="router.push(`/library/${ctmCurLib().id}`)" />
             <context-menu-item label="管理数据"
                                @click="router.push(`/library/${ctmCurLib().id}/manage`)">
                 <template #icon> <span class="iconfont"></span> </template>
@@ -128,7 +127,7 @@
                                @click="openRename" />
             <context-menu-item label="删除"
                                @click="openDelete">
-                <template #icon> <span class="iconfont">&#xe61a;</span> </template>
+                <template #icon> <span class="iconfont">&#xe636;</span> </template>
             </context-menu-item>
             <context-menu-group label="移动到">
                 <context-menu-item v-for="(group, idxGroup) in groups"
@@ -400,7 +399,6 @@ const moveLibrary = async (idxGroup: number) => {
     const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
     // 如果是移动到自己的组，不进行操作
     if (cg === idxGroup) {
-        console.log('移动到自己的组，不进行操作');
         return
     }
     // 把library移动到groupId组的第一个位置
@@ -466,7 +464,7 @@ const moveLibrary = async (idxGroup: number) => {
 }
 
 .menu-item:hover:not(.active-library) {
-    background-color: var(--echo-theme-color-light3);
+    background-color: var(--echo-theme-color-light6);
 }
 
 .active-library {

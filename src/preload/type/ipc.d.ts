@@ -68,15 +68,21 @@ export interface IElectronAPI {
     windowClose: () => Promise<void>
 }
 
+export interface ISystemAPI {
+    pathSep: () => Promise<'\\' | '/'>
+}
+
+export interface IVersionAPI {
+    app: () => Promise<string>
+    electron: string
+    chrome: string
+    node: string
+}
+
 declare global {
     interface Window {
         electronAPI: IElectronAPI
         versionAPI: IVersionAPI
-    }
-    interface IVersionAPI {
-        app: () => Promise<string>
-        electron: string
-        chrome: string
-        node: string
+        systemAPI: ISystemAPI
     }
 }

@@ -52,7 +52,7 @@ import type { FormInstance, FormRules, } from 'element-plus'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 
 const formRef = ref<FormInstance>()
-const formData = reactive({
+const formData = reactive<BatchDeleteForm>({
     dirnamePath: '',
     tagTitle: '',
     seriesName: '',
@@ -71,6 +71,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
+        // window.electronAPI.batchDeleteRecord(formData)
     })
 } 
 </script>

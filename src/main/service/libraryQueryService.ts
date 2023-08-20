@@ -8,12 +8,6 @@ export default class LibraryQueryService {
         this.libraryDao = new LibraryDao(libraryId)
     }
 
-    public autoComplete(type: AcType, queryWord: string, ps: number): AcSuggestion[] {
-        const result = this.libraryDao.autoComplete(type, tokenizer(queryWord), ps)
-        this.libraryDao.destroy()
-        return result
-    }
-
     private __generateFilters(input: string[]): string[] {
         const result: string[] = []
         const current: string[] = new Array(input.length)

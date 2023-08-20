@@ -165,8 +165,9 @@ const openCtm = (e: MouseEvent) => {
 }
 
 .record-recommendations .tag::before {
-    content: '#';
-    margin-right: 2px;
+    content: '\e701';
+    font-family: "iconfont" !important;
+    font-size: 14px;
 }
 
 .check-container {

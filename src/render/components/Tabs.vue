@@ -7,8 +7,8 @@
             <div v-for="(component, idx) in components"
                  :key="component.id"
                  class="menu-item"
-                 :class="[modelValue == idx ? 'menu-avtive' : '']"
-                 @click="emit('update:modelValue', idx)">
+                 :class="[modelValue == idx ? 'menu-avtive' : '', component.disabled ? 'disabled' : '']"
+                 @click="changeTab(idx)">
                 {{ component.name }}
             </div>
         </div>
@@ -28,7 +28,14 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: number): void
-}>() 
+}>()
+
+
+
+const changeTab = (idx: number) => {
+    if (props.components[idx].disabled) return
+    emit('update:modelValue', idx)
+}
 </script>
 
 <style scoped>
@@ -43,12 +50,17 @@ const emit = defineEmits<{
     cursor: pointer;
 }
 
-.menu-item:hover {
+.menu-item:not(.disabled):hover {
     color: var(--echo-theme-color);
 }
 
 .menu-avtive {
     color: var(--echo-theme-color);
+}
+
+.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .menu-avtive::after {

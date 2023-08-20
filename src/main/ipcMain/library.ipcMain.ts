@@ -3,17 +3,28 @@ import LibraryQueryService from "../service/libraryQueryService"
 import ImageService from "../service/ImageService"
 import LibraryDao from "../dao/libraryDao"
 import { unlinkSync, isLegalAbsolutePath } from "../util/FileManager"
-import tokenizer from "../util/tokenizer"
 
 // 多个窗口可能同时调用，所有不能使用唯一的LibraryDao
 export default function ipcMainLibrary() {
     ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, options: AcOptions): AcSuggestion[] => {
         const libraryDao = new LibraryDao(libraryId)
         try {
-            return libraryDao.autoComplete(options.type, tokenizer(options.queryWord), options.ps)
+            return libraryDao.autoComplete(options.type, options.queryWord, options.ps)
         } catch (e: any) {
             dialog.showErrorBox('record:autoComplete', e.message)
             return []
+        } finally {
+            libraryDao.destroy()
+        }
+    })
+
+    ipcMain.handle('record:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, recordId: number): RecordDetail | undefined => {
+        const libraryDao = new LibraryDao(libraryId)
+        try {
+            return libraryDao.queryRecordDetail(recordId)
+        } catch (e: any) {
+            dialog.showErrorBox('record:queryDetail', e.message)
+            return
         } finally {
             libraryDao.destroy()
         }
@@ -58,7 +69,7 @@ export default function ipcMainLibrary() {
 
     })
 
-    ipcMain.handle('record:batchDelete', (e: IpcMainInvokeEvent, libraryId: number,) => {
+    ipcMain.handle('record:batchDelete', (e: IpcMainInvokeEvent, libraryId: number, formData: BatchDeleteForm) => {
 
     })
 
@@ -100,6 +111,7 @@ export default function ipcMainLibrary() {
                 if (formData.originAvatar.length) {
                     unlinkSync(formData.originAvatar)
                 }
+                if (!author.avatar) return
                 // 保存新的头像
                 const imageService = new ImageService(formData.avatar, libraryId)
                 const avatar = imageService.handleAuthorAvatar()
@@ -108,11 +120,7 @@ export default function ipcMainLibrary() {
                 }
             }
             // 判断添加还是修改
-            if (formData.id === 0) {
-                libraryDao.addAuthor(author)
-            } else {
-                libraryDao.editAuthor(author)
-            }
+            formData.id === 0 ? libraryDao.addAuthor(author) : libraryDao.editAuthor(author)
             return true
         } catch (e: any) {
             dialog.showErrorBox('author:edit', e.message)

@@ -25,12 +25,19 @@ type EditAuthorForm = {
     id: number,
     name: string,
     avatar: string,
+    originAvatar: string,
     intro: string,
 }
 
-type EditAuthorOptions = {
-    avatarChanged: boolean
+type BatchDeleteForm = {
+    dirnamePath: string
+    tagTitle: string
+    seriesName: string
+    deleteAttribute: boolean
 }
+
+
+
 
 type EditRecordOptions = {
     coverChanged: boolean

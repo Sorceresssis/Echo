@@ -37,4 +37,6 @@ export default function ipcMainSystem() {
     ipcMain.handle('system:writeClipboard', (e: IpcMainInvokeEvent, text: string) => {
         clipboard.writeText(text)
     })
+
+    ipcMain.handle('system:pathSep', (e: IpcMainInvokeEvent) => path.sep)
 }
