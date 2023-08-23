@@ -13,6 +13,7 @@ export const openExternal = (url: string) => {
  * @param fullPath 
  */
 export const openInExplorer = (fullPath: string) => {
+    // TODO 成功还是失败
     window.electronAPI.openInExplorer(fullPath)
 }
 

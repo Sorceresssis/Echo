@@ -13,7 +13,7 @@
 import { ref, shallowReactive, watch, onMounted } from 'vue'
 import { useRoute, } from 'vue-router'
 import Tabs from '@/components/Tabs.vue'
-import ManageRecord from './ManageRecord.vue'
+import EditRecord from './EditRecord.vue'
 import DeleteRecord from './DeleteRecord.vue'
 import EditAuthor from './EditAuthor.vue'
 import EditDirname from './EditDirname.vue'
@@ -21,7 +21,7 @@ import DataSecurity from './DataSecurity.vue'
 
 const route = useRoute()
 const components = shallowReactive<TabsComponent[]>([
-    { id: 1, name: '管理记录', component: ManageRecord, disabled: false },
+    { id: 1, name: '编辑记录', component: EditRecord, disabled: false },
     { id: 2, name: '批量删除', component: DeleteRecord, disabled: false },
     { id: 3, name: '添加作者', component: EditAuthor, disabled: false },
     { id: 4, name: '编辑目录', component: EditDirname, disabled: false },

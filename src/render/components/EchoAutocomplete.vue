@@ -13,9 +13,10 @@
         <template #default="{ item }">
             <div class="echo-ac-suggestion flex-row">
                 <img v-if="item.type === 'record' || item.type === 'author'"
+                     class="img-icon"
                      :class="[item.type]"
-                     src="file://F:/Desktop/images/2.jpg"
-                     alt="error">
+                     :src="item.image ? `file:///${item.image}` : noImg"
+                     @error="($event.target as HTMLImageElement).src = noImg">
                 <span v-else
                       :class="[item.type]"></span>
                 <div class="flex-1 echo-ac-suggestion_text">
@@ -32,6 +33,7 @@
 
 <script setup lang='ts'>
 import { Ref, inject, toRaw } from 'vue'
+import noImg from '@/assets/images/no-img.png'
 
 const props = withDefaults(defineProps<{
     type?: AcType
@@ -53,7 +55,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void
     // TODO ender时间
-    (e: 'btnSelect', item: AcSuggestion): void // 按钮选择，点击一个固定的按钮，将item.value传出去与原始的select区分
+    (e: 'btnSelect', item: VO.AcSuggestion): void // 按钮选择，点击一个固定的按钮，将item.value传出去与原始的select区分
 }>()
 
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
@@ -81,7 +83,6 @@ const querySearch = (queryWord: string, cb: any) => {
     width: 80px;
     height: 80px;
     border-radius: 50%;
-    object-fit: cover;
 }
 
 .echo-ac-suggestion .record {

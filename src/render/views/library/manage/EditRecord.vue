@@ -42,7 +42,7 @@
             <div v-else
                  class="form-header">
                 <el-form-item label="本地资源路径"
-                              prop="dirname">
+                              prop="resourse">
                     <div style="margin-bottom: 6px;">
                         <echo-autocomplete v-model="formData.dirname"
                                            type="dirname"
@@ -64,6 +64,7 @@
                             <span class="tips__reference">路径输入建议</span>
                         </template>
                         <div class="tips__content">
+                            <p> 程序不会去检查你填写的路径是否在设备上存在，但是会检查路径是否合法, 比如basename不能超过255个字</p>
                             <p> 最好使用当前平台的路径格式，因为后台会强制把其他平台的路径格式转换成当前平台的路径格式。可能会导致路径错误。</p>
                             <p> windows路径分隔符是'\', 输入类似于C:\foo。其他的路径分隔符是'/'。输入类似于/root </p>
                         </div>
@@ -122,7 +123,7 @@
                          class="author flex-center">
                         <img :src="author.avatar ? `file:///${author.avatar}` : noImg"
                              :key="author.id"
-                             class="author-icon"
+                             class="img-icon"
                              @error="($event.target as HTMLImageElement).src = noImg">
                         <p class="textover--ellopsis">{{ author.name }}</p>
                         <span class="deleteIcon"
@@ -136,7 +137,7 @@
                                        class="flex-1"
                                        type="tag"
                                        :placeholder="'库中没有则会自动添加'" />
-                    <button2 @click="tagAdder(dispalyFormData.tagInput)">添加</button2>
+                    <button2 @click="tagAdder">添加</button2>
                 </div>
                 <div class="attribute-container scrollbar-y-w4">
                     <div v-if="displayTags.length === 0"
@@ -158,7 +159,7 @@
                                        class="flex-1"
                                        type="series"
                                        :placeholder="'库中没有则会自动添加'" />
-                    <button2 @click="seriesAdder(dispalyFormData.seriesInput)">添加</button2>
+                    <button2 @click="seriesAdder">添加</button2>
                 </div>
                 <div class="attribute-container scrollbar-y-w4">
                     <div v-if="displaySeries.length === 0"
@@ -192,8 +193,13 @@
             </el-form-item>
             <el-form-item>
                 <el-button type="primary"
+                           :loading="btnLoading"
                            @click="submitForm(formRef)">
                     {{ submitBtnText }}
+                </el-button>
+                <el-button v-if="isAdd"
+                           @click="resetFormData">
+                    重置
                 </el-button>
             </el-form-item>
         </el-form>
@@ -201,13 +207,14 @@
 </template>
   
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, Ref, watch, inject } from 'vue'
 import { useRoute } from 'vue-router'
-import useManageRecordService from '@/service/manageRecordService'
+import useEditRecordServic from '@/service/editRecordService'
 import Button2 from '@/components/Button2.vue'
 import type { FormInstance, FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import noImg from '@/assets/images/no-img.png'
+import Message from '@/util/Message'
 
 const rateColors = ref(['#b5adf7', '#887cf7', '#9e94f7']) // 评分颜色 
 const inputAutoSize = {
@@ -215,15 +222,13 @@ const inputAutoSize = {
     maxRows: 4
 }
 const route = useRoute()
-const isAdd = ref<boolean>(true)
-const submitBtnText = ref<string>('添加')
 
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
+const isAdd = ref<boolean>(true)
+const btnLoading = ref<boolean>(false)
+const submitBtnText = ref<string>('添加')
 const formRef = ref()
-const dispalyFormData = reactive({
-    authorInput: '',
-    tagInput: '',
-    seriesInput: ''
-})
+
 const {
     displayTags,
     tagAdder,
@@ -235,6 +240,7 @@ const {
     authorAdder,
     authorRemover,
     formData,
+    dispalyFormData,
     options,
     switchBatch,
     selectCover,
@@ -244,9 +250,26 @@ const {
     saveOriginData,
     submit,
     resetFormData,
-} = useManageRecordService()
+} = useEditRecordServic()
 
 const rules = reactive<FormRules>({
+    resourse: [
+        {
+            validator: (rule, value: string, callback) => {
+                const dirname = formData.dirname.trim()
+                const basename = formData.basename.trim()
+                // 都为空或者都不为空
+                if (options.batch || (dirname.length === 0 && basename.length === 0) ||
+                    (dirname.length !== 0 && basename.length !== 0)
+                ) {
+                    callback()
+                } else {
+                    callback('请填写完整的资源路径')
+                }
+            },
+            trigger: 'blur'
+        },
+    ],
     title: [
         {
             validator: (rule, value: string, callback) => {
@@ -271,7 +294,16 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-        submit()
+        btnLoading.value = true
+        submit(activeLibrary.value).then((result) => {
+            // 如果result是undefined，表示后台出错，有弹框警告
+            if (!result) return
+            result.code
+                ? Message.success(submitBtnText.value + '成功')
+                : Message.error(submitBtnText.value + '失败')
+
+        }).catch(() => { })
+        btnLoading.value = false
     })
 }
 
@@ -280,7 +312,7 @@ const init = () => {
     if (id) {
         isAdd.value = false
         submitBtnText.value = '修改'
-        saveOriginData(Number.parseInt(id))
+        saveOriginData(activeLibrary.value, Number.parseInt(id))
     } else {
         isAdd.value = true
         submitBtnText.value = '添加'
@@ -343,6 +375,7 @@ onMounted(init)
 .attribute-container .author>img {
     width: 80px;
     height: 80px;
+    border-radius: 50%;
 }
 
 .attribute-container .tag {
@@ -378,4 +411,4 @@ onMounted(init)
     border: 1px solid #e1e1e1;
     box-sizing: border-box;
 }
-</style>
+</style>@/service/editRecordService

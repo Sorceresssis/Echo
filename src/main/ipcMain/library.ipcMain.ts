@@ -1,12 +1,14 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
-import LibraryQueryService from "../service/libraryQueryService"
-import ImageService from "../service/ImageService"
-import LibraryDao from "../dao/libraryDao"
 import { unlinkSync, isLegalAbsolutePath } from "../util/FileManager"
+import LibraryDao from "../dao/libraryDao"
+import ImageService from "../service/ImageService"
+import LibraryQueryService from "../service/libraryQueryService"
+import ManageRecordSerivce from "../service/ManageRecordSerivce"
+import Result from "../util/Result"
 
 // 多个窗口可能同时调用，所有不能使用唯一的LibraryDao
 export default function ipcMainLibrary() {
-    ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, options: AcOptions): AcSuggestion[] => {
+    ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.AcOptions): VO.AcSuggestion[] => {
         const libraryDao = new LibraryDao(libraryId)
         try {
             return libraryDao.autoComplete(options.type, options.queryWord, options.ps)
@@ -18,7 +20,7 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('record:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, recordId: number): RecordDetail | undefined => {
+    ipcMain.handle('record:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, recordId: number): VO.RecordDetail | undefined => {
         const libraryDao = new LibraryDao(libraryId)
         try {
             return libraryDao.queryRecordDetail(recordId)
@@ -30,46 +32,23 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('record:queryProfiles', (e: IpcMainInvokeEvent, libraryId: number, option: any): any => {
-        // let libraryDao = new LibraryDao(libraryId)
-        return
-    })
-
-    ipcMain.handle('record:addRecord', (e: IpcMainInvokeEvent, libraryId: number, recordForm: RecordForm, option: RecordFormOptions): boolean => {
-
-        // 添加属性
-        // 添加dirname 返回的是dirname的id
-        // 添加标签 返回的是标签的id
-        // 添加系列 返回的是系列的id
-
-        // 事务
-        // record表中添加记录
-        // 在record_dirname中添加记录
-        // 在record_tag中添加记录
-        // 在record_series中添加记录
-        // 在record中添加作者id
-        // record额外信息
-
-        // 删除标签这怎么办？
-
-        // let libraryDao
-        // try {
-        //     libraryDao = new LibraryDao(libraryId)
-        //     return true
-        // } catch (e: any) {
-        //     dialog.showErrorBox('record:add', e.message)
-        //     return false
-        // } finally {
-        //     libraryDao?.destroy()
-        // }
-        return true
+    ipcMain.handle('record:edit', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result | undefined => {
+        const manageRecordSerivce = new ManageRecordSerivce(libraryId)
+        try {
+            return manageRecordSerivce.edit(formData, options)
+        } catch (e: any) {
+            dialog.showErrorBox('record:edit', e.message)
+            return
+        } finally {
+            manageRecordSerivce.close()
+        }
     })
 
     ipcMain.handle('record:delete', (e: IpcMainInvokeEvent, libraryId: number, recordId: number) => {
 
     })
 
-    ipcMain.handle('record:batchDelete', (e: IpcMainInvokeEvent, libraryId: number, formData: BatchDeleteForm) => {
+    ipcMain.handle('record:batchDelete', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.BatchDeleteForm) => {
 
     })
 
@@ -85,22 +64,22 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('author:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, authorId: number): AuthorDetail | undefined => {
+    ipcMain.handle('author:query', (e: IpcMainInvokeEvent, libraryId: number, authorId: number): VO.Author | undefined => {
         const libraryDao = new LibraryDao(libraryId)
         try {
-            return libraryDao.queryAuthorDetail(authorId)
+            return libraryDao.queryAuthor(authorId)
         } catch (e: any) {
-            dialog.showErrorBox('author:queryDetail', e.message)
+            dialog.showErrorBox('author:query', e.message)
             return
         } finally {
             libraryDao.destroy()
         }
     })
 
-    ipcMain.handle('author:edit', async (e: IpcMainInvokeEvent, libraryId: number, formData: EditAuthorForm,) => {
+    ipcMain.handle('author:edit', async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditAuthorForm,) => {
         const libraryDao = new LibraryDao(libraryId)
         try {
-            const author: Author = {
+            const author: Entity.Author = {
                 id: formData.id,
                 name: formData.name.trim(),
                 avatar: formData.avatar.length ? formData.avatar : null,
@@ -111,12 +90,13 @@ export default function ipcMainLibrary() {
                 if (formData.originAvatar.length) {
                     unlinkSync(formData.originAvatar)
                 }
-                if (!author.avatar) return
-                // 保存新的头像
-                const imageService = new ImageService(formData.avatar, libraryId)
-                const avatar = imageService.handleAuthorAvatar()
-                if (avatar) {
-                    author.avatar = avatar
+                if (author.avatar) {
+                    // 保存新的头像
+                    const imageService = new ImageService(formData.avatar, libraryId)
+                    const avatar = imageService.handleAuthorAvatar()
+                    if (avatar) {
+                        author.avatar = avatar
+                    }
                 }
             }
             // 判断添加还是修改
@@ -142,7 +122,7 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('tag:query', (e: IpcMainInvokeEvent, libraryId: number, options: QueryAttributesOptions) => {
+    ipcMain.handle('tag:query', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAttributesOptions): DTO.Page<VO.TextAttribute> | undefined => {
         const libraryDao = new LibraryDao(libraryId)
         try {
             return libraryDao.queryTags(options.queryWork, options.sortField, options.asc, options.pn, options.ps)
@@ -178,7 +158,7 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('dirname:query', (e: IpcMainInvokeEvent, libraryId: number, options: QueryAttributesOptions) => {
+    ipcMain.handle('dirname:query', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAttributesOptions): DTO.Page<VO.TextAttribute> | undefined => {
         let libraryDao
         try {
             libraryDao = new LibraryDao(libraryId)
@@ -215,20 +195,20 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('dirname:startsWithReplace', (e: IpcMainInvokeEvent, libraryId: number, target: string, replace: string) => {
+    ipcMain.handle('dirname:startsWithReplace', (e: IpcMainInvokeEvent, libraryId: number, target: string, replace: string): Result => {
         const libraryDao = new LibraryDao(libraryId)
         try {
             // 过滤掉window的 不合法的盘符
             if (isLegalAbsolutePath(target) && isLegalAbsolutePath(replace)) {
                 libraryDao.startsWithReplaceDirname(target, replace)
-                return { code: 1 }
+                return Result.success()
             }
             else {
-                return { code: 0, msg: '路径不合法' }
+                return Result.error('路径不合法')
             }
         } catch (e: any) {
             dialog.showErrorBox('dirname:startsWithReplace', e.message)
-            return { code: 0, msg: e.message }
+            return Result.error(e.message)
         } finally {
             libraryDao.destroy()
         }

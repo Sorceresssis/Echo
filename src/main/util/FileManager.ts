@@ -65,4 +65,43 @@ export function isLegalFileName(fileName: string): boolean {
     return true
 }
 
-export default { mkdirsSync, unlinkSync, isLegalAbsolutePath, isLegalFileName }
+function isFolderExists(dirPath: string) {
+    try {
+        const stat = fs.statSync(dirPath)
+        return stat.isDirectory()
+    } catch (error) {
+        // 如果抛出异常，说明路径不存在
+        return false
+    }
+}
+
+function isFileExists(filePath: string) {
+    try {
+        const stat = fs.statSync(filePath)
+        return stat.isFile()
+    } catch (error) {
+        return false
+    }
+}
+
+function dirContentsWithType(dirPath: string): { name: string, type: 'folder' | 'file' }[] {
+    // 使用 fs.readdirSync 方法来读取文件夹内容
+    const contents = fs.readdirSync(dirPath)
+    return contents.map(item => {
+        const stat = fs.statSync(nodePath.join(dirPath, item))
+        return {
+            name: item,
+            type: stat.isDirectory() ? 'folder' : 'file'
+        }
+    })
+}
+
+export default {
+    mkdirsSync,
+    unlinkSync,
+    isLegalAbsolutePath,
+    isLegalFileName,
+    isFileExists,
+    isFolderExists,
+    dirContentsWithType
+}

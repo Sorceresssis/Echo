@@ -20,10 +20,16 @@
                     </div>
                     <div class="operate">
                         <span class="iconfont"
+                              :title="'在文件管理器中打开'"
+                              @click="openInExplorer(dirname.value)">&#xe73e;</span>
+                        <span class="iconfont"
+                              :title="'复制到剪贴板'"
                               @click="writeClibboard(dirname.value)">&#xe85c;</span>
                         <span class="iconfont"
+                              :title="'编辑'"
                               @click="editDirname(dirname.id, dirname.value)">&#xe722;</span>
                         <span class="iconfont"
+                              :title="'删除'"
                               @click="deleteDirname(dirname.id)">&#xe636;</span>
                     </div>
                 </li>
@@ -42,7 +48,7 @@
 
 <script setup lang='ts'>
 import { ref, Ref, inject, onMounted } from 'vue'
-import { writeClibboard } from '@/util/systemUtil'
+import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import { deleteConfirm, editPrompt } from '@/util/ADEMessageBox'
 import { $t } from '@/locales/index'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
@@ -81,7 +87,7 @@ import Empty from '@/components/Empty.vue'
 // }
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const pageSize = 30
-const dirnames = ref<TextAttribute[]>([])
+const dirnames = ref<VO.TextAttribute[]>([])
 
 const search = ref<string>('')
 const currentPage = ref<number>(1)

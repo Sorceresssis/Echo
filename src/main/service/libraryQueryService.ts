@@ -9,6 +9,7 @@ export default class LibraryQueryService {
     }
 
     private __generateFilters(input: string[]): string[] {
+        // Filters generater statuses
         const result: string[] = []
         const current: string[] = new Array(input.length)
         this.__generateFilter(input, 0, current, result)
@@ -30,5 +31,16 @@ export default class LibraryQueryService {
             current[index] = '1'
             this.__generateFilter(input, ++index, current, result)
         }
+    }
+
+
+    public queryRecordRecmds() {
+        return []
+    }
+
+
+    /* author Recommendation */
+    public queryAuthorRecmds(): VO.AuthorRecmd[] {
+        return []
     }
 }

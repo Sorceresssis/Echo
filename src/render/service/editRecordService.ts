@@ -1,30 +1,10 @@
-import { ref, reactive } from "vue"
+import { reactive, toRaw } from "vue"
 import Message from "@/util/Message"
 
 // 简单类型
 type SimpleType = string | number | boolean | undefined | null | symbol
 
-type ManageRecordForm = {
-    id: number,
-    dirname: string,
-    basename: string,
-    batchDir: string,
-    title: string,
-    hyperlink: string,
-    cover: string,
-    originCover: string,
-    rate: number,
-    addTags: string[],
-    removeTags: number[],
-    addAuthors: number[],
-    removeAuthors: number[],
-    addSeries: string[],
-    removeSeries: number[],
-    intro: string,
-    info: string
-}
-
-const useManageRecordService = () => {
+const useEditRecordService = () => {
     /**
      * 添加属性, 注意：K,V 不能是复杂类型，如对象，数组等, 因为Set, Map都是===比较
      * display === origin + add - remove 等式左右完全相等，且add和remove不相交
@@ -69,12 +49,13 @@ const useManageRecordService = () => {
     const displayTags = reactive<Array<string>>([]) // 保存string类型的name
     const addTags = new Set<string>()               // 保存string类型的name
     const removeTags = new Set<number>()            // 保存int类型的id
-    const tagAdder = (value: string) => {
-        const tag = value.trim()       // 去除空格
+    const tagAdder = () => {
+        const tag = dispalyFormData.tagInput.trim()       // 去除空格
         if (tag.length === 0) return   // 空字符串不处理
         if (!attributeAdder(originTags, displayTags, removeTags, addTags, tag)) {
             Message.error('标签已存在')
         }
+        dispalyFormData.tagInput = '' // 清空输入框
     }
     const tagRemover = (value: string) => {
         attributeRemover(originTags, displayTags, removeTags, addTags, value)
@@ -84,12 +65,13 @@ const useManageRecordService = () => {
     const displaySeries = reactive<Array<string>>([]) // 保存string类型的name
     const addSeries = new Set<string>()               // 保存string类型的name
     const removeSeries = new Set<number>()            // 保存int类型的id
-    const seriesAdder = (value: string) => {
-        const series = value.trim()       // 去除空格
+    const seriesAdder = () => {
+        const series = dispalyFormData.seriesInput.trim()       // 去除空格
         if (series.length === 0) return   // 空字符串不处理 
         if (!attributeAdder(originSeries, displaySeries, removeSeries, addSeries, series)) {
             Message.error('已加入系列')
         }
+        dispalyFormData.seriesInput = '' // 清空输入框
     }
     const seriesRemover = (value: string) => {
         attributeRemover(originSeries, displaySeries, removeSeries, addSeries, value)
@@ -97,12 +79,10 @@ const useManageRecordService = () => {
 
     const originAuthors = new Map<number, number>()         // 保存{id: 1, name: 'tag1'}这样的对象
     const __displayAuthors = Array<number>()                // 保存int类型的id
-    const displayAuthors = reactive<Array<{                 // 保存作者详细信息的
-        id: number, name: string, avatar?: string,
-    }>>([])
+    const displayAuthors = reactive<Array<VO.AuthorProfile>>([])   // 保存作者详细信息的 
     const addAuthors = new Set<number>()                    // 保存int类型的id
     const removeAuthors = new Set<number>()                 // 保存int类型的id  
-    const authorAdder = (obj: AcSuggestion) => {
+    const authorAdder = (obj: VO.AcSuggestion) => {
         // 插入作者id
         attributeAdder(originAuthors, __displayAuthors, removeAuthors, addAuthors, obj.id) ?
             displayAuthors.push({
@@ -119,7 +99,7 @@ const useManageRecordService = () => {
         }
     }
 
-    const formData = reactive<ManageRecordForm>({
+    const formData = reactive<DTO.EditRecordForm>({
         id: 0,
         dirname: '',
         basename: '',
@@ -139,8 +119,13 @@ const useManageRecordService = () => {
         info: ''
     })
 
-    // ManageRecordOptions
-    const options = reactive({
+    const dispalyFormData = reactive({
+        authorInput: '',
+        tagInput: '',
+        seriesInput: ''
+    })
+
+    const options = reactive<DTO.EditRecordOptions>({
         batch: false,
         distinct: true,
     })
@@ -149,15 +134,23 @@ const useManageRecordService = () => {
         options.batch = !options.batch
     }
 
-    const selectRecordResource = async (type: 'dir' | 'file') => {
-        const path = (await window.electronAPI.openDialog(type, false))[0]
+    // 路径分割函数
+    const separatePath = async (path: string): Promise<[dirname: string, basename: string] | undefined> => {
         const idx = path.lastIndexOf(await window.systemAPI.pathSep())
         if (idx === -1) {
-            Message.error('不能选择根目录')
-            return
+            Message.error('路径不合法')
+            return void 0
         }
-        formData.dirname = path.substring(0, idx + 1)
-        formData.basename = path.substring(idx + 1)
+        return [path.substring(0, idx + 1), path.substring(idx + 1)]
+    }
+
+    const selectRecordResource = async (type: 'dir' | 'file') => {
+        const path = (await window.electronAPI.openDialog(type, false))[0]
+        const sepd = await separatePath(path)
+        if (sepd) {
+            formData.dirname = sepd[0]
+            formData.basename = sepd[1]
+        }
     }
 
     const selectBatchDir = async () => {
@@ -178,28 +171,55 @@ const useManageRecordService = () => {
         formData.cover = formData.originCover
     }
 
-    const saveOriginData = (id?: number) => {
-        if (id) {
-            //  请求数据
-            // window.electronAPI.
+    const saveOriginData = async (libraryId: number, recordId: number) => {
+        // 保存数据时注意有些值是null, 有些值是undefined, 所以要替换成默认值
 
-            // 写入原始数据
-            // originTags.set()
-            formData.id = id
+        const data = await window.electronAPI.queryRecordDetail(libraryId, recordId)
+        if (!data) return
+        formData.id = data.id
+        formData.title = data.title
+        formData.rate = data.rate
+        if (data.cover) {
+            formData.cover = formData.originCover = data.cover
         }
+        if (data.hyperlink) {
+            formData.hyperlink = data.hyperlink
+        }
+        if (data.resourcePath) {
+            const sped = await separatePath(data.resourcePath)
+            if (sped) {
+                formData.dirname = sped[0]
+                formData.basename = sped[1]
+            }
+        }
+        formData.intro = data.intro
+        formData.info = data.info
+
+        data.tags.forEach((item) => {
+            originTags.set(item.title, item.id)
+            displayTags.push(item.title)
+        })
+        data.series.forEach((item) => {
+            originSeries.set(item.name, item.id)
+            displaySeries.push(item.name)
+        })
+        data.authors.forEach((item) => {
+            originAuthors.set(item.id, item.id)
+            __displayAuthors.push(item.id)
+            displayAuthors.push(item)
+        })
     }
 
-    const submit = () => {
-        // 1.检查数据
-        // 2.提交数据 
-        // window.electronAPI.manageREcord()
+    const submit = (libraryId: number) => {
+        // 处理数据
         formData.addTags = Array.from(addTags)
         formData.removeTags = Array.from(removeTags)
         formData.addAuthors = Array.from(addAuthors)
         formData.removeAuthors = Array.from(removeAuthors)
         formData.addSeries = Array.from(addSeries)
         formData.removeSeries = Array.from(removeSeries)
-        console.log(formData)
+        // 提交数据 
+        return window.electronAPI.editRecord(libraryId, toRaw(formData), toRaw(options))
     }
 
     const resetFormData = () => {
@@ -212,14 +232,26 @@ const useManageRecordService = () => {
         formData.cover = ''
         formData.originCover = ''
         formData.rate = 0
-        formData.addTags = []
-        formData.removeTags = []
-        formData.addAuthors = []
-        formData.removeAuthors = []
-        formData.addSeries = []
-        formData.removeSeries = []
         formData.intro = ''
         formData.info = ''
+        originTags.clear()
+        addTags.clear()
+        removeTags.clear()
+        displayTags.splice(0)
+        originSeries.clear()
+        addSeries.clear()
+        removeSeries.clear()
+        displaySeries.splice(0)
+        originAuthors.clear()
+        addAuthors.clear()
+        removeAuthors.clear()
+        displayAuthors.splice(0)
+        __displayAuthors.splice(0)
+        dispalyFormData.authorInput = ''
+        dispalyFormData.tagInput = ''
+        dispalyFormData.seriesInput = ''
+        options.batch = false
+        options.distinct = true
     }
 
     return {
@@ -237,6 +269,7 @@ const useManageRecordService = () => {
         authorRemover,
         // 表单数据 
         formData,
+        dispalyFormData,
         options,
         switchBatch,
         selectCover,
@@ -250,4 +283,4 @@ const useManageRecordService = () => {
     }
 }
 
-export default useManageRecordService
+export default useEditRecordService

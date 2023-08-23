@@ -66,7 +66,7 @@ const submitBtnText = ref('添加')
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 
 const authorFormRef = ref()
-const formData = reactive<EditAuthorForm>({
+const formData = reactive<DTO.EditAuthorForm>({
     id: 0,
     name: '',
     avatar: '',
@@ -74,7 +74,7 @@ const formData = reactive<EditAuthorForm>({
     intro: '',
 })
 const queryAuthorDetail = async (id: number) => {
-    const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, id)
+    const author = await window.electronAPI.queryAuthor(activeLibrary.value, id)
     if (author) {
         formData.id = author.id
         formData.name = author.name

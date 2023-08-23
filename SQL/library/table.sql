@@ -23,7 +23,7 @@ CREATE INDEX 'idx_record(dirname_id)' ON record (dirname_id);
 -- 1. 为什么要添加info_status字段？
 -- 业务有筛选cover，hyperlink，basename是否为空的功能，如果给这三个字段直接添加索引，让‘’表示为空，但是sqlite3没有前缀索引。
 -- 这使得索引的离散度很高，占用的空间也大，所以不适合直接添加索引。
--- 所以我添加了一个info_status字段，用来表示cover，hyperlink，basename这三个字段是否为空，0 false,1 true。
+-- 所以我添加了一个info_status字段，用来表示cover，hyperlink，basename这三个字段是否为空，0 空,1 不为空。
 -- 给info_status添加索引，值只有2^3=8种可能，离散度很低，占用的空间也小，适合添加索引。
 -- 渲染进程发送也是由0和1组成的字符串，只是0代表不筛选，1代表筛选，0表示可以是空(0)也可以是非空(1)，1表示必须是非空(1)。
 -- 比如，001表示必须要有basename,其他随意，符合的info_status值有001，011，101，111，这四种情况。

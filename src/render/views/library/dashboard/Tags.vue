@@ -23,10 +23,13 @@
                     </div>
                     <div class="operate">
                         <span class="iconfont"
+                              :title="'复制到剪贴板'"
                               @click="writeClibboard(tag.value)">&#xe85c;</span>
                         <span class="iconfont"
+                              :title="'编辑'"
                               @click="editTag(tag.id, tag.value)">&#xe722;</span>
                         <span class="iconfont"
+                              :title="'删除'"
                               @click="deleteTag(tag.id)">&#xe636;</span>
                     </div>
                 </li>
@@ -86,7 +89,7 @@ const dropdownMenu = {
 }
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const pageSize = 50
-const tags = ref<TextAttribute[]>([])
+const tags = ref<VO.TextAttribute[]>([])
 
 const search = ref<string>('')
 const currentPage = ref<number>(1)

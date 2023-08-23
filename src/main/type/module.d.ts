@@ -1,5 +1,4 @@
-// node-segment.d.ts
-
+// node-segment
 declare module 'segment' {
     class Segment {
         constructor();

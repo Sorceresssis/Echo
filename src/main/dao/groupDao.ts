@@ -2,11 +2,11 @@ import fs from 'fs'
 import DBUtil from '../util/dbUtil'
 
 class Group {
-    id: number
+    id: PrimaryKey
     name: string
     librarys: LibraryProfile[]
 
-    constructor(id: number, name: string, librarys: LibraryProfile[]) {
+    constructor(id: PrimaryKey, name: string, librarys: LibraryProfile[]) {
         this.id = id
         this.name = name
         this.librarys = librarys
@@ -130,7 +130,6 @@ export default class GroupDao {
             this.__removeNode(id, 'l') // 删除链接关系
             this.db.run('DELETE FROM library WHERE id = ?;', id) // 删除library记录
             // TODO 删除library文件
-
         })
     }
 

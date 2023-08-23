@@ -52,7 +52,7 @@ import type { FormInstance, FormRules, } from 'element-plus'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
 
 const formRef = ref<FormInstance>()
-const formData = reactive<BatchDeleteForm>({
+const formData = reactive<DTO.BatchDeleteForm>({
     dirnamePath: '',
     tagTitle: '',
     seriesName: '',

@@ -59,15 +59,15 @@ class Config {
         return path.join(this.getDBDir(), 'group.db')
     }
 
-    public getLibraryDBFile(id: number): string {
+    public getLibraryDBFile(id: PrimaryKey): string {
         return path.join(this.getDBDir(), `${id}.db`)
     }
 
-    public getLibaryDBBackupDir(id: number): string {
+    public getLibaryDBBackupDir(id: PrimaryKey): string {
         return path.resolve(this.getDBBackupDir(), id.toString())
     }
 
-    public getLibraryImagesDir(id: number): string {
+    public getLibraryImagesDir(id: PrimaryKey): string {
         return path.resolve(this.getImagesDir(), id.toString())
     }
 }
