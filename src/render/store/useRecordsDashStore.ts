@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import StoreId from './storeId'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
 
-type RecordsView = 'thumbnail' | 'extended'
+type RecordsView = 'compact' | 'thumbnail' | 'extended'
 type SortField = 'date' | 'title' | 'rate'
 type RecordsDashState = {
     view: RecordsView,

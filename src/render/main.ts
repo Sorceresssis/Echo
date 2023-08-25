@@ -4,6 +4,7 @@ import App from './views/App.vue'
 import './assets/css/reset.css'
 import './assets/css/global.css'
 import './assets/css/elementplus.css'
+import './assets/css/recordcard.css'
 import './assets/font/iconfont.css'
 import 'element-plus/dist/index.css'
 

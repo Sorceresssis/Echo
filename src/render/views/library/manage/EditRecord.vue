@@ -76,6 +76,7 @@
                               prop="title">
                     <echo-autocomplete v-model="formData.title"
                                        type="record"
+                                       show-word-limit
                                        :placeholder="'记录的标题'" />
                 </el-form-item>
             </div>
@@ -215,6 +216,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import noImg from '@/assets/images/no-img.png'
 import Message from '@/util/Message'
+import ADEMessageBox from '@/util/ADEMessageBox'
 
 const rateColors = ref(['#b5adf7', '#887cf7', '#9e94f7']) // 评分颜色 
 const inputAutoSize = {
@@ -294,21 +296,28 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-        btnLoading.value = true
-        submit(activeLibrary.value).then((result) => {
-            // 如果result是undefined，表示后台出错，有弹框警告
-            if (!result) return
-            result.code
-                ? Message.success(submitBtnText.value + '成功')
-                : Message.error(submitBtnText.value + '失败')
-
-        }).catch(() => { })
-        btnLoading.value = false
+        const cb = () => {
+            btnLoading.value = true
+            submit(activeLibrary.value).then((result) => {
+                // 如果result是undefined，表示后台出错，有弹框警告
+                if (!result) return
+                result.code
+                    ? Message.success(submitBtnText.value + '成功')
+                    : Message.error(submitBtnText.value + '失败' + ', ' + '建议检查路径和目录', 2000)
+            }).catch(() => { })
+            // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
+            if (!isAdd.value) {
+                init()
+            }
+            btnLoading.value = false
+        }
+        isAdd.value ? ADEMessageBox.addConfirm(cb) : ADEMessageBox.editConfirm(cb)
     })
 }
 
 const init = () => {
     const id = route.query.record_id as string | undefined
+    resetFormData()
     if (id) {
         isAdd.value = false
         submitBtnText.value = '修改'
@@ -316,7 +325,6 @@ const init = () => {
     } else {
         isAdd.value = true
         submitBtnText.value = '添加'
-        resetFormData()
     }
 }
 watch(route, init)
@@ -395,7 +403,7 @@ onMounted(init)
     display: flex;
     margin: 4px 4px;
     padding: 0 16px 0 18px;
-    border: 1px solid var(--echo-theme-color);
+    border: 1px solid var(--echo-emphasis-color);
     border-radius: 4px;
     line-height: 30px;
     font-size: 12px;

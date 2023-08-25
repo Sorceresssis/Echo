@@ -2,7 +2,7 @@
     <tabs v-model="activeComponentIdx"
           :components="components">
         <template v-slot:header>
-            <div class="tab-header fw-bold">
+            <div class="tab-header">
                 管理数据
             </div>
         </template>

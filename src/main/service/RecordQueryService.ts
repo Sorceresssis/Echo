@@ -35,12 +35,17 @@ export default class LibraryQueryService {
 
 
     public queryRecordRecmds() {
+        //  回收的
+        // 清空回收站，
+        // 批量操作，加入回收站，删除，还原
         return []
     }
 
 
-    /* author Recommendation */
-    public queryAuthorRecmds(): VO.AuthorRecmd[] {
+    /* author Recommendation
+    *
+    */
+    public queryAuthorRecmds(): VO.AuthorRecommendation[] {
         return []
     }
 }

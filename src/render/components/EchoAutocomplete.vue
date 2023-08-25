@@ -9,7 +9,7 @@
                      :show-word-limit="showWordLimit"
                      :maxlength="maxlength"
                      :placeholder="placeholder"
-                     :debounce="500">
+                     :debounce="400">
         <template #default="{ item }">
             <div class="echo-ac-suggestion flex-row">
                 <img v-if="item.type === 'record' || item.type === 'author'"

@@ -1,6 +1,5 @@
 /******************** echo ********************/
 :root {
-    /* --echo-theme-color: #00aacb; */
     --echo-theme-color: #8e75ff;
     --echo-theme-color-light1: #9780ff;
     --echo-theme-color-light2: #ac99ff;
@@ -19,6 +18,10 @@ body,
     height: 100%;
     display: flex;
     background-color: #f6f6f8;
+}
+
+img {
+    -webkit-user-drag: none;
 }
 
 /******************** common ********************/
@@ -51,6 +54,15 @@ body,
 .scrollbar-y-w8::-webkit-scrollbar-thumb {
     border-radius: 4px;
     background-color: #cfcfcf;
+}
+
+.scrollbar-x-nodisplay {
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.scrollbar-x-nodisplay::-webkit-scrollbar {
+    display: none;
 }
 
 /* fit */
@@ -108,6 +120,17 @@ body,
     -webkit-app-region: no-drag;
 }
 
+.disabled {
+    cursor: not-allowed !important;
+    opacity: .7;
+}
+
+.inline-list-title::after {
+    content: ":";
+    margin: 0 9px 0 2px;
+    color: #999;
+}
+
 /* min-width会从内向外重新计算盒子的大小，来解决white-space:no-wrap破坏flex布局的问题 */
 .min-width-0 {
     min-width: 0;
@@ -132,22 +155,22 @@ body,
 }
 
 .image-select-btn {
+    width: 100%;
+    height: 28px;
     display: flex;
-    opacity: .8;
+    justify-content: center;
+    align-items: center;
     position: absolute;
     bottom: 0;
-    align-items: center;
-    font-size: 12px;
-    color: #fff;
-    justify-content: center;
-    text-align: center;
-    width: 100%;
-    z-index: 1;
-    background: rgba(0, 0, 0, .6);
-    cursor: pointer;
     padding: 6px 0;
     box-sizing: border-box;
-    height: 28px;
+    background: rgba(0, 0, 0, .6);
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+    opacity: .8;
+    z-index: 1;
+    cursor: pointer;
 }
 
 .image-select-btn::before {
@@ -167,12 +190,7 @@ body,
     width: 50%;
 }
 
-.image-select-btn span:hover {
-    color: rgba(255 255, 255, 0.7);
-}
-
-.image-select-btn .disabled {
-    cursor: not-allowed;
+.image-select-btn span:hover:not(.disabled) {
     color: rgba(255 255, 255, 0.7);
 }
 
@@ -196,10 +214,6 @@ body,
     user-select: text;
 }
 
-.fw-bold {
-    font-weight: bold;
-}
-
 /* adaptive-grid */
 .adaptive-grid {
     display: grid;
@@ -210,6 +224,7 @@ body,
 .tab-header {
     font-size: 30px;
     padding: 10px 0;
+    font-weight: 700;
 }
 
 /******************** View ********************/
@@ -227,6 +242,7 @@ body,
     align-items: center;
     height: 36px;
     padding: 0 18px 0 4px;
+    margin-bottom: 10px;
     line-height: 36px;
 }
 
@@ -237,7 +253,7 @@ body,
 }
 
 .dashboard__header .right-menu {
-    width: 60%;
+    width: 70%;
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -245,7 +261,11 @@ body,
 
 .dashboard__header .el-autocomplete {
     height: 28px !important;
+}
+
+.dashboard__header .search {
     width: 60%;
+    max-width: 400px;
 }
 
 .dashboard__header .menu-item:nth-last-child(n+2) {
@@ -286,9 +306,9 @@ body,
         0px 0px 5px rgba(0, 0, 0, 0.07);
 }
 
-.count {
-    margin-left: 4px;
-    color: #258fb8;
+.dashboard-text-card .count {
+    margin-left: 10px;
+    color: var(--echo-emphasis-color);
 }
 
 .dashboard-text-card .operate {

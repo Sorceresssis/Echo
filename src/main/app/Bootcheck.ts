@@ -4,9 +4,7 @@ import fm from '../util/FileManager'
 
 const bootCheck = () => {
     // 目录检查
-    fm.mkdirsSync(config.getDBDir())
-    fm.mkdirsSync(config.getDBBackupDir())
-    fm.mkdirsSync(config.getImagesDir())
+    fm.mkdirsSync(config.getUserDataPath())
 }
 
 export default bootCheck

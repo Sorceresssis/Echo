@@ -43,32 +43,24 @@ class Config {
         fs.writeFileSync(Config.CONFIG_FILE_PATH, JSON.stringify(this.c), 'utf8')
     }
 
-    public getDBDir(): string {
-        return path.resolve(this.c.userDataPath, 'db')
+    public getUserDataPath(): string {
+        return this.c.userDataPath
     }
 
-    public getDBBackupDir(): string {
-        return path.resolve(this.c.userDataPath, 'dbbackup')
-    }
-
-    public getImagesDir(): string {
-        return path.resolve(this.c.userDataPath, 'images')
+    public getLibraryDir(id: PrimaryKey): string {
+        return path.resolve(this.c.userDataPath, id.toString())
     }
 
     public getGroupDBFile(): string {
-        return path.join(this.getDBDir(), 'group.db')
+        return path.resolve(this.c.userDataPath, 'group.db')
     }
 
     public getLibraryDBFile(id: PrimaryKey): string {
-        return path.join(this.getDBDir(), `${id}.db`)
-    }
-
-    public getLibaryDBBackupDir(id: PrimaryKey): string {
-        return path.resolve(this.getDBBackupDir(), id.toString())
+        return path.join(this.getLibraryDir(id), `${id}.db`)
     }
 
     public getLibraryImagesDir(id: PrimaryKey): string {
-        return path.resolve(this.getImagesDir(), id.toString())
+        return path.resolve(this.getLibraryDir(id), 'images')
     }
 }
 

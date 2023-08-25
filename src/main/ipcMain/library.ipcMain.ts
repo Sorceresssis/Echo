@@ -2,7 +2,7 @@ import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
 import { unlinkSync, isLegalAbsolutePath } from "../util/FileManager"
 import LibraryDao from "../dao/libraryDao"
 import ImageService from "../service/ImageService"
-import LibraryQueryService from "../service/libraryQueryService"
+import LibraryQueryService from "../service/RecordQueryService"
 import ManageRecordSerivce from "../service/ManageRecordSerivce"
 import Result from "../util/Result"
 
@@ -48,8 +48,16 @@ export default function ipcMainLibrary() {
 
     })
 
-    ipcMain.handle('record:batchDelete', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.BatchDeleteForm) => {
-
+    ipcMain.handle('record:deleteByAttribute', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.DeleteRecordByAttributeForm) => {
+        const manageRecordSerivce = new ManageRecordSerivce(libraryId)
+        try {
+            return manageRecordSerivce.deleteByAttribute(formData)
+        } catch (e: any) {
+            dialog.showErrorBox('record:batchDelete', e.message)
+            return
+        } finally {
+            manageRecordSerivce.close()
+        }
     })
 
     ipcMain.handle('author:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number) => {

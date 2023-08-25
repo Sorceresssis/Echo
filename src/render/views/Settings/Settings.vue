@@ -2,7 +2,7 @@
     <tabs :components="componentList"
           v-model="activeComponentIdx">
         <template v-slot:header>
-            <div class="tab-header fw-bold">
+            <div class="tab-header">
                 {{ $t('settings.settings') }}
             </div>
         </template>

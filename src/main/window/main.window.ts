@@ -1,13 +1,10 @@
 import { BrowserWindow, app } from "electron"
+import windowManager from "./windowManager"
 import { resolve } from "path"
+
 const isDev = !app.isPackaged
 
-/**
- * 创建一个主窗口
- * @param libraryId 窗口创建时需要打开的图书馆id
- * @returns 窗口实例
- */
-export function createWindow(libraryId: number | null): BrowserWindow {
+export function createWindow(libraryId?: number): BrowserWindow {
     const win = new BrowserWindow({
         width: 1050,
         height: 649,
@@ -22,6 +19,8 @@ export function createWindow(libraryId: number | null): BrowserWindow {
             webSecurity: false, // 为了开发方便，关闭安全策略，打包时打开
         }
     })
+
+    windowManager.add(win)
 
     if (isDev) {
         win?.loadURL(`http://localhost:${process.env.PORT || 5173}`)
@@ -45,7 +44,9 @@ export function createWindow(libraryId: number | null): BrowserWindow {
         win.webContents.send('window:isMaxmize', true)
     })
     win.on('closed', () => {
-        win.destroy();
+        win.destroy()
     })
     return win
 }
+
+export default { createWindow }

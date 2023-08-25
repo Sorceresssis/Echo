@@ -30,35 +30,81 @@ export interface IElectronAPI {
         newName: string
     ) => Promise<boolean>
 
-    /** 添加group */
-    addGroup: (name: string) => Promise<boolean>
+    /** 
+     * 添加group
+     */
+    addGroup: (
+        name: string
+    ) => Promise<boolean>
 
-    /** 删除group */
-    deleteGroup: (id: number) => Promise<boolean>
+    /** 
+     * 删除group
+     */
+    deleteGroup: (
+        id: number
+    ) => Promise<boolean>
 
-    /** 排序group */
+    /** 
+     * 排序group
+     */
     sortGroup: (
         currId: number,
         tarNextId: number
     ) => Promise<void>
-    /** 获取优先打开的library */
 
     /******************** library ********************/
-    /** 获取后台发送要打开的library */
-    getPrimaryOpenLibrary: (callback: (e: IpcRendererEvent, libraryId: number) => void) => void,
-    /** 通过libraryId获取libraryName */
-    getLibraryNameByID: (id: number) => Promise<string>
-    /** 重命名library */
-    renameLibrary: (id: number, newName: string) => Promise<boolean>
-    /** 添加library */
-    addLibrary: (groupId: number, name: string) => Promise<boolean>
-    /** 删除library */
-    deleteLibrary: (id: number) => Promise<boolean>
-    /** 排序library */
-    sortLibrary: (currId: number, tarNextId: number, groupId: number) => Promise<void>
+
+    /** 
+     * 获取后台发送要打开的library
+     */
+    getPrimaryOpenLibrary: (
+        callback: (e: IpcRendererEvent, libraryId: number) => void
+    ) => void,
+
+    /** 
+     * 通过libraryId获取libraryName
+     */
+    getLibraryNameByID: (
+        id: number
+    ) => Promise<string | null>
+
+    /** 
+     * 重命名library
+     */
+    renameLibrary: (
+        id: number,
+        newName: string
+    ) => Promise<boolean>
+
+    /** 
+     * 添加library
+     */
+    addLibrary: (
+        groupId: number,
+        name: string
+    ) => Promise<boolean>
+
+    /** 
+     * 删除library
+     */
+    deleteLibrary: (
+        id: number
+    ) => Promise<boolean>
+
+    /** 
+     * 排序library
+     */
+    sortLibrary: (
+        currId: number,
+        tarNextId: number,
+        groupId: number
+    ) => Promise<void>
 
     /******************** record ********************/
-    /** 自动补齐 */
+
+    /** 
+     * 自动补齐
+     */
     autoCompleteRecord: (
         libraryId: number,
         options: DTO.AcOptions
@@ -66,9 +112,8 @@ export interface IElectronAPI {
 
     deleteRecordByAttribute: (
         libraryId: number,
-        attribute: string,
-        value: string
-    ) => Promise<Result>,
+        formData: DTO.DeleteRecordByAttributeForm
+    ) => Promise<void>
 
     /**
      * 更具recordId获取record的所有信息
@@ -153,20 +198,44 @@ export interface IElectronAPI {
 
     /******************** system ********************/
 
-    openExternal: (url: string) => Promise<void>
-    openInExplorer: (fullPath: string) => Promise<void>
-    openFile: (fullPath: string) => Promise<void>
-    writeClipboard: (text: string) => Promise<void>
+    openExternal: (
+        url: string
+    ) => Promise<void>
+
+    openInExplorer: (
+        fullPath: string
+    ) => Promise<void>
+
+    openFile: (
+        fullPath: string
+    ) => Promise<void>
+
+    writeClipboard: (
+        text: string
+    ) => Promise<void>
 
 
     /******************** window ********************/
 
-    createMainWindow: (libraryId: number) => Promise<boolean>
-    createItemWinodw: (libraryId: number, itemId: number) => Promise<void>
+    createMainWindow: (
+        libraryId: number
+    ) => Promise<boolean>
+
+    createItemWinodw: (
+        ibraryId: number,
+        itemId: number
+    ) => Promise<void>
+
     windowRelaunch: () => Promise<void>
+
     windowMinmize: () => Promise<void>
+
     windowMaxmize: () => Promise<void>
-    windowIsMaxmize: (callback: (e: IpcRendererEvent, value: any) => void) => Promise<any>
+
+    windowIsMaxmize: (
+        allback: (e: IpcRendererEvent, value: any) => void
+    ) => Promise<any>
+
     windowClose: () => Promise<void>
 }
 

@@ -110,12 +110,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             const result = await window.electronAPI.startsWithReplaceDirname(
                 activeLibrary.value,
                 formData.targetPrefix,
-                formData.replacePrefix)
-            if (result.code) {
-                Message.success('替换成功')
-            } else {
-                Message.error(result.msg as string)
-            }
+                formData.replacePrefix
+            )
+            result.code
+                ? Message.success('替换成功')
+                : Message.error(result.msg as string)
             btnLoading.value = false
         })
     })

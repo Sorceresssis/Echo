@@ -14,7 +14,7 @@
                                    type="dirname"
                                    show-word-limit
                                    placeholder="目录路径"
-                                   maxlength="255" />
+                                   maxlength="4000" />
             </el-form-item>
             <el-form-item label="标签"
                           prop="tagTitle">
@@ -32,14 +32,14 @@
                                    placeholder="系列名"
                                    maxlength="255" />
             </el-form-item>
-            <el-form-item label="并删除属性"
-                          prop="resource">
-                <el-switch v-model="formData.deleteAttribute" />
-            </el-form-item>
             <el-form-item>
                 <el-button type="primary"
+                           :loading="btnLoading"
                            @click="submitForm(formRef)">
                     删除
+                </el-button>
+                <el-button @click="init">
+                    重置
                 </el-button>
             </el-form-item>
         </el-form>
@@ -47,16 +47,21 @@
 </template>
   
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
+import { ref, Ref, reactive, inject, toRaw } from 'vue'
 import type { FormInstance, FormRules, } from 'element-plus'
 import EchoAutocomplete from '@components/EchoAutocomplete.vue'
+import { onBeforeRouteUpdate } from 'vue-router';
+import ADEMessageBox from '@/util/ADEMessageBox';
+import Message from '@/util/Message';
 
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
+
+const btnLoading = ref(false)
 const formRef = ref<FormInstance>()
-const formData = reactive<DTO.BatchDeleteForm>({
+const formData = reactive<DTO.DeleteRecordByAttributeForm>({
     dirnamePath: '',
     tagTitle: '',
     seriesName: '',
-    deleteAttribute: false,
 })
 
 const emptyFormValidator = (rule: any, value: string, callback: (error?: string | Error | undefined) => void) => {
@@ -71,9 +76,21 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-        // window.electronAPI.batchDeleteRecord(formData)
+        ADEMessageBox.deleteConfirm(async () => {
+            btnLoading.value = true
+            await window.electronAPI.deleteRecordByAttribute(activeLibrary.value, toRaw(formData))
+            Message.success('删除成功')
+            btnLoading.value = false
+        })
     })
-} 
+}
+
+const init = () => {
+    formData.dirnamePath = ''
+    formData.tagTitle = ''
+    formData.seriesName = ''
+}
+onBeforeRouteUpdate(init)
 </script>
   
 <style></style>

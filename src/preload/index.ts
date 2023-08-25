@@ -66,9 +66,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     deleteRecordByAttribute: (
         libraryId: number,
-        attribute: string,
-        value: string
-    ) => ipcRenderer.invoke('record:deleteByAttribute', libraryId, attribute, value),
+        formData: DTO.DeleteRecordByAttributeForm
+    ) => ipcRenderer.invoke('record:deleteByAttribute', libraryId, formData),
 
     queryRecordDetail: (
         libraryId: number,
@@ -117,7 +116,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     editTag: (
         libraryId: number,
-        tagId: number, newValue: string
+        tagId: number,
+        newValue: string
     ) => ipcRenderer.invoke('tag:edit', libraryId, tagId, newValue),
 
 

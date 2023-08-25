@@ -2,11 +2,11 @@ import fs from 'fs'
 import DBUtil from '../util/dbUtil'
 
 class Group {
-    id: PrimaryKey
+    id: number
     name: string
     librarys: LibraryProfile[]
 
-    constructor(id: PrimaryKey, name: string, librarys: LibraryProfile[]) {
+    constructor(id: number, name: string, librarys: LibraryProfile[]) {
         this.id = id
         this.name = name
         this.librarys = librarys

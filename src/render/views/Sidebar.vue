@@ -122,7 +122,9 @@
             </context-menu-item>
             <context-menu-sperator />
             <context-menu-item label="在新窗口中打开"
-                               @click="openLibraryInNewWindow" />
+                               @click="openLibraryInNewWindow">
+                <template #icon><span class="iconfont">&#xe7e9;</span></template>
+            </context-menu-item>
             <context-menu-item label="重命名"
                                @click="openRename" />
             <context-menu-item label="删除"

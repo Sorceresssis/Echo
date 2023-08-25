@@ -20,7 +20,8 @@ export default class ManageRecordSerivce {
             if (!fm.isFolderExists(formData.batchDir)) {
                 return Result.error('folder not exists')
             }
-        } else if (
+        }
+        else if (
             formData.dirname
             && formData.basename
             && !(fm.isLegalAbsolutePath(formData.dirname) && fm.isLegalFileName(formData.basename))
@@ -72,7 +73,7 @@ export default class ManageRecordSerivce {
                     // 添加数据
                     recordExtra.id = record.id = this.libraryDao.addRecord(record)
                     this.libraryDao.addRecordExtra(recordExtra)
-                    this.editRecordAttrubute(
+                    this.editRecordAttribute(
                         record.id,
                         formData.addAuthors,
                         formData.removeAuthors,
@@ -82,14 +83,16 @@ export default class ManageRecordSerivce {
                         formData.removeSeries
                     )
                 })
-            } else {
+            }
+            else {
                 record.title = formData.title.trim()
                 record.basename = formData.basename.trim() || null
                 record.infoStatus = this.generateInfoStatus(record.cover, record.hyperlink, record.basename)
                 if (formData.dirname.trim()) {
                     formData.dirname = path.resolve(formData.dirname)
                     record.dirnameId = this.libraryDao.queryDirnameIdByPath(formData.dirname) || this.libraryDao.addDirname(formData.dirname)
-                } else {
+                }
+                else {
                     record.dirnameId = 0
                 }
 
@@ -98,11 +101,12 @@ export default class ManageRecordSerivce {
                     this.libraryDao.updateRecord(record)
                     recordExtra.id = record.id
                     this.libraryDao.updateRecordExtra(recordExtra)
-                } else {
+                }
+                else {
                     recordExtra.id = record.id = this.libraryDao.addRecord(record)
                     this.libraryDao.addRecordExtra(recordExtra)
                 }
-                this.editRecordAttrubute(
+                this.editRecordAttribute(
                     record.id,
                     formData.addAuthors,
                     formData.removeAuthors,
@@ -116,7 +120,7 @@ export default class ManageRecordSerivce {
         return Result.success()
     }
 
-    private editRecordAttrubute(
+    private editRecordAttribute(
         recordId: PrimaryKey,
         addAuthorIds: PrimaryKey[],
         removeAuthorIds: PrimaryKey[],
@@ -142,9 +146,33 @@ export default class ManageRecordSerivce {
     /**
      * 根据属性删除记录
      */
-    public deleteRecordByAttribute(): void {
+    public deleteByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
+        // TODO 批量删除时， 如果，根据tag删除，只会删除tag的链接，其他的链接删除不了
         this.libraryDao.executeInTransaction(() => {
-
+            formData.dirnamePath = formData.dirnamePath.trim()
+            if (formData.dirnamePath.length) {
+                const dirnameId = this.libraryDao.queryDirnameIdByPath(formData.dirnamePath)
+                if (dirnameId) {
+                    this.libraryDao.deleteRecordByDirnameId(dirnameId)
+                    this.libraryDao.deleteDirname(dirnameId)
+                }
+            }
+            formData.tagTitle = formData.tagTitle.trim()
+            if (formData.tagTitle.length) {
+                const tagId = this.libraryDao.queryTagIdByTitle(formData.tagTitle)
+                if (tagId) {
+                    this.libraryDao.deleteRecordByTagId(tagId)
+                    this.libraryDao.deleteTag(tagId)
+                }
+            }
+            formData.seriesName = formData.seriesName.trim()
+            if (formData.seriesName.length) {
+                const seriesId = this.libraryDao.querySeriesIdByName(formData.seriesName)
+                if (seriesId) {
+                    this.libraryDao.deleteRecordBySeriesId(seriesId)
+                    this.libraryDao.deleteSeries(seriesId)
+                }
+            }
         })
     }
 

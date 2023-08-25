@@ -40,7 +40,7 @@ const changeTab = (idx: number) => {
 
 <style scoped>
 .tab-menu {
-    margin: 6px 0;
+    padding: 10px 0;
 }
 
 .menu-item {
@@ -56,11 +56,6 @@ const changeTab = (idx: number) => {
 
 .menu-avtive {
     color: var(--echo-theme-color);
-}
-
-.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }
 
 .menu-avtive::after {

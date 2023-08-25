@@ -7,9 +7,9 @@ async function bootstrap() {
     app.on("ready", () => {
         bootCheck()         // 检查启动项
         IPCMain()           // 开启通信
-        createWindow(null)  // 启动窗口
+        createWindow()  // 启动窗口
         app.on('activate', () => {
-            if (BrowserWindow.getAllWindows().length === 0) createWindow(null)
+            if (BrowserWindow.getAllWindows().length === 0) createWindow()
         })
     });
 }

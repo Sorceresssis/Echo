@@ -1,6 +1,7 @@
-import { BrowserWindow, ipcMain, IpcMainInvokeEvent, app, dialog } from 'electron'
-import { createWindow } from '../window/main.window'
-import { createItemWindow } from '../window/record.window'
+import { BrowserWindow, ipcMain, IpcMainInvokeEvent, app, dialog, webContents } from 'electron'
+import mainWindow from '../window/main.window'
+import recordWindow from '../window/record.window'
+import windowManager from '../window/windowManager'
 
 export default function ipcMainWindow() {
     ipcMain.handle('window:relaunch', (): void => {
@@ -10,14 +11,14 @@ export default function ipcMainWindow() {
 
     ipcMain.handle('window:createMainWindow', (e: IpcMainInvokeEvent, libraryId: number): void => {
         try {
-            createWindow(libraryId)
+            mainWindow.createWindow(libraryId)
         } catch (e: any) {
             dialog.showErrorBox('Error', e.message)
         }
     })
 
     ipcMain.handle('window:createItemWindow', (e: IpcMainInvokeEvent, libraryId, itemId): void => {
-        createItemWindow()
+        recordWindow.createWindow()
     })
 
     /*
@@ -26,11 +27,11 @@ export default function ipcMainWindow() {
     综上，BrowserView实例id和对应webContents实例id的关系为  BrowserView.id = Math.floor((webContent.id - 1) / 2) + 1
     */
     ipcMain.handle('window:minmize', (e: IpcMainInvokeEvent): void => {
-        BrowserWindow.fromId(Math.floor((e.sender.id - 1) / 2) + 1)?.minimize()
+        windowManager.getWindowInstanceByWebContentId(e.sender.id)?.minimize()
     })
 
     ipcMain.handle('window:maxmize', (e: IpcMainInvokeEvent): void => {
-        let win = BrowserWindow.fromId(Math.floor((e.sender.id - 1) / 2) + 1)
+        let win = windowManager.getWindowInstanceByWebContentId(e.sender.id)
         if (win?.isMaximized()) {
             win.restore()
         }
@@ -40,6 +41,6 @@ export default function ipcMainWindow() {
     })
 
     ipcMain.handle('window:close', (e: IpcMainInvokeEvent): void => {
-        BrowserWindow.fromId(Math.floor((e.sender.id - 1) / 2) + 1)?.close()
+        windowManager.getWindowInstanceByWebContentId(e.sender.id)?.close()
     })
 }

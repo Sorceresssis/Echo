@@ -40,11 +40,10 @@ namespace DTO {
     /**
      * 批量删除record的表单
      */
-    type BatchDeleteForm = {
+    type DeleteRecordByAttributeForm = {
         dirnamePath: string
         tagTitle: string
         seriesName: string
-        deleteAttribute: boolean
     }
 
     /**

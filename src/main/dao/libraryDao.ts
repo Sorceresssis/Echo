@@ -1,6 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import config from '../app/config'
+import fm from '../util/FileManager'
 import DBUtil from '../util/dbUtil'
 import DynamicSqlBuilder from '../util/DynamicSqlBuilder'
 import tokenizer from "../util/tokenizer"
@@ -11,6 +12,9 @@ export default class LibraryDao {
 
     constructor(libraryId: PrimaryKey) {
         this.libraryId = libraryId
+        // 检查目录是否存在
+        fm.mkdirsSync(config.getLibraryDir(libraryId))
+        // 检查文件是否存在
         const path = config.getLibraryDBFile(libraryId)
         // 判断文件是否存在
         if (!fs.existsSync(path)) {
@@ -20,6 +24,8 @@ export default class LibraryDao {
         }
         this.db = new DBUtil(path)
     }
+
+    /***************************************** 数据对象操作 *****************************************/
 
     private createTable(): void {
         this.db.transaction(() => {
@@ -168,14 +174,10 @@ export default class LibraryDao {
         ).changes
     }
 
-    private queryRecordById(id: number): VO.Record | null {
+    public queryRecordById(id: number): VO.Record | null {
         return this.db.get(`
         SELECT 
-            r.id,
-            r.title,
-            r.rate,
-            r.cover,
-            r.hyperlink,
+            r.id, r.title, r.rate, r.cover, r.hyperlink,
             PATH_RESOLVE(d.path,  r.basename) as resourcePath,
             DATETIME(gmt_create, 'localtime') AS createTime,
             DATETIME(gmt_modified, 'localtime') AS modifiedTime 
@@ -185,69 +187,54 @@ export default class LibraryDao {
         WHERE r.id = ?;`, id)
     }
 
+    public deleteRecordByDirnameId(id: PrimaryKey): number {
+        return this.db.run('DELETE FROM record WHERE dirname_id = ?;', id).changes
+    }
+
+    public deleteRecordByTagId(id: PrimaryKey): number {
+        return this.db.run('DELETE FROM record WHERE id IN (SELECT record_id FROM record_tag WHERE tag_id = ?);', id).changes
+    }
+
+    public deleteRecordBySeriesId(id: PrimaryKey): number {
+        return this.db.run('DELETE FROM record WHERE id IN (SELECT record_id FROM record_series WHERE series_id = ?);', id).changes
+    }
 
     // ===================================================
     // By RecordId
     // ===================================================
 
-    private queryTagsByRecordId(id: number): VO.Tag[] {
-        return this.db.all(`
-        SELECT
-            t.id,
-            t.title
-        FROM
-            tag t
-            JOIN record_tag rt ON t.id = rt.tag_id
+    public queryTagsByRecordId(id: number): VO.Tag[] {
+        return this.db.all(`SELECT t.id, t.title
+        FROM tag t JOIN record_tag rt ON t.id = rt.tag_id
         WHERE rt.record_id = ?;`, id)
     }
 
-    private queryAuthorsByRecordId(id: number): VO.AuthorProfile[] {
+    public queryAuthorsByRecordId(id: number): VO.AuthorProfile[] {
         return this.db.all(`
-        SELECT
-            a.id,
-            a.name,
-            PATH_RESOLVE(?, a.avatar) AS avatar
-        FROM
-            author a
-            JOIN record_author ra ON a.id = ra.author_id
+        SELECT a.id, a.name, PATH_RESOLVE(?, a.avatar) AS avatar
+        FROM author a JOIN record_author ra ON a.id = ra.author_id
         WHERE ra.record_id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
     }
 
-    private querySeriesByRecordId(id: number): VO.Series[] {
-        return this.db.all(`
-        SELECT
-            s.id,
-            s.name
-        FROM
-            series s
-            JOIN record_series rs ON s.id = rs.series_id
+    public querySeriesByRecordId(id: number): VO.Series[] {
+        return this.db.all(`SELECT s.id, s.name
+        FROM series s JOIN record_series rs ON s.id = rs.series_id
         WHERE rs.record_id = ?;`, id)
     }
 
-    private queryRecordExtraByRecordId(id: number): VO.RecordExtra | undefined {
-        return this.db.get(`
-        SELECT
-            id,
-            intro,
-            info
-        FROM
-            record_extra
-        WHERE id = ?;`, id)
+    public queryRecordExtraByRecordId(id: number): VO.RecordExtra | undefined {
+        return this.db.get(`SELECT id, intro, info FROM record_extra WHERE id = ?;`, id)
     }
 
     public addRecordExtra(recordExtra: Entity.RecordExtra): PrimaryKey {
         return this.db.run('INSERT INTO record_extra(id, intro, info) VALUES(?,?,?);',
-            recordExtra.id,
-            recordExtra.intro,
-            recordExtra.info
+            recordExtra.id, recordExtra.intro, recordExtra.info
         ).lastInsertRowid
     }
 
     public updateRecordExtra(recordExtra: Entity.RecordExtra): number {
         return this.db.run('UPDATE record_extra SET intro=?, info=? WHERE id = ?;',
-            recordExtra.intro,
-            recordExtra.info,
-            recordExtra.id
+            recordExtra.intro, recordExtra.info, recordExtra.id
         ).changes
     }
 
@@ -299,12 +286,7 @@ export default class LibraryDao {
 
     public queryAuthor(id: number): VO.Author | undefined {
         this.registerSQLFnPathResolve()
-        return this.db.get(`
-        SELECT
-            id,
-            name,
-            PATH_RESOLVE(?, avatar) AS avatar,
-            intro,
+        return this.db.get(`SELECT id, name, PATH_RESOLVE(?, avatar) AS avatar, intro,
             DATETIME(gmt_create, 'localtime') AS createTime,
             DATETIME(gmt_modified, 'localtime') AS modifiedTime 
         FROM author WHERE id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
@@ -338,6 +320,7 @@ export default class LibraryDao {
             this.db.run("DELETE FROM record_author WHERE author_id = ?;", id)
         })
     }
+
 
 
     // ===================================================
@@ -391,7 +374,7 @@ export default class LibraryDao {
         return this.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
     }
 
-    public deleteTag(id: number): void {
+    public deleteTag(id: PrimaryKey): void {
         this.db.transaction(() => {
             this.db.run('DELETE FROM tag WHERE id = ?;', id)
             this.db.run('DELETE FROM record_tag WHERE tag_id = ?;', id)
@@ -452,11 +435,9 @@ export default class LibraryDao {
         return this.db.run("INSERT INTO dirname(path) VALUES(?);", path).lastInsertRowid
     }
 
-    public deleteDirname(id: number): void {
-        this.db.transaction(() => {
-            this.db.run('DELETE FROM dirname WHERE id = ?;', id)
-            this.db.run('DELETE FROM record WHERE dirname_id = ?;', id)
-        })
+    public deleteDirname(id: PrimaryKey): void {
+        this.db.run('DELETE FROM dirname WHERE id = ?;', id)
+        this.db.run('UPDATE record SET dirname_id = 0 WHERE dirname_id = ?;', id)
     }
 
     public queryDirnameIdByPath(name: string): PrimaryKey | null {
@@ -466,13 +447,10 @@ export default class LibraryDao {
     /**
      * 以目录为基本单位匹配不是以字符为基本单位匹配 F:\foor\b 是无法与 F:\foor\b 匹配的
      * 一下是C:\foo\bar\baz\qux 的匹配表
-     * C:\foo\bar\baz\q     不符合
-     * C:\foo\bar\ba        不符合
-     * C:\foo\bar\baz\qux   符合
-     * C:\foo\bar\baz       符合
+     * C:\foo\bar\baz\q     不符合 
+     * C:\foo\bar\baz\qux   符合 
      * C:\                  符合 
      * C:                   非法路径
-     * C                    非法路径
      * @param target 
      * @param replace 
      */
@@ -505,6 +483,12 @@ export default class LibraryDao {
         return this.db.prepare('SELECT id FROM series WHERE name = ?;').pluck().get(name) as PrimaryKey | null
     }
 
+    public deleteSeries(id: PrimaryKey): void {
+        this.db.transaction(() => {
+            this.db.run('DELETE FROM series WHERE id = ?;', id)
+            this.db.run('DELETE FROM record_series WHERE series_id = ?;', id)
+        })
+    }
 
     // ===================================================
     // 释放数据库连接

@@ -16,8 +16,8 @@
                          @click="">
                     <div class="author-text">
                         <h1>ASK</h1>
-                        <p class="meta inline-list">
-                            <span>作品数</span>
+                        <p class="meta">
+                            <span class="inline-list-title">作品数</span>
                             <a class="count">109</a>
                         </p>
                         <p class="caption">不允许二次加工，转载请标明出处
@@ -132,10 +132,8 @@ onMounted(() => {
     margin: 4px 0;
 }
 
-.inline-list span:after {
-    content: ":";
-    margin: 0 5px 0 2px;
-    color: #ccc;
+.author-recommendation-item .count {
+    color: var(--echo-emphasis-color);
 }
 
 .author-recommendation-item .caption {

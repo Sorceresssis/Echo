@@ -40,10 +40,11 @@
 
 <script setup lang='ts'>
 import { onMounted, ref, Ref, inject, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import { $t } from '../locales'
 
 const router = useRouter()
+const route = useRoute()
 
 const isMaxmize = ref<boolean>();
 const windowMinmize = () => window.electronAPI.windowMinmize()
@@ -56,7 +57,7 @@ const activeLibraryName = ref<string>('')
 
 const canGoBack = ref<boolean>(false)
 const canGoForward = ref<boolean>(false)
-watch(router.currentRoute, async () => {
+watch(route, async () => {
     /* 监听路由变化，判断是否可以继续进行前进和后退来提示用户 */
     const position: number = window.history.state.position
     const length: number = window.history.length
@@ -64,15 +65,15 @@ watch(router.currentRoute, async () => {
     canGoForward.value = position !== length - 1   // 当前href的位置是最后一个
 
     /* 根据路由修改标题 */
-    const currentPath: string = router.currentRoute.value.fullPath
+    const currentPath: string = route.fullPath
     if (currentPath.startsWith('/library')) {
-        // 获取library的名字
-        const libraryID: number = Number.parseInt(currentPath.match(/\/library\/(\d+)/)![1]);
+        // 获取libraryId
+        const libraryID: number = Number.parseInt(currentPath.match(/\/library\/(\d+)/)![1])
+        if (libraryID === activeLibrary.value) return
         activeLibrary.value = libraryID
         // 根据libraryID获取library的名字
-        // BUG : 如果libraryid查不到数据，会导致电脑任务栏的标题变成undefined
-        activeLibraryName.value = (await window.electronAPI.getLibraryNameByID(activeLibrary.value))
-        document.title = `${activeLibraryName.value} - Echo`
+        const libName = (await window.electronAPI.getLibraryNameByID(activeLibrary.value))
+        libName ? document.title = `${activeLibraryName.value = libName} - Echo` : router.push('/')
     }
     else {
         // 重置当前激活的库

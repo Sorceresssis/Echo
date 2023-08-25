@@ -1,0 +1,158 @@
+/* Compact 紧凑  */
+
+/* grid */
+.compact-grid {
+    grid-template-columns: repeat(auto-fill, 600px);
+}
+
+.thumbnail-grid {
+    grid-template-columns: repeat(auto-fill, 220px);
+}
+
+.extended-grid {
+    grid-template-columns: repeat(auto-fill, 600px);
+}
+
+/* record-recommendations */
+.record-recommendations {
+    --record-recommendations-line-height: 24px;
+    --record-recommendations-cover-width: 220px;
+    --record-recommendations-cover-height: 180px;
+    display: flex;
+    position: relative;
+    font-size: 13px;
+}
+
+.thumbnail-grid .record-recommendations {
+    flex-direction: column;
+}
+
+.extended-grid .record-recommendations {
+    flex-direction: row;
+}
+
+/* meta */
+.record-recommendations .meta {
+    min-height: var(--record-recommendations-line-height);
+    display: flex;
+    line-height: var(--record-recommendations-line-height);
+}
+
+.compact-grid .record-recommendations .meta {
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+.thumbnail-grid .record-recommendations .meta {
+    margin-top: 4px;
+    white-space: nowrap;
+}
+
+.extended-grid .record-recommendations .meta {
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+}
+
+/* cover */
+.record-recommendations .cover {
+    width: var(--record-recommendations-cover-width);
+    height: var(--record-recommendations-cover-height);
+    display: block;
+    margin-right: 16px;
+    flex-shrink: 0;
+    object-fit: contain;
+}
+
+.compact-grid .record-recommendations .cover {
+    display: none;
+}
+
+/* operates */
+.record-recommendations:hover .operates {
+    visibility: visible;
+}
+
+.record-recommendations .operates {
+    --operates-height: 50px;
+    width: var(--record-recommendations-cover-width);
+    height: var(--operates-height);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    left: 0;
+    background-color: rgba(246, 246, 248, .7);
+    z-index: 1;
+    visibility: hidden;
+}
+
+.record-recommendations .operates>div {
+    border-radius: 50%;
+    margin: 5px 8px;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, .4);
+    text-align: center;
+    color: #fff;
+    font-weight: normal;
+    cursor: pointer;
+}
+
+.record-recommendations .operates>div:hover:not(.disabled) {
+    color: rgba(255, 255, 255, .7);
+}
+
+.compact-grid .operates {
+    position: static;
+    visibility: visible;
+    margin-left: auto;
+}
+
+.thumbnail-grid .record-recommendations .operates,
+.extended-grid .record-recommendations .operates {
+    top: calc(var(--record-recommendations-cover-height) - var(--operates-height));
+}
+
+/* title */
+.record-recommendations .title {
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* author */
+.record-recommendations .author {
+    margin-right: 14px;
+    color: var(--echo-emphasis-color);
+}
+
+.record-recommendations .author img {
+    height: var(--record-recommendations-line-height);
+    width: var(--record-recommendations-line-height);
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+/* tag */
+.record-recommendations .tag {
+    margin-right: 10px;
+    color: #444;
+}
+
+.record-recommendations .tag::before {
+    content: '\e701';
+    font-family: "iconfont" !important;
+}
+
+/* check-container */
+.check-container {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding-left: 10px;
+    background-color: #f6f6f8;
+    z-index: 100;
+    opacity: 0.5;
+}
