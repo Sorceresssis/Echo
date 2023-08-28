@@ -1,5 +1,5 @@
 <template>
-    <div class="record-recommendations overflow-hidden">
+    <div class="record-recommendation-item overflow-hidden">
         <local-image :src="recmd.cover"
                      class="cover" />
         <div>
@@ -8,7 +8,7 @@
                  @mousedown="startInfoScroll"> {{ recmd.title }} </div>
             <div class="meta scrollbar-x-nodisplay"
                  @mousedown="startInfoScroll">
-                <span class="inline-list-title">作者</span>
+                <span class="inline-list-title"> {{ '作者' }}</span>
                 <div v-for="author in recmd.authors"
                      :key="author.id"
                      class="author">
@@ -20,22 +20,22 @@
             </div>
             <div class="meta scrollbar-x-nodisplay"
                  @mousedown="startInfoScroll">
-                <span class="inline-list-title">标签</span>
+                <span class="inline-list-title">{{ '标签' }}</span>
                 <span v-for="tag in recmd.tags"
                       :key="tag.id"
                       class="tag"> {{ tag.title }} </span>
             </div>
             <div class="operates">
                 <div :title="'搜索标题'"
-                     @click=""> <span class="iconfont">&#xe651;</span> </div>
+                     @click="internetSearch(recmd.title)"> <span class="iconfont">&#xe651;</span> </div>
                 <div :title="'浏览器中打开链接'"
                      :class="recmd.hyperlink ? '' : 'disabled'"
-                     @click=""> <span class="iconfont">&#xe6c8;</span> </div>
+                     @click="openInBrowser(recmd.hyperlink)"> <span class="iconfont">&#xe6c8;</span> </div>
                 <div :title="'在资源管理器中打开'"
                      :class="recmd.resourcePath ? '' : 'disabled'"
-                     @click=""> <span class="iconfont">&#xe73e;</span> </div>
+                     @click="openInExplorer(recmd.resourcePath)"> <span class="iconfont">&#xe73e;</span> </div>
                 <div :title="'在新窗口中打开'"
-                     @click=""> <span class="iconfont">&#xe7e9;</span> </div>
+                     @click="createRecordWindow(activeLibrary, recmd.id)"> <span class="iconfont">&#xe7e9;</span> </div>
             </div>
         </div>
         <!-- 批量选择遮罩 -->
@@ -46,8 +46,9 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject } from 'vue'
+import { Ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
+import { openInExplorer, openInBrowser, internetSearch } from '@/util/systemUtil'
 import LocalImage from './LocalImage.vue'
 
 defineProps<{
@@ -55,6 +56,7 @@ defineProps<{
 }>()
 
 const router = useRouter()
+
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 
 let canScrollInfo = false
@@ -71,26 +73,15 @@ function scrollInfo(e: MouseEvent) {
         currentTarget.scrollLeft -= e.movementX
     }
 }
-function stopScrollInfo(e: MouseEvent) {
+function stopScrollInfo() {
     canScrollInfo = false
     document.removeEventListener('mousemove', scrollInfo)
     document.removeEventListener('mouseup', stopScrollInfo)
 }
 
-/******************** 右键菜单 ********************/
-const isVisibleCtmItem = ref(false)
-const contextMenuOptions = {
-    zIndex: 3,
-    minWidth: 300,
-    x: 500,
-    y: 200
+function createRecordWindow(libraryId: number, recordId: number) {
+    window.electronAPI.createRecordWindow(libraryId, recordId)
 }
-const openCtm = (e: MouseEvent) => {
-    contextMenuOptions.x = e.x
-    contextMenuOptions.y = e.y
-    isVisibleCtmItem.value = true
-}
-// 复制信息 复制标题，全部信息，编辑， 删除
 </script>
 
 <style></style>

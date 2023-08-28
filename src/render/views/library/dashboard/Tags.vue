@@ -40,9 +40,8 @@
                        background
                        small
                        :page-size="pageSize"
-                       layout="prev, pager, next, jumper"
-                       :total="total"
-                       @current-change="" />
+                       layout="prev, pager, next, jumper, total"
+                       :total="total" />
     </div>
 </template>
 

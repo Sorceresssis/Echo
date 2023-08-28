@@ -24,11 +24,6 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         "@": "",
-        "@components": "components",
-        "@util": "util",
-        "@store": "store",
-        "@locales": "locales",
-        "@assets": "assets",
       },
     },
     build,

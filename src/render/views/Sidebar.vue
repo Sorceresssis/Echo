@@ -72,14 +72,15 @@
                                     <div class="menuItem-wrap">
                                         <div :class="[library.id === activeLibrary ? 'active-library' : '', libraryIdOfRename === library.id ? 'input-wrap' : 'menu-item']"
                                              class="menu-row menu-library textover--ellopsis"
+                                             draggable="true"
                                              @click="openLibrary(library.id)"
                                              @contextmenu="openCtm($event, idxGroup, idxLibrary)"
-                                             draggable="true"
                                              @dragstart="handleDragstart(idxGroup, idxLibrary)"
                                              @dragend="handleDragend()"
                                              @dragenter.prevent="handleDragenter($event, idxGroup, idxLibrary)"
                                              @dragleave="handleDragleave($event)">
-                                            <span v-if="libraryIdOfRename !== library.id">{{ library.name }}</span>
+                                            <span v-if="libraryIdOfRename !== library.id"
+                                                  :title="library.name">{{ library.name }}</span>
                                             <input v-else
                                                    v-model="newName"
                                                    onfocus="this.select()"
@@ -145,12 +146,12 @@
 <script setup lang='ts'>
 import { ref, Ref, watch, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { $t } from '@locales/index'
-import { debounce } from '@util/debounce'
-import { throttle } from '@util/throttle'
-import { vFocus } from '@util/directive'
-import { sendCrosTabMsg, listenCrosTabMsg } from "@util/CrosTabMsg"
-import CollapseTransition from '@components/CollapseTransition.vue'
+import { $t } from '@/locales/index'
+import { debounce } from '@/util/debounce'
+import { throttle } from '@/util/throttle'
+import { vFocus } from '@/util/directive'
+import { sendCrosTabMsg, listenCrosTabMsg } from "@/util/CrosTabMsg"
+import CollapseTransition from '@/components/CollapseTransition.vue'
 import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
 import { ElMessage } from 'element-plus'
 

@@ -12,11 +12,11 @@
                 <div class="settings-item__content">
                     <div class="row">
                         <a class="openExternal col"
-                           @click.prevent="openExternal(YoutubeTutorialUrl)">
+                           @click.prevent="openInBrowser(YoutubeTutorialUrl)">
                             Youtube
                         </a>
                         <a class="openExternal col"
-                           @click.prevent="openExternal(BilibiliTutorialUrl)">
+                           @click.prevent="openInBrowser(BilibiliTutorialUrl)">
                             Bilibili
                         </a>
                     </div>
@@ -43,7 +43,7 @@
 
 <script setup lang='ts'>
 import { onMounted, reactive } from 'vue'
-import { openExternal } from '@/util/systemUtil'
+import { openInBrowser } from '@/util/systemUtil'
 
 const BilibiliTutorialUrl = "https://www.bilibili.com/"
 const YoutubeTutorialUrl = "https://www.youtube.com/"

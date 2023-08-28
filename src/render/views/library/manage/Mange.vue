@@ -1,12 +1,17 @@
 <template>
-    <tabs v-model="activeComponentIdx"
-          :components="components">
-        <template v-slot:header>
-            <div class="tab-header">
-                管理数据
-            </div>
-        </template>
-    </tabs>
+    <div>
+        <div class="tab-header">
+            管理数据
+        </div>
+        <tabs v-model="activeLabelIdx"
+              :tabs="tabs">
+        </tabs>
+        <keep-alive>
+            <component class="flex-1 overflow-hidden"
+                       :is="components[activeLabelIdx] ">
+            </component>
+        </keep-alive>
+    </div>
 </template>
  
 <script lang="ts" setup>
@@ -20,25 +25,34 @@ import EditDirname from './EditDirname.vue'
 import DataSecurity from './DataSecurity.vue'
 
 const route = useRoute()
-const components = shallowReactive<TabsComponent[]>([
-    { id: 1, name: '编辑记录', component: EditRecord, disabled: false },
-    { id: 2, name: '批量删除', component: DeleteRecord, disabled: false },
-    { id: 3, name: '添加作者', component: EditAuthor, disabled: false },
-    { id: 4, name: '编辑目录', component: EditDirname, disabled: false },
-    { id: 5, name: '数据安全', component: DataSecurity, disabled: false },
+
+const activeLabelIdx = ref<number>(0)
+const tabs = shallowReactive([
+    { id: 1, label: '添加记录', disabled: false },
+    { id: 2, label: '批量删除', disabled: false },
+    { id: 3, label: '添加作者', disabled: false },
+    { id: 4, label: '编辑目录', disabled: false },
+    { id: 5, label: '数据安全', disabled: false },
 ])
-const activeComponentIdx = ref<number>(0)
+const components = [
+    EditRecord,
+    DeleteRecord,
+    EditAuthor,
+    EditDirname,
+    DataSecurity,
+]
+
 
 const init = () => {
-    // 如果是编辑作者，禁用管理记录, 批量删除, 编辑目录; 并且把activeComponentIdx设置为编辑作者 
+    // 如果是编辑作者，禁用管理记录, 批量删除, 编辑目录; 并且把activeLabelIdx设置为编辑作者 
     if (route.query.author_id) {
-        components[0].disabled = true
-        components[2].name = '编辑作者'
-        activeComponentIdx.value = 2
+        tabs[0].disabled = true
+        tabs[2].label = '编辑作者'
+        activeLabelIdx.value = 2
     } else {
-        components[0].disabled = false
-        components[2].name = '添加作者'
-        activeComponentIdx.value = 0
+        tabs[0].disabled = false
+        tabs[2].label = '添加作者'
+        activeLabelIdx.value = 0
     }
 }
 

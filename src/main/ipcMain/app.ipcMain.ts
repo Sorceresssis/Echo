@@ -9,4 +9,9 @@ export default function ipcMainApp() {
     ipcMain.handle('app:version', () => {
         return app.getVersion()
     })
+
+    ipcMain.handle('app:relaunch', (): void => {
+        app.relaunch()
+        app.exit()
+    })
 }

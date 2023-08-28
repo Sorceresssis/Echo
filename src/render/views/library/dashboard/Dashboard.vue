@@ -1,6 +1,13 @@
 <template>
-    <tabs :components="componentList"
-          v-model="activeComponentIdx"> </tabs>
+    <div>
+        <tabs v-model="activeLabelIdx"
+              :tabs="tabs" />
+        <keep-alive>
+            <component class="flex-1 overflow-hidden"
+                       :is="components[activeLabelIdx] ">
+            </component>
+        </keep-alive>
+    </div>
 </template>
   
 <script lang="ts" setup>
@@ -14,21 +21,27 @@ import Dirnames from './Dirnames.vue'
 import Recycled from './Recycled.vue'
 import About from './About.vue'
 
-// library变化时，重新渲染组件
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
-const activeComponentIdx = ref<number>(0)
 watch(() => activeLibrary.value, () => {
-    activeComponentIdx.value = 0
+    activeLabelIdx.value = 0
 })
 
-const componentList = shallowReactive([
-    { id: 1, name: '记录', component: Records },
-    { id: 2, name: '作者', component: Authors },
-    { id: 3, name: '标签', component: Tags },
-    { id: 4, name: '目录', component: Dirnames },
-    { id: 5, name: '回收站', component: Recycled },
-    { id: 6, name: '关于', component: About }
-])
-</script>
 
-<style></style>
+const activeLabelIdx = ref<number>(0)
+const tabs = shallowReactive([
+    { id: 1, label: '记录' },
+    { id: 2, label: '作者' },
+    { id: 3, label: '标签' },
+    { id: 4, label: '目录' },
+    { id: 5, label: '回收站' },
+    { id: 6, label: '关于' }
+])
+const components = [
+    Records,
+    Authors,
+    Tags,
+    Dirnames,
+    Recycled,
+    About,
+]  
+</script> 

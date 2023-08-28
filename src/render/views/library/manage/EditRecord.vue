@@ -52,6 +52,8 @@
                         <el-input v-model="formData.basename"
                                   spellcheck="false"
                                   :placeholder="'basename,可以是文件也可以是文件夹'"
+                                  maxlength="255"
+                                  show-word-limit
                                   clearable />
                         <button2 @click="selectRecordResource('file')">选择文件</button2>
                         <button2 @click="selectRecordResource('dir')">选择文件夹</button2>
@@ -87,6 +89,8 @@
             <el-form-item label="链接">
                 <el-input v-model="formData.hyperlink"
                           :placeholder="'希望指向的网址(例：www.google.com)'"
+                          maxlength="2048"
+                          show-word-limit
                           spellcheck="false"
                           clearable />
             </el-form-item>

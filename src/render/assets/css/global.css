@@ -26,6 +26,11 @@ img {
 
 /******************** common ********************/
 /* scrollbar */
+.scrollbar-y {
+    overflow-x: hidden;
+    overflow-y: scroll;
+}
+
 .scrollbar-y-w4 {
     overflow-x: hidden;
     overflow-y: scroll;

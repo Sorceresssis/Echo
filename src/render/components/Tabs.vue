@@ -1,28 +1,18 @@
 <template>
-    <div>
-        <div>
-            <slot name="header"></slot>
+    <div class="tab-nav flex-row">
+        <div v-for="(tab, idx) in tabs"
+             :key="tab.id"
+             class="tab-label"
+             :class="[modelValue == idx ? 'tab-label-active' : '', tab.disabled ? 'disabled' : '']"
+             @click="changeTab(idx)">
+            {{ tab.label }}
         </div>
-        <div class="tab-menu flex-row">
-            <div v-for="(component, idx) in components"
-                 :key="component.id"
-                 class="menu-item"
-                 :class="[modelValue == idx ? 'menu-avtive' : '', component.disabled ? 'disabled' : '']"
-                 @click="changeTab(idx)">
-                {{ component.name }}
-            </div>
-        </div>
-        <keep-alive>
-            <component class="flex-1 overflow-hidden"
-                       :is="components[modelValue].component">
-            </component>
-        </keep-alive>
     </div>
 </template>
  
 <script lang="ts" setup>
 const props = defineProps<{
-    components: TabsComponent[],
+    tabs: Tabs[],
     modelValue: number
 }>()
 
@@ -30,35 +20,33 @@ const emit = defineEmits<{
     (e: 'update:modelValue', value: number): void
 }>()
 
-
-
 const changeTab = (idx: number) => {
-    if (props.components[idx].disabled) return
+    if (props.tabs[idx].disabled) return
     emit('update:modelValue', idx)
 }
 </script>
 
 <style scoped>
-.tab-menu {
+.tab-nav {
     padding: 10px 0;
 }
 
-.menu-item {
+.tab-label {
     position: relative;
     height: 22px;
     margin-right: 40px;
     cursor: pointer;
 }
 
-.menu-item:not(.disabled):hover {
+.tab-label:not(.disabled):hover {
     color: var(--echo-theme-color);
 }
 
-.menu-avtive {
+.tab-label-active {
     color: var(--echo-theme-color);
 }
 
-.menu-avtive::after {
+.tab-label-active::after {
     content: '';
     position: absolute;
     bottom: -3px;

@@ -4,15 +4,14 @@ import { resolve } from "path"
 
 const isDev = !app.isPackaged;
 
-export function createWindow(): BrowserWindow {
+export function createWindow(libraryId: number, recordId: number): BrowserWindow {
     const win = new BrowserWindow({
         width: 1025,
-        height: 634,
+        height: 649,
         minWidth: 720,
         minHeight: 600,
         show: false,
-        // 取消默认的标题栏
-        // frame: false,
+        frame: false,
         backgroundColor: "#ffffff",
         webPreferences: {
             preload: resolve(__dirname, "../../preload/index.js"),
@@ -24,15 +23,16 @@ export function createWindow(): BrowserWindow {
     windowManager.add(win)
 
     if (isDev) {
-        win?.loadURL(`http://localhost:${process.env.PORT || 5173}/item/index.html`)
+        win?.loadURL(`http://localhost:${process.env.PORT || 5173}/record/index.html`)
         win.webContents.openDevTools()
     } else {
-        win?.loadFile(resolve(__dirname, "../render/item/index.html"))
+        win?.loadFile(resolve(__dirname, "../render/record/index.html"))
         // 虽然菜单栏消失了，但是依然可以通过快捷键进行菜单操作，比如ctrl+shift+i打开开发者工具，为避免这种情况，我们需要去掉菜单栏window.removeMenu();
         win.removeMenu();
     }
 
     win.once('ready-to-show', () => {
+        win.webContents.send('record:primaryOpenRecord', libraryId, recordId)
         win.show()
     })
 

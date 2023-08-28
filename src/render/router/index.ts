@@ -13,12 +13,6 @@ const routes: Array<RouteRecordRaw> = [
             {
                 path: '',
                 component: () => import('../views/library/dashboard/Dashboard.vue'),
-                children: [
-                    {
-                        path: '',
-                        component: () => import('../views/library/dashboard/Records.vue')
-                    }
-                ]
             },
             {
                 path: 'author',

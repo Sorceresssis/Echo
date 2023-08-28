@@ -11,8 +11,12 @@ export interface IElectronAPI {
         newValue?: any
     ) => Promise<any>
 
+    relaunch: () => Promise<void>
+
+
 
     /******************** group ********************/
+
     /**
      * 获取所有的group和library
      * @returns Groups
@@ -51,6 +55,8 @@ export interface IElectronAPI {
         currId: number,
         tarNextId: number
     ) => Promise<void>
+
+
 
     /******************** library ********************/
 
@@ -100,6 +106,8 @@ export interface IElectronAPI {
         groupId: number
     ) => Promise<void>
 
+
+
     /******************** record ********************/
 
     /** 
@@ -133,7 +141,9 @@ export interface IElectronAPI {
     ) => Promise<Result>
 
 
+
     /******************** author ********************/
+
     queryAuthor: (
         libraryId: number,
         authorId: number
@@ -147,7 +157,10 @@ export interface IElectronAPI {
         formData: DTO.EditAuthorForm
     ) => Promise<boolean>
 
+
+
     /******************** tag ********************/
+
     queryTags: (
         libraryId: number,
         options: DTO.QueryAttributesOptions
@@ -164,7 +177,10 @@ export interface IElectronAPI {
         newValue: string
     ) => Promise<boolean>
 
+
+
     /******************** dirname ********************/
+
     queryDirnames: (
         libraryId: number,
         options: DTO.QueryAttributesOptions
@@ -188,6 +204,7 @@ export interface IElectronAPI {
     ) => Promise<Result>,
 
 
+
     /******************** dialog ********************/
 
     openDialog: (
@@ -196,23 +213,25 @@ export interface IElectronAPI {
     ) => Promise<string[]>
 
 
+
     /******************** system ********************/
 
-    openExternal: (
-        url: string
+    openInBrowser: (
+        hyperlink: string
     ) => Promise<void>
 
     openInExplorer: (
-        fullPath: string
-    ) => Promise<void>
+        path: string
+    ) => Promise<Result>
 
     openFile: (
-        fullPath: string
-    ) => Promise<void>
+        path: string
+    ) => Promise<Result>
 
     writeClipboard: (
         text: string
     ) => Promise<void>
+
 
 
     /******************** window ********************/
@@ -221,12 +240,10 @@ export interface IElectronAPI {
         libraryId: number
     ) => Promise<boolean>
 
-    createItemWinodw: (
-        ibraryId: number,
-        itemId: number
+    createRecordWindow: (
+        libraryId: number,
+        recordId: number
     ) => Promise<void>
-
-    windowRelaunch: () => Promise<void>
 
     windowMinmize: () => Promise<void>
 

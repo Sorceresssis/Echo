@@ -4,11 +4,6 @@ import recordWindow from '../window/record.window'
 import windowManager from '../window/windowManager'
 
 export default function ipcMainWindow() {
-    ipcMain.handle('window:relaunch', (): void => {
-        app.relaunch()
-        app.exit()
-    })
-
     ipcMain.handle('window:createMainWindow', (e: IpcMainInvokeEvent, libraryId: number): void => {
         try {
             mainWindow.createWindow(libraryId)
@@ -17,8 +12,8 @@ export default function ipcMainWindow() {
         }
     })
 
-    ipcMain.handle('window:createItemWindow', (e: IpcMainInvokeEvent, libraryId, itemId): void => {
-        recordWindow.createWindow()
+    ipcMain.handle('window:createRecordWindow', (e: IpcMainInvokeEvent, libraryId, recordId): void => {
+        recordWindow.createWindow(libraryId, recordId)
     })
 
     /*
@@ -42,5 +37,6 @@ export default function ipcMainWindow() {
 
     ipcMain.handle('window:close', (e: IpcMainInvokeEvent): void => {
         windowManager.getWindowInstanceByWebContentId(e.sender.id)?.close()
+        windowManager.remove(e.sender.id)
     })
 }

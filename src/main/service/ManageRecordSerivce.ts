@@ -147,6 +147,7 @@ export default class ManageRecordSerivce {
      * 根据属性删除记录
      */
     public deleteByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
+        // TODO 加入回收站不是真正删除
         // TODO 批量删除时， 如果，根据tag删除，只会删除tag的链接，其他的链接删除不了
         this.libraryDao.executeInTransaction(() => {
             formData.dirnamePath = formData.dirnamePath.trim()

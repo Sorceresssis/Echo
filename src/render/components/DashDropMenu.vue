@@ -20,11 +20,9 @@
 </template>
 
 <script setup lang='ts'>
-import Button1 from '@components/Button1.vue'
+import Button1 from '@/components/Button1.vue'
 
 const props = defineProps<{
     menu: DashDropMenu
 }>() 
-</script>
-
-<style scoped></style>
+</script> 

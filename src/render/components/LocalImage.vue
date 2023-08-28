@@ -4,8 +4,9 @@
 </template>
 
 <script setup lang='ts'>
+import noImg from '@/assets/images/no-img.png'
+
 defineProps<{
     src: string | null
 }>()
-import noImg from '@/assets/images/no-img.png'
 </script> 

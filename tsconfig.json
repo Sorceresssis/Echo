@@ -25,21 +25,6 @@
       "@/*": [
         "*"
       ],
-      "@components/*": [
-        "components/*"
-      ],
-      "@util/*": [
-        "util/*"
-      ],
-      "@store/*": [
-        "store/*"
-      ],
-      "@locales/*": [
-        "locales/*"
-      ],
-      "@assets/*": [
-        "assets/*"
-      ],
     }
   },
   "vueCompilerOptions": {

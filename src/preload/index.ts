@@ -1,13 +1,18 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
 contextBridge.exposeInMainWorld('electronAPI', {
+    /******************** app ********************/
     config: (
         key: string,
         newValue?: any
     ) => ipcRenderer.invoke('app:config', key, newValue),
 
+    relaunch: () => ipcRenderer.invoke('app:relaunch'),
+
+
 
     /******************** group ********************/
+
     getGroups: () => ipcRenderer.invoke('group:getGroups'),
 
     renameGroup: (
@@ -29,7 +34,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ) => ipcRenderer.invoke('group:sort', currId, tarNextId),
 
 
+
     /******************** library ********************/
+
     getPrimaryOpenLibrary: (
         callback: (e: IpcRendererEvent, libraryId: number) => void
     ) => ipcRenderer.on('library:primaryOpenLibrary', callback),
@@ -103,7 +110,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
         authorId: number
     ) => ipcRenderer.invoke('author:delete', libraryId, authorId),
 
+
+
     /******************** tag ********************/
+
     queryTags: (
         libraryId: number,
         options: DTO.QueryAttributesOptions
@@ -121,7 +131,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ) => ipcRenderer.invoke('tag:edit', libraryId, tagId, newValue),
 
 
+
     /******************** dirname ********************/
+
     queryDirnames: (
         libraryId: number,
         options: DTO.QueryAttributesOptions
@@ -145,41 +157,53 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ) => ipcRenderer.invoke('dirname:startsWithReplace', libraryId, target, replace),
 
 
+
     /******************** dialog ********************/
+
     openDialog: (
         type: OpenDialogType,
         multiSelect: boolean
     ) => ipcRenderer.invoke('dialog:open', type, multiSelect),
 
 
-    /******************** system ********************/
-    openExternal: (
-        url: string
-    ) => ipcRenderer.invoke('system:openExternal', url),
 
+    /******************** system ********************/
+
+    openInBrowser: (
+        hyperlink: string
+    ) => ipcRenderer.invoke('system:openInBrowser', hyperlink),
+
+    /**
+     * 打开由多个路径片段组成的路径，
+     * 如果是文件夹，直接打开文件夹.
+     * 如果是文件，打开文件所在的文件夹，滚动到文件的位置并高亮标记.
+     * @param paths 
+     * @returns 
+     */
     openInExplorer: (
-        fullPath: string
-    ) => ipcRenderer.invoke('system:openInExplorer', fullPath),
+        path: string
+    ) => ipcRenderer.invoke('system:openInExplorer', path),
 
     openFile: (
-        fullPath: string
-    ) => ipcRenderer.invoke('system:openFile', fullPath),
+        path: string
+    ) => ipcRenderer.invoke('system:openFile', path),
 
     writeClipboard: (
         text: string
     ) => ipcRenderer.invoke('system:writeClipboard', text),
 
+
+
     /******************** window ********************/
-    windowRelaunch: () => ipcRenderer.invoke('window:relaunch'),
 
     createMainWindow: (
         libraryId: number
     ) => ipcRenderer.invoke('window:createMainWindow', libraryId),
 
-    createItemWinodw: (
+    createRecordWindow: (
         libraryId: number,
-        itemId: number
-    ) => ipcRenderer.invoke('window:createItemWindow', libraryId, itemId),
+        recordId: number
+    ) => ipcRenderer.invoke('window:createRecordWindow', libraryId, recordId),
 
     windowMinmize: () => ipcRenderer.invoke('window:minmize'),
 

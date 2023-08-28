@@ -9,9 +9,8 @@ type DashDropMenu = {
     }[]
 }
 
-type TabsComponent = {
+type Tabs = {
     id: number,
-    name: string,
-    component: any,
+    label: string,
     disabled?: boolean,
-} 
+}

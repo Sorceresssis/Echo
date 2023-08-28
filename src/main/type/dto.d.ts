@@ -7,7 +7,6 @@ namespace DTO {
         data: T[]
     }
 
-
     /**
      * autocomplete的选项,用于搜索
      */
@@ -20,7 +19,6 @@ namespace DTO {
     type QueryAttributesOptions = {
         queryWork: string
         sortField: AttributeSortField
-        order: 'asc' | 'desc'
         asc: boolean
         pn: number
         ps: number
@@ -79,16 +77,23 @@ namespace DTO {
         distinct: boolean,
     }
 
-    type QueryRecord = {
-        libraryId: number,
-        authorId: number,
+    type QueryRecordRecommendationsOptions = {
+        type: 'common' | 'author' | 'redlu'
+        authorId?: number,
         filters: Filter[]
-        order: {
-            field: string,
-            asc: boolean
-        },
-        kw: string, // keyword
-        pn: number, // pageNo 
-        ps: number, // pageSize 
+        field: string,
+        order: 'ASC' | 'DESC'
+        kw: string,
+        pn: number,
+        ps: number,
+    }
+
+
+    type QueryAuthorRecommendationsOptions = {
+        sortField: 'time' | 'name'
+        order: 'ASC' | 'DESC'
+        kw: string,
+        pn: number,
+        ps: number,
     }
 }

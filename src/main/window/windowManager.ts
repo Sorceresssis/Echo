@@ -19,8 +19,8 @@ class windowManager {
         this.winMap.set(win.webContents.id, win)
     }
 
-    remove(win: BrowserWindow): void {
-        this.winMap.delete(win.webContents.id)
+    remove(webContentId: number): void {
+        this.winMap.delete(webContentId)
     }
 
     getWindowInstanceByWebContentId(webContentId: number): BrowserWindow | undefined {

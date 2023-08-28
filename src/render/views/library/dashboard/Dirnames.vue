@@ -38,11 +38,10 @@
         <el-pagination v-model:current-page="currentPage"
                        :page-size="pageSize"
                        :total="total"
-                       layout="prev, pager, next, jumper"
+                       layout="prev, pager, next, jumper, total"
                        background
                        small
-                       class="dashboard__footer"
-                       @current-change="" />
+                       class="dashboard__footer" />
     </div>
 </template>
 

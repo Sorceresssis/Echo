@@ -177,14 +177,16 @@ export default class LibraryDao {
     public queryRecordById(id: number): VO.Record | null {
         return this.db.get(`
         SELECT 
-            r.id, r.title, r.rate, r.cover, r.hyperlink,
-            PATH_RESOLVE(d.path,  r.basename) as resourcePath,
+            r.id, r.title, r.rate,
+            PATH_RESOLVE(?, r.cover) AS cover,
+            r.hyperlink,
+            PATH_RESOLVE(d.path,  r.basename) AS resourcePath,
             DATETIME(gmt_create, 'localtime') AS createTime,
-            DATETIME(gmt_modified, 'localtime') AS modifiedTime 
+            DATETIME(gmt_modified, 'localtime') AS modifiedTime
         FROM
             record r
             LEFT JOIN dirname d ON r.dirname_id = d.id
-        WHERE r.id = ?;`, id)
+        WHERE r.id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
     }
 
     public deleteRecordByDirnameId(id: PrimaryKey): number {

@@ -49,7 +49,7 @@
 <script lang="ts" setup>
 import { ref, Ref, reactive, inject, toRaw } from 'vue'
 import type { FormInstance, FormRules, } from 'element-plus'
-import EchoAutocomplete from '@components/EchoAutocomplete.vue'
+import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import { onBeforeRouteUpdate } from 'vue-router';
 import ADEMessageBox from '@/util/ADEMessageBox';
 import Message from '@/util/Message';

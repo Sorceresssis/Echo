@@ -17,7 +17,7 @@ export default class GroupDao {
     db: DBUtil
 
     constructor(path: string) {
-        // 判断文件是否存在
+        // 判断文件是否存在 
         if (!fs.existsSync(path)) {
             this.db = new DBUtil(path)
             this.createTable()

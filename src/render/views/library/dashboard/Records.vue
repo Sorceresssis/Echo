@@ -29,7 +29,7 @@
         <div class="dashboard__content scrollbar-y-w8">
             <empty v-if="recordRecmds.length == 0"></empty>
             <div v-else
-                 class="adaptive-grid"
+                 class="record-recommendations adaptive-grid"
                  :class="[`${recordsDashStore.view}-grid`]">
                 <record-card v-for="recmd in recordRecmds"
                              :key="recmd.id"
@@ -42,9 +42,8 @@
                        background
                        small
                        :page-size="pageSize"
-                       layout="prev, pager, next, jumper"
-                       :total="total"
-                       @current-change="" />
+                       layout="prev, pager, next, jumper, total"
+                       :total="total" />
     </div>
 </template>
 
@@ -53,6 +52,7 @@ import { onMounted, reactive, ref, } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
 import useRecordsDashStore from '@/store/useRecordsDashStore'
+import Empty from '@/components/Empty.vue'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import RecordCard from '@/components/RecordCard.vue'
@@ -162,6 +162,21 @@ const total = ref(200)
 const currentPage = ref(5)
 const recordRecmds = ref<VO.RecordRecommendation[]>([])
 
+
+
+const isVisibleCtmItem = ref(false)
+const contextMenuOptions = {
+    zIndex: 3,
+    minWidth: 300,
+    x: 500,
+    y: 200
+}
+const openCtm = (e: MouseEvent) => {
+    contextMenuOptions.x = e.x
+    contextMenuOptions.y = e.y
+    isVisibleCtmItem.value = true
+}
+// 复制信息 复制标题，全部信息，编辑， 删除
 onMounted(() => {
     recordRecmds.value = [
         {
@@ -169,8 +184,8 @@ onMounted(() => {
             title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
             rate: 5,
             cover: 'C:\\Users\\RachelGardner\\OneDrive\\图片\\ACG\\illust_100114922_20221025_211912.jpg',
-            hyperlink: '',
-            resourcePath: 'F:\\Project\\Github\\echoDB',
+            hyperlink: 'baidu.com',
+            resourcePath: 'F:\\Project\\sdfs',
             authors: [
                 {
                     id: 1,
@@ -1106,12 +1121,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.adaptive-grid {
-    column-gap: 25px;
-    row-gap: 25px;
-}
-
-
 .batch-processing-btn {
     cursor: pointer;
 }

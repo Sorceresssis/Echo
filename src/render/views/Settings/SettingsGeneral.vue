@@ -83,7 +83,7 @@ const selectUserDataPath = () => {
             }
         )
     }).then(() => {
-        window.electronAPI.windowRelaunch()
+        window.electronAPI.relaunch()
     })
 }
 </script>

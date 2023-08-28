@@ -3,19 +3,26 @@
         <div class="dashboard__header">
             <div class="right-menu">
                 <echo-autocomplete v-model="search"
+                                   class="menu-item search"
                                    type="author"
-                                   :placeholder="'搜索'" />
+                                   :placeholder="'搜索'"
+                                   @keyup.enter="" />
+                <dash-drop-menu v-for="menu in dropdownMenus"
+                                class="menu-item"
+                                :menu="menu" />
             </div>
         </div>
-        <div class="dashboard__content scrollbar-y-w8">
+        <scrollbar class="dashboard__content scrollbar-y-w8"
+                   :reset-listener="scrollbarListenerSource">
             <ul class="author-recommendations">
-                <li v-for="i in 20"
+                <li v-for="recmd in authorRecmds"
+                    :key="recmd.id"
                     class="author-recommendation-item divider">
-                    <img src="file://F:\Desktop\images\息屏.png"
-                         class="author-icon fit--cover"
-                         @click="">
+                    <local-image :src="'F:\\Desktop\\images\\息屏.png'"
+                                 class="author-icon"
+                                 @click="router.push(`/library/${activeLibrary}/author?id=${1}`)" />
                     <div class="author-text">
-                        <h1>ASK</h1>
+                        <h1 @click="router.push(`/library/${activeLibrary}/author?id=${1}`)">ASK</h1>
                         <p class="meta">
                             <span class="inline-list-title">作品数</span>
                             <a class="count">109</a>
@@ -38,49 +45,114 @@
                     </ul>
                 </li>
             </ul>
-        </div>
+        </scrollbar>
         <el-pagination v-model:current-page="currentPage"
                        class="dashboard__footer"
                        background
                        small
-                       :page-size="20"
-                       layout="prev, pager, next, jumper"
-                       :total="200"
-                       @current-change="" />
+                       :page-size="pageSize"
+                       layout="prev, pager, next, jumper, total"
+                       :total="total" />
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { $t } from '@locales/index'
-import EchoAutocomplete from '@components/EchoAutocomplete.vue'
+import { ref, Ref, onMounted, inject, onActivated, onDeactivated, nextTick, watch } from 'vue'
+import { onBeforeRouteLeave, useRouter } from 'vue-router'
+import { $t } from '@/locales/index'
+import useAuthorsDashStore from '@/store/authorsDashStore'
+import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
+import DashDropMenu from '@/components/DashDropMenu.vue'
+import Scrollbar from '@/components/Scrollbar.vue'
+import LocalImage from '@/components/LocalImage.vue'
 
 const router = useRouter()
+const pageSize = 20
+
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const authorsDashStore = useAuthorsDashStore()
+const dropdownMenus = [{
+    HTMLElementTitle: $t('mainContainer.sort'),
+    title: '&#xe81f;',
+    items: [
+        {
+            title: $t('mainContainer.time'),
+            divided: false,
+            click: () => authorsDashStore.handleSortField('time'),
+            dot: () => authorsDashStore.sortField === 'time'
+        },
+        {
+            title: '名字',
+            divided: false,
+            click: () => authorsDashStore.handleSortField('name'),
+            dot: () => authorsDashStore.sortField === 'name'
+        },
+        {
+            title: '升序',
+            divided: true,
+            click: () => authorsDashStore.handleOrder('ASC'),
+            dot: () => authorsDashStore.order === 'ASC'
+        },
+        {
+            title: '降序',
+            divided: false,
+            click: () => authorsDashStore.handleOrder('DESC'),
+            dot: () => authorsDashStore.order === 'DESC'
+        },
+    ]
+}]
+
+// 监听源
+const scrollbarListenerSource = ref<boolean>(true)
+watch(() => activeLibrary.value, () => {
+    scrollbarListenerSource.value = !scrollbarListenerSource.value
+})
 
 const search = ref<string>('')
 const currentPage = ref<number>(1)
-const handleCurrentChange = (page: number) => {
-    currentPage.value = page
+const total = ref<number>(0)
+// VO.AuthorRecommendation
+const authorRecmds = ref<any[]>([
+    { id: 1 },
+    { id: 2 },
+    { id: 3 },
+    { id: 4 },
+    { id: 5 },
+    { id: 6 },
+    { id: 7 },
+    { id: 8 },
+    { id: 9 },
+    { id: 10 },
+    { id: 11 },
+    { id: 12 },
+    { id: 13 },
+    { id: 14 },
+    { id: 15 },
+    { id: 16 },
+    { id: 17 },
+    { id: 18 },
+    { id: 19 },
+    { id: 20 }
+])
+
+
+watch(() => currentPage.value, () => {
+    scrollbarListenerSource.value = !scrollbarListenerSource.value
+})
+
+const queryAuthorRecmds = () => {
+    // const options = {
+    //     queryWork: search.value,
+    //     sortField: authorsDashStore.sortField,
+    //     order: authorsDashStore.order,
+    //     pn: currentPage.value,
+    //     ps: pageSize
+    // }
+    // authorRecmds.value = await authorService.queryAuthorRecommendations(options)
 }
 onMounted(() => {
-    const data = {
-        total: 100,
-        currPage: 1,
-        pageSize: 20,
-        list: [
-            {
-                id: 1,
-                name: 'ASK',
-                works: [
-                    'file://F:/Desktop/images/5.png',
-                    'file://F:/Desktop/images/43.jpg',
-                    'file://F:/Desktop/images/4.jpg',
-                    'file://F:/Desktop/images/1.png'
-                ]
-            },
-        ]
-    }
+    total.value = 100
+    queryAuthorRecmds()
 })
 </script>
 
@@ -108,10 +180,11 @@ onMounted(() => {
 }
 
 .author-icon {
-    display: inline-block;
     width: var(--author-recommend-item-height);
     height: var(--author-recommend-item-height);
+    border-radius: 50%;
     cursor: pointer;
+    object-fit: cover;
 }
 
 .author-text {
