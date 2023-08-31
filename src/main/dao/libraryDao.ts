@@ -2,9 +2,25 @@ import fs from 'fs'
 import path from 'path'
 import config from '../app/config'
 import fm from '../util/FileManager'
+import { oncePerObject } from '../decorator/method.decorator'
 import DBUtil from '../util/dbUtil'
-import DynamicSqlBuilder from '../util/DynamicSqlBuilder'
+import DynamicSqlBuilder, { type SortRule } from '../util/DynamicSqlBuilder'
 import tokenizer from "../util/tokenizer"
+
+type DaoPage<T> = {
+    total: number
+    rows: T[]
+}
+
+export type QueryAuthorSortRule = {
+    field: 'name' | 'id',
+    order: 'ASC' | 'DESC'
+}
+
+export type QueryRecordSortRule = {
+    field: 'title' | 'rate' | 'id',
+    order: 'ASC' | 'DESC'
+}
 
 export default class LibraryDao {
     private libraryId: PrimaryKey
@@ -25,7 +41,11 @@ export default class LibraryDao {
         this.db = new DBUtil(path)
     }
 
-    /***************************************** 数据对象操作 *****************************************/
+
+    // ===================================================
+    // ANCHOR DB处理
+    // ===================================================
+
 
     private createTable(): void {
         this.db.transaction(() => {
@@ -66,6 +86,10 @@ export default class LibraryDao {
         })
     }
 
+    public destroy(): void {
+        this.db.close()
+    }
+
     public executeInTransaction(fn: () => void): void {
         this.db.transaction(fn)
     }
@@ -73,6 +97,7 @@ export default class LibraryDao {
     /** 
      * 给数据库添加一个自定义的REGEXP函数，在查询时使用
      */
+    @oncePerObject
     private registerSQLFnRegexp(keywords: string[]): void {
         this.db.function('REGEXP', (text: string) => {
             // 使用 'gi' 标志进行全局和忽略大小写匹配
@@ -82,6 +107,7 @@ export default class LibraryDao {
         })
     }
 
+    @oncePerObject
     private registerSQLFnPathResolve(): void {
         this.db.function('PATH_RESOLVE', (dirname, basename) => {
             return dirname && basename ?
@@ -123,6 +149,12 @@ export default class LibraryDao {
         return this.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
     }
 
+
+    // ===================================================
+    // ANCHOR T record
+    // ===================================================
+
+
     public queryRecordDetail(id: number): VO.RecordDetail | undefined {
         this.registerSQLFnPathResolve()
         const detail = {} as VO.RecordDetail
@@ -143,6 +175,52 @@ export default class LibraryDao {
             detail.info = extra.info
         }
         return detail
+    }
+
+    public queryRecordById(id: PrimaryKey): VO.Record | null {
+        return this.db.get(`
+        SELECT 
+            r.id, r.title, r.rate,
+            PATH_RESOLVE(?, r.cover) AS cover,
+            r.hyperlink,
+            PATH_RESOLVE(d.path,  r.basename) AS resourcePath,
+            DATETIME(gmt_create, 'localtime') AS createTime,
+            DATETIME(gmt_modified, 'localtime') AS modifiedTime
+        FROM
+            record r
+            LEFT JOIN dirname d ON r.dirname_id = d.id
+        WHERE r.id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
+    }
+
+    public queryRecords(
+        keyword: string,
+        sort: {
+            field: 'title' | 'rate' | 'id',
+            order: 'ASC' | 'DESC'
+        }[],
+        options: {
+            type: 'author' | 'common' | 'recycle'
+            authorId?: number,
+        },
+        offset: number,
+        rowCount: number,
+    ): VO.Record[] {
+        // authorId, keyWord, sortField, asc, pn, ps
+        // asc 评分
+        // queryRecordsByAuthor     keyword sort page filter
+        // queryRecordsOfRycled     keyword sort page filter
+        // queryRecordsCommond      keyword sort page filter
+        // sort rate id title
+        // filter
+        return []
+    }
+
+    public queryRecordsOfOrderRateByAuthor(authorId: number): { id: number, title: string, cover: string }[] {
+        this.registerSQLFnPathResolve()
+        return this.db.all(`SELECT r.id, r.title, PATH_RESOLVE(?, r.cover) AS cover
+            FROM record r JOIN record_author ra ON r.id = ra.record_id
+            WHERE ra.author_id = ? ORDER BY rate DESC LIMIT 3;`,
+            config.getLibraryImagesDir(this.libraryId), authorId)
     }
 
     public queryRecordIdByTitle(title: string): PrimaryKey | null {
@@ -174,21 +252,6 @@ export default class LibraryDao {
         ).changes
     }
 
-    public queryRecordById(id: number): VO.Record | null {
-        return this.db.get(`
-        SELECT 
-            r.id, r.title, r.rate,
-            PATH_RESOLVE(?, r.cover) AS cover,
-            r.hyperlink,
-            PATH_RESOLVE(d.path,  r.basename) AS resourcePath,
-            DATETIME(gmt_create, 'localtime') AS createTime,
-            DATETIME(gmt_modified, 'localtime') AS modifiedTime
-        FROM
-            record r
-            LEFT JOIN dirname d ON r.dirname_id = d.id
-        WHERE r.id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
-    }
-
     public deleteRecordByDirnameId(id: PrimaryKey): number {
         return this.db.run('DELETE FROM record WHERE dirname_id = ?;', id).changes
     }
@@ -201,28 +264,11 @@ export default class LibraryDao {
         return this.db.run('DELETE FROM record WHERE id IN (SELECT record_id FROM record_series WHERE series_id = ?);', id).changes
     }
 
+
     // ===================================================
-    // By RecordId
+    // ANCHOR T record_extra
     // ===================================================
 
-    public queryTagsByRecordId(id: number): VO.Tag[] {
-        return this.db.all(`SELECT t.id, t.title
-        FROM tag t JOIN record_tag rt ON t.id = rt.tag_id
-        WHERE rt.record_id = ?;`, id)
-    }
-
-    public queryAuthorsByRecordId(id: number): VO.AuthorProfile[] {
-        return this.db.all(`
-        SELECT a.id, a.name, PATH_RESOLVE(?, a.avatar) AS avatar
-        FROM author a JOIN record_author ra ON a.id = ra.author_id
-        WHERE ra.record_id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
-    }
-
-    public querySeriesByRecordId(id: number): VO.Series[] {
-        return this.db.all(`SELECT s.id, s.name
-        FROM series s JOIN record_series rs ON s.id = rs.series_id
-        WHERE rs.record_id = ?;`, id)
-    }
 
     public queryRecordExtraByRecordId(id: number): VO.RecordExtra | undefined {
         return this.db.get(`SELECT id, intro, info FROM record_extra WHERE id = ?;`, id)
@@ -240,53 +286,13 @@ export default class LibraryDao {
         ).changes
     }
 
+
     // ===================================================
-    // record_XXXX 多对多连接表
+    // ANCHOR T author 
     // ===================================================
 
-    public addRecordTag(recordId: PrimaryKey, tagIds: PrimaryKey[]): void {
-        const stmt = this.db.prepare("INSERT INTO record_tag(record_id, tag_id) VALUES(?,?);")
-        tagIds.forEach(id => {
-            stmt.run(recordId, id)
-        })
-    }
 
-    public deleteRecordTag(recordId: PrimaryKey, tagIds: PrimaryKey[]): void {
-        const stmt = this.db.prepare("DELETE FROM record_tag WHERE record_id = ? AND tag_id = ?;")
-        tagIds.forEach(id => {
-            stmt.run(recordId, id)
-        })
-    }
-
-    public addRecordAuthor(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
-        const stmt = this.db.prepare("INSERT INTO record_author(record_id, author_id) VALUES(?,?);")
-        authorIds.forEach(id => {
-            stmt.run(recordId, id)
-        })
-    }
-
-    public deleteRecordAuthor(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
-        const stmt = this.db.prepare("DELETE FROM record_author WHERE record_id = ? AND author_id = ?;")
-        authorIds.forEach(id => {
-            stmt.run(recordId, id)
-        })
-    }
-
-    public addRecordSeries(recordId: PrimaryKey, seriesIds: PrimaryKey[]): void {
-        const stmt = this.db.prepare("INSERT INTO record_series(record_id, series_id) VALUES(?,?);")
-        seriesIds.forEach(id => {
-            stmt.run(recordId, id)
-        })
-    }
-
-    public deleteRecordSeries(recordId: PrimaryKey, seriesIds: PrimaryKey[]): void {
-        const stmt = this.db.prepare("DELETE FROM record_series WHERE record_id = ? AND series_id = ?;")
-        seriesIds.forEach(id => {
-            stmt.run(recordId, id)
-        })
-    }
-
-    public queryAuthor(id: number): VO.Author | undefined {
+    public queryAuthor(id: PrimaryKey): VO.Author | undefined {
         this.registerSQLFnPathResolve()
         return this.db.get(`SELECT id, name, PATH_RESOLVE(?, avatar) AS avatar, intro,
             DATETIME(gmt_create, 'localtime') AS createTime,
@@ -294,10 +300,44 @@ export default class LibraryDao {
         FROM author WHERE id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
     }
 
+    public queryAuthorsByKeyword(
+        keyword: string,
+        sort: QueryAuthorSortRule[],
+        offset: number,
+        rowCount: number,
+    ): DaoPage<VO.Author> {
+        const rowsSQL = new DynamicSqlBuilder()
+        const countSQL = new DynamicSqlBuilder()
+        const sortRule: SortRule[] = []
 
-    // ===================================================
-    // author
-    // ===================================================
+        this.registerSQLFnPathResolve()
+        rowsSQL.append(`SELECT id, name, PATH_RESOLVE(?, avatar) AS avatar, intro,
+            DATETIME(gmt_create, 'localtime') AS createTime,
+            DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM author`,
+            config.getLibraryImagesDir(this.libraryId))
+        countSQL.append('SELECT COUNT(id) FROM author')
+
+        if (keyword !== '') {    // 没有关键字就不用加where了
+            this.registerSQLFnRegexp(tokenizer(keyword))
+            rowsSQL.append('WHERE REGEXP(name) > 0')
+            countSQL.append('WHERE REGEXP(name) > 0')
+            sortRule.push({ field: 'REGEXP(name)', order: 'DESC' })
+        }
+        sortRule.push(...sort)
+        rowsSQL.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
+
+        return {
+            total: this.db.prepare(countSQL.getSql()).pluck().get() as number,
+            rows: this.db.all(rowsSQL.getSql(), ...rowsSQL.getParams()) as VO.Author[],
+        }
+    }
+
+    public queryAuthorsByRecordId(id: PrimaryKey): VO.AuthorProfile[] {
+        return this.db.all(`
+        SELECT a.id, a.name, PATH_RESOLVE(?, a.avatar) AS avatar
+        FROM author a JOIN record_author ra ON a.id = ra.author_id
+        WHERE ra.record_id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
+    }
 
     public addAuthor(author: Entity.Author): PrimaryKey {
         return this.db.run("INSERT INTO author(name, avatar, intro) VALUES(?,?,?);",
@@ -316,7 +356,7 @@ export default class LibraryDao {
         ).changes
     }
 
-    public deleteAuthor(id: number): void {
+    public deleteAuthor(id: PrimaryKey): void {
         this.db.transaction(() => {
             this.db.run("DELETE FROM author WHERE id = ?;", id)
             this.db.run("DELETE FROM record_author WHERE author_id = ?;", id)
@@ -324,10 +364,16 @@ export default class LibraryDao {
     }
 
 
+    // ===================================================
+    // ANCHOR T tag
+    // ===================================================
 
-    // ===================================================
-    // tag
-    // ===================================================
+
+    public queryTagsByRecordId(id: number): VO.Tag[] {
+        return this.db.all(`SELECT t.id, t.title
+        FROM tag t JOIN record_tag rt ON t.id = rt.tag_id
+        WHERE rt.record_id = ?;`, id)
+    }
 
     public queryTags(queryWord: string, sortField: AttributeSortField, asc: boolean, pn: number, ps: number): DTO.Page<VO.TextAttribute> {
         const dataSql = new DynamicSqlBuilder()
@@ -351,8 +397,12 @@ export default class LibraryDao {
         dataSql.append('LIMIT ?, ?;', (pn - 1) * ps, ps)
         return {
             total: this.db.prepare(totalSql.getSql()).pluck().get() as number,
-            data: this.db.all(dataSql.getSql(), ...dataSql.getParams())
+            rows: this.db.all(dataSql.getSql(), ...dataSql.getParams()),
         }
+    }
+
+    public addTag(title: string): PrimaryKey {
+        return this.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
     }
 
     public editTag(id: number, newValue: string): void {
@@ -372,10 +422,6 @@ export default class LibraryDao {
         }
     }
 
-    public addTag(title: string): PrimaryKey {
-        return this.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
-    }
-
     public deleteTag(id: PrimaryKey): void {
         this.db.transaction(() => {
             this.db.run('DELETE FROM tag WHERE id = ?;', id)
@@ -389,7 +435,104 @@ export default class LibraryDao {
 
 
     // ===================================================
-    // dirname
+    // ANCHOR T series
+    // ===================================================
+
+
+    public querySeriesByRecordId(id: number): VO.Series[] {
+        return this.db.all(`SELECT s.id, s.name
+        FROM series s JOIN record_series rs ON s.id = rs.series_id
+        WHERE rs.record_id = ?;`, id)
+    }
+
+
+    // ===================================================
+    // series
+    // ===================================================
+
+    public addSeries(name: string): PrimaryKey {
+        return this.db.run("INSERT INTO series(name) VALUES(?);", name).lastInsertRowid
+    }
+
+    public querySeriesIdByName(name: string): PrimaryKey | null {
+        return this.db.prepare('SELECT id FROM series WHERE name = ?;').pluck().get(name) as PrimaryKey | null
+    }
+
+    public deleteSeries(id: PrimaryKey): void {
+        this.db.transaction(() => {
+            this.db.run('DELETE FROM series WHERE id = ?;', id)
+            this.db.run('DELETE FROM record_series WHERE series_id = ?;', id)
+        })
+    }
+
+
+    // ===================================================
+    // ANCHOR T record_author
+    // ===================================================
+
+
+    public queryCountOfRecordsByAuthor(authorId: number): number {
+        const sql = 'SELECT COUNT(record_id) FROM record_author WHERE author_id = ?;'
+        return this.db.prepare(sql).pluck().get(authorId) as number
+    }
+
+    public addRecordAuthor(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
+        const stmt = this.db.prepare("INSERT INTO record_author(record_id, author_id) VALUES(?,?);")
+        authorIds.forEach(id => {
+            stmt.run(recordId, id)
+        })
+    }
+
+    public deleteRecordAuthor(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
+        const stmt = this.db.prepare("DELETE FROM record_author WHERE record_id = ? AND author_id = ?;")
+        authorIds.forEach(id => {
+            stmt.run(recordId, id)
+        })
+    }
+
+
+    // ===================================================
+    // ANCHOR T record_tag
+    // ===================================================
+
+
+    public addRecordTag(recordId: PrimaryKey, tagIds: PrimaryKey[]): void {
+        const stmt = this.db.prepare("INSERT INTO record_tag(record_id, tag_id) VALUES(?,?);")
+        tagIds.forEach(id => {
+            stmt.run(recordId, id)
+        })
+    }
+
+    public deleteRecordTag(recordId: PrimaryKey, tagIds: PrimaryKey[]): void {
+        const stmt = this.db.prepare("DELETE FROM record_tag WHERE record_id = ? AND tag_id = ?;")
+        tagIds.forEach(id => {
+            stmt.run(recordId, id)
+        })
+    }
+
+
+    // ===================================================
+    // ANCHOR T record_series
+    // ===================================================
+
+
+    public addRecordSeries(recordId: PrimaryKey, seriesIds: PrimaryKey[]): void {
+        const stmt = this.db.prepare("INSERT INTO record_series(record_id, series_id) VALUES(?,?);")
+        seriesIds.forEach(id => {
+            stmt.run(recordId, id)
+        })
+    }
+
+    public deleteRecordSeries(recordId: PrimaryKey, seriesIds: PrimaryKey[]): void {
+        const stmt = this.db.prepare("DELETE FROM record_series WHERE record_id = ? AND series_id = ?;")
+        seriesIds.forEach(id => {
+            stmt.run(recordId, id)
+        })
+    }
+
+
+    // ===================================================
+    // ANCHOR T dirname
     // ===================================================
 
     public queryDirnames(queryWord: string, sortField: AttributeSortField, asc: boolean, pn: number, ps: number): DTO.Page<VO.TextAttribute> {
@@ -414,7 +557,7 @@ export default class LibraryDao {
         dataSql.append('LIMIT ?, ?;', (pn - 1) * ps, ps)
         return {
             total: this.db.prepare(totalSql.getSql()).pluck().get() as number,
-            data: this.db.all(dataSql.getSql(), ...dataSql.getParams())
+            rows: this.db.all(dataSql.getSql(), ...dataSql.getParams())
         }
     }
 
@@ -470,33 +613,5 @@ export default class LibraryDao {
             return path.resolve(normalizeReplace, path.normalize(source).substring(normalizeTarget.length))
         })
         return this.db.run('UPDATE dirname SET path = REPLACE_DP(path) WHERE NEED_REPLACE_DP(path);').changes
-    }
-
-
-    // ===================================================
-    // series
-    // ===================================================
-
-    public addSeries(name: string): PrimaryKey {
-        return this.db.run("INSERT INTO series(name) VALUES(?);", name).lastInsertRowid
-    }
-
-    public querySeriesIdByName(name: string): PrimaryKey | null {
-        return this.db.prepare('SELECT id FROM series WHERE name = ?;').pluck().get(name) as PrimaryKey | null
-    }
-
-    public deleteSeries(id: PrimaryKey): void {
-        this.db.transaction(() => {
-            this.db.run('DELETE FROM series WHERE id = ?;', id)
-            this.db.run('DELETE FROM record_series WHERE series_id = ?;', id)
-        })
-    }
-
-    // ===================================================
-    // 释放数据库连接
-    // ===================================================
-
-    public destroy(): void {
-        this.db.close()
     }
 }

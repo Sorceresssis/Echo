@@ -29,6 +29,17 @@ namespace VO {
         modifiedTime: string,
     }
 
+    type RecordRecommendation = {
+        id: number,
+        title: string,
+        rate: number,
+        cover: string | null,
+        hyperlink: string | null,
+        resourcePath: string | null,
+        authors: VO.AuthorProfile[],
+        tags: VO.Tag[],
+    }
+
     /**
      * 作者的简单信息，用于列表展示
      */
@@ -50,17 +61,17 @@ namespace VO {
     /**
      * 作者的推荐信息，用于首页展示,多出了作品列表和作品数量
      */
-    type AuthorRecmd = {
+    type AuthorRecommendation = {
         id: number,
         name: string,
         avatar: string | null,
+        worksCount: number,
         intro: string,
-        createTime: string,
-        modifiedTime: string,
-        count: number,
-        // masterpiece
-        Mstrpcs: [
-        ]
+        masterpieces: {
+            id: number,
+            cover: string | null,
+            title: string,
+        }[]
     }
 
     type Tag = {
@@ -122,4 +133,3 @@ type LibraryDetail = {
     intro: String,
     createTime: string,
 }
-

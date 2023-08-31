@@ -149,6 +149,11 @@ export interface IElectronAPI {
         authorId: number
     ) => Promise<VO.Author | undefined>
 
+    queryAuthorRecmds: (
+        libraryId: number,
+        options: DTO.QueryAuthorRecommendationsOptions
+    ) => Promise<DTO.Page<VO.AuthorRecommendation>>
+
     /**
      * 编辑作者
      */

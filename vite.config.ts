@@ -12,7 +12,7 @@ export default defineConfig(() => {
     rollupOptions: {
       input: {
         index: resolve(__dirname, './src/render/index.html'),
-        itemDisplay: resolve(__dirname, './src/render/record/index.html')
+        record: resolve(__dirname, './src/render/record/index.html'),
       }
     }
   };

@@ -27,7 +27,7 @@
             </div>
         </div>
         <div class="dashboard__content scrollbar-y-w8">
-            <empty v-if="recordRecmds.length == 0"></empty>
+            <empty v-if="recordRecmds.length == 0" />
             <div v-else
                  class="record-recommendations adaptive-grid"
                  :class="[`${recordsDashStore.view}-grid`]">
@@ -228,8 +228,106 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
+        },
+        {
+            id: 1,
+            title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
+            rate: 5,
+            cover: 'F:\\Desktop\\images\\2.jpg',
+            hyperlink: '',
+            resourcePath: 'F:\\Project\\Github\\echoDB',
+            authors: [
+                {
+                    id: 1,
+                    name: '标签2',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 2,
+                    name: '小丑',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 1,
+                    name: '标签2',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 2,
+                    name: '小丑',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 1,
+                    name: '标签2',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 2,
+                    name: '小丑',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                }
+            ],
+            tags: [
+                {
+                    id: 1,
+                    title: 'ffff'
+                },
+                {
+                    id: 1,
+                    title: '标签4'
+                }
+            ],
+        },
+        {
+            id: 1,
+            title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
+            rate: 5,
+            cover: 'F:\\Desktop\\images\\4.jpg',
+            hyperlink: '',
+            resourcePath: 'F:\\Project\\Github\\echoDB',
+            authors: [
+                {
+                    id: 1,
+                    name: '标签2',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 2,
+                    name: '小丑',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 1,
+                    name: '标签2',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 2,
+                    name: '小丑',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 1,
+                    name: '标签2',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                },
+                {
+                    id: 2,
+                    name: '小丑',
+                    avatar: 'F:\\Desktop\\images\\息屏.png'
+                }
+            ],
+            tags: [
+                {
+                    id: 1,
+                    title: 'ffff'
+                },
+                {
+                    id: 1,
+                    title: '标签4'
+                }
+            ],
         },
         {
             id: 1,
@@ -280,8 +378,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -332,8 +428,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -384,8 +478,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -436,8 +528,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -488,8 +578,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -540,8 +628,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -592,8 +678,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -644,8 +728,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -696,8 +778,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -748,8 +828,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -800,8 +878,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -852,8 +928,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -904,8 +978,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -956,8 +1028,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
         {
             id: 1,
@@ -1008,112 +1078,6 @@ onMounted(() => {
                     title: '标签4'
                 }
             ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
-        },
-        {
-            id: 1,
-            title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
-            rate: 5,
-            cover: 'C:\\Users\\RachelGardner\\OneDrive\\图片\\ACG\\illust_100114922_20221025_211912.jpg',
-            hyperlink: '',
-            resourcePath: 'F:\\Project\\Github\\echoDB',
-            authors: [
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                }
-            ],
-            tags: [
-                {
-                    id: 1,
-                    title: 'ffff'
-                },
-                {
-                    id: 1,
-                    title: '标签4'
-                }
-            ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
-        },
-        {
-            id: 1,
-            title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
-            rate: 5,
-            cover: 'C:\\Users\\RachelGardner\\OneDrive\\图片\\ACG\\illust_100114922_20221025_211912.jpg',
-            hyperlink: '',
-            resourcePath: 'F:\\Project\\Github\\echoDB',
-            authors: [
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                }
-            ],
-            tags: [
-                {
-                    id: 1,
-                    title: 'ffff'
-                },
-                {
-                    id: 1,
-                    title: '标签4'
-                }
-            ],
-            createTime: '2022-01-02',
-            modifiedTime: '',
         },
     ]
 })

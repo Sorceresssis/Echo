@@ -222,7 +222,7 @@ import noImg from '@/assets/images/no-img.png'
 import Message from '@/util/Message'
 import ADEMessageBox from '@/util/ADEMessageBox'
 
-const rateColors = ref(['#b5adf7', '#887cf7', '#9e94f7']) // 评分颜色 
+const rateColors = ['#b5adf7', '#887cf7', '#9e94f7'] // 评分颜色 
 const inputAutoSize = {
     minRows: 4,
     maxRows: 4

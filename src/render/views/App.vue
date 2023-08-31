@@ -12,7 +12,7 @@
                 </span>
             </div>
         </div>
-        <div class="flex-1 flex-col min-width-0">
+        <div class="flex-1 flex-col overflow-hidden">
             <titlebar></titlebar>
             <router-view class="main-container flex-1 flex-col overflow-hidden"></router-view>
         </div>

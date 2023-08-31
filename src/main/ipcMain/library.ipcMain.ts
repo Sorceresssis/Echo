@@ -2,7 +2,8 @@ import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
 import { unlinkSync, isLegalAbsolutePath } from "../util/FileManager"
 import LibraryDao from "../dao/libraryDao"
 import ImageService from "../service/ImageService"
-import LibraryQueryService from "../service/RecordQueryService"
+import QueryLibraryService from "../service/QueryRecordService"
+import QueryAuthorService from "../service/QueryAuthorService"
 import ManageRecordSerivce from "../service/ManageRecordSerivce"
 import Result from "../util/Result"
 
@@ -60,15 +61,15 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('author:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number) => {
-        const libraryDao = new LibraryDao(libraryId)
+    ipcMain.handle('author:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> => {
+        const queryAuthorService = new QueryAuthorService(libraryId)
         try {
-
+            return queryAuthorService.queryAuthorRecmds(options)
         } catch (e: any) {
             dialog.showErrorBox('author:queryRecmds', e.message)
-            return
+            return { total: 0, rows: [] }
         } finally {
-            libraryDao.destroy()
+            queryAuthorService.close()
         }
     })
 

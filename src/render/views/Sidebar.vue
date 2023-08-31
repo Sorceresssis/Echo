@@ -370,17 +370,13 @@ const handleDragend = async () => {
         isExpandGroup.value.splice(tg, 0, ...isExpandGroup.value.splice(cg, 1)) // 展开情况
         await window.electronAPI.sortGroup(sourceGroup.id, groups.value[tg]?.id || 0)
     } else { // 拖动的是library
-        if (tg === cg && tl === cl) return
+        if ((tg === cg && tl === cl) || tl === -1 && cg === tg) return // 拖入自己的位置或者拖入当前的group, 不操作
         const sourceLibrary = groups.value[cg].librarys.splice(cl, 1)[0]
-        if (tl === -1) { // 拖入的是group
-            if (cg === tg) return
-            // 默认插入到组的第一个位置
-            await window.electronAPI.sortLibrary(sourceLibrary.id,
-                groups.value[tg].librarys[0]?.id || 0, groups.value[tg].id)
-        } else { // 拖入的是library  
-            await window.electronAPI.sortLibrary(sourceLibrary.id,
+        tl === -1   // 拖入的是group : 拖入的是library
+            ? await window.electronAPI.sortLibrary(sourceLibrary.id,
+                groups.value[tg].librarys[0]?.id || 0, groups.value[tg].id)   // 默认插入到组的第一个位置
+            : await window.electronAPI.sortLibrary(sourceLibrary.id,
                 groups.value[tg].librarys[tl]?.id || 0, groups.value[tg].id)
-        }
     }
     getGroups()
     sendCrosTabMsg(bc, bcMsg)

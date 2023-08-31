@@ -115,7 +115,7 @@ const queryDirnames = async () => {
             ps: pageSize
         }
     )
-    dirnames.value = resp.data
+    dirnames.value = resp.rows
     total.value = resp.total
 }
 

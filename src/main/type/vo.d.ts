@@ -38,8 +38,6 @@ namespace VO {
         resourcePath: string | null,
         authors: VO.AuthorProfile[],
         tags: VO.Tag[],
-        createTime: string,
-        modifiedTime: string,
     }
 
     /**
@@ -67,13 +65,13 @@ namespace VO {
         id: number,
         name: string,
         avatar: string | null,
+        worksCount: number,
         intro: string,
-        createTime: string,
-        modifiedTime: string,
-        count: number,
-        // masterpiece
-        Mstrpcs: [
-        ]
+        masterpieces: {
+            id: number,
+            cover: string | null,
+            title: string,
+        }[]
     }
 
     type Tag = {

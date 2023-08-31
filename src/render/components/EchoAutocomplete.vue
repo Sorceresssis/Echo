@@ -1,6 +1,6 @@
 <template>
-    <el-autocomplete :model-value="modelValue"
-                     @input="(value) => emit('update:modelValue', value)"
+    <el-autocomplete ref="acRef"
+                     :model-value="modelValue"
                      clearable
                      :trigger-on-focus="false"
                      :fit-input-width="true"
@@ -9,14 +9,15 @@
                      :show-word-limit="showWordLimit"
                      :maxlength="maxlength"
                      :placeholder="placeholder"
-                     :debounce="400">
+                     :debounce="400"
+                     @input="(value) => emit('update:modelValue', value)"
+                     @keyup.enter="handleKeyupEnter">
         <template #default="{ item }">
             <div class="echo-ac-suggestion flex-row">
-                <img v-if="item.type === 'record' || item.type === 'author'"
-                     class="img-icon"
-                     :class="[item.type]"
-                     :src="item.image ? `file:///${item.image}` : noImg"
-                     @error="($event.target as HTMLImageElement).src = noImg">
+                <local-image v-if="item.type === 'record' || item.type === 'author'"
+                             :src="item.image"
+                             class="img-icon"
+                             :class="[item.type]" />
                 <span v-else
                       :class="[item.type]"></span>
                 <div class="flex-1 echo-ac-suggestion_text">
@@ -24,7 +25,7 @@
                 </div>
                 <div v-if="showSelectbtn"
                      class="select-btn flex-center">
-                    <span @click="emit('btnSelect', toRaw(item))">选择</span>
+                    <span @click.stop="emit('btnSelect', toRaw(item))">选择</span>
                 </div>
             </div>
         </template>
@@ -32,8 +33,8 @@
 </template>
 
 <script setup lang='ts'>
-import { Ref, inject, toRaw } from 'vue'
-import noImg from '@/assets/images/no-img.png'
+import { ref, Ref, inject, toRaw, getCurrentInstance } from 'vue'
+import LocalImage from '@/components/LocalImage.vue'
 
 const props = withDefaults(defineProps<{
     type?: AcType
@@ -54,8 +55,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void
-    // TODO ender时间
-    (e: 'btnSelect', item: VO.AcSuggestion): void // 按钮选择，点击一个固定的按钮，将item.value传出去与原始的select区分
+    (e: 'btnSelect', item: VO.AcSuggestion): void // 点击一个固定的按钮，将item.value传出去
 }>()
 
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
@@ -71,6 +71,13 @@ const querySearch = (queryWord: string, cb: any) => {
     ).then((a) => {
         cb(a)
     })
+}
+
+const acRef = ref()
+const handleKeyupEnter = () => {
+    // blur() and close() are the property exposed by the ElAutocomplete component
+    acRef.value.blur()
+    acRef.value.close()
 }
 </script>
 

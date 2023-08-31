@@ -119,7 +119,7 @@ const queryTags = async () => {
             ps: pageSize
         }
     )
-    tags.value = resp.data
+    tags.value = resp.rows
     total.value = resp.total
     // 滚动到顶部
     document.querySelector('.dashboard__content')?.scrollTo(0, 0)

@@ -30,6 +30,7 @@
     "include": [
         "**/*.ts",
         "**/*.tsx",
-        "**/*.js"
+        "**/*.js",
+        "decorator/method.decorator.ts"
     ]
 }

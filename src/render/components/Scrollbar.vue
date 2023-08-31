@@ -18,10 +18,6 @@ import { onBeforeRouteLeave } from 'vue-router'
 
 const props = withDefaults(defineProps<{
     saveScrollPosition?: boolean
-    /**
-     * 重置监听器，如果绑定的值变化，会重置滚动条的位置到顶部
-     */
-    resetListener?: boolean
 }>(), {
     saveScrollPosition: true,
 })
@@ -29,9 +25,9 @@ const props = withDefaults(defineProps<{
 const scrollBarRef = ref<HTMLElement>()
 const scrollTop = ref<number>(0)
 
-watch(() => props.resetListener, () => {
-    scrollBarRef.value!.scrollTop = scrollTop.value = 0
-})
+const setScrollPosition = function (position: number) {
+    scrollBarRef.value!.scrollTop = scrollTop.value = position
+}
 
 onMounted(() => {
     if (props.saveScrollPosition) {
@@ -45,5 +41,9 @@ onMounted(() => {
             next()
         })
     }
+})
+
+defineExpose({
+    setScrollPosition
 })
 </script>

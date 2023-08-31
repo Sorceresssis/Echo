@@ -7,13 +7,13 @@
                  :rules="rules"
                  label-width="120px"
                  require-asterisk-position="right"
-                 status-icon>
+                 status-icon
+                 @submit.native.prevent>
             <el-form-item label="头像"
                           prop="avatar">
                 <div class="avatar">
-                    <img :src="formData.avatar ? `file:///${formData.avatar}` : noImg"
-                         alt="图片失效"
-                         class="fit--cover">
+                    <local-image :src="formData.avatar"
+                                 class="fit--cover" />
                     <div class="image-select-btn">
                         <span @click="selectAvatar">选择图片</span>
                         <span :class="[formData.avatar === formData.originAvatar ? 'disabled' : '']"
@@ -24,6 +24,7 @@
             <el-form-item label="名字"
                           prop="name">
                 <echo-autocomplete v-model="formData.name"
+                                   type="author"
                                    :show-word-limit="true"
                                    placeholder="作者的名字"
                                    maxlength="255" />
@@ -55,7 +56,7 @@ import { addConfirm, editConfirm } from '@/util/ADEMessageBox'
 import Message from '@/util/Message'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
-import noImg from '@/assets/images/no-img.png'
+import LocalImage from '@/components/LocalImage.vue'
 
 const inputAutoSize = {
     minRows: 4,

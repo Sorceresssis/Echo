@@ -8,7 +8,6 @@ import '../assets/css/recordcard.css'
 import '../assets/font/iconfont.css'
 import 'element-plus/dist/index.css'
 
-import router from '../router/index'
 import locales from '@/locales/index'
 import { createPinia } from 'pinia'
 import ElementPlus from 'element-plus'
@@ -18,7 +17,6 @@ import ContextMenu from '@imengyu/vue3-context-menu'
 
 
 const app = createApp(App)
-app.use(router)
 app.use(locales.i18n)
 app.use(ElementPlus)
 app.use(createPinia())

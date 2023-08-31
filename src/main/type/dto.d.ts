@@ -4,7 +4,7 @@ namespace DTO {
      */
     type Page<T> = {
         total: number,
-        data: T[]
+        rows: T[]
     }
 
     /**
@@ -90,9 +90,9 @@ namespace DTO {
 
 
     type QueryAuthorRecommendationsOptions = {
+        keyword: string,
         sortField: 'time' | 'name'
         order: 'ASC' | 'DESC'
-        kw: string,
         pn: number,
         ps: number,
     }

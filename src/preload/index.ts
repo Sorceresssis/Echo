@@ -100,6 +100,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
         authorId: number
     ) => ipcRenderer.invoke('author:query', libraryId, authorId),
 
+    queryAuthorRecmds: (
+        libraryId: number,
+        options: DTO.QueryAuthorRecommendationsOptions
+    ) => ipcRenderer.invoke('author:queryRecmds', libraryId, options),
+
     editAuthor: (
         libraryId: number,
         formData: DTO.EditAuthorForm
