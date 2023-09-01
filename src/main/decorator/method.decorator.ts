@@ -13,14 +13,16 @@ export function oncePerGlobal(target: any, propertyKey: string, descriptor: Prop
     }
 }
 
-export function oncePerObject(target: any, propertyKey: string, descriptor: PropertyDescriptor) {
-    const originalMethod = descriptor.value
-    const map = new WeakMap()
+export function oncePerObject() {
+    return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
+        const originalMethod = descriptor.value
+        const map = new WeakMap()
 
-    descriptor.value = function (...args: any[]) {
-        if (!map.has(this)) {
-            map.set(this, true)
-            return originalMethod.apply(this, args)
+        descriptor.value = function (...args: any[]) {
+            if (!map.has(this)) {
+                map.set(this, true)
+                return originalMethod.apply(this, args)
+            }
         }
     }
 }

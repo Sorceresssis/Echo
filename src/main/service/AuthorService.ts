@@ -1,5 +1,5 @@
 import { error } from "node:console"
-import { unlinkSync, isLegalAbsolutePath } from "../util/FileManager"
+import { unlinkSync } from "../util/FileManager"
 import ImageService from "../service/ImageService"
 import LibraryDao, { QueryAuthorsSortRule } from "../dao/libraryDao"
 

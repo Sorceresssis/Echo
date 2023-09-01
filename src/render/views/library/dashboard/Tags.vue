@@ -43,10 +43,10 @@
                        class="dashboard__footer"
                        background
                        small
-                       :page-size="pageSize"
                        layout="prev, pager, next, jumper, total"
+                       :page-size="pageSize"
                        :total="total"
-                       @current-change="hadnlePageChange" />
+                       @current-change="handlePageChange" />
     </div>
 </template>
 
@@ -135,7 +135,7 @@ const queryTags = debounce(async () => {
     loading.value = false
 }, 100)
 
-const hadnlePageChange = function () {
+const handlePageChange = function () {
     scrollbarRef.value?.setScrollPosition(0)
     queryTags()
 }

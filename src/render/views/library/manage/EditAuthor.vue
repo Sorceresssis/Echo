@@ -75,7 +75,7 @@ const formData = reactive<DTO.EditAuthorForm>({
     intro: '',
 })
 const queryAuthorDetail = async (id: number) => {
-    const author = await window.electronAPI.queryAuthor(activeLibrary.value, id)
+    const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, id)
     if (author) {
         formData.id = author.id
         formData.name = author.name

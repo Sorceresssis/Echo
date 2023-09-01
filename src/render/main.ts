@@ -8,7 +8,7 @@ import '@/assets/css/recordcard.css'
 import '@/assets/font/iconfont.css'
 
 import locales from '@/locales/index'
-import router from './router/index'
+import router from '@/router'
 import { createPinia } from 'pinia'
 
 import ElementPlus from 'element-plus'

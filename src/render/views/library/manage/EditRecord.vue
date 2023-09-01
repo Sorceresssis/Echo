@@ -96,9 +96,8 @@
             </el-form-item>
             <el-form-item label="选择封面">
                 <div class="cover">
-                    <img :src="formData.cover ? `file:///${formData.cover}` : noImg"
-                         alt="图片失效"
-                         class="fit--contain">
+                    <local-image :src="formData.cover"
+                                 class="fit--contain" />
                     <div class="image-select-btn">
                         <span @click="selectCover">选择图片</span>
                         <span :class="[formData.cover === formData.originCover ? 'disabled' : '']"
@@ -126,10 +125,9 @@
                     </div>
                     <div v-for="author in displayAuthors"
                          class="author flex-center">
-                        <img :src="author.avatar ? `file:///${author.avatar}` : noImg"
-                             :key="author.id"
-                             class="img-icon"
-                             @error="($event.target as HTMLImageElement).src = noImg">
+                        <local-image :src="author.avatar"
+                                     :key="author.id"
+                                     class="img-icon" />
                         <p class="textover--ellopsis">{{ author.name }}</p>
                         <span class="deleteIcon"
                               @click="authorRemover(author.id)"></span>
@@ -214,13 +212,13 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, Ref, watch, inject } from 'vue'
 import { useRoute } from 'vue-router'
-import useEditRecordServic from '@/service/editRecordService'
-import Button2 from '@/components/Button2.vue'
-import type { FormInstance, FormRules } from 'element-plus'
-import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
-import noImg from '@/assets/images/no-img.png'
 import Message from '@/util/Message'
 import ADEMessageBox from '@/util/ADEMessageBox'
+import useEditRecordServic from '@/service/editRecordService'
+import type { FormInstance, FormRules } from 'element-plus'
+import Button2 from '@/components/Button2.vue'
+import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
+import LocalImage from '@/components/LocalImage.vue'
 
 const rateColors = ['#b5adf7', '#887cf7', '#9e94f7'] // 评分颜色 
 const inputAutoSize = {

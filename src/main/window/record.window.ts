@@ -23,7 +23,7 @@ export function createWindow(libraryId: number, recordId: number): BrowserWindow
     windowManager.add(win)
 
     if (isDev) {
-        win?.loadURL(`http://localhost:${process.env.PORT || 5173}/record/index.html`)
+        win?.loadURL(`http://localhost:${process.env.PORT || 5173}/record/`)
         win.webContents.openDevTools()
     } else {
         win?.loadFile(resolve(__dirname, "../render/record/index.html"))

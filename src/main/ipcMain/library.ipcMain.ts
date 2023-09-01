@@ -6,6 +6,7 @@ import RecordService from "../service/RecordService"
 import ManageRecordSerivce from "../service/ManageRecordSerivce"
 import AuthorService from "../service/AuthorService"
 import TagService from "../service/TagService"
+import DirnameService from "../service/DirnameService"
 import Result from "../util/Result"
 
 // 多个窗口可能同时调用，所有不能使用唯一的LibraryDao
@@ -167,40 +168,40 @@ export default function ipcMainLibrary() {
 
     //ANCHOR Dirname
 
-    ipcMain.handle('dirname:queryDetails', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAttributesOptions): DTO.Page<VO.DirnameDetail> | undefined => {
-        let libraryDao
+    ipcMain.handle('dirname:queryDetails', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryDirnameDetailsOptions): DTO.Page<VO.DirnameDetail> | undefined => {
+        const dirnameService = new DirnameService(libraryId)
         try {
-            libraryDao = new LibraryDao(libraryId)
-            // return libraryDao.queryDirnames(options.queryWork, options.sortField, options.asc, options.pn, options.ps)
+            return dirnameService.queryDirnameDetails(options)
         } catch (e: any) {
             dialog.showErrorBox('dirname:queryDetails', e.message)
             return { total: 0, rows: [] }
         } finally {
-            libraryDao?.destroy()
+            dirnameService.close()
         }
     })
 
-    ipcMain.handle('dirname:edit', (e: IpcMainInvokeEvent, libraryId: number, dirnameId: number, newValue: string) => {
-        const libraryDao = new LibraryDao(libraryId)
+    ipcMain.handle('dirname:edit', (e: IpcMainInvokeEvent, libraryId: number, dirnameId: number, newValue: string): Result => {
+        const dirnameService = new DirnameService(libraryId)
         try {
-            return libraryDao.editDirname(dirnameId, newValue.trim())
+            return dirnameService.editDirname(dirnameId, newValue)
+                ? Result.success()
+                : Result.error('path is illegal')
         } catch (e: any) {
             dialog.showErrorBox('dirname:edit', e.message)
-            return
+            return Result.error(e.message)
         } finally {
-            libraryDao.destroy()
+            dirnameService.close()
         }
     })
 
     ipcMain.handle('dirname:delete', (e: IpcMainInvokeEvent, libraryId: number, dirnameId: number) => {
-        const libraryDao = new LibraryDao(libraryId)
+        const dirnameService = new DirnameService(libraryId)
         try {
-            return libraryDao.deleteDirname(dirnameId)
+            dirnameService.deleteDirname(dirnameId)
         } catch (e: any) {
             dialog.showErrorBox('dirname:delete', e.message)
-            return
         } finally {
-            libraryDao.destroy()
+            dirnameService.close()
         }
     })
 

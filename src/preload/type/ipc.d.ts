@@ -196,7 +196,7 @@ export interface IElectronAPI {
         libraryId: number,
         dirnameId: number,
         newValue: string
-    ) => Promise<boolean>
+    ) => Promise<Result>
 
     startsWithReplaceDirname: (
         libraryId: number,

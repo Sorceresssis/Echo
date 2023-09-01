@@ -1,9 +1,9 @@
 <template>
-    <records />
+    <div></div>
 </template>
 
 <script setup lang='ts'>
-import Records from './Records.vue'
+
 </script>
 
 <style scoped></style>

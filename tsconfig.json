@@ -11,6 +11,8 @@
     "esModuleInterop": true,
     "noImplicitThis": false,
     "allowJs": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
     "lib": [
       "ESNext",
       "DOM"

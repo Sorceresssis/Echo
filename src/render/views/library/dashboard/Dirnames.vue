@@ -2,9 +2,14 @@
     <div class="flex-col">
         <div class="dashboard__header">
             <div class="right-menu">
-                <echo-autocomplete v-model="search"
+                <echo-autocomplete v-model="keyword"
                                    type="dirname"
-                                   :placeholder="'搜索'" />
+                                   class="menu-item search"
+                                   :placeholder="'搜索'"
+                                   @keyup.enter="init" />
+                <dash-drop-menu v-for="menu in dropdownMenus"
+                                class="menu-item"
+                                :menu="menu" />
             </div>
         </div>
         <scrollbar v-loading="loading"
@@ -17,19 +22,19 @@
                     v-for="dirname in dirnames"
                     :key="dirname.id">
                     <div>
-                        <span>{{ dirname.value }}</span>
-                        <span class="count">{{ dirname.count }}</span>
+                        <span>{{ dirname.path }}</span>
+                        <span class="count">{{ dirname.recordCount }}</span>
                     </div>
                     <div class="operate">
                         <span class="iconfont"
                               :title="'在文件管理器中打开'"
-                              @click="openInExplorer(dirname.value)">&#xe73e;</span>
+                              @click="openInExplorer(dirname.path)">&#xe73e;</span>
                         <span class="iconfont"
                               :title="'复制到剪贴板'"
-                              @click="writeClibboard(dirname.value)">&#xe85c;</span>
+                              @click="writeClibboard(dirname.path)">&#xe85c;</span>
                         <span class="iconfont"
                               :title="'编辑'"
-                              @click="editDirname(dirname.id, dirname.value)">&#xe722;</span>
+                              @click="editDirname(dirname.id, dirname.path)">&#xe722;</span>
                         <span class="iconfont"
                               :title="'删除'"
                               @click="deleteDirname(dirname.id)">&#xe636;</span>
@@ -38,70 +43,72 @@
             </ul>
         </scrollbar>
         <el-pagination v-model:current-page="currentPage"
-                       :page-size="pageSize"
-                       :total="total"
-                       layout="prev, pager, next, jumper, total"
+                       class="dashboard__footer"
                        background
                        small
-                       class="dashboard__footer" />
+                       layout="prev, pager, next, jumper, total"
+                       :page-size="pageSize"
+                       :total="total"
+                       @current-change="handlePageChange" />
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, onMounted } from 'vue'
+import { ref, Ref, inject, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import { deleteConfirm, editPrompt } from '@/util/ADEMessageBox'
+import { debounce } from '@/util/debounce'
+import useDirnamesDashStore from '@/store/dirnamesDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Empty from '@/components/Empty.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
+import Message from '@/util/Message'
 
 const route = useRoute()
 
-// const dirnamesDashStore = useDirnamesDashStore()
-// const dropdownMenu = {
-//     HTMLElementTitle: $t('mainContainer.sort'),
-//     title: '&#xe81f;',
-//     items: [
-//         {
-//             title: $t('mainContainer.time'),
-//             divided: false,
-//             click: () => tagsDashStore.handleSortField('date'),
-//             dot: () => tagsDashStore.sortField === 'date'
-//         },
-//         {
-//             title: '文本',
-//             divided: false,
-//             click: () => tagsDashStore.handleSortField('text'),
-//             dot: () => tagsDashStore.sortField === 'text'
-//         },
-//         {
-//             title: $t('mainContainer.ascending'),
-//             divided: true,
-//             click: () => tagsDashStore.handleAsc(true),
-//             dot: () => tagsDashStore.asc
-//         },
-//         {
-//             title: $t('mainContainer.descending'),
-//             divided: false,
-//             click: () => tagsDashStore.handleAsc(false),
-//             dot: () => !tagsDashStore.asc
-//         },
-//     ]
-// } 
+const dirnamesDashStore = useDirnamesDashStore()
+const dropdownMenus = [{
+    HTMLElementTitle: $t('mainContainer.sort'),
+    title: '&#xe81f;',
+    items: [
+        {
+            title: $t('mainContainer.time'),
+            divided: false,
+            click: () => dirnamesDashStore.handleSortField('time'),
+            dot: () => dirnamesDashStore.sortField === 'time'
+        },
+        {
+            title: '路径',
+            divided: false,
+            click: () => dirnamesDashStore.handleSortField('path'),
+            dot: () => dirnamesDashStore.sortField === 'path'
+        },
+        {
+            title: $t('mainContainer.ascending'),
+            divided: true,
+            click: () => dirnamesDashStore.handleOrder('ASC'),
+            dot: () => dirnamesDashStore.order === 'ASC'
+        },
+        {
+            title: $t('mainContainer.descending'),
+            divided: false,
+            click: () => dirnamesDashStore.handleOrder('DESC'),
+            dot: () => dirnamesDashStore.order === 'DESC'
+        },
+    ]
+}]
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
-const dirnames = ref<VO.TextAttribute[]>([])
+const dirnames = ref<VO.DirnameDetail[]>([])
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
-const pageSize = 30
-const search = ref<string>('')
+const keyword = ref<string>('')
 const currentPage = ref<number>(1)
+const pageSize = 30
 const total = ref<number>(0)
-
-
 
 const deleteDirname = (id: number) => {
     deleteConfirm(async () => {
@@ -111,28 +118,41 @@ const deleteDirname = (id: number) => {
 }
 const editDirname = (id: number, oldValue: string) => {
     editPrompt(async (value: string) => {
-        await window.electronAPI.editDirname(activeLibrary.value, id, value)
+        const result = await window.electronAPI.editDirname(activeLibrary.value, id, value)
+        if (result.code === 0) {
+            Message.error('路径不合法')
+        }
         queryDirnames()
     }, oldValue)
 }
-const queryDirnames = async () => {
-    const resp = await window.electronAPI.queryDirnames(
+const queryDirnames = debounce(async () => {
+    loading.value = true
+    const page = await window.electronAPI.queryDirnameDetails(
         activeLibrary.value,
         {
-            queryWork: search.value,
-            sortField: 'date',
-            asc: true,
+            keyword: keyword.value,
+            sortField: dirnamesDashStore.sortField,
+            order: dirnamesDashStore.order,
             pn: currentPage.value,
             ps: pageSize
         }
     )
-    dirnames.value = resp.rows
-    total.value = resp.total
-}
-
-onMounted(() => {
+    total.value = page.total
+    dirnames.value = page.rows
+    loading.value = false
+}, 100)
+const handlePageChange = function () {
+    scrollbarRef.value?.setScrollPosition(0)
     queryDirnames()
-})
+}
+const init = function () {
+    scrollbarRef.value?.setScrollPosition(0)
+    currentPage.value = 1
+    queryDirnames()
+}
+watch(() => [activeLibrary.value, dirnamesDashStore.sortField, dirnamesDashStore.order], init)
+watch(route, queryDirnames)
+onMounted(init)
 </script>
 
 <style scoped>
@@ -140,4 +160,4 @@ onMounted(() => {
     row-gap: 8px;
     grid-template-columns: 1fr;
 }
-</style>@/util/DAEMessageBox
+</style>

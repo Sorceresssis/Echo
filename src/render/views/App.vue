@@ -13,8 +13,8 @@
             </div>
         </div>
         <div class="flex-1 flex-col overflow-hidden">
-            <titlebar></titlebar>
-            <router-view class="main-container flex-1 flex-col overflow-hidden"></router-view>
+            <titlebar />
+            <router-view class="main-container flex-1 flex-col overflow-hidden" />
         </div>
     </div>
 </template>

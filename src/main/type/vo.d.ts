@@ -95,6 +95,11 @@ namespace VO {
         recordCount: number,
     }
 
+    type Dirname = {
+        id: number,
+        path: string
+    }
+
     type DirnameDetail = {
         id: number,
         path: string,

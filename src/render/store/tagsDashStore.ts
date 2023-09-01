@@ -14,7 +14,6 @@ const useTagsDashStore = defineStore(StoreId.TAGS_DASH, {
             order: 'ASC'
         }
         const saved = getLocalStorage(StoreId.TAGS_DASH)
-        // 纠错，如果存储的数据不符合预期，就使用默认值
         if (saved) {
             return saved
         } else {

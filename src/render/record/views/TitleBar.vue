@@ -1,5 +1,13 @@
 <template>
     <div class="titlebar flex-row">
+        <div style="margin-left: 10px;">
+            <span :title="$t('titlebar.back')"
+                  class="iconfont no-drag"
+                  @click="router.push('/')">&#xe6c9;</span>
+            <span :title="'编辑'"
+                  class="iconfont no-drag"
+                  @click="router.push('/manage')">&#xe722;</span>
+        </div>
         <div>
             <span :title="$t('titlebar.back')"
                   class="iconfont no-drag"
@@ -16,10 +24,6 @@
             </span>
         </div>
         <div class="flex">
-            <span :title="$t('titlebar.setting')"
-                  class="iconfont no-drag"
-                  @click="router.push('/setting')">&#xe657;</span>
-            <i>|</i>
             <span :title="$t('titlebar.minimize')"
                   class="iconfont no-drag"
                   @click="windowMinmize">&#xe67a;</span>

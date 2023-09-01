@@ -6,7 +6,6 @@ import { oncePerObject } from '../decorator/method.decorator'
 import DBUtil from '../util/dbUtil'
 import DynamicSqlBuilder, { type SortRule } from '../util/DynamicSqlBuilder'
 import tokenizer from "../util/tokenizer"
-import { off } from 'process'
 
 type DaoPage<T> = {
     total: number
@@ -101,10 +100,10 @@ export default class LibraryDao {
         this.db.transaction(fn)
     }
 
-    /** 
+    /**
      * 给数据库添加一个自定义的REGEXP函数，在查询时使用
      */
-    @oncePerObject
+    @oncePerObject()
     private registerSQLFnRegexp(keywords: string[]): void {
         this.db.function('REGEXP', (text: string) => {
             // 使用 'gi' 标志进行全局和忽略大小写匹配
@@ -114,7 +113,7 @@ export default class LibraryDao {
         })
     }
 
-    @oncePerObject
+    @oncePerObject()
     private registerSQLFnPathResolve(): void {
         this.db.function('PATH_RESOLVE', (dirname, basename) => {
             return dirname && basename ?
@@ -143,7 +142,9 @@ export default class LibraryDao {
         }
         // 把所有需要查询的表放入sql
         tableIdxs[type].forEach((v, i) => {
-            if (i > 0) { sqlBuilder.append('UNION ALL') }
+            if (i > 0) {
+                sqlBuilder.append('UNION ALL')
+            }
             sqlBuilder.append(table[v])
             if (v === 0 || v === 1) {
                 sqlBuilder.appendParam(config.getLibraryImagesDir(this.libraryId))
@@ -161,17 +162,17 @@ export default class LibraryDao {
     public queryRecordById(id: PrimaryKey): VO.Record | null {
         this.registerSQLFnPathResolve()
         return this.db.get(`
-        SELECT 
-            r.id, r.title, r.rate,
-            PATH_RESOLVE(?, r.cover) AS cover,
-            r.hyperlink,
-            PATH_RESOLVE(d.path,  r.basename) AS resourcePath,
-            DATETIME(gmt_create, 'localtime') AS createTime,
-            DATETIME(gmt_modified, 'localtime') AS modifiedTime
-        FROM
-            record r
-            LEFT JOIN dirname d ON r.dirname_id = d.id
-        WHERE r.id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
+            SELECT r.id,
+                   r.title,
+                   r.rate,
+                   PATH_RESOLVE(?, r.cover)            AS cover,
+                   r.hyperlink,
+                   PATH_RESOLVE(d.path, r.basename)    AS resourcePath,
+                   DATETIME(gmt_create, 'localtime')   AS createTime,
+                   DATETIME(gmt_modified, 'localtime') AS modifiedTime
+            FROM record r
+                     LEFT JOIN dirname d ON r.dirname_id = d.id
+            WHERE r.id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
     }
 
     public queryRecords(
@@ -200,8 +201,10 @@ export default class LibraryDao {
     public queryRecordsOfOrderRateByAuthor(authorId: number): { id: number, title: string, cover: string }[] {
         this.registerSQLFnPathResolve()
         return this.db.all(`SELECT r.id, r.title, PATH_RESOLVE(?, r.cover) AS cover
-            FROM record r JOIN record_author ra ON r.id = ra.record_id
-            WHERE ra.author_id = ? ORDER BY rate DESC LIMIT 3;`,
+                            FROM record r
+                                     JOIN record_author ra ON r.id = ra.record_id
+                            WHERE ra.author_id = ?
+                            ORDER BY rate DESC LIMIT 3;`,
             config.getLibraryImagesDir(this.libraryId), authorId)
     }
 
@@ -209,33 +212,29 @@ export default class LibraryDao {
         return this.db.prepare('SELECT id FROM record WHERE title = ?;').pluck().get(title) as PrimaryKey | null
     }
 
-    public queryCountOfRecordsByDirnameId(dirnameId: number): number {
-        return 0
+    public queryCountOfRecordsByDirnameId(dirnameId: PrimaryKey): number {
+        return this.db.prepare('SELECT COUNT(id) FROM record WHERE dirname_id = ?;').pluck().get(dirnameId) as number
     }
 
     public addRecord(record: Entity.Record): PrimaryKey {
         return this.db.run('INSERT INTO record(title, rate, cover, hyperlink, basename, info_status, dirname_id) VALUES(?,?,?,?,?,?,?);',
-            record.title,
-            record.rate,
-            record.cover,
-            record.hyperlink,
-            record.basename,
-            record.infoStatus,
-            record.dirnameId
+            record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.dirnameId
         ).lastInsertRowid
     }
 
     public updateRecord(record: Entity.Record): number {
         return this.db.run('UPDATE record SET title=?, rate=?, cover=?, hyperlink=?, basename=?, info_status=?, dirname_id=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;',
-            record.title,
-            record.rate,
-            record.cover,
-            record.hyperlink,
-            record.basename,
-            record.infoStatus,
-            record.dirnameId,
-            record.id
+            record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.dirnameId, record.id
         ).changes
+    }
+
+    //  更改record的dirname_id滞空为0
+    public updateRecordDirnameIdToZeroByDirnameId(dirnameId: PrimaryKey): number {
+        return this.db.run('UPDATE record SET dirname_id = 0 WHERE dirname_id = ?;', dirnameId).changes
+    }
+
+    public updateRecordDirnameId(newDirnameId: PrimaryKey, oldDirnameId: PrimaryKey): number {
+        return this.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', newDirnameId, oldDirnameId).changes
     }
 
     public deleteRecordByDirnameId(id: PrimaryKey): number {
@@ -253,7 +252,9 @@ export default class LibraryDao {
     // ANCHOR record_extra
 
     public queryRecordExtraByRecordId(id: number): VO.RecordExtra | undefined {
-        return this.db.get(`SELECT id, intro, info FROM record_extra WHERE id = ?;`, id)
+        return this.db.get(`SELECT id, intro, info
+                            FROM record_extra
+                            WHERE id = ?;`, id)
     }
 
     public addRecordExtra(recordExtra: Entity.RecordExtra): PrimaryKey {
@@ -272,10 +273,14 @@ export default class LibraryDao {
 
     public queryAuthor(id: PrimaryKey): VO.Author | null {
         this.registerSQLFnPathResolve()
-        return this.db.get(`SELECT id, name, PATH_RESOLVE(?, avatar) AS avatar, intro,
-            DATETIME(gmt_create, 'localtime') AS createTime,
-            DATETIME(gmt_modified, 'localtime') AS modifiedTime 
-        FROM author WHERE id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
+        return this.db.get(`SELECT id,
+                                   name,
+                                   PATH_RESOLVE(?, avatar)             AS avatar,
+                                   intro,
+                                   DATETIME(gmt_create, 'localtime')   AS createTime,
+                                   DATETIME(gmt_modified, 'localtime') AS modifiedTime
+                            FROM author
+                            WHERE id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
     }
 
     public queryAuthorsByKeyword(
@@ -289,9 +294,13 @@ export default class LibraryDao {
         const sortRule: SortRule[] = []
 
         this.registerSQLFnPathResolve()
-        rowsSQL.append(`SELECT id, name, PATH_RESOLVE(?, avatar) AS avatar, intro,
-            DATETIME(gmt_create, 'localtime') AS createTime,
-            DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM author`,
+        rowsSQL.append(`SELECT id,
+                               name,
+                               PATH_RESOLVE(?, avatar)             AS avatar,
+                               intro,
+                               DATETIME(gmt_create, 'localtime')   AS createTime,
+                               DATETIME(gmt_modified, 'localtime') AS modifiedTime
+                        FROM author`,
             config.getLibraryImagesDir(this.libraryId))
         countSQL.append('SELECT COUNT(id) FROM author')
 
@@ -312,9 +321,10 @@ export default class LibraryDao {
 
     public queryAuthorsByRecordId(id: PrimaryKey): VO.AuthorProfile[] {
         return this.db.all(`
-        SELECT a.id, a.name, PATH_RESOLVE(?, a.avatar) AS avatar
-        FROM author a JOIN record_author ra ON a.id = ra.author_id
-        WHERE ra.record_id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
+            SELECT a.id, a.name, PATH_RESOLVE(?, a.avatar) AS avatar
+            FROM author a
+                     JOIN record_author ra ON a.id = ra.author_id
+            WHERE ra.record_id = ?;`, config.getLibraryImagesDir(this.libraryId), id)
     }
 
     public addAuthor(author: Entity.Author): PrimaryKey {
@@ -341,9 +351,7 @@ export default class LibraryDao {
     // ANCHOR tag
 
     public queryTagsByRecordId(id: number): VO.Tag[] {
-        return this.db.all(`SELECT t.id, t.title
-        FROM tag t JOIN record_tag rt ON t.id = rt.tag_id
-        WHERE rt.record_id = ?;`, id)
+        return this.db.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ?;', id)
     }
 
     public queryTagsByKeyword(
@@ -374,38 +382,6 @@ export default class LibraryDao {
         }
     }
 
-    // public queryTags(
-    //     queryWord: string,
-    //     sortField: AttributeSortField,
-    //     asc: boolean,
-    //     pn: number,
-    //     ps: number
-    // ): DTO.Page<VO.TextAttribute> {
-    //     const dataSql = new DynamicSqlBuilder()
-    //     const totalSql = new DynamicSqlBuilder()
-    //     dataSql.append("SELECT t.id, t.title AS value, COUNT(rt.record_id) AS count FROM tag t LEFT JOIN record_tag rt ON t.id = rt.tag_id")
-    //     totalSql.append("SELECT COUNT(id) FROM tag")
-    //     if (queryWord.length !== 0) {
-    //         dataSql.append("WHERE REGEXP(t.title) > 0")
-    //         totalSql.append("WHERE REGEXP(title) > 0")
-    //         this.registerSQLFnRegexp(tokenizer(queryWord))
-    //     }
-    //     dataSql.append("GROUP BY t.id")
-    //     if (sortField === 'text') {
-    //         dataSql.append('ORDER BY t.title')
-    //     } else {
-    //         dataSql.append('ORDER BY t.id')
-    //     }
-    //     if (!asc) {
-    //         dataSql.append('DESC')
-    //     }
-    //     dataSql.append('LIMIT ?, ?;', (pn - 1) * ps, ps)
-    //     return {
-    //         total: this.db.prepare(totalSql.getSql()).pluck().get() as number,
-    //         rows: this.db.all(dataSql.getSql(), ...dataSql.getParams()),
-    //     }
-    // }
-
     public addTag(title: string): PrimaryKey {
         return this.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
     }
@@ -425,9 +401,7 @@ export default class LibraryDao {
     // ANCHOR series
 
     public querySeriesByRecordId(id: number): VO.Series[] {
-        return this.db.all(`SELECT s.id, s.name
-        FROM series s JOIN record_series rs ON s.id = rs.series_id
-        WHERE rs.record_id = ?;`, id)
+        return this.db.all('SELECT s.id, s.name FROM series s JOIN record_series rs ON s.id = rs.series_id WHERE rs.record_id = ?;', id)
     }
 
     public addSeries(name: string): PrimaryKey {
@@ -522,60 +496,44 @@ export default class LibraryDao {
 
     // ANCHOR dirname
 
-    // public queryDirnames(
-    //     queryWord: string,
-    //     sortField: AttributeSortField,
-    //     asc: boolean,
-    //     pn: number,
-    //     ps: number
-    // ): DTO.Page<VO.TextAttribute> {
-    //     const dataSql = new DynamicSqlBuilder()
-    //     const totalSql = new DynamicSqlBuilder()
-    //     dataSql.append("SELECT d.id, d.path AS value, COUNT(r.id) AS count FROM dirname d LEFT JOIN record r ON d.id = r.dirname_id")
-    //     totalSql.append("SELECT COUNT(id) FROM dirname")
-    //     if (queryWord.length !== 0) {
-    //         dataSql.append("WHERE REGEXP(d.path) > 0")
-    //         totalSql.append("WHERE REGEXP(path) > 0")
-    //         this.registerSQLFnRegexp(tokenizer(queryWord))
-    //     }
-    //     dataSql.append("GROUP BY d.id")
-    //     if (sortField === 'text') {
-    //         dataSql.append('ORDER BY d.title')
-    //     } else {
-    //         dataSql.append('ORDER BY d.id')
-    //     }
-    //     if (!asc) {
-    //         dataSql.append('DESC')
-    //     }
-    //     dataSql.append('LIMIT ?, ?;', (pn - 1) * ps, ps)
-    //     return {
-    //         total: this.db.prepare(totalSql.getSql()).pluck().get() as number,
-    //         rows: this.db.all(dataSql.getSql(), ...dataSql.getParams())
-    //     }
-    // }
+    public queryDirnamesByKeyword(
+        keyword: string,
+        sort: QueryDirnamesSortRule[],
+        offset: number,
+        rowCount: number
+    ): DaoPage<VO.Dirname> {
+        const rowsSQL = new DynamicSqlBuilder()
+        const countSQL = new DynamicSqlBuilder()
+        const sortRule: SortRule[] = []
 
-    public editDirname(id: number, newValue: string): void {
-        const dirname = newValue.trim()
-        const existDirname = this.db.prepare('SELECT id FROM dirname WHERE path = ?;').pluck().get(dirname)
-        if (existDirname && id !== existDirname) {
-            this.db.transaction(() => {
-                // 把record中的dirname_id重定向到existDirname
-                this.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', existDirname, id)
-                // 然后删除dirname
-                this.db.run('DELETE FROM dirname WHERE id = ?;', id)
-            })
-        } else {
-            this.db.run("UPDATE dirname SET path = ? WHERE id = ?;", dirname, id) // 修改dirname的path 
+        rowsSQL.append('SELECT id, path FROM dirname')
+        countSQL.append('SELECT COUNT(id) FROM dirname')
+
+        if (keyword !== '') {
+            this.registerSQLFnRegexp(tokenizer(keyword))
+            rowsSQL.append('WHERE REGEXP(path) > 0')
+            sortRule.push({ field: 'REGEXP(path)', order: 'DESC' })
+            countSQL.append('WHERE REGEXP(path) > 0')
         }
+        sortRule.push(...sort)
+        rowsSQL.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
+
+        return {
+            total: this.db.prepare(countSQL.getSql()).pluck().get() as number,
+            rows: this.db.all(rowsSQL.getSql(), ...rowsSQL.getParams()) as VO.Dirname[],
+        }
+    }
+
+    public updateDirname(id: number, path: string): number {
+        return this.db.run("UPDATE dirname SET path = ? WHERE id = ?;", path, id).changes
     }
 
     public addDirname(path: string): PrimaryKey {
         return this.db.run("INSERT INTO dirname(path) VALUES(?);", path).lastInsertRowid
     }
 
-    public deleteDirname(id: PrimaryKey): void {
-        this.db.run('DELETE FROM dirname WHERE id = ?;', id)
-        this.db.run('UPDATE record SET dirname_id = 0 WHERE dirname_id = ?;', id)
+    public deleteDirname(id: PrimaryKey): number {
+        return this.db.run('DELETE FROM dirname WHERE id = ?;', id).changes
     }
 
     public queryDirnameIdByPath(name: string): PrimaryKey | null {
@@ -585,12 +543,12 @@ export default class LibraryDao {
     /**
      * 以目录为基本单位匹配不是以字符为基本单位匹配 F:\foor\b 是无法与 F:\foor\b 匹配的
      * 一下是C:\foo\bar\baz\qux 的匹配表
-     * C:\foo\bar\baz\q     不符合 
-     * C:\foo\bar\baz\qux   符合 
-     * C:\                  符合 
+     * C:\foo\bar\baz\q     不符合
+     * C:\foo\bar\baz\qux   符合
+     * C:\                  符合
      * C:                   非法路径
-     * @param target 
-     * @param replace 
+     * @param target
+     * @param replace
      */
     public startsWithReplaceDirname(target: string, replace: string): number {
         // path.normalize()会保留尾部的分隔符，path.resolve()不保留尾部的分割符

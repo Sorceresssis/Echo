@@ -26,7 +26,9 @@
                                 class="menu-item" />
             </div>
         </div>
-        <div class="dashboard__content scrollbar-y-w8">
+        <scrollbar v-loading="loading"
+                   ref="scrollbarRef"
+                   class="dashboard__content scrollbar-y-w8">
             <empty v-if="recordRecmds.length == 0" />
             <div v-else
                  class="record-recommendations adaptive-grid"
@@ -36,7 +38,7 @@
                              :recmd="recmd">
                 </record-card>
             </div>
-        </div>
+        </scrollbar>
         <el-pagination v-model:current-page="currentPage"
                        class="dashboard__footer"
                        background
@@ -55,7 +57,10 @@ import useRecordsDashStore from '@/store/recordsDashStore'
 import Empty from '@/components/Empty.vue'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
+import Scrollbar from '@/components/Scrollbar.vue'
 import RecordCard from '@/components/RecordCard.vue'
+
+// records type common, author, reycycled
 
 const enum FilterKey {
     cover = 0,
@@ -153,6 +158,8 @@ const dropdownMenus: DashDropMenu[] = [
         ]
     }
 ]
+const loading = ref<boolean>(false)
+const scrollbarRef = ref()
 // sort attribute order
 // 开启批量操作
 const isBatchOperation = ref(false)
