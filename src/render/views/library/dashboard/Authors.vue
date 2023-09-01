@@ -3,8 +3,8 @@
 		<div class="dashboard__header">
 			<div class="right-menu">
 				<echo-autocomplete v-model="keyword"
-								   class="menu-item search"
 								   type="author"
+								   class="menu-item search"
 								   :placeholder="'搜索'"
 								   @keyup.enter="init" />
 				<dash-drop-menu v-for="menu in dropdownMenus"
@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, onMounted, inject, watch, watchEffect, } from 'vue'
+import { ref, Ref, onMounted, inject, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
 import { debounce } from '@/util/debounce'
@@ -71,25 +71,23 @@ import LocalImage from '@/components/LocalImage.vue'
 
 const route = useRoute()
 const router = useRouter()
-const pageSize = 5
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const authorsDashStore = useAuthorsDashStore()
 const dropdownMenus = [{
 	HTMLElementTitle: $t('mainContainer.sort'),
 	title: '&#xe81f;',
 	items: [
 		{
-			title: $t('mainContainer.time'),
-			divided: false,
-			click: () => authorsDashStore.handleSortField('time'),
-			dot: () => authorsDashStore.sortField === 'time'
-		},
-		{
 			title: '名字',
 			divided: false,
 			click: () => authorsDashStore.handleSortField('name'),
 			dot: () => authorsDashStore.sortField === 'name'
+		},
+		{
+			title: $t('mainContainer.time'),
+			divided: false,
+			click: () => authorsDashStore.handleSortField('time'),
+			dot: () => authorsDashStore.sortField === 'time'
 		},
 		{
 			title: '升序',
@@ -107,16 +105,18 @@ const dropdownMenus = [{
 }]
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
-const authorRecmds = ref<VO.AuthorRecommendation[]>([])
 
+const authorRecmds = ref<VO.AuthorRecommendation[]>([])
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
+const pageSize = 20
 const total = ref<number>(0)
 
 const queryAuthorRecmds = debounce(async () => {
 	loading.value = true
 	const page = await window.electronAPI.queryAuthorRecmds(
-		1 || activeLibrary.value,
+		activeLibrary.value,
 		{
 			keyword: keyword.value,
 			sortField: authorsDashStore.sortField,
@@ -132,12 +132,12 @@ const queryAuthorRecmds = debounce(async () => {
 
 // pageChange 刷新数据, 重置滚动位置
 const hadnlePageChange = function () {
-	scrollbarRef.value.setScrollPosition(0)
+	scrollbarRef.value?.setScrollPosition(0)
 	queryAuthorRecmds()
 }
 // 请求参数发送改变(activeLibrarykeyword , sortFild, order)	刷新数据, 重置滚动位置, 重置页码
 const init = function () {
-	scrollbarRef.value.setScrollPosition(0)
+	scrollbarRef.value?.setScrollPosition(0)
 	currentPage.value = 1
 	queryAuthorRecmds()
 }

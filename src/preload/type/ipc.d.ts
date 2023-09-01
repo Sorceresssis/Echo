@@ -106,9 +106,7 @@ export interface IElectronAPI {
         groupId: number
     ) => Promise<void>
 
-
-
-    /******************** record ********************/
+    //ANCHOR Record
 
     /** 
      * 自动补齐
@@ -140,14 +138,12 @@ export interface IElectronAPI {
         options: DTO.EditRecordOptions
     ) => Promise<Result>
 
+    //ANCHOR Author
 
-
-    /******************** author ********************/
-
-    queryAuthor: (
+    queryAuthorDetail: (
         libraryId: number,
         authorId: number
-    ) => Promise<VO.Author | undefined>
+    ) => Promise<VO.AuthorDetail | undefined>
 
     queryAuthorRecmds: (
         libraryId: number,
@@ -166,10 +162,10 @@ export interface IElectronAPI {
 
     /******************** tag ********************/
 
-    queryTags: (
+    queryTagDetails: (
         libraryId: number,
-        options: DTO.QueryAttributesOptions
-    ) => Promise<DTO.Page<VO.TextAttribute>>
+        options: DTO.QueryTagDetailsOptions
+    ) => Promise<DTO.Page<VO.TagDetail>>
 
     deleteTag: (
         libraryId: number,
@@ -186,10 +182,10 @@ export interface IElectronAPI {
 
     /******************** dirname ********************/
 
-    queryDirnames: (
+    queryDirnameDetails: (
         libraryId: number,
-        options: DTO.QueryAttributesOptions
-    ) => Promise<DTO.Page<VO.TextAttribute>>
+        options: DTO.QueryDirnameDetailsOptions
+    ) => Promise<DTO.Page<VO.DirnameDetail>>
 
     deleteDirname: (
         libraryId: number,

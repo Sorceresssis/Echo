@@ -1,9 +1,10 @@
 <template>
     <div ref="scrollBarRef"
-         class="scrollbar-y">
+         class="scrollbar-y"
+         @scroll="handleScroll">
         <slot></slot>
         <el-backtop target=".scrollbar-y"
-                    :visibility-height="1"
+                    :visibility-height="100"
                     :right="100"
                     :bottom="100">
             <span class="iconfont"
@@ -13,7 +14,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, onActivated, nextTick, onMounted, watch } from 'vue'
+import { ref, onActivated, nextTick, onMounted, watch, handleError } from 'vue'
+import { debounce } from '@/util/debounce'
 import { onBeforeRouteLeave } from 'vue-router'
 
 const props = withDefaults(defineProps<{
@@ -29,18 +31,16 @@ const setScrollPosition = function (position: number) {
     scrollBarRef.value!.scrollTop = scrollTop.value = position
 }
 
-onMounted(() => {
+const handleScroll = debounce(function (e: Event) {
     if (props.saveScrollPosition) {
-        onActivated(() => {
-            nextTick(() => {
-                scrollBarRef.value!.scrollTop = scrollTop.value
-            })
-        })
-        onBeforeRouteLeave((to, from, next) => {
-            scrollTop.value = scrollBarRef.value!.scrollTop
-            next()
-        })
+        scrollTop.value = (e.target as HTMLElement).scrollTop
     }
+}, 200)
+
+onActivated(() => {
+    nextTick(() => {
+        scrollBarRef.value!.scrollTop = scrollTop.value
+    })
 })
 
 defineExpose({

@@ -9,6 +9,9 @@ const routes: Array<RouteRecordRaw> = [
     {
         path: '/library/:id',
         component: () => import('../views/library/Library.vue'),
+        meta: {
+            keepAlive: true
+        },
         children: [
             {
                 path: '',

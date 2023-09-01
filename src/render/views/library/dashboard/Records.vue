@@ -48,10 +48,10 @@
 </template>
 
 <script setup lang='ts'>
-import { onMounted, reactive, ref, } from 'vue'
+import { onMounted, reactive, ref, onActivated } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
-import useRecordsDashStore from '@/store/useRecordsDashStore'
+import useRecordsDashStore from '@/store/recordsDashStore'
 import Empty from '@/components/Empty.vue'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
@@ -176,6 +176,11 @@ const openCtm = (e: MouseEvent) => {
     contextMenuOptions.y = e.y
     isVisibleCtmItem.value = true
 }
+
+onActivated(() => {
+    // queryData
+})
+
 // 复制信息 复制标题，全部信息，编辑， 删除
 onMounted(() => {
     recordRecmds.value = [
@@ -1092,4 +1097,4 @@ onMounted(() => {
 .batch-processing-btn:hover {
     color: var(--echo-theme-color);
 }
-</style>
+</style>@/store/recordsDashStore@/store/useRecordsDashStore

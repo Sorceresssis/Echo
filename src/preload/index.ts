@@ -95,10 +95,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
 
     /******************** author ********************/
-    queryAuthor: (
+    queryAuthorDetail: (
         libraryId: number,
         authorId: number
-    ) => ipcRenderer.invoke('author:query', libraryId, authorId),
+    ) => ipcRenderer.invoke('author:queryDetail', libraryId, authorId),
 
     queryAuthorRecmds: (
         libraryId: number,
@@ -119,10 +119,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     /******************** tag ********************/
 
-    queryTags: (
+    queryTagDetails: (
         libraryId: number,
-        options: DTO.QueryAttributesOptions
-    ) => ipcRenderer.invoke('tag:query', libraryId, options),
+        options: DTO.QueryTagDetailsOptions
+    ) => ipcRenderer.invoke('tag:queryDetails', libraryId, options),
 
     deleteTag: (
         libraryId: number,
@@ -139,10 +139,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     /******************** dirname ********************/
 
-    queryDirnames: (
+    queryDirnameDetails: (
         libraryId: number,
-        options: DTO.QueryAttributesOptions
-    ) => ipcRenderer.invoke('dirname:query', libraryId, options),
+        options: DTO.QueryDirnameDetailsOptions
+    ) => ipcRenderer.invoke('dirname:queryDetails', libraryId, options),
 
     deleteDirname: (
         libraryId: number,

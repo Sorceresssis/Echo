@@ -58,6 +58,16 @@ namespace VO {
         modifiedTime: string,
     }
 
+    type AuthorDetail = {
+        id: number
+        name: string
+        avatar: string | null
+        intro: string
+        createTime: string,
+        modifiedTime: string,
+        recordCount: number,
+    }
+
     /**
      * 作者的推荐信息，用于首页展示,多出了作品列表和作品数量
      */
@@ -79,6 +89,18 @@ namespace VO {
         title: string,
     }
 
+    type TagDetail = {
+        id: number,
+        title: string,
+        recordCount: number,
+    }
+
+    type DirnameDetail = {
+        id: number,
+        path: string,
+        recordCount: number,
+    }
+
     type Series = {
         id: number,
         name: string
@@ -88,15 +110,6 @@ namespace VO {
         id: number,
         intro: string,
         info: string,
-    }
-
-    /**
-     * 文本类的record属性，eg:tag，series，dirname
-     */
-    type TextAttribute = {
-        id: number,
-        value: string,
-        count: number,
     }
 
     /**

@@ -7,7 +7,9 @@
                                    :placeholder="'搜索'" />
             </div>
         </div>
-        <div class="dashboard__content scrollbar-y-w8">
+        <scrollbar v-loading="loading"
+                   ref="scrollbarRef"
+                   class="dashboard__content scrollbar-y-w8">
             <empty v-if="dirnames.length === 0" />
             <ul v-else
                 class="adaptive-grid">
@@ -34,7 +36,7 @@
                     </div>
                 </li>
             </ul>
-        </div>
+        </scrollbar>
         <el-pagination v-model:current-page="currentPage"
                        :page-size="pageSize"
                        :total="total"
@@ -47,13 +49,18 @@
 
 <script setup lang='ts'>
 import { ref, Ref, inject, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
+import { $t } from '@/locales/index'
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import { deleteConfirm, editPrompt } from '@/util/ADEMessageBox'
-import { $t } from '@/locales/index'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Empty from '@/components/Empty.vue'
+import Scrollbar from '@/components/Scrollbar.vue'
 
+const route = useRoute()
+
+// const dirnamesDashStore = useDirnamesDashStore()
 // const dropdownMenu = {
 //     HTMLElementTitle: $t('mainContainer.sort'),
 //     title: '&#xe81f;',
@@ -83,14 +90,18 @@ import Empty from '@/components/Empty.vue'
 //             dot: () => !tagsDashStore.asc
 //         },
 //     ]
-// }
+// } 
+const scrollbarRef = ref()
+const loading = ref<boolean>(false)
+
+const dirnames = ref<VO.TextAttribute[]>([])
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const pageSize = 30
-const dirnames = ref<VO.TextAttribute[]>([])
-
 const search = ref<string>('')
 const currentPage = ref<number>(1)
 const total = ref<number>(0)
+
+
 
 const deleteDirname = (id: number) => {
     deleteConfirm(async () => {

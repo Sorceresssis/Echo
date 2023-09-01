@@ -2,15 +2,19 @@
     <div class="flex-col">
         <div class="dashboard__header">
             <div class="right-menu">
-                <echo-autocomplete v-model="search"
+                <echo-autocomplete v-model="keyword"
                                    type="tag"
-                                   class="menu-item"
-                                   :placeholder="'搜索'" />
-                <dash-drop-menu :menu="dropdownMenu"
-                                class="menu-item" />
+                                   class="menu-item search"
+                                   :placeholder="'搜索'"
+                                   @keyup.enter="init" />
+                <dash-drop-menu v-for="menu in dropdownMenus"
+                                class="menu-item"
+                                :menu="menu" />
             </div>
         </div>
-        <div class="dashboard__content scrollbar-y-w8">
+        <scrollbar v-loading="loading"
+                   ref="scrollbarRef"
+                   class="dashboard__content scrollbar-y-w8">
             <empty v-if="tags.length === 0" />
             <ul v-else
                 class="adaptive-grid">
@@ -18,84 +22,90 @@
                     v-for="tag in tags"
                     :key="tag.id">
                     <div>
-                        <span>{{ tag.value }}</span>
-                        <span class="count">{{ tag.count }}</span>
+                        <span>{{ tag.title }}</span>
+                        <span class="count">{{ tag.recordCount }}</span>
                     </div>
                     <div class="operate">
                         <span class="iconfont"
                               :title="'复制到剪贴板'"
-                              @click="writeClibboard(tag.value)">&#xe85c;</span>
+                              @click="writeClibboard(tag.title)">&#xe85c;</span>
                         <span class="iconfont"
                               :title="'编辑'"
-                              @click="editTag(tag.id, tag.value)">&#xe722;</span>
+                              @click="editTag(tag.id, tag.title)">&#xe722;</span>
                         <span class="iconfont"
                               :title="'删除'"
                               @click="deleteTag(tag.id)">&#xe636;</span>
                     </div>
                 </li>
             </ul>
-        </div>
+        </scrollbar>
         <el-pagination v-model:current-page="currentPage"
                        class="dashboard__footer"
                        background
                        small
                        :page-size="pageSize"
                        layout="prev, pager, next, jumper, total"
-                       :total="total" />
+                       :total="total"
+                       @current-change="hadnlePageChange" />
     </div>
 </template>
 
 <script setup lang='ts'>
 import { ref, Ref, watch, onMounted, inject } from 'vue'
+import { useRoute } from 'vue-router'
+import { $t } from '@/locales/index'
+import { debounce } from '@/util/debounce'
 import { writeClibboard } from '@/util/systemUtil'
 import { deleteConfirm, editPrompt } from '@/util/ADEMessageBox'
-import { $t } from '@/locales/index'
-import useTagsDashStore from '@/store/useTagsDashStore'
+import useTagsDashStore from '@/store/tagsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
+import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 
+const route = useRoute()
+
 const tagsDashStore = useTagsDashStore()
-const dropdownMenu = {
+const dropdownMenus = [{
     HTMLElementTitle: $t('mainContainer.sort'),
     title: '&#xe81f;',
     items: [
         {
-            title: $t('mainContainer.time'),
+            title: '标题',
             divided: false,
-            click: () => tagsDashStore.handleSortField('date'),
-            dot: () => tagsDashStore.sortField === 'date'
+            click: () => tagsDashStore.handleSortField('title'),
+            dot: () => tagsDashStore.sortField === 'title'
         },
         {
-            title: '文本',
+            title: $t('mainContainer.time'),
             divided: false,
-            click: () => tagsDashStore.handleSortField('text'),
-            dot: () => tagsDashStore.sortField === 'text'
+            click: () => tagsDashStore.handleSortField('time'),
+            dot: () => tagsDashStore.sortField === 'time'
         },
         {
             title: $t('mainContainer.ascending'),
             divided: true,
-            click: () => tagsDashStore.handleAsc(true),
-            dot: () => tagsDashStore.asc
+            click: () => tagsDashStore.handleOrder('ASC'),
+            dot: () => tagsDashStore.order === 'ASC'
         },
         {
             title: $t('mainContainer.descending'),
             divided: false,
-            click: () => tagsDashStore.handleAsc(false),
-            dot: () => !tagsDashStore.asc
+            click: () => tagsDashStore.handleOrder('DESC'),
+            dot: () => tagsDashStore.order === 'DESC'
         },
     ]
-}
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
-const pageSize = 50
-const tags = ref<VO.TextAttribute[]>([])
+}]
+const scrollbarRef = ref()
+const loading = ref<boolean>(false)
 
-const search = ref<string>('')
+const tags = ref<VO.TagDetail[]>([])
+const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const keyword = ref<string>('')
 const currentPage = ref<number>(1)
+const pageSize = 50
 const total = ref<number>(0)
-watch(() => [activeLibrary.value, currentPage.value, tagsDashStore.sortField, tagsDashStore.asc], () => {
-    queryTags()
-})
+
 const deleteTag = (id: number) => {
     deleteConfirm(async () => {
         await window.electronAPI.deleteTag(activeLibrary.value, id)
@@ -108,26 +118,35 @@ const editTag = (id: number, oldValue: string) => {
         queryTags()
     }, oldValue)
 }
-const queryTags = async () => {
-    const resp = await window.electronAPI.queryTags(
+const queryTags = debounce(async () => {
+    loading.value = true
+    const page = await window.electronAPI.queryTagDetails(
         activeLibrary.value,
         {
-            queryWork: search.value,
+            keyword: keyword.value,
             sortField: tagsDashStore.sortField,
-            asc: tagsDashStore.asc,
+            order: tagsDashStore.order,
             pn: currentPage.value,
             ps: pageSize
         }
     )
-    tags.value = resp.rows
-    total.value = resp.total
-    // 滚动到顶部
-    document.querySelector('.dashboard__content')?.scrollTo(0, 0)
-}
+    total.value = page.total
+    tags.value = page.rows
+    loading.value = false
+}, 100)
 
-onMounted(() => {
+const hadnlePageChange = function () {
+    scrollbarRef.value?.setScrollPosition(0)
     queryTags()
-})
+}
+const init = function () {
+    scrollbarRef.value?.setScrollPosition(0)
+    currentPage.value = 1
+    queryTags()
+}
+watch(() => [activeLibrary.value, tagsDashStore.sortField, tagsDashStore.order], init)
+watch(route, queryTags)
+onMounted(init)
 </script>
 
 <style scoped>
@@ -135,4 +154,4 @@ onMounted(() => {
     row-gap: 8px;
     grid-template-columns: repeat(auto-fill, 350px);
 }
-</style>
+</style> 

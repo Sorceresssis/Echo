@@ -2,9 +2,10 @@ import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
 import { unlinkSync, isLegalAbsolutePath } from "../util/FileManager"
 import LibraryDao from "../dao/libraryDao"
 import ImageService from "../service/ImageService"
-import QueryLibraryService from "../service/QueryRecordService"
-import QueryAuthorService from "../service/QueryAuthorService"
+import RecordService from "../service/RecordService"
 import ManageRecordSerivce from "../service/ManageRecordSerivce"
+import AuthorService from "../service/AuthorService"
+import TagService from "../service/TagService"
 import Result from "../util/Result"
 
 // 多个窗口可能同时调用，所有不能使用唯一的LibraryDao
@@ -21,15 +22,29 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('record:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, recordId: number): VO.RecordDetail | undefined => {
-        const libraryDao = new LibraryDao(libraryId)
+    ipcMain.handle('record:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): DTO.Page<VO.RecordRecommendation> => {
+        const recordService = new RecordService(libraryId)
         try {
-            return libraryDao.queryRecordDetail(recordId)
+            // return recordService.queryRecordRecmds(options) 
+
+            return { total: 0, rows: [] }
+        } catch (e: any) {
+            dialog.showErrorBox('record:queryRecmds', e.message)
+            return { total: 0, rows: [] }
+        } finally {
+            recordService.close()
+        }
+    })
+
+    ipcMain.handle('record:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, recordId: number): VO.RecordDetail | undefined => {
+        const recordService = new RecordService(libraryId)
+        try {
+            return recordService.queryRecordDetail(recordId)
         } catch (e: any) {
             dialog.showErrorBox('record:queryDetail', e.message)
             return
         } finally {
-            libraryDao.destroy()
+            recordService.close()
         }
     })
 
@@ -61,120 +76,105 @@ export default function ipcMainLibrary() {
         }
     })
 
+    //ANCHOR Author
+
     ipcMain.handle('author:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> => {
-        const queryAuthorService = new QueryAuthorService(libraryId)
+        const authorService = new AuthorService(libraryId)
         try {
-            return queryAuthorService.queryAuthorRecmds(options)
+            return authorService.queryAuthorRecmds(options)
         } catch (e: any) {
             dialog.showErrorBox('author:queryRecmds', e.message)
             return { total: 0, rows: [] }
         } finally {
-            queryAuthorService.close()
+            authorService.close()
         }
     })
 
-    ipcMain.handle('author:query', (e: IpcMainInvokeEvent, libraryId: number, authorId: number): VO.Author | undefined => {
+    ipcMain.handle('author:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, authorId: number): VO.Author | undefined => {
         const libraryDao = new LibraryDao(libraryId)
+        const authorService = new AuthorService(libraryId)
         try {
-            return libraryDao.queryAuthor(authorId)
+            return authorService.queryAuthorDetail(authorId)
+            libraryDao.queryAuthor(authorId)
         } catch (e: any) {
             dialog.showErrorBox('author:query', e.message)
             return
         } finally {
+            authorService.close()
             libraryDao.destroy()
         }
     })
 
     ipcMain.handle('author:edit', async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditAuthorForm,) => {
-        const libraryDao = new LibraryDao(libraryId)
+        const authorService = new AuthorService(libraryId)
         try {
-            const author: Entity.Author = {
-                id: formData.id,
-                name: formData.name.trim(),
-                avatar: formData.avatar.length ? formData.avatar : null,
-                intro: formData.intro.trim(),
-            }
-            if (formData.avatar !== formData.originAvatar) {
-                // 删除旧的头像
-                if (formData.originAvatar.length) {
-                    unlinkSync(formData.originAvatar)
-                }
-                if (author.avatar) {
-                    // 保存新的头像
-                    const imageService = new ImageService(formData.avatar, libraryId)
-                    const avatar = imageService.handleAuthorAvatar()
-                    if (avatar) {
-                        author.avatar = avatar
-                    }
-                }
-            }
-            // 判断添加还是修改
-            formData.id === 0 ? libraryDao.addAuthor(author) : libraryDao.editAuthor(author)
+            authorService.editAuthor(formData)
             return true
         } catch (e: any) {
             dialog.showErrorBox('author:edit', e.message)
             return false
         } finally {
-            libraryDao.destroy()
+            authorService.close()
         }
     })
 
     ipcMain.handle('author:delete', (e: IpcMainInvokeEvent, libraryId: number, authorId: number) => {
-        const libraryDao = new LibraryDao(libraryId)
+        const authorService = new AuthorService(libraryId)
         try {
-            return libraryDao.deleteAuthor(authorId)
+            authorService.deleteAuthor(authorId)
         } catch (e: any) {
             dialog.showErrorBox('author:delete', e.message)
-            return
         } finally {
-            libraryDao.destroy()
+            authorService.close()
         }
     })
 
-    ipcMain.handle('tag:query', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAttributesOptions): DTO.Page<VO.TextAttribute> | undefined => {
-        const libraryDao = new LibraryDao(libraryId)
+    //ANCHOR Tag
+
+    ipcMain.handle('tag:queryDetails', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryTagDetailsOptions): DTO.Page<VO.TagDetail> => {
+        const tagService = new TagService(libraryId)
         try {
-            return libraryDao.queryTags(options.queryWork, options.sortField, options.asc, options.pn, options.ps)
+            return tagService.queryTagDetails(options)
         } catch (e: any) {
             dialog.showErrorBox('tag:query', e.message)
-            return
+            return { total: 0, rows: [] }
         } finally {
-            libraryDao.destroy()
+            tagService.close()
         }
     })
 
     ipcMain.handle('tag:edit', (e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string) => {
-        const libraryDao = new LibraryDao(libraryId)
+        const tagService = new TagService(libraryId)
         try {
-            return libraryDao.editTag(tagId, newValue)
+            tagService.editTag(tagId, newValue)
         } catch (e: any) {
             dialog.showErrorBox('tag:edit', e.message)
-            return
         } finally {
-            libraryDao.destroy()
+            tagService.close()
         }
     })
 
     ipcMain.handle('tag:delete', (e: IpcMainInvokeEvent, libraryId: number, tagId: number) => {
-        const libraryDao = new LibraryDao(libraryId)
+        const tagService = new TagService(libraryId)
         try {
-            return libraryDao.deleteTag(tagId)
+            tagService.deleteTag(tagId)
         } catch (e: any) {
             dialog.showErrorBox('tag:delete', e.message)
-            return
         } finally {
-            libraryDao.destroy()
+            tagService.close()
         }
     })
 
-    ipcMain.handle('dirname:query', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAttributesOptions): DTO.Page<VO.TextAttribute> | undefined => {
+    //ANCHOR Dirname
+
+    ipcMain.handle('dirname:queryDetails', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAttributesOptions): DTO.Page<VO.DirnameDetail> | undefined => {
         let libraryDao
         try {
             libraryDao = new LibraryDao(libraryId)
-            return libraryDao.queryDirnames(options.queryWork, options.sortField, options.asc, options.pn, options.ps)
+            // return libraryDao.queryDirnames(options.queryWork, options.sortField, options.asc, options.pn, options.ps)
         } catch (e: any) {
-            dialog.showErrorBox('dirname:query', e.message)
-            return
+            dialog.showErrorBox('dirname:queryDetails', e.message)
+            return { total: 0, rows: [] }
         } finally {
             libraryDao?.destroy()
         }
@@ -183,7 +183,7 @@ export default function ipcMainLibrary() {
     ipcMain.handle('dirname:edit', (e: IpcMainInvokeEvent, libraryId: number, dirnameId: number, newValue: string) => {
         const libraryDao = new LibraryDao(libraryId)
         try {
-            return libraryDao.editDirname(dirnameId, newValue)
+            return libraryDao.editDirname(dirnameId, newValue.trim())
         } catch (e: any) {
             dialog.showErrorBox('dirname:edit', e.message)
             return

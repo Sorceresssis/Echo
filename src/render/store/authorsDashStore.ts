@@ -3,14 +3,14 @@ import StoreId from './storeId'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
 
 type AuthorsDashState = {
-    sortField: 'time' | 'name',
+    sortField: DTO.QueryAuthorRecommendationsOptions['sortField'],
     order: 'ASC' | 'DESC'
 }
 
 const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
     state: (): AuthorsDashState => {
         const defaultState: AuthorsDashState = {
-            sortField: 'time',
+            sortField: 'name',
             order: 'ASC'
         }
 
@@ -23,7 +23,7 @@ const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
         }
     },
     actions: {
-        handleSortField(field: 'time' | 'name') {
+        handleSortField(field: AuthorsDashState['sortField']) {
             this.sortField = field
             setLocalStorage(StoreId.AUTHORS_DASH, this.$state)
         },
