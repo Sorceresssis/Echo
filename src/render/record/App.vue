@@ -1,27 +1,8 @@
 <template>
     <div class="flex-1 flex-col overflow-hidden">
         <title-bar></title-bar>
-        <router-view class="">
+        <router-view class="main-container flex-1 flex-col overflow-hidden">
         </router-view>
-        <!-- <div class="flex-1 flex-row overflow-hidden box-shadow-1"
-             style="margin:10px 20px;
-               background-color: #fff;
-               border-radius: 5px;">
-
-            <div style="width: 250px;
-                        margin: 10px;">
-
-            </div>
-            <div class="flex-1 "
-                 style="width: 250px;
-                        margin: 10px;">
-
-            </div>
-            <div style="width: 250px;
-                        margin: 10px;">
-
-            </div>
-        </div> -->
     </div>
 </template>
 
@@ -69,7 +50,7 @@ const isOpenSideBar = ref<boolean>(true)
 }
 
 .main-container {
+    padding: 0 20px;
     font-size: 14px;
-    padding: 0 10px;
 }
 </style>

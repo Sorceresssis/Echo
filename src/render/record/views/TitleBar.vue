@@ -1,6 +1,7 @@
 <template>
     <div class="titlebar flex-row">
         <div style="margin-left: 10px;">
+            <!-- 刷新 -->
             <span :title="$t('titlebar.back')"
                   class="iconfont no-drag"
                   @click="router.push('/')">&#xe6c9;</span>

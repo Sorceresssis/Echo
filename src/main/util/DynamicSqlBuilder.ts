@@ -1,6 +1,7 @@
 export type SortRule = {
     field: string,
     order: 'ASC' | 'DESC',
+    table?: string,
 }
 
 export default class DynamicSqlBuilder {
@@ -31,7 +32,9 @@ export default class DynamicSqlBuilder {
         return this
     }
 
-    public appendWhereSQL(rule: string[]) {
+    public appendWhereSQL(rule: string[], ...params: any[]) {
+        if (!rule.length) return this
+        this.params.push(...params)
         return this.append('WHERE').append(rule.join(' AND '))
     }
 
@@ -39,7 +42,12 @@ export default class DynamicSqlBuilder {
         sortRule: SortRule[],
     ): DynamicSqlBuilder {
         return sortRule.length
-            ? this.append('ORDER BY').append(sortRule.map(s => `${s.field} ${s.order}`).join(','))
+            ? this.append('ORDER BY').append(sortRule.map(rule => {
+                if (rule.table) {
+                    return `${rule.table}.${rule.field} ${rule.order}`
+                }
+                return `${rule.field} ${rule.order}`
+            }).join(','))
             : this
     }
 

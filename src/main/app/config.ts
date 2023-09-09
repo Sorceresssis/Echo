@@ -1,69 +1,88 @@
-import { app } from "electron"
+import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
 
-type Conf = {
+type AppValue = {
+    appDir: string,
+}
+
+const readAppValue = function (): AppValue {
+    const appValueFilePath = path.join(__dirname, 'app_value.json')
+    try {
+        let appValue = JSON.parse(fs.readFileSync(appValueFilePath, 'utf8'))
+        if (!appValue) {
+            throw new Error('appValue is null')
+        }
+        return appValue
+    } catch {
+        const appValue = {
+            // 先把app安装位置保存下来, 然后需要时从文件读取，因为有些操作是在其他线程使用的，而electron模块只能在主进程使用。
+            appDir: path.dirname(app.getPath('exe')),
+        }
+        fs.writeFileSync(appValueFilePath, JSON.stringify(appValue), 'utf8')
+        return readAppValue()
+    }
+}
+
+const appValue = readAppValue()
+
+type Config = {
     userDataPath: string,
     locale: string,
 }
 
-class Config {
-    private static readonly CONFIG_FILE_PATH = path.resolve(path.dirname(app.getPath('exe')), "config.json")
-    private static readonly DEFAULT_CONFIG: Conf = {
-        userDataPath: path.resolve(path.dirname(app.getPath('exe')), "userData"),
-        locale: 'zhCN',
+class AppConfig {
+    private static readonly CONFIG_FILE_PATH: string = path.join(appValue.appDir, 'config.json')
+    private static readonly DEFAULT_CONFIG: Config = {
+        userDataPath: path.join(appValue.appDir, 'userData'),
+        locale: 'zhCN'
     }
-    private c: Conf
+
+    private config: Config
 
     constructor() {
         try {
-            this.c = JSON.parse(fs.readFileSync(Config.CONFIG_FILE_PATH, 'utf8')) as Conf
-            // 防止文件存在但是文件内容错误或读取错误
-            if (!this.c) {
-                this.c = Config.DEFAULT_CONFIG
-                this.write()
+            this.config = JSON.parse(fs.readFileSync(AppConfig.CONFIG_FILE_PATH, 'utf8'))
+            if (!this.config) {
+                throw new Error('config is null')
             }
-        } catch (err: any) {
-            // 文件不存在或损坏，建文件写入数据
-            this.c = Config.DEFAULT_CONFIG
+        } catch {
+            this.config = AppConfig.DEFAULT_CONFIG
             this.write()
         }
-    }
-
-    public set(name: ConfigKey, value: any): any {
-        if (value) {
-            this.c[name] = value
-            this.write()
-        }
-        let newValue = this.c[name]
-        return newValue
     }
 
     private write() {
-        fs.writeFileSync(Config.CONFIG_FILE_PATH, JSON.stringify(this.c), 'utf8')
+        fs.writeFileSync(AppConfig.CONFIG_FILE_PATH, JSON.stringify(this.config), 'utf8')
     }
 
-    public getUserDataPath(): string {
-        return this.c.userDataPath
+    public get(key: keyof Config): string {
+        return this.config[key]
     }
 
-    public getLibraryDir(id: PrimaryKey): string {
-        return path.resolve(this.c.userDataPath, id.toString())
+    public set(key: keyof Config, value: string) {
+        return this.config[key] = value
     }
 
-    public getGroupDBFile(): string {
-        return path.resolve(this.c.userDataPath, 'group.db')
+    public getGroupDBFilePath() {
+        return path.join(this.config.userDataPath, 'group.db')
     }
 
-    public getLibraryDBFile(id: PrimaryKey): string {
-        return path.join(this.getLibraryDir(id), `${id}.db`)
+    public getLibraryDirPath(id: PrimaryKey,) {
+        return path.join(this.config.userDataPath, id.toString())
     }
 
-    public getLibraryImagesDir(id: PrimaryKey): string {
-        return path.resolve(this.getLibraryDir(id), 'images')
+    public getLibraryDBFilePath(id: PrimaryKey) {
+        // [userDataPath]/1/1.db
+        return path.join(this.getLibraryDirPath(id), `${id}.db`)
+    }
+
+    public getLibraryImagesDirPath(id: PrimaryKey) {
+        // [userDataPath]/1/images
+        return path.join(this.getLibraryDirPath(id), 'images')
     }
 }
 
-const config = new Config()
+const appConfig = new AppConfig()
 
-export default config
+export default appConfig

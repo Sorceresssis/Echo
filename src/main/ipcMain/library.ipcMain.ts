@@ -1,7 +1,6 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
-import { unlinkSync, isLegalAbsolutePath } from "../util/FileManager"
+import { isLegalAbsolutePath } from "../util/FileManager"
 import LibraryDao from "../dao/libraryDao"
-import ImageService from "../service/ImageService"
 import RecordService from "../service/RecordService"
 import ManageRecordSerivce from "../service/ManageRecordSerivce"
 import AuthorService from "../service/AuthorService"
@@ -79,30 +78,35 @@ export default function ipcMainLibrary() {
 
     //ANCHOR Author
 
-    ipcMain.handle('author:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> => {
-        const authorService = new AuthorService(libraryId)
+    ipcMain.handle('author:queryRecmds', async (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): Promise<DTO.Page<VO.AuthorRecommendation>> => {
         try {
-            return authorService.queryAuthorRecmds(options)
+            const worker = AuthorService.getWorker(libraryId)
+            worker.postMessage({
+                functionName: 'queryAuthorRecmds',
+                functionParams: {
+                    options
+                }
+            })
+            return await new Promise((resolve) => {
+                worker.on('message', (value: any) => {
+                    resolve(value)
+                })
+            }) as DTO.Page<VO.AuthorRecommendation>
         } catch (e: any) {
             dialog.showErrorBox('author:queryRecmds', e.message)
             return { total: 0, rows: [] }
-        } finally {
-            authorService.close()
         }
     })
 
     ipcMain.handle('author:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, authorId: number): VO.Author | undefined => {
-        const libraryDao = new LibraryDao(libraryId)
         const authorService = new AuthorService(libraryId)
         try {
             return authorService.queryAuthorDetail(authorId)
-            libraryDao.queryAuthor(authorId)
         } catch (e: any) {
             dialog.showErrorBox('author:query', e.message)
             return
         } finally {
             authorService.close()
-            libraryDao.destroy()
         }
     })
 

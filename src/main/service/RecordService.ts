@@ -24,7 +24,8 @@ export default class RecordService {
         return record
     }
 
-    public queryRecordRecmds() {
+    public queryRecordRecmds(options: any) {
+
         //  回收的
         // 清空回收站，
         // 批量操作，加入回收站，删除，还原

@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, IpcMainInvokeEvent, app, dialog, webContents } from 'electron'
+import { ipcMain, IpcMainInvokeEvent, dialog } from 'electron'
 import mainWindow from '../window/main.window'
 import recordWindow from '../window/record.window'
 import windowManager from '../window/windowManager'

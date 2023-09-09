@@ -73,7 +73,7 @@ export default class ImageService {
      */
     private save() {
         // 检查文件夹是否存在，不存在则创建 
-        const dirname = config.getLibraryImagesDir(this.libId)
+        const dirname = config.getLibraryImagesDirPath(this.libId)
         mkdirsSync(dirname)
         const basename = generateUid() + '.jpg'
         // 保存图片 

@@ -6,8 +6,8 @@ namespace VO {
         cover: string,
         hyperlink: string,
         resourcePath: string,
-        createTime: string,
-        modifiedTime: string,
+        createTime?: string,
+        modifiedTime?: string,
     }
 
     /**
@@ -30,14 +30,16 @@ namespace VO {
     }
 
     type RecordRecommendation = {
-        id: number,
-        title: string,
+        id: number
+        title: string
         rate: number,
         cover: string | null,
         hyperlink: string | null,
         resourcePath: string | null,
-        authors: VO.AuthorProfile[],
-        tags: VO.Tag[],
+        authors: VO.AuthorProfile[]
+        tags: VO.Tag[]
+        createTime?: string,
+        modifiedTime?: string,
     }
 
     /**
@@ -54,8 +56,8 @@ namespace VO {
         name: string
         avatar: string | null
         intro: string
-        createTime: string,
-        modifiedTime: string,
+        createTime?: string,
+        modifiedTime?: string,
     }
 
     type AuthorDetail = {

@@ -1,6 +1,8 @@
+import { Worker } from "node:worker_threads"
+import path from "node:path"
 import { error } from "node:console"
 import { unlinkSync } from "../util/FileManager"
-import ImageService from "../service/ImageService"
+import ImageService from "./ImageService"
 import LibraryDao, { QueryAuthorsSortRule } from "../dao/libraryDao"
 
 export default class AuthorService {
@@ -10,6 +12,12 @@ export default class AuthorService {
     constructor(libraryId: number) {
         this.libraryId = libraryId
         this.libraryDao = new LibraryDao(libraryId)
+    }
+
+    public static getWorker(libraryId: number) {
+        return new Worker(
+            path.join(__dirname, './AuthorService.worker.js'),
+            { workerData: { libraryId } })
     }
 
     public queryAuthorRecmds(options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> {
@@ -35,24 +43,20 @@ export default class AuthorService {
             }
         })
 
-        const { rows, total } = this.libraryDao.queryAuthorsByKeyword(
+        const page = this.libraryDao.queryAuthorsByKeyword(
             options.keyword.trim(),
             sortRule,
             (options.pn - 1) * options.ps,
             options.ps
-        )
-        const page = {} as DTO.Page<VO.AuthorRecommendation>
-        page.rows = rows.map((row) => {
-            return {
-                id: row.id,
-                name: row.name,
-                avatar: row.avatar,
-                worksCount: this.libraryDao.queryCountOfRecordsByAuthorId(row.id),
-                intro: row.intro,
-                masterpieces: this.libraryDao.queryRecordsOfOrderRateByAuthor(row.id)
-            } as VO.AuthorRecommendation
+        ) as DTO.Page<any>
+
+        page.rows.forEach((row) => {
+            delete row.createTime
+            delete row.modifiedTime
+            row.worksCount = this.libraryDao.queryCountOfRecordsByAuthorId(row.id)
+            row.masterpieces = this.libraryDao.queryRecordsOfOrderRateByAuthor(row.id)
         })
-        page.total = total
+
         return page
     }
 
