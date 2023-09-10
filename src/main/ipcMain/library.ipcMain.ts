@@ -25,9 +25,7 @@ export default function ipcMainLibrary() {
     ipcMain.handle('record:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): DTO.Page<VO.RecordRecommendation> => {
         const recordService = new RecordService(libraryId)
         try {
-            // return recordService.queryRecordRecmds(options) 
-
-            return { total: 0, rows: [] }
+            return recordService.queryRecordRecmds(options)
         } catch (e: any) {
             dialog.showErrorBox('record:queryRecmds', e.message)
             return { total: 0, rows: [] }

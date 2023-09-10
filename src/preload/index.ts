@@ -71,6 +71,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
         options: DTO.AcOptions
     ) => ipcRenderer.invoke('record:autoComplete', libraryId, options),
 
+    queryRecordRecmds: (
+        libraryId: number,
+        options: DTO.QueryRecordRecommendationsOptions
+    ) => ipcRenderer.invoke('record:queryRecmds', libraryId, options),
+
     deleteRecordByAttribute: (
         libraryId: number,
         formData: DTO.DeleteRecordByAttributeForm

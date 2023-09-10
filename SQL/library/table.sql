@@ -4,17 +4,18 @@
 DROP TABLE IF EXISTS 'record';
 CREATE TABLE 'record'
 (
-    'id'           INTEGER PRIMARY KEY AUTOINCREMENT,              -- 主键
-    'title'        VARCHAR(255)                          NOT NULL, -- 记录标题
-    'rate'         TINYINT     DEFAULT 0                 NOT NULL, -- 等级评分，1~5
-    'cover'        VARCHAR(32) DEFAULT NULL              NULL,     -- 记录封面时间戳
-    'hyperlink'    TEXT        DEFAULT NULL              NULL,     -- 在浏览器打开的url，长度控制在2000个字符以内
-    'basename'     TEXT        DEFAULT NULL              NULL,     -- 文件名
-    'info_status'  VARCHAR(3)  DEFAULT '000'             NOT NULL, -- 表示hyperlink、basename、cover三个字段是否为空，0 false,1 true
-    'recycled'     BOOLEAN     DEFAULT 0                 NOT NULL, -- 是否放入回收站,0 false,1 true
-    'dirname_id'   INTEGER     DEFAULT 0                 NOT NULL, -- 所在目录的id
-    'gmt_create'   DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
-    'gmt_modified' DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
+    'id'             INTEGER PRIMARY KEY AUTOINCREMENT,              -- 主键
+    'title'          VARCHAR(255)                          NOT NULL, -- 记录标题
+    'rate'           TINYINT     DEFAULT 0                 NOT NULL, -- 等级评分，1~5
+    'cover'          VARCHAR(32) DEFAULT NULL              NULL,     -- 记录封面时间戳
+    'hyperlink'      TEXT        DEFAULT NULL              NULL,     -- 在浏览器打开的url，长度控制在2000个字符以内
+    'basename'       TEXT        DEFAULT NULL              NULL,     -- 文件名
+    'info_status'    VARCHAR(3)  DEFAULT '000'             NOT NULL, -- 表示hyperlink、basename、cover三个字段是否为空，0 空 1 不为空
+    'tag_author_sum' TEXT        DEFAULT NULL              NULL,     -- 用于快速查询的冗余字段
+    'recycled'       BOOLEAN     DEFAULT 0                 NOT NULL, -- 是否放入回收站,0 false,1 true
+    'dirname_id'     INTEGER     DEFAULT 0                 NOT NULL, -- 所在目录的id
+    'gmt_create'     DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
+    'gmt_modified'   DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
 );
 CREATE INDEX 'idx_record(rate)' ON record (rate);
 CREATE INDEX 'idx_record(info_status)' ON record (info_status);
@@ -51,7 +52,7 @@ CREATE TABLE 'record_extra'
 DROP TABLE IF EXISTS 'dirname';
 CREATE TABLE 'dirname'
 (
-    'id'      INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
+    'id'   INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
     'path' TEXT NOT NULL                      -- 保存在的目录
 );
 CREATE UNIQUE INDEX 'uk_dirname(path)' ON dirname (path);

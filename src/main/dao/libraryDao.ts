@@ -56,39 +56,8 @@ export default class LibraryDao {
 	private createTable(): void {
 		this.db.transaction(() => {
 			this.db.exec(`
-            DROP TABLE IF EXISTS 'record';
-            CREATE TABLE 'record' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'title' VARCHAR(255) NOT NULL, 'rate' TINYINT DEFAULT 0 NOT NULL, 'cover' VARCHAR(32) DEFAULT NULL NULL, 'hyperlink' TEXT DEFAULT NULL NULL, 'basename' TEXT DEFAULT NULL NULL, 'info_status' VARCHAR(3) DEFAULT '000' NOT NULL, 'recycled' BOOLEAN DEFAULT 0 NOT NULL, 'dirname_id' INTEGER DEFAULT 0 NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL );
-            CREATE INDEX 'idx_record(rate)' ON record (rate);
-            CREATE INDEX 'idx_record(info_status)' ON record (info_status); CREATE INDEX 'idx_record(recycled)' ON record (recycled);
-            CREATE INDEX 'idx_record(dirname_id)' ON record (dirname_id);
-            DROP TABLE IF EXISTS 'record_extra';
-            CREATE TABLE 'record_extra' ( 'id' INTEGER PRIMARY KEY, 'intro' TEXT DEFAULT '' NOT NULL, 'info' TEXT DEFAULT '' NOT NULL );
-            DROP TABLE IF EXISTS 'dirname';
-            CREATE TABLE 'dirname' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'path' TEXT NOT NULL );
-            CREATE UNIQUE INDEX 'uk_dirname(path)' ON dirname (path);
-            DROP TABLE IF EXISTS 'author';
-            CREATE TABLE 'author' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL, 'avatar' VARCHAR(32), 'intro' TEXT DEFAULT '' NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL );
-            DROP TABLE IF EXISTS 'record_author';
-            CREATE TABLE 'record_author' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'record_id' INTEGER NOT NULL, 'author_id' INTEGER NOT NULL );
-            CREATE UNIQUE INDEX 'uk_record_author(record_id,author_id)' ON record_author (record_id, author_id);
-            CREATE INDEX 'idx_record_author(record_id)' ON record_author (record_id);
-            CREATE INDEX 'idx_record_author(author_id)' ON record_author (author_id);
-            DROP TABLE IF EXISTS 'tag';
-            CREATE TABLE 'tag' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'title' VARCHAR(255) NOT NULL );
-            CREATE UNIQUE INDEX 'uk_tag(title)' ON tag (title);
-            DROP TABLE IF EXISTS 'record_tag';
-            CREATE TABLE 'record_tag' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'record_id' INTEGER NOT NULL, 'tag_id' INTEGER NOT NULL );
-            CREATE UNIQUE INDEX 'uk_record_tag(record_id,tag_id)' ON record_tag (record_id, tag_id);
-            CREATE INDEX 'idx_record_tag(record_id)' ON record_tag (record_id);
-            CREATE INDEX 'idx_record_tag(tag_id)' ON record_tag (tag_id);
-            DROP TABLE IF EXISTS 'series';
-            CREATE TABLE 'series' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL );
-            DROP TABLE IF EXISTS 'record_series';
-            CREATE TABLE 'record_series' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'record_id' INTEGER NOT NULL, 'series_id' INTEGER NOT NULL );
-            CREATE UNIQUE INDEX 'uk_record_series(record_id,series_id)' ON record_series (record_id, series_id);
-            CREATE INDEX 'idx_record_series(record_id)' ON record_series (record_id);
-            CREATE INDEX 'idx_record_series(series_id)' ON record_series (series_id);
-            `)
+				DROP TABLE IF EXISTS 'record'; CREATE TABLE 'record' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'title' VARCHAR(255) NOT NULL, 'rate' TINYINT DEFAULT 0 NOT NULL, 'cover' VARCHAR(32) DEFAULT NULL NULL, 'hyperlink' TEXT DEFAULT NULL NULL, 'basename' TEXT DEFAULT NULL NULL, 'info_status' VARCHAR(3) DEFAULT '000' NOT NULL, 'tag_author_sum' TEXT DEFAULT NULL NULL, 'recycled' BOOLEAN DEFAULT 0 NOT NULL, 'dirname_id' INTEGER DEFAULT 0 NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ); CREATE INDEX 'idx_record(rate)' ON record (rate); CREATE INDEX 'idx_record(info_status)' ON record (info_status); CREATE INDEX 'idx_record(recycled)' ON record (recycled); CREATE INDEX 'idx_record(dirname_id)' ON record (dirname_id); DROP TABLE IF EXISTS 'record_extra'; CREATE TABLE 'record_extra' ( 'id' INTEGER PRIMARY KEY, 'intro' TEXT DEFAULT '' NOT NULL, 'info' TEXT DEFAULT '' NOT NULL ); DROP TABLE IF EXISTS 'dirname'; CREATE TABLE 'dirname' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'path' TEXT NOT NULL ); CREATE UNIQUE INDEX 'uk_dirname(path)' ON dirname (path); DROP TABLE IF EXISTS 'author'; CREATE TABLE 'author' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL, 'avatar' VARCHAR(32), 'intro' TEXT DEFAULT '' NOT NULL, 'gmt_create' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, 'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL ); DROP TABLE IF EXISTS 'record_author'; CREATE TABLE 'record_author' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'record_id' INTEGER NOT NULL, 'author_id' INTEGER NOT NULL ); CREATE UNIQUE INDEX 'uk_record_author(record_id,author_id)' ON record_author (record_id, author_id); CREATE INDEX 'idx_record_author(record_id)' ON record_author (record_id); CREATE INDEX 'idx_record_author(author_id)' ON record_author (author_id); DROP TABLE IF EXISTS 'tag'; CREATE TABLE 'tag' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'title' VARCHAR(255) NOT NULL ); CREATE UNIQUE INDEX 'uk_tag(title)' ON tag (title); DROP TABLE IF EXISTS 'record_tag'; CREATE TABLE 'record_tag' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'record_id' INTEGER NOT NULL, 'tag_id' INTEGER NOT NULL ); CREATE UNIQUE INDEX 'uk_record_tag(record_id,tag_id)' ON record_tag (record_id, tag_id); CREATE INDEX 'idx_record_tag(record_id)' ON record_tag (record_id); CREATE INDEX 'idx_record_tag(tag_id)' ON record_tag (tag_id); DROP TABLE IF EXISTS 'series'; CREATE TABLE 'series' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'name' VARCHAR(255) NOT NULL ); DROP TABLE IF EXISTS 'record_series'; CREATE TABLE 'record_series' ( 'id' INTEGER PRIMARY KEY AUTOINCREMENT, 'record_id' INTEGER NOT NULL, 'series_id' INTEGER NOT NULL ); CREATE UNIQUE INDEX 'uk_record_series(record_id,series_id)' ON record_series (record_id, series_id); CREATE INDEX 'idx_record_series(record_id)' ON record_series (record_id); CREATE INDEX 'idx_record_series(series_id)' ON record_series (series_id);
+			`)
 		})
 	}
 
@@ -179,19 +148,32 @@ export default class LibraryDao {
             WHERE r.id = ?;`, appConfig.getLibraryImagesDirPath(this.libraryId), id)
 	}
 
-	public queryRecords(
+	public queryRecordsByKeyword(
 		keyword: string,
-		sort: {
-			field: 'title' | 'rate' | 'id',
-			order: 'ASC' | 'DESC'
-		}[],
-		options: {
-			type: 'author' | 'common' | 'recycle'
-			authorId?: number,
-		},
+		sort: QueryRecordsSortRule[],
+		infoStatusFilter: string[],
 		offset: number,
 		rowCount: number,
+		options: {
+			type: 'common' | 'author' | 'recycled'
+			authorId?: number,
+		},
 	): VO.Record[] {
+		const rowsSQL = new DynamicSqlBuilder()
+		const countSQL = new DynamicSqlBuilder()
+		const sortRule: SortRule[] = []
+		this.registerSQLFnPathResolve()
+
+		rowsSQL.append(`
+            SELECT r.id, r.title, r.rate, PATH_RESOLVE(?, r.cover) AS cover,
+            	r.hyperlink, PATH_RESOLVE(d.path, r.basename) AS resourcePath,
+            	DATETIME(gmt_create, 'localtime')   AS createTime,
+            	DATETIME(gmt_modified, 'localtime') AS modifiedTime
+			FROM s`)
+
+		countSQL.append('SELECT COUNT(r.id)')
+
+
 		// authorId, keyWord, sortField, asc, pn, ps
 		// asc 评分
 		// queryRecordsByAuthor     keyword sort page filter
@@ -200,31 +182,6 @@ export default class LibraryDao {
 		// sort rate id title
 		// filter
 		// type author common recycle
-		return []
-	}
-
-	public queryRecordsByKeyword(
-		type: 'common' | 'recycle' | 'author',
-		keyword: string,
-		sort: QueryRecordsSortRule[],
-		infoStatusFilter: string[],
-		offset: number,
-		rowCount: number,
-	) {
-		const rowsSQL = new DynamicSqlBuilder()
-		const countSQL = new DynamicSqlBuilder()
-		const sortRule: SortRule[] = []
-		this.registerSQLFnPathResolve()
-
-		rowsSQL.append(`
-            SELECT r.id, r.title, r.rate, PATH_RESOLVE(?, r.cover) AS cover,
-            r.hyperlink, PATH_RESOLVE(d.path, r.basename) AS resourcePath,
-            DATETIME(gmt_create, 'localtime')   AS createTime,
-            DATETIME(gmt_modified, 'localtime') AS modifiedTime`)
-
-		countSQL.append('SELECT COUNT(r.id)')
-
-
 
 
 		if (keyword !== '') {
@@ -233,16 +190,14 @@ export default class LibraryDao {
 
 		rowsSQL.appendWhereSQL([''])
 
-
+		return []
 	}
 
 	public queryRecordsOfOrderRateByAuthor(authorId: number): { id: number, title: string, cover: string }[] {
 		this.registerSQLFnPathResolve()
 		return this.db.all(`SELECT r.id, r.title, PATH_RESOLVE(?, r.cover) AS cover
-                            FROM record r
-                                     JOIN record_author ra ON r.id = ra.record_id
-                            WHERE ra.author_id = ?
-            ORDER BY rate DESC LIMIT 3; `,
+                            FROM record r JOIN record_author ra ON r.id = ra.record_id
+                            WHERE ra.author_id = ? ORDER BY rate DESC LIMIT 3; `,
 			appConfig.getLibraryImagesDirPath(this.libraryId), authorId)
 	}
 
@@ -290,9 +245,7 @@ export default class LibraryDao {
 	// ANCHOR record_extra
 
 	public queryRecordExtraByRecordId(id: number): VO.RecordExtra | undefined {
-		return this.db.get(`SELECT id, intro, info
-                            FROM record_extra
-                            WHERE id = ?; `, id)
+		return this.db.get('SELECT id, intro, info FROM record_extra WHERE id = ?;', id)
 	}
 
 	public addRecordExtra(recordExtra: Entity.RecordExtra): PrimaryKey {
@@ -311,14 +264,10 @@ export default class LibraryDao {
 
 	public queryAuthor(id: PrimaryKey): VO.Author | null {
 		this.registerSQLFnPathResolve()
-		return this.db.get(`SELECT id,
-            name,
-            PATH_RESOLVE(?, avatar)             AS avatar,
-                intro,
-                DATETIME(gmt_create, 'localtime')   AS createTime,
-                    DATETIME(gmt_modified, 'localtime') AS modifiedTime
-                            FROM author
-                            WHERE id = ?; `, appConfig.getLibraryImagesDirPath(this.libraryId), id)
+		return this.db.get(`SELECT id, name, PATH_RESOLVE(?, avatar) AS avatar,
+                intro, DATETIME(gmt_create, 'localtime') AS createTime,
+                DATETIME(gmt_modified, 'localtime') AS modifiedTime
+                FROM author WHERE id = ?; `, appConfig.getLibraryImagesDirPath(this.libraryId), id)
 	}
 
 	public queryAuthorsByKeyword(
@@ -333,12 +282,8 @@ export default class LibraryDao {
 
 		this.registerSQLFnPathResolve()
 		rowsSQL.append(`SELECT id,
-            name,
-            PATH_RESOLVE(?, avatar)             AS avatar,
-                intro,
-                DATETIME(gmt_create, 'localtime')   AS createTime,
-                    DATETIME(gmt_modified, 'localtime') AS modifiedTime
-                        FROM author`,
+            name, PATH_RESOLVE(?, avatar) AS avatar, intro, DATETIME(gmt_create, 'localtime')   AS createTime,
+            DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM author`,
 			appConfig.getLibraryImagesDirPath(this.libraryId))
 		countSQL.append('SELECT COUNT(id) FROM author')
 
@@ -367,18 +312,13 @@ export default class LibraryDao {
 
 	public addAuthor(author: Entity.Author): PrimaryKey {
 		return this.db.run("INSERT INTO author(name, avatar, intro) VALUES(?,?,?);",
-			author.name,
-			author.avatar,
-			author.intro
+			author.name, author.avatar, author.intro
 		).lastInsertRowid
 	}
 
 	public editAuthor(author: Entity.Author): number {
 		return this.db.run("UPDATE author SET name=?, avatar=?, intro=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;",
-			author.name,
-			author.avatar,
-			author.intro,
-			author.id
+			author.name, author.avatar, author.intro, author.id
 		).changes
 	}
 

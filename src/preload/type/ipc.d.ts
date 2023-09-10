@@ -121,6 +121,11 @@ export interface IElectronAPI {
         formData: DTO.DeleteRecordByAttributeForm
     ) => Promise<void>
 
+    queryRecordRecmds: (
+        libraryId: number,
+        options: DTO.QueryRecordRecommendationsOptions
+    ) => Promise<DTO.Page<VO.RecordRecommendation>>
+
     /**
      * 更具recordId获取record的所有信息
      */

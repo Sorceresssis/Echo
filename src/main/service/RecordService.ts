@@ -1,6 +1,7 @@
-import LibraryDao from "../dao/libraryDao"
+import LibraryDao, { QueryRecordsSortRule } from "../dao/libraryDao"
 import tokenizer from "../util/tokenizer"
 
+const infoStatusFilterMap = new Map<string, string[]>()
 export default class RecordService {
     private libraryDao: LibraryDao
 
@@ -24,41 +25,65 @@ export default class RecordService {
         return record
     }
 
-    public queryRecordRecmds(options: any) {
+    public queryRecordRecmds(options: DTO.QueryRecordRecommendationsOptions) {
+        const defaultSortRule: QueryRecordsSortRule[] = [
+            { field: 'title', order: 'ASC' },
+        ]
+        const sortRule: QueryRecordsSortRule[] = []
+        switch (options.sortField) {
+            case 'title':
+        }
+        console.log(this.generateFilters(options.filters))
 
-        //  回收的
-        // 清空回收站，
-        // 批量操作，加入回收站，删除，还原
-        return []
+
+        // this.libraryDao.queryRecordsByKeyword(
+        //     options.keyword.trim(),
+        //     sortRule,
+        //     this.generateFilters(options.filters),
+        //     (options.pn - 1) * options.ps,
+        //     options.ps,
+        //     {
+        //         type: options.type,
+        //         authorId: options.authorId,
+        //     },
+        // )
+        return {
+            total: 0,
+            rows: [],
+        }
     }
 
-    private generateFilters(input: string[]): string[] {
+    private generateFilters(input: boolean[]): string[] {
+        console.log(infoStatusFilterMap.size)
+
+        const key = input.toString()
+        if (infoStatusFilterMap.has(key)) {
+            return infoStatusFilterMap.get(key) as string[]
+        }
         // Filters generater statuses
         const result: string[] = []
         const current: string[] = new Array(input.length)
         this.generateFilter(input, 0, current, result)
+        infoStatusFilterMap.set(key, result)
         return result
     }
 
-    private generateFilter(input: string[], index: number, current: string[], result: string[]): void {
+    private generateFilter(input: boolean[], index: number, current: string[], result: string[]): void {
         if (index === input.length) {
             result.push(current.join(''))
             return
         }
         // 如果是0，既可以是0，也可以是1，如果是1，只能是1
-        if (input[index] === '0') {
+        if (input[index]) {
+            current[index] = '1'
+            this.generateFilter(input, ++index, current, result)
+        } else {
             current[index] = '0'
             this.generateFilter(input, ++index, current, result)
             current[index] = '1'
             this.generateFilter(input, ++index, current, result)
-        } else if (input[index] === '1') {
-            current[index] = '1'
-            this.generateFilter(input, ++index, current, result)
         }
     }
-
-
-
 
     public close() {
         this.libraryDao.destroy()
