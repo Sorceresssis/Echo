@@ -37,6 +37,20 @@
                 </div>
             </div>
             <div class="settings-item">
+                <h2 class="settings-item__title">搜索引擎</h2>
+                <div class="settings-item__content">
+                    <div class="row">
+                        <el-select v-model="searchEngine">
+                            <el-option v-for="engine in engineList"
+                                       :key="engine.id"
+                                       :label="engine.label"
+                                       :value="engine.value"
+                                       @change="" />
+                        </el-select>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-item">
                 <h2 class="settings-item__title">升级</h2>
                 <div class="settings-item__content">
                     <div class="row">
@@ -56,12 +70,11 @@ import { ref, onMounted } from 'vue'
 import { ElMessageBox } from 'element-plus'
 import { $t, i18n, localeList, changeLocale } from '@/locales'
 import { openInExplorer } from '@/util/systemUtil'
-
 import Button2 from '@/components/Button2.vue'
-
 
 onMounted(async () => {
     userDataPath.value = await window.electronAPI.config('userDataPath');
+
 })
 
 /******************** 数据保存位置 ********************/
@@ -86,6 +99,11 @@ const selectUserDataPath = () => {
         window.electronAPI.relaunch()
     })
 }
-</script>
 
-<style scoped></style>
+const searchEngine = ref<string>('google')
+const engineList = ref<any[]>([
+    { id: 1, label: 'Google', value: 'google' },
+
+])
+// BUG 在数据库查询的过程中，如果点击设置，会导致一直在加载
+</script> 

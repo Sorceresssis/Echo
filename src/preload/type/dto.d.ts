@@ -78,12 +78,12 @@ namespace DTO {
     }
 
     type QueryRecordRecommendationsOptions = {
-        type: 'common' | 'author' | 'redlu'
+        type: 'common' | 'author' | 'recycled'
         authorId?: number,
-        filters: Filter[]
-        field: string,
+        filters: boolean[],
+        keyword: string,
+        sortField: string,
         order: 'ASC' | 'DESC'
-        kw: string,
         pn: number,
         ps: number,
     }

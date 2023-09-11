@@ -2,43 +2,46 @@ import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
 
-type AppValue = {
-    appDir: string,
-}
+// type AppValue = {
+//     appDir: string,
+// }
 
-const readAppValue = function (): AppValue {
-    const appValueFilePath = path.join(__dirname, 'app_value.json')
-    try {
-        let appValue = JSON.parse(fs.readFileSync(appValueFilePath, 'utf8'))
-        if (!appValue) {
-            throw new Error('appValue is null')
-        }
-        return appValue
-    } catch {
-        const appValue = {
-            // 先把app安装位置保存下来, 然后需要时从文件读取，因为有些操作是在其他线程使用的，而electron模块只能在主进程使用。
-            appDir: path.dirname(app.getPath('exe')),
-        }
-        fs.writeFileSync(appValueFilePath, JSON.stringify(appValue), 'utf8')
-        return readAppValue()
-    }
-}
+// const readAppValue = function (): AppValue {
+//     const appValueFilePath = path.join(__dirname, 'app_value.json')
+//     try {
+//         let appValue = JSON.parse(fs.readFileSync(appValueFilePath, 'utf8'))
+//         if (!appValue) {
+//             throw new Error('appValue is null')
+//         }
+//         return appValue
+//     } catch {
+//         const appValue = {
+//             // 先把app安装位置保存下来, 然后需要时从文件读取，因为有些操作是在其他线程使用的，而electron模块只能在主进程使用。
+//             appDir: path.dirname(app.getPath('exe')),
+//         }
+//         fs.writeFileSync(appValueFilePath, JSON.stringify(appValue), 'utf8')
+//         return readAppValue()
+//     }
+// }
 
-const appValue = readAppValue()
+// const appValue = readAppValue()
 
-type Config = {
+export type Config = {
     userDataPath: string,
     locale: string,
+    searchEngine: string,
 }
 
 class AppConfig {
-    private static readonly CONFIG_FILE_PATH: string = path.join(appValue.appDir, 'config.json')
+    private static readonly APP_DIR: string = path.dirname(app.getPath('exe'))
+    private static readonly CONFIG_FILE_PATH: string = path.join(AppConfig.APP_DIR, 'config.json')
     private static readonly DEFAULT_CONFIG: Config = {
-        userDataPath: path.join(appValue.appDir, 'userData'),
-        locale: 'zhCN'
+        userDataPath: path.join(AppConfig.APP_DIR, 'userData'),
+        locale: 'zhCN',
+        searchEngine: 'google',
     }
 
-    private config: Config
+    private config!: Config
 
     constructor() {
         try {
@@ -47,16 +50,19 @@ class AppConfig {
                 throw new Error('config is null')
             }
         } catch {
-            this.config = AppConfig.DEFAULT_CONFIG
-            this.write()
+            this.resetConfig()
         }
     }
 
-    private write() {
+    private resetConfig() {
+        this.config = AppConfig.DEFAULT_CONFIG
         fs.writeFileSync(AppConfig.CONFIG_FILE_PATH, JSON.stringify(this.config), 'utf8')
     }
 
     public get(key: keyof Config): string {
+        if (!this.config[key]) {
+            this.resetConfig()
+        }
         return this.config[key]
     }
 
@@ -65,11 +71,11 @@ class AppConfig {
     }
 
     public getGroupDBFilePath() {
-        return path.join(this.config.userDataPath, 'group.db')
+        return path.join(this.get('userDataPath'), 'group.db')
     }
 
     public getLibraryDirPath(id: PrimaryKey,) {
-        return path.join(this.config.userDataPath, id.toString())
+        return path.join(this.get('userDataPath'), id.toString())
     }
 
     public getLibraryDBFilePath(id: PrimaryKey) {

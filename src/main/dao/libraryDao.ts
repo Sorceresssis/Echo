@@ -158,39 +158,58 @@ export default class LibraryDao {
 			type: 'common' | 'author' | 'recycled'
 			authorId?: number,
 		},
-	): VO.Record[] {
+	): DaoPage<VO.Record> {
 		const rowsSQL = new DynamicSqlBuilder()
-		const countSQL = new DynamicSqlBuilder()
 		const sortRule: SortRule[] = []
+		const whereSubSQL = []
 		this.registerSQLFnPathResolve()
-
 		rowsSQL.append(`
-            SELECT r.id, r.title, r.rate, PATH_RESOLVE(?, r.cover) AS cover,
+            SELECT f.total_count, r.id, r.title, r.rate, PATH_RESOLVE(?, r.cover) AS cover,
             	r.hyperlink, PATH_RESOLVE(d.path, r.basename) AS resourcePath,
             	DATETIME(gmt_create, 'localtime')   AS createTime,
             	DATETIME(gmt_modified, 'localtime') AS modifiedTime
-			FROM s`)
-
-		countSQL.append('SELECT COUNT(r.id)')
-
-
-		// authorId, keyWord, sortField, asc, pn, ps
-		// asc 评分
-		// queryRecordsByAuthor     keyword sort page filter
-		// queryRecordsOfRycled     keyword sort page filter
-		// queryRecordsCommond      keyword sort page filter
-		// sort rate id title
-		// filter
-		// type author common recycle
-
-
+			FROM (SELECT COUNT(r.id) OVER () AS total_count, r.id`, appConfig.getLibraryImagesDirPath(this.libraryId))
 		if (keyword !== '') {
-
+			this.registerSQLFnRegexp(tokenizer(keyword))
+			rowsSQL.append(', REGEXP(r.title) + CASE WHEN r.tag_author_sum IS NULL THEN 0 ELSE REGEXP(r.tag_author_sum) END AS sore')
+			sortRule.push({ field: 'sore', order: 'DESC' })
+			whereSubSQL.push('sore > 0')
 		}
-
-		rowsSQL.appendWhereSQL([''])
-
-		return []
+		rowsSQL.append('FROM record r')
+		sort.forEach((rule) => {
+			sortRule.push({ field: rule.field, order: rule.order, table: 'r' })
+		})
+		whereSubSQL.push(rowsSQL.generateInSQL('info_status', infoStatusFilter))
+		switch (options.type) {
+			case 'common':
+				whereSubSQL.push('r.recycled = 0')
+				break
+			case 'author':
+				rowsSQL.append('JOIN record_author ra ON r.id = ra.record_id JOIN author a ON ra.author_id = a.id')
+				whereSubSQL.push('r.recycled = 0')
+				whereSubSQL.push('a.id = ?')
+				rowsSQL.appendParam(options.authorId)
+				break
+			case 'recycled':
+				whereSubSQL.push('r.recycled = 1')
+				break
+			default:
+				throw new Error('invalid type')
+		}
+		rowsSQL
+			.appendWhereSQL(whereSubSQL)
+			.appendOrderSQL(sortRule)
+			.appendLimitSQL(offset, rowCount)
+			.append(') f JOIN record r ON f.id = r.id LEFT JOIN dirname d ON r.dirname_id = d.id;')
+		const rows = this.db.all(rowsSQL.getSql(), ...rowsSQL.getParams())
+		const total = rows[0]?.total_count || 0 // 如果rows为空，total_count为null，这里要转换为0
+		rows.forEach(row => {
+			delete row.total_count
+		})
+		return {
+			total: total,
+			rows: rows
+		}
 	}
 
 	public queryRecordsOfOrderRateByAuthor(authorId: number): { id: number, title: string, cover: string }[] {

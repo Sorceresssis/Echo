@@ -5,24 +5,24 @@ import ja from './ja'
 
 export enum Locale {
     zhCN = 'zhCN',
-    zhTW = 'zhTW',
+    // zhTW = 'zhTW',
     en = 'en',
     ja = 'ja',
-    ko = 'ko',
-    de = 'de',
-    fr = 'fr',
-    ru = 'ru'
+    // ko = 'ko',
+    // de = 'de',
+    // fr = 'fr',
+    // ru = 'ru'
 }
 
 export const localeList = [
     { label: '简体中文', value: Locale.zhCN },
-    { label: '繁體中文', value: Locale.zhTW },
+    // { label: '繁體中文', value: Locale.zhTW },
     { label: 'English', value: Locale.en },
     { label: '日本語', value: Locale.ja },
-    { label: '한국어', value: Locale.ko },
-    { label: 'Deutsch', value: Locale.de },
-    { label: 'Français', value: Locale.fr },
-    { label: 'Pyccĸий', value: Locale.ru },
+    // { label: '한국어', value: Locale.ko },
+    // { label: 'Deutsch', value: Locale.de },
+    // { label: 'Français', value: Locale.fr },
+    // { label: 'Pyccĸий', value: Locale.ru },
 ]
 
 // 切换语言

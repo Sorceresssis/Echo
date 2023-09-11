@@ -2,13 +2,11 @@ import { defineStore } from 'pinia'
 import StoreId from './storeId'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
 
-type RecordsView = 'compact' | 'thumbnail' | 'extended'
-type SortField = 'date' | 'title' | 'rate'
 type RecordsDashState = {
-    view: RecordsView,
-    filter: [boolean, boolean, boolean],
-    sortField: SortField,
-    asc: boolean,
+    view: 'compact' | 'thumbnail' | 'extended',
+    filter: DTO.QueryRecordRecommendationsOptions['filters'],
+    sortField: DTO.QueryRecordRecommendationsOptions['sortField'],
+    order: DTO.QueryRecordRecommendationsOptions['order'],
 }
 
 const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
@@ -17,8 +15,8 @@ const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
         const defaultState: RecordsDashState = {
             view: "thumbnail",
             filter: [false, false, false],
-            sortField: "date",
-            asc: true,
+            sortField: 'time',
+            order: 'ASC',
         }
         // 读取本地存储
         const saved = getLocalStorage(StoreId.RECORDS_DASH)
@@ -30,7 +28,7 @@ const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
         }
     },
     actions: {
-        handleView(view: RecordsView) {
+        handleView(view: RecordsDashState['view']) {
             this.view = view
             setLocalStorage(StoreId.RECORDS_DASH, this.$state)
         },
@@ -38,12 +36,12 @@ const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
             this.filter[key] = !this.filter[key]
             setLocalStorage(StoreId.RECORDS_DASH, this.$state)
         },
-        handleSortField(field: SortField) {
+        handleSortField(field: RecordsDashState['sortField']) {
             this.sortField = field
             setLocalStorage(StoreId.RECORDS_DASH, this.$state)
         },
-        handleAsc(asc: boolean) {
-            this.asc = asc
+        handleOrder(order: RecordsDashState['order']) {
+            this.order = order
             setLocalStorage(StoreId.RECORDS_DASH, this.$state)
         },
     }

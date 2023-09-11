@@ -1,9 +1,9 @@
 import { app, ipcMain, IpcMainInvokeEvent } from 'electron'
-import config from '../app/config'
+import config, { Config } from '../app/config'
 
 export default function ipcMainApp() {
-    ipcMain.handle('app:config', (e: IpcMainInvokeEvent, name: ConfigKey, value: any | null) => {
-        return config.set(name, value)
+    ipcMain.handle('app:config', (e: IpcMainInvokeEvent, key: keyof Config, value?: string) => {
+        return value ? config.set(key, value) : config.get(key)
     })
 
     ipcMain.handle('app:version', () => {

@@ -7,9 +7,9 @@ type Result = {
 export interface IElectronAPI {
     /******************** app ********************/
     config: (
-        key: string,
-        newValue?: any
-    ) => Promise<any>
+        key: keyof Config,
+        value?: string
+    ) => Promise<string>,
 
     relaunch: () => Promise<void>
 
@@ -116,15 +116,15 @@ export interface IElectronAPI {
         options: DTO.AcOptions
     ) => Promise<VO.AcSuggestion>
 
-    deleteRecordByAttribute: (
-        libraryId: number,
-        formData: DTO.DeleteRecordByAttributeForm
-    ) => Promise<void>
-
     queryRecordRecmds: (
         libraryId: number,
         options: DTO.QueryRecordRecommendationsOptions
     ) => Promise<DTO.Page<VO.RecordRecommendation>>
+
+    deleteRecordByAttribute: (
+        libraryId: number,
+        formData: DTO.DeleteRecordByAttributeForm
+    ) => Promise<void>
 
     /**
      * 更具recordId获取record的所有信息

@@ -201,6 +201,7 @@ img {
 
 .img-icon {
     display: inline-block;
+    margin-right: 2px;
     border: 1px solid #e1e1e1;
     background-color: #fff;
     object-fit: cover;

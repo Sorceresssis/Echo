@@ -22,7 +22,7 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('record:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): DTO.Page<VO.RecordRecommendation> => {
+    ipcMain.handle('record:queryRecmds', async (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): Promise<DTO.Page<VO.RecordRecommendation>> => {
         const recordService = new RecordService(libraryId)
         try {
             return recordService.queryRecordRecmds(options)
@@ -40,7 +40,6 @@ export default function ipcMainLibrary() {
             return recordService.queryRecordDetail(recordId)
         } catch (e: any) {
             dialog.showErrorBox('record:queryDetail', e.message)
-            return
         } finally {
             recordService.close()
         }
@@ -52,7 +51,6 @@ export default function ipcMainLibrary() {
             return manageRecordSerivce.edit(formData, options)
         } catch (e: any) {
             dialog.showErrorBox('record:edit', e.message)
-            return
         } finally {
             manageRecordSerivce.close()
         }
@@ -68,7 +66,6 @@ export default function ipcMainLibrary() {
             return manageRecordSerivce.deleteByAttribute(formData)
         } catch (e: any) {
             dialog.showErrorBox('record:batchDelete', e.message)
-            return
         } finally {
             manageRecordSerivce.close()
         }
@@ -76,23 +73,16 @@ export default function ipcMainLibrary() {
 
     //ANCHOR Author
 
-    ipcMain.handle('author:queryRecmds', async (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): Promise<DTO.Page<VO.AuthorRecommendation>> => {
+    ipcMain.handle('author:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> => {
+        const authorService = new AuthorService(libraryId)
         try {
-            const worker = AuthorService.getWorker(libraryId)
-            worker.postMessage({
-                functionName: 'queryAuthorRecmds',
-                functionParams: {
-                    options
-                }
-            })
-            return await new Promise((resolve) => {
-                worker.on('message', (value: any) => {
-                    resolve(value)
-                })
-            }) as DTO.Page<VO.AuthorRecommendation>
+            return authorService.queryAuthorRecmds(options)
         } catch (e: any) {
             dialog.showErrorBox('author:queryRecmds', e.message)
             return { total: 0, rows: [] }
+        }
+        finally {
+            authorService.close()
         }
     })
 
@@ -102,7 +92,6 @@ export default function ipcMainLibrary() {
             return authorService.queryAuthorDetail(authorId)
         } catch (e: any) {
             dialog.showErrorBox('author:query', e.message)
-            return
         } finally {
             authorService.close()
         }

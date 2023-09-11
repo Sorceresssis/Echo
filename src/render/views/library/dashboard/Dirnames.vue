@@ -150,8 +150,12 @@ const init = function () {
     currentPage.value = 1
     queryDirnames()
 }
-watch(() => [activeLibrary.value, dirnamesDashStore.sortField, dirnamesDashStore.order], init)
 watch(route, queryDirnames)
+watch(() => [dirnamesDashStore.sortField, dirnamesDashStore.order], init)
+watch(() => activeLibrary.value, () => {
+    keyword.value = ''
+    init()
+})
 onMounted(init)
 </script>
 

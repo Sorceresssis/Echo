@@ -83,5 +83,3 @@ function createRecordWindow(libraryId: number, recordId: number) {
     window.electronAPI.createRecordWindow(libraryId, recordId)
 }
 </script>
-
-<style></style>

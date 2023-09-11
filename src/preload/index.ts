@@ -3,9 +3,9 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 contextBridge.exposeInMainWorld('electronAPI', {
     /******************** app ********************/
     config: (
-        key: string,
-        newValue?: any
-    ) => ipcRenderer.invoke('app:config', key, newValue),
+        key: keyof Config,
+        value?: string
+    ) => ipcRenderer.invoke('app:config', key, value),
 
     relaunch: () => ipcRenderer.invoke('app:relaunch'),
 

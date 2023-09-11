@@ -13,7 +13,8 @@
               :tabs="tabs" />
         <keep-alive>
             <component class="flex-1 overflow-hidden"
-                       :is="components[activeLabelIdx] ">
+                       :is="components[activeLabelIdx].component"
+                       :="components[activeLabelIdx].props">
             </component>
         </keep-alive>
     </div>
@@ -26,17 +27,15 @@ import Tabs from '@/components/Tabs.vue'
 import Records from '../dashboard/Records.vue'
 import About from './About.vue'
 
-// const 
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
     { id: 1, label: '记录' },
     { id: 2, label: '详细信息' },
 ])
 const components = [
-    Records,
-    About
+    { component: Records, props: { type: 'author' } },
+    { component: About, props: {} }
 ]
-
 onMounted(() => {
 }) 
 </script>

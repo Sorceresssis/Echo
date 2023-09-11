@@ -4,7 +4,8 @@
               :tabs="tabs" />
         <keep-alive>
             <component class="flex-1 overflow-hidden"
-                       :is="components[activeLabelIdx] ">
+                       :is="components[activeLabelIdx].component"
+                       :="components[activeLabelIdx].props">
             </component>
         </keep-alive>
     </div>
@@ -26,7 +27,6 @@ watch(() => activeLibrary.value, () => {
     activeLabelIdx.value = 0
 })
 
-
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
     { id: 1, label: '记录' },
@@ -37,11 +37,11 @@ const tabs = shallowReactive([
     { id: 6, label: '关于' }
 ])
 const components = [
-    Records,
-    Authors,
-    Tags,
-    Dirnames,
-    Recycled,
-    About,
-]  
+    { component: Records, props: { type: 'common' } },
+    { component: Authors, props: {} },
+    { component: Tags, props: {} },
+    { component: Dirnames, props: {} },
+    { component: Recycled, props: { type: 'recycled' } },
+    { component: About, props: {} },
+]
 </script> 

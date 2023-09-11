@@ -141,9 +141,13 @@ const init = function () {
 	currentPage.value = 1
 	queryAuthorRecmds()
 }
-watch(() => [activeLibrary.value, authorsDashStore.sortField, authorsDashStore.order], init)
 // 刷新数据, 保留滚动位置, 保留页码
 watch(route, queryAuthorRecmds)
+watch(() => [authorsDashStore.sortField, authorsDashStore.order], init)
+watch(() => activeLibrary.value, () => {
+	keyword.value = ''
+	init()
+})
 onMounted(init)
 </script>
 

@@ -1,5 +1,3 @@
-import { Worker } from "node:worker_threads"
-import path from "node:path"
 import { error } from "node:console"
 import { unlinkSync } from "../util/FileManager"
 import ImageService from "./ImageService"
@@ -12,12 +10,6 @@ export default class AuthorService {
     constructor(libraryId: number) {
         this.libraryId = libraryId
         this.libraryDao = new LibraryDao(libraryId)
-    }
-
-    public static getWorker(libraryId: number) {
-        return new Worker(
-            path.join(__dirname, './AuthorService.worker.js'),
-            { workerData: { libraryId } })
     }
 
     public queryAuthorRecmds(options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> {

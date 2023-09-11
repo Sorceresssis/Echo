@@ -40,15 +40,16 @@ export function writeClibboard(text: string) {
     Message.success('已复制')
 }
 
-export function internetSearch(word: string) {
+export async function internetSearch(word: string) {
     const engines = {
         google: 'https://www.google.com/search?q=',
-        bing: 'https://cn.bing.com/search?q=',
+        bing: 'https://www.bing.com/search?q=',
+        baidu: 'https://www.baidu.com/s?wd=',
         yahoo: 'https://search.yahoo.com/search?p=',
         duckduckgo: 'https://duckduckgo.com/?q=',
-        baidu: 'https://www.baidu.com/s?wd=',
+        yandex: 'https://yandex.com/search/?text=',
     }
-    const key = 'google'
+    const key = await window.electronAPI.config('searchEngine') as keyof typeof engines
     window.electronAPI.openInBrowser(engines[key] + word)
 }
 

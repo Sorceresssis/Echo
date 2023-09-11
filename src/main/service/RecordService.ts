@@ -1,5 +1,6 @@
+import { error } from "node:console"
 import LibraryDao, { QueryRecordsSortRule } from "../dao/libraryDao"
-import tokenizer from "../util/tokenizer"
+import FileManager from "../util/FileManager"
 
 const infoStatusFilterMap = new Map<string, string[]>()
 export default class RecordService {
@@ -27,44 +28,58 @@ export default class RecordService {
 
     public queryRecordRecmds(options: DTO.QueryRecordRecommendationsOptions) {
         const defaultSortRule: QueryRecordsSortRule[] = [
+            { field: 'id', order: 'ASC' },
             { field: 'title', order: 'ASC' },
-        ]
+            { field: 'rate', order: 'DESC' },]
         const sortRule: QueryRecordsSortRule[] = []
         switch (options.sortField) {
+            case 'time':
+                sortRule.push({ field: 'id', order: options.order })
+                break
             case 'title':
+                sortRule.push({ field: 'title', order: options.order })
+                break
+            case 'rate':
+                sortRule.push({ field: 'rate', order: options.order })
+                break
+            default:
+                throw error('invalid sort field')
         }
-        console.log(this.generateFilters(options.filters))
-
-
-        // this.libraryDao.queryRecordsByKeyword(
-        //     options.keyword.trim(),
-        //     sortRule,
-        //     this.generateFilters(options.filters),
-        //     (options.pn - 1) * options.ps,
-        //     options.ps,
-        //     {
-        //         type: options.type,
-        //         authorId: options.authorId,
-        //     },
-        // )
-        return {
-            total: 0,
-            rows: [],
-        }
+        defaultSortRule.forEach((rule) => {
+            if (rule.field !== sortRule[0].field) {
+                sortRule.push(rule)
+            }
+        })
+        const page = this.libraryDao.queryRecordsByKeyword(
+            options.keyword.trim(),
+            sortRule,
+            this.generateFilters(options.filters),
+            (options.pn - 1) * options.ps,
+            options.ps,
+            {
+                type: options.type,
+                authorId: options.authorId,
+            },
+        ) as DTO.Page<VO.RecordRecommendation>
+        // 添加作者和标签
+        page.rows.forEach((record) => {
+            record.authors = this.libraryDao.queryAuthorsByRecordId(record.id)
+            record.tags = this.libraryDao.queryTagsByRecordId(record.id)
+        })
+        return page
     }
 
     private generateFilters(input: boolean[]): string[] {
-        console.log(infoStatusFilterMap.size)
-
         const key = input.toString()
         if (infoStatusFilterMap.has(key)) {
             return infoStatusFilterMap.get(key) as string[]
         }
-        // Filters generater statuses
+
         const result: string[] = []
         const current: string[] = new Array(input.length)
         this.generateFilter(input, 0, current, result)
         infoStatusFilterMap.set(key, result)
+
         return result
     }
 
@@ -76,12 +91,12 @@ export default class RecordService {
         // 如果是0，既可以是0，也可以是1，如果是1，只能是1
         if (input[index]) {
             current[index] = '1'
-            this.generateFilter(input, ++index, current, result)
+            this.generateFilter(input, index + 1, current, result)
         } else {
             current[index] = '0'
-            this.generateFilter(input, ++index, current, result)
+            this.generateFilter(input, index + 1, current, result)
             current[index] = '1'
-            this.generateFilter(input, ++index, current, result)
+            this.generateFilter(input, index + 1, current, result)
         }
     }
 

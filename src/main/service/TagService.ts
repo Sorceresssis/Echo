@@ -13,7 +13,6 @@ export default class TagService {
             { field: 'title', order: 'ASC' },
             { field: 'id', order: 'DESC' },
         ]
-
         const sortRule: QueryTagsSortRule[] = []
         switch (options.sortField) {
             case 'title':

@@ -20,7 +20,8 @@
             <div class="right-menu">
                 <echo-autocomplete class="menu-item search"
                                    v-model="keyword"
-                                   :placeholder="'搜索'" />
+                                   :placeholder="'搜索'"
+                                   @keyup.enter="handleQueryParamsChange" />
                 <dash-drop-menu v-for="menu in dropdownMenus"
                                 :menu="menu"
                                 class="menu-item" />
@@ -45,23 +46,28 @@
                        small
                        :page-size="pageSize"
                        layout="prev, pager, next, jumper, total"
-                       :total="total" />
+                       :total="total"
+                       @current-change="handlePageChange" />
     </div>
 </template>
 
 <script setup lang='ts'>
-import { onMounted, ref, Ref, onActivated, inject } from 'vue'
+import { onMounted, ref, Ref, onActivated, inject, watch, toRaw } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
+import { debounce } from '@/util/debounce'
 import useRecordsDashStore from '@/store/recordsDashStore'
 import Empty from '@/components/Empty.vue'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
 import RecordCard from '@/components/RecordCard.vue'
-import { debounce } from '@/util/debounce'
 
-// records type common, author, reycycled
+const props = withDefaults(defineProps<{
+    type?: 'common' | 'author' | 'recycled'
+}>(), {
+    type: 'common'
+})
 
 const enum FilterKey {
     cover = 0,
@@ -77,22 +83,16 @@ const dropdownMenus: DashDropMenu[] = [
         title: '&#xe7e6;',
         items: [
             {
-                title: '有封面',
-                divided: false,
-                click: () => recordsDashStore.handleFilter(FilterKey.cover),
-                dot: () => recordsDashStore.filter[FilterKey.cover]
+                title: '有封面', divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.cover), dot: () => recordsDashStore.filter[FilterKey.cover]
             },
             {
-                title: '有链接',
-                divided: false,
-                click: () => recordsDashStore.handleFilter(FilterKey.hyperlink),
-                dot: () => recordsDashStore.filter[FilterKey.hyperlink]
+                title: '有链接', divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.hyperlink), dot: () => recordsDashStore.filter[FilterKey.hyperlink]
             },
             {
-                title: '有文件',
-                divided: false,
-                click: () => recordsDashStore.handleFilter(FilterKey.basename),
-                dot: () => recordsDashStore.filter[FilterKey.basename]
+                title: '有文件', divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.basename), dot: () => recordsDashStore.filter[FilterKey.basename]
             },
         ]
     },
@@ -101,34 +101,24 @@ const dropdownMenus: DashDropMenu[] = [
         title: '&#xe81f;',
         items: [
             {
-                title: $t('mainContainer.time'),
-                divided: false,
-                click: () => recordsDashStore.handleSortField('date'),
-                dot: () => recordsDashStore.sortField === 'date'
+                title: $t('mainContainer.time'), divided: false,
+                click: () => recordsDashStore.handleSortField('time'), dot: () => recordsDashStore.sortField === 'time'
             },
             {
-                title: '名称',
-                divided: false,
-                click: () => recordsDashStore.handleSortField('title'),
-                dot: () => recordsDashStore.sortField === 'title'
+                title: '名称', divided: false,
+                click: () => recordsDashStore.handleSortField('title'), dot: () => recordsDashStore.sortField === 'title'
             },
             {
-                title: '评分',
-                divided: false,
-                click: () => recordsDashStore.handleSortField('rate'),
-                dot: () => recordsDashStore.sortField === 'rate'
+                title: '评分', divided: false,
+                click: () => recordsDashStore.handleSortField('rate'), dot: () => recordsDashStore.sortField === 'rate'
             },
             {
-                title: $t('mainContainer.ascending'),
-                divided: true,
-                click: () => recordsDashStore.handleAsc(true),
-                dot: () => recordsDashStore.asc
+                title: $t('mainContainer.ascending'), divided: true,
+                click: () => recordsDashStore.handleOrder('ASC'), dot: () => recordsDashStore.order === 'ASC'
             },
             {
-                title: $t('mainContainer.descending'),
-                divided: false,
-                click: () => recordsDashStore.handleAsc(false),
-                dot: () => !recordsDashStore.asc
+                title: $t('mainContainer.descending'), divided: false,
+                click: () => recordsDashStore.handleOrder('DESC'), dot: () => recordsDashStore.order === 'DESC'
             },
         ]
     },
@@ -167,26 +157,6 @@ const currentPage = ref<number>(1)
 const pageSize = 50
 const total = ref<number>(200)
 
-const queryRecords = debounce(async () => {
-    loading.value = true
-    const page = await window.electronAPI.queryRecordRecmds(
-        activeLibrary.value,
-        {
-            // type: 'common',
-            // keyword: keyword.value,
-            // authorId: 0,
-            // filters: recordsDashStore.filter,
-            // sortField: recordsDashStore.sortField,
-            // order:,
-            // pn: currentPage.value,
-            // ps: pageSize
-        }
-    )
-    recordRecmds.value = page.rows
-    total.value = page.total
-    loading.value = false
-}, 100)
-
 // 开启批量操作
 const isBatchOperation = ref(false)
 const isVisibleCtmItem = ref(false)
@@ -201,217 +171,48 @@ const openCtm = (e: MouseEvent) => {
     contextMenuOptions.y = e.y
     isVisibleCtmItem.value = true
 }
-
-onActivated(() => {
-    // queryData
-})
-
 // 复制信息 复制标题，全部信息，编辑， 删除
-onMounted(() => {
-    recordRecmds.value = [
-        {
-            id: 1,
-            title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
-            rate: 5,
-            cover: 'C:\\Users\\RachelGardner\\OneDrive\\图片\\ACG\\illust_100114922_20221025_211912.jpg',
-            hyperlink: 'baidu.com',
-            resourcePath: 'F:\\Project\\sdfs',
-            authors: [
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                }
-            ],
-            tags: [
-                {
-                    id: 1,
-                    title: 'ffff'
-                },
-                {
-                    id: 1,
-                    title: '标签4'
-                }
-            ],
-        },
-        {
-            id: 1,
-            title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
-            rate: 5,
-            cover: 'F:\\Desktop\\images\\2.jpg',
-            hyperlink: '',
-            resourcePath: 'F:\\Project\\Github\\echoDB',
-            authors: [
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                }
-            ],
-            tags: [
-                {
-                    id: 1,
-                    title: 'ffff'
-                },
-                {
-                    id: 1,
-                    title: '标签4'
-                }
-            ],
-        },
-        {
-            id: 1,
-            title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
-            rate: 5,
-            cover: 'F:\\Desktop\\images\\4.jpg',
-            hyperlink: '',
-            resourcePath: 'F:\\Project\\Github\\echoDB',
-            authors: [
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                }
-            ],
-            tags: [
-                {
-                    id: 1,
-                    title: 'ffff'
-                },
-                {
-                    id: 1,
-                    title: '标签4'
-                }
-            ],
-        },
-        {
-            id: 1,
-            title: '键的设计哦加哦就i哦啊街道； 哦i就哦集散地哦叫解耦i就i欧几哦急哦解耦i收到',
-            rate: 5,
-            cover: 'C:\\Users\\RachelGardner\\OneDrive\\图片\\ACG\\illust_100114922_20221025_211912.jpg',
-            hyperlink: '',
-            resourcePath: 'F:\\Project\\Github\\echoDB',
-            authors: [
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 1,
-                    name: '标签2',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                },
-                {
-                    id: 2,
-                    name: '小丑',
-                    avatar: 'F:\\Desktop\\images\\息屏.png'
-                }
-            ],
-            tags: [
-                {
-                    id: 1,
-                    title: 'ffff'
-                },
-                {
-                    id: 1,
-                    title: '标签4'
-                }
-            ],
-        },
-    ]
-})
 
+const queryRecords = debounce(async () => {
+    loading.value = true
+    const page = await window.electronAPI.queryRecordRecmds(
+        activeLibrary.value,
+        {
+            type: props.type,
+            keyword: keyword.value,
+            authorId: route.query.id ? Number(route.query.id) : 0,
+            filters: toRaw(recordsDashStore.filter),
+            sortField: recordsDashStore.sortField,
+            order: recordsDashStore.order,
+            pn: currentPage.value,
+            ps: pageSize
+        }
+    )
+    recordRecmds.value = page.rows
+    total.value = page.total
+    loading.value = false
+}, 100)
+const handlePageChange = (page: number) => {
+    currentPage.value = page
+    queryRecords()
+}
+// 由于参数的变化，需要重新查询
+const handleQueryParamsChange = function () {
+    scrollbarRef.value?.setScrollPosition(0)
+    currentPage.value = 1
+    queryRecords()
+}
+// 路由变化，用户可能对记录进行了修改，需要重新查询
+watch(route, queryRecords)
+watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order],
+    handleQueryParamsChange,
+    { deep: true }
+)
+watch(() => activeLibrary.value, () => {
+    keyword.value = ''
+    handleQueryParamsChange()
+})
+onMounted(handleQueryParamsChange)
 </script>
 
 <style scoped>

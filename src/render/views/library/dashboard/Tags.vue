@@ -134,7 +134,6 @@ const queryTags = debounce(async () => {
     tags.value = page.rows
     loading.value = false
 }, 100)
-
 const handlePageChange = function () {
     scrollbarRef.value?.setScrollPosition(0)
     queryTags()
@@ -144,8 +143,13 @@ const init = function () {
     currentPage.value = 1
     queryTags()
 }
-watch(() => [activeLibrary.value, tagsDashStore.sortField, tagsDashStore.order], init)
+
 watch(route, queryTags)
+watch(() => [tagsDashStore.sortField, tagsDashStore.order], init)
+watch(() => activeLibrary.value, () => {
+    keyword.value = ''
+    init()
+})
 onMounted(init)
 </script>
 
