@@ -6,7 +6,7 @@
                                    type="tag"
                                    class="menu-item search"
                                    :placeholder="'搜索'"
-                                   @keyup.enter="init" />
+                                   @keyup.enter="handleQueryParamsChange" />
                 <dash-drop-menu v-for="menu in dropdownMenus"
                                 class="menu-item"
                                 :menu="menu" />
@@ -56,7 +56,7 @@ import { useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
 import { debounce } from '@/util/debounce'
 import { writeClibboard } from '@/util/systemUtil'
-import { deleteConfirm, editPrompt } from '@/util/ADEMessageBox'
+import MessageBox from '@/util/MessageBox'
 import useTagsDashStore from '@/store/tagsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
@@ -107,13 +107,15 @@ const pageSize = 50
 const total = ref<number>(0)
 
 const deleteTag = (id: number) => {
-    deleteConfirm(async () => {
+    MessageBox.deleteConfirm(async () => {
         await window.electronAPI.deleteTag(activeLibrary.value, id)
         queryTags()
     })
 }
 const editTag = (id: number, oldValue: string) => {
-    editPrompt(async (value: string) => {
+    MessageBox.editPrompt(async (value: string) => {
+        const trimValue = value.trim()
+        if (trimValue === '' || trimValue === oldValue) return
         await window.electronAPI.editTag(activeLibrary.value, id, value)
         queryTags()
     }, oldValue)
@@ -134,22 +136,21 @@ const queryTags = debounce(async () => {
     tags.value = page.rows
     loading.value = false
 }, 100)
-const handlePageChange = function () {
+const handlePageChange = function (pn: number) {
     scrollbarRef.value?.setScrollPosition(0)
+    currentPage.value = pn
     queryTags()
+}
+const handleQueryParamsChange = function () {
+    handlePageChange(1)
 }
 const init = function () {
-    scrollbarRef.value?.setScrollPosition(0)
-    currentPage.value = 1
-    queryTags()
-}
-
-watch(route, queryTags)
-watch(() => [tagsDashStore.sortField, tagsDashStore.order], init)
-watch(() => activeLibrary.value, () => {
     keyword.value = ''
-    init()
-})
+    handleQueryParamsChange()
+}
+watch(route, queryTags)
+watch(() => [tagsDashStore.sortField, tagsDashStore.order], handleQueryParamsChange)
+watch(() => activeLibrary.value, init)
 onMounted(init)
 </script>
 
@@ -158,4 +159,4 @@ onMounted(init)
     row-gap: 8px;
     grid-template-columns: repeat(auto-fill, 350px);
 }
-</style> 
+</style>

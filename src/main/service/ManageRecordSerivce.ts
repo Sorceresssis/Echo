@@ -14,6 +14,7 @@ export default class ManageRecordSerivce {
     }
 
     public edit(formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result {
+        // BUG undefined trim() 报错
         // 检查和处理数据 
         if (options.batch) {
             // 判断路径存在

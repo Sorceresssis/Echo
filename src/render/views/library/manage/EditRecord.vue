@@ -213,7 +213,7 @@
 import { onMounted, reactive, ref, Ref, watch, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import Message from '@/util/Message'
-import ADEMessageBox from '@/util/ADEMessageBox'
+import MessageBox from '@/util/MessageBox'
 import useEditRecordServic from '@/service/editRecordService'
 import type { FormInstance, FormRules } from 'element-plus'
 import Button2 from '@/components/Button2.vue'
@@ -313,7 +313,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             }
             btnLoading.value = false
         }
-        isAdd.value ? ADEMessageBox.addConfirm(cb) : ADEMessageBox.editConfirm(cb)
+        isAdd.value ? MessageBox.addConfirm(cb) : MessageBox.editConfirm(cb)
     })
 }
 
@@ -421,4 +421,4 @@ onMounted(init)
     border: 1px solid #e1e1e1;
     box-sizing: border-box;
 }
-</style>@/service/editRecordService
+</style>@/service/editRecordService@/util/MessageBox

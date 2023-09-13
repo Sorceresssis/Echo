@@ -51,7 +51,7 @@ import { ref, Ref, reactive, inject, toRaw } from 'vue'
 import type { FormInstance, FormRules, } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import { onBeforeRouteUpdate } from 'vue-router';
-import ADEMessageBox from '@/util/ADEMessageBox';
+import MessageBox from '@/util/MessageBox';
 import Message from '@/util/Message';
 
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
@@ -76,7 +76,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-        ADEMessageBox.deleteConfirm(async () => {
+        MessageBox.deleteConfirm(async () => {
             btnLoading.value = true
             await window.electronAPI.deleteRecordByAttribute(activeLibrary.value, toRaw(formData))
             Message.success('删除成功')
@@ -93,4 +93,4 @@ const init = () => {
 onBeforeRouteUpdate(init)
 </script>
   
-<style></style>
+<style></style>@/util/MessageBox

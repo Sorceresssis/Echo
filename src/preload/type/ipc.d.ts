@@ -143,6 +143,12 @@ export interface IElectronAPI {
         options: DTO.EditRecordOptions
     ) => Promise<Result>
 
+    batchProcessingRecord: (
+        libraryId: number,
+        type: 'recycle' | 'delete' | 'recover',
+        recordIds: number[]
+    ) => Promise<void>
+
     //ANCHOR Author
 
     queryAuthorDetail: (

@@ -1,21 +1,37 @@
 <template>
     <div class="flex-col">
-        <div v-if="isBatchOperation"
+        <div v-if="isBatch"
              class="dashboard__header divider">
             <div class="left-menu">
                 <span class="batch-processing-btn"
-                      @click="isBatchOperation = false">返回</span>
+                      @click="closeBatch"> 返回 </span>
             </div>
             <div class="right-menu">
-                <span class="batch-processing-btn menu-item">全选</span>
-                <span class="batch-processing-btn menu-item">删除</span>
+                <el-checkbox v-model="isSelectedAll"
+                             label="全选"
+                             class="batch-processing-btn"
+                             @click.prevent="handleCheckAll" />
+                <span v-if="props.type !== 'recycled'"
+                      class="batch-processing-btn"
+                      :class="[selectedSet.size === 0 ? 'disabled' : '']"
+                      @click="recycleRecord(...selectedSet)">放入回收站</span>
+                <span v-if="props.type === 'recycled'"
+                      class="batch-processing-btn"
+                      :class="[selectedSet.size === 0 ? 'disabled' : '']"
+                      @click="deleteRecord(...selectedSet)"> 删除 </span>
+                <span v-if="props.type === 'recycled'"
+                      class="batch-processing-btn"
+                      :class="[selectedSet.size === 0 ? 'disabled' : '']"
+                      @click="recoverRecord(...selectedSet)"> 恢复 </span>
             </div>
         </div>
         <div v-else
              class="dashboard__header">
             <div class="left-menu">
                 <div class="batch-processing-btn"
-                     @click="isBatchOperation = true">批量操作</div>
+                     @click="isBatch = true">批量操作</div>
+                <span v-if="props.type === 'recycled'"
+                      class="batch-processing-btn">清空回收站</span>
             </div>
             <div class="right-menu">
                 <echo-autocomplete class="menu-item search"
@@ -33,10 +49,13 @@
             <empty v-if="recordRecmds.length == 0" />
             <div v-else
                  class="record-recommendations adaptive-grid"
-                 :class="[`${recordsDashStore.view}-grid`]">
-                <record-card v-for="recmd in recordRecmds"
+                 :class="[`${recordsDashStore.view}-grid`, isBatch ? 'is-batch' : '']">
+                <record-card v-for="(recmd, idxRecmd) in recordRecmds"
                              :key="recmd.id"
-                             :recmd="recmd">
+                             :recmd="recmd"
+                             :selected="selectedSet.has(recmd.id)"
+                             @contextmenu="openCtm($event, idxRecmd)"
+                             @select="handleSelect(recmd.id)">
                 </record-card>
             </div>
         </scrollbar>
@@ -48,14 +67,41 @@
                        layout="prev, pager, next, jumper, total"
                        :total="total"
                        @current-change="handlePageChange" />
+        <context-menu v-model:show="isVisCtm"
+                      :options="ctmOptions">
+            <context-menu-item :label="'复制标题'"
+                               @click="writeClibboard(recordRecmds[idxFocusRecord].title)">
+                <template #icon> <span class="iconfont">&#xe85c;</span> </template>
+            </context-menu-item>
+            <context-menu-item :label="'复制全部信息'"
+                               @click="writeClibboard(recordRecmds[idxFocusRecord].title
+                                   + '\n' + recordRecmds[idxFocusRecord].authors.map(author => author.name).join(',')
+                                   + '\n' + recordRecmds[idxFocusRecord].tags.map(tag => tag.title).join(','))" />
+            <context-menu-item :label="'编辑'"
+                               @click="router.push(`/library/${activeLibrary}/manage?record_id=${recordRecmds[idxFocusRecord].id}`)">
+                <template #icon> <span class="iconfont">&#xe722;</span> </template>
+            </context-menu-item>
+            <context-menu-item v-if="props.type !== 'recycled'"
+                               label="放入回收站"
+                               @click="recycleRecord(recordRecmds[idxFocusRecord].id)">
+                <template #icon> <span class="iconfont">&#xe636;</span> </template></context-menu-item>
+            <context-menu-item v-if="props.type === 'recycled'"
+                               label="恢复"
+                               @click="recoverRecord(recordRecmds[idxFocusRecord].id)" />
+            <context-menu-item v-if="props.type === 'recycled'"
+                               label="删除"
+                               @click="deleteRecord(recordRecmds[idxFocusRecord].id)" />
+        </context-menu>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { onMounted, ref, Ref, onActivated, inject, watch, toRaw } from 'vue'
-import { useRoute } from 'vue-router'
+import { onMounted, ref, Ref, inject, watch, toRaw, reactive } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
 import { debounce } from '@/util/debounce'
+import { writeClibboard } from '@/util/systemUtil'
+import MessageBox from '@/util/MessageBox'
 import useRecordsDashStore from '@/store/recordsDashStore'
 import Empty from '@/components/Empty.vue'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
@@ -69,13 +115,14 @@ const props = withDefaults(defineProps<{
     type: 'common'
 })
 
+const router = useRouter()
+const route = useRoute()
+
 const enum FilterKey {
     cover = 0,
     hyperlink,
     basename,
 }
-const route = useRoute()
-
 const recordsDashStore = useRecordsDashStore()
 const dropdownMenus: DashDropMenu[] = [
     {
@@ -127,22 +174,16 @@ const dropdownMenus: DashDropMenu[] = [
         title: '&#xe6c7;',
         items: [
             {
-                title: '紧凑',
-                divided: false,
-                click: () => recordsDashStore.handleView('compact'),
-                dot: () => recordsDashStore.view === 'compact'
+                title: '紧凑', divided: false,
+                click: () => recordsDashStore.handleView('compact'), dot: () => recordsDashStore.view === 'compact'
             },
             {
-                title: $t('mainContainer.thumbnail'),
-                divided: false,
-                click: () => recordsDashStore.handleView('thumbnail'),
-                dot: () => recordsDashStore.view === 'thumbnail'
+                title: $t('mainContainer.thumbnail'), divided: false,
+                click: () => recordsDashStore.handleView('thumbnail'), dot: () => recordsDashStore.view === 'thumbnail'
             },
             {
-                title: $t('mainContainer.extended'),
-                divided: false,
-                click: () => recordsDashStore.handleView('extended'),
-                dot: () => recordsDashStore.view === 'extended'
+                title: $t('mainContainer.extended'), divided: false,
+                click: () => recordsDashStore.handleView('extended'), dot: () => recordsDashStore.view === 'extended'
             },
         ]
     }
@@ -157,22 +198,71 @@ const currentPage = ref<number>(1)
 const pageSize = 50
 const total = ref<number>(200)
 
-// 开启批量操作
-const isBatchOperation = ref(false)
-const isVisibleCtmItem = ref(false)
-const contextMenuOptions = {
-    zIndex: 3,
+// ANCHOR 右键菜单
+const isVisCtm = ref(false)
+const idxFocusRecord = ref(-1)
+const ctmOptions = {
+    zIndex: 3000,
     minWidth: 300,
     x: 500,
     y: 200
 }
-const openCtm = (e: MouseEvent) => {
-    contextMenuOptions.x = e.x
-    contextMenuOptions.y = e.y
-    isVisibleCtmItem.value = true
+const openCtm = (e: MouseEvent, idxRecord: number) => {
+    ctmOptions.x = e.x
+    ctmOptions.y = e.y
+    isVisCtm.value = true
+    idxFocusRecord.value = idxRecord
 }
-// 复制信息 复制标题，全部信息，编辑， 删除
 
+//ANCHOR 批量操作
+const isBatch = ref(false)
+const isSelectedAll = ref<boolean>(false)
+const selectedSet = reactive<Set<number>>(new Set())
+const closeBatch = () => {
+    isBatch.value = false
+    selectedSet.clear()
+}
+const handleSelect = (id: number) => {
+    if (selectedSet.has(id)) {
+        selectedSet.delete(id)
+    } else {
+        selectedSet.add(id)
+    }
+    isSelectedAll.value = selectedSet.size === recordRecmds.value.length
+}
+const handleCheckAll = () => {
+    selectedSet.clear()
+    isSelectedAll.value = !isSelectedAll.value
+    if (isSelectedAll.value) {
+        recordRecmds.value.forEach(recmd => selectedSet.add(recmd.id))
+    }
+}
+
+// ANCHOR 数据操作
+// 放入回收站
+const recycleRecord = (...ids: number[]) => {
+    if (ids.length === 0) return
+    MessageBox.confirm(async () => {
+        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids)
+        queryRecords()
+    }, '放入回收站', '确定要放入回收站吗？')
+}
+// 彻底删除
+const deleteRecord = (...ids: number[]) => {
+    if (ids.length === 0) return
+    MessageBox.deleteConfirm(async () => {
+        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'delete', ids)
+        queryRecords()
+    })
+}
+// 恢复
+const recoverRecord = (...ids: number[]) => {
+    if (ids.length === 0) return
+    MessageBox.confirm(async () => {
+        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recover', ids)
+        queryRecords()
+    }, '恢复', '确定要恢复吗？')
+}
 const queryRecords = debounce(async () => {
     loading.value = true
     const page = await window.electronAPI.queryRecordRecmds(
@@ -192,35 +282,37 @@ const queryRecords = debounce(async () => {
     total.value = page.total
     loading.value = false
 }, 100)
-const handlePageChange = (page: number) => {
-    currentPage.value = page
-    queryRecords()
+const handlePageChange = function (pn: number) {
+    selectedSet.clear() // 清空选中
+    isSelectedAll.value = false // 取消全选
+    scrollbarRef.value?.setScrollPosition(0) // 恢复滚动条位置
+    currentPage.value = pn // 重置页码
+    queryRecords() // 重新查询
 }
-// 由于参数的变化，需要重新查询
 const handleQueryParamsChange = function () {
-    scrollbarRef.value?.setScrollPosition(0)
-    currentPage.value = 1
-    queryRecords()
+    handlePageChange(1)
 }
-// 路由变化，用户可能对记录进行了修改，需要重新查询
-watch(route, queryRecords)
-watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order],
-    handleQueryParamsChange,
-    { deep: true }
-)
-watch(() => activeLibrary.value, () => {
+const init = function () {
     keyword.value = ''
+    isBatch.value = false
     handleQueryParamsChange()
-})
-onMounted(handleQueryParamsChange)
+}
+// 1. 路由变化，用户可能对记录进行了修改，只需要更新数据
+watch(route, queryRecords)
+// 2. 请求参数改变，要跳到第一页
+watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order], handleQueryParamsChange, { deep: true })
+// 3. 第一次加载或切换library, 要把参数重置
+watch(() => activeLibrary.value, init)
+onMounted(init)
 </script>
 
 <style scoped>
 .batch-processing-btn {
+    margin-right: 20px;
     cursor: pointer;
 }
 
-.batch-processing-btn:hover {
+.batch-processing-btn:not(.disabled):hover {
     color: var(--echo-theme-color);
 }
 </style>

@@ -6,7 +6,7 @@
 								   type="author"
 								   class="menu-item search"
 								   :placeholder="'搜索'"
-								   @keyup.enter="init" />
+								   @keyup.enter="handleQueryParamsChange" />
 				<dash-drop-menu v-for="menu in dropdownMenus"
 								class="menu-item"
 								:menu="menu" />
@@ -53,7 +53,7 @@
 					   :page-size="pageSize"
 					   layout="prev, pager, next, jumper, total"
 					   :total="total"
-					   @current-change="hadnlePageChange" />
+					   @current-change="handlePageChange" />
 	</div>
 </template>
 
@@ -131,23 +131,23 @@ const queryAuthorRecmds = debounce(async () => {
 }, 100)
 
 // pageChange 刷新数据, 重置滚动位置
-const hadnlePageChange = function () {
+const handlePageChange = function (pn: number) {
 	scrollbarRef.value?.setScrollPosition(0)
+	currentPage.value = pn
 	queryAuthorRecmds()
 }
 // 请求参数发送改变(activeLibrarykeyword , sortFild, order)	刷新数据, 重置滚动位置, 重置页码
+const handleQueryParamsChange = function () {
+	handlePageChange(1)
+}
 const init = function () {
-	scrollbarRef.value?.setScrollPosition(0)
-	currentPage.value = 1
-	queryAuthorRecmds()
+	keyword.value = ''
+	handleQueryParamsChange()
 }
 // 刷新数据, 保留滚动位置, 保留页码
 watch(route, queryAuthorRecmds)
-watch(() => [authorsDashStore.sortField, authorsDashStore.order], init)
-watch(() => activeLibrary.value, () => {
-	keyword.value = ''
-	init()
-})
+watch(() => [authorsDashStore.sortField, authorsDashStore.order], handleQueryParamsChange)
+watch(() => activeLibrary.value, init)
 onMounted(init)
 </script>
 

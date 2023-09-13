@@ -71,7 +71,7 @@
 }
 
 /* operates */
-.record-recommendation-item:hover .operates {
+.record-recommendations:not(.is-batch) .record-recommendation-item:hover .operates {
     visibility: visible;
 }
 
@@ -153,8 +153,11 @@
     left: 0;
     width: 100%;
     height: 100%;
+
     padding-left: 10px;
-    background-color: #f6f6f8;
     z-index: 100;
-    opacity: 0.5;
+}
+
+.is-batch .check-container {
+    display: block;
 }

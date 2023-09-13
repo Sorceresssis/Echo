@@ -301,6 +301,7 @@ const openRename = () => {
     }
 }
 const handleRename = async () => {
+    // BUG 重命名的时候, 如果为空, 会一直显示重命名的输入框，而不是显示原来的名字
     if (newName.value.trim() === '') {
         ElMessage.error('不能为空')
         return

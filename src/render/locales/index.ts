@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n'
+import { getConfig } from '@/util/ConfigUtil'
 import zhCN from './zhCN'
 import en from './en'
 import ja from './ja'
@@ -25,15 +26,7 @@ export const localeList = [
     // { label: 'Pyccĸий', value: Locale.ru },
 ]
 
-// 切换语言
-export const changeLocale = async (locale: Locale) => {
-    // 写入配置文件
-    await window.electronAPI.config('locale', locale)
-    // 切换语言
-    i18n.global.locale.value = locale
-}
-
-const locale = await window.electronAPI.config('locale') || Locale.zhCN
+const locale = await getConfig('locale') || Locale.zhCN
 export const i18n = createI18n({
     legacy: false,
     globalInjection: true,
@@ -48,4 +41,4 @@ export const i18n = createI18n({
 
 export const $t = i18n.global.t
 
-export default { $t, i18n, Locale, localeList, changeLocale }
+export default { $t, i18n, Locale, localeList }

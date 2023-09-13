@@ -39,8 +39,12 @@
             </div>
         </div>
         <!-- 批量选择遮罩 -->
-        <div class="check-container">
-            <el-checkbox size="large" />
+        <div class="check-container"
+             @click="emit('select', recmd.id)">
+            <!-- 阻止checkbox的点击事件, v-model绑定的是props的值，让父组件去改变props的值 -->
+            <el-checkbox v-model="props.selected"
+                         @click.prevent
+                         size="large" />
         </div>
     </div>
 </template>
@@ -51,8 +55,13 @@ import { useRouter } from 'vue-router'
 import { openInExplorer, openInBrowser, internetSearch } from '@/util/systemUtil'
 import LocalImage from './LocalImage.vue'
 
-defineProps<{
-    recmd: VO.RecordRecommendation
+const props = defineProps<{
+    recmd: VO.RecordRecommendation,
+    selected: boolean
+}>()
+
+const emit = defineEmits<{
+    (e: 'select', recordId: number): void
 }>()
 
 const router = useRouter()

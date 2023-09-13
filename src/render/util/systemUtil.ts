@@ -1,4 +1,5 @@
 import Message from "@/util/Message"
+import { getConfig } from "@/util/ConfigUtil"
 
 /**
  * 用于打开外部 URL 或文件资源。例如，你可以使用这个方法在用户默认的浏览器中打开一个网页。
@@ -49,7 +50,7 @@ export async function internetSearch(word: string) {
         duckduckgo: 'https://duckduckgo.com/?q=',
         yandex: 'https://yandex.com/search/?text=',
     }
-    const key = await window.electronAPI.config('searchEngine') as keyof typeof engines
+    const key = await getConfig('searchEngine') as keyof typeof engines
     window.electronAPI.openInBrowser(engines[key] + word)
 }
 

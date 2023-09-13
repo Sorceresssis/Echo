@@ -71,7 +71,7 @@
 
 <script setup lang='ts'>
 import { ref, Ref, reactive, inject, } from 'vue'
-import { editConfirm } from '@/util/ADEMessageBox'
+import { editConfirm } from '@/util/MessageBox'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import Message from '@/util/Message';
@@ -127,4 +127,4 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     color: #7b7b7b;
     font-size: 12px;
 }
-</style>@/util/DAEMessageBox
+</style>@/util/DAEMessageBox@/util/MessageBox

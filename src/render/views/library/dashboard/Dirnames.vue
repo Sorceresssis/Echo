@@ -6,7 +6,7 @@
                                    type="dirname"
                                    class="menu-item search"
                                    :placeholder="'搜索'"
-                                   @keyup.enter="init" />
+                                   @keyup.enter="handleQueryParamsChange" />
                 <dash-drop-menu v-for="menu in dropdownMenus"
                                 class="menu-item"
                                 :menu="menu" />
@@ -58,7 +58,7 @@ import { ref, Ref, inject, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
-import { deleteConfirm, editPrompt } from '@/util/ADEMessageBox'
+import MessageBox from '@/util/MessageBox'
 import { debounce } from '@/util/debounce'
 import useDirnamesDashStore from '@/store/dirnamesDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
@@ -111,17 +111,17 @@ const pageSize = 30
 const total = ref<number>(0)
 
 const deleteDirname = (id: number) => {
-    deleteConfirm(async () => {
+    MessageBox.deleteConfirm(async () => {
         await window.electronAPI.deleteDirname(activeLibrary.value, id)
         queryDirnames()
     })
 }
 const editDirname = (id: number, oldValue: string) => {
-    editPrompt(async (value: string) => {
+    MessageBox.editPrompt(async (value: string) => {
+        const trimValue = value.trim()
+        if (trimValue === '' || trimValue === oldValue) return
         const result = await window.electronAPI.editDirname(activeLibrary.value, id, value)
-        if (result.code === 0) {
-            Message.error('路径不合法')
-        }
+        if (result.code === 0) { Message.error('路径不合法') }
         queryDirnames()
     }, oldValue)
 }
@@ -141,21 +141,21 @@ const queryDirnames = debounce(async () => {
     dirnames.value = page.rows
     loading.value = false
 }, 100)
-const handlePageChange = function () {
+const handlePageChange = function (pn: number) {
     scrollbarRef.value?.setScrollPosition(0)
+    currentPage.value = pn
     queryDirnames()
+}
+const handleQueryParamsChange = function () {
+    handlePageChange(1)
 }
 const init = function () {
-    scrollbarRef.value?.setScrollPosition(0)
-    currentPage.value = 1
-    queryDirnames()
+    keyword.value = ''
+    handleQueryParamsChange()
 }
 watch(route, queryDirnames)
-watch(() => [dirnamesDashStore.sortField, dirnamesDashStore.order], init)
-watch(() => activeLibrary.value, () => {
-    keyword.value = ''
-    init()
-})
+watch(() => [dirnamesDashStore.sortField, dirnamesDashStore.order], handleQueryParamsChange)
+watch(() => activeLibrary.value, init)
 onMounted(init)
 </script>
 

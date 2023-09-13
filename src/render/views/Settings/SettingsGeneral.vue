@@ -5,12 +5,12 @@
                 <h2 class="settings-item__title">语言</h2>
                 <div class="settings-item__content">
                     <div class="row">
-                        <el-select v-model="i18n.global.locale.value">
+                        <el-select v-model="i18n.global.locale.value"
+                                   @change="setConfig('locale', toRaw(i18n.global.locale.value))">
                             <el-option v-for="locale in localeList"
                                        :key="locale.value"
                                        :label="locale.label"
-                                       :value="locale.value"
-                                       @change="changeLocale(locale.value)" />
+                                       :value="locale.value" />
                         </el-select>
                     </div>
                 </div>
@@ -27,26 +27,26 @@
                 </div>
             </div>
             <div class="settings-item">
+                <h2 class="settings-item__title">搜索引擎</h2>
+                <div class="settings-item__content">
+                    <div class="row">
+                        <el-select v-model="searchEngine"
+                                   @change="setConfig('searchEngine', searchEngine)">
+                            <el-option v-for="engine in engineList"
+                                       :key="engine.id"
+                                       :label="engine.label"
+                                       :value="engine.value" />
+                        </el-select>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-item">
                 <h2 class="settings-item__title">数据</h2>
                 <div class="settings-item__content">
                     <div class="row">
                         <!-- 导入成功刷新 -->
                         <button2 @click="">导出数据</button2>
                         <button2 @click="">导入数据</button2>
-                    </div>
-                </div>
-            </div>
-            <div class="settings-item">
-                <h2 class="settings-item__title">搜索引擎</h2>
-                <div class="settings-item__content">
-                    <div class="row">
-                        <el-select v-model="searchEngine">
-                            <el-option v-for="engine in engineList"
-                                       :key="engine.id"
-                                       :label="engine.label"
-                                       :value="engine.value"
-                                       @change="" />
-                        </el-select>
                     </div>
                 </div>
             </div>
@@ -66,15 +66,16 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, toRaw } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import { $t, i18n, localeList, changeLocale } from '@/locales'
+import { $t, i18n, localeList } from '@/locales'
 import { openInExplorer } from '@/util/systemUtil'
+import { getConfig, setConfig } from "@/util/ConfigUtil"
 import Button2 from '@/components/Button2.vue'
 
 onMounted(async () => {
-    userDataPath.value = await window.electronAPI.config('userDataPath');
-
+    userDataPath.value = await getConfig('userDataPath')
+    searchEngine.value = await getConfig('searchEngine')
 })
 
 /******************** 数据保存位置 ********************/
@@ -82,9 +83,11 @@ const userDataPath = ref<string>('')
 const selectUserDataPath = () => {
     window.electronAPI.openDialog('dir', false
     ).then((p) => {
+        const path = p[0]
+        if (path === undefined || path === userDataPath.value) return Promise.reject()
         return window.electronAPI.config('userDataPath', p[0])
     }).then((value) => {
-        userDataPath.value = value
+        userDataPath.value = value || userDataPath.value
         // 建议您重启应用程序以使更改生效
         return ElMessageBox.confirm(
             "由于数据保存位置被改变，建议您重启应用程序以加载正确的数据",
@@ -93,8 +96,7 @@ const selectUserDataPath = () => {
                 confirmButtonText: "重启",
                 cancelButtonText: "取消",
                 type: "info",
-            }
-        )
+            })
     }).then(() => {
         window.electronAPI.relaunch()
     })
@@ -103,7 +105,10 @@ const selectUserDataPath = () => {
 const searchEngine = ref<string>('google')
 const engineList = ref<any[]>([
     { id: 1, label: 'Google', value: 'google' },
-
+    { id: 2, label: 'Bing', value: 'bing' },
+    { id: 3, label: 'Baidu', value: 'baidu' },
+    { id: 4, label: 'Yahoo', value: 'yahoo' },
+    { id: 5, label: 'DuckDuckGo', value: 'duckduckgo' },
+    { id: 6, label: 'Yandex', value: 'yandex' },
 ])
-// BUG 在数据库查询的过程中，如果点击设置，会导致一直在加载
 </script> 

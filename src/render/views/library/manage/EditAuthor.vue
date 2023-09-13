@@ -52,7 +52,7 @@
 <script setup lang='ts'>
 import { ref, Ref, toRaw, reactive, inject, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { addConfirm, editConfirm } from '@/util/ADEMessageBox'
+import { addConfirm, editConfirm } from '@/util/MessageBox'
 import Message from '@/util/Message'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
@@ -165,4 +165,4 @@ onMounted(init)
     border: 1px solid #e1e1e1;
     box-sizing: border-box;
 }
-</style>
+</style>@/util/MessageBox

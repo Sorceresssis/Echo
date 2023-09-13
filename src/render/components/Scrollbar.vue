@@ -6,9 +6,9 @@
         <el-backtop target=".scrollbar-y"
                     :visibility-height="100"
                     :right="100"
-                    :bottom="100">
-            <span class="iconfont"
-                  style="font-size: 20px;  padding-bottom:4px;">&#xe60c;</span>
+                    :bottom="100"
+                    class="backtop-btn">
+            <span class="iconfont">&#xe60c;</span>
         </el-backtop>
     </div>
 </template>
@@ -47,3 +47,14 @@ defineExpose({
     setScrollPosition
 })
 </script>
+
+<style>
+.backtop-btn {
+    z-index: 1000;
+}
+
+.backtop-btn span {
+    font-size: 20px;
+    padding-bottom: 4px;
+}
+</style>

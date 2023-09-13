@@ -56,8 +56,27 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('record:delete', (e: IpcMainInvokeEvent, libraryId: number, recordId: number) => {
+    ipcMain.handle('record:batchProcessing', (e: IpcMainInvokeEvent, libraryId: number, type: 'recycle' | 'delete' | 'recover', recordIds: number[]) => {
+        const recordService = new RecordService(libraryId)
+        try {
+            console.log(type, recordIds);
 
+            switch (type) {
+                case 'recycle':
+                    // recordService.recycle(recordIds)
+                    break
+                case 'delete':
+                    // recordService.delete(recordIds)
+                    break
+                case 'recover':
+                    // recordService.recover(recordIds)
+                    break
+            }
+        } catch (e: any) {
+            dialog.showErrorBox('record:batchProcessing', e.message)
+        } finally {
+            recordService.close()
+        }
     })
 
     ipcMain.handle('record:deleteByAttribute', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.DeleteRecordByAttributeForm) => {

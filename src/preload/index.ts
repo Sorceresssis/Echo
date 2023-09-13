@@ -94,7 +94,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     batchProcessingRecord: (
         libraryId: number,
-        type: 'delect',
+        type: 'recycle' | 'delete' | 'recover',
         recordIds: number[]
     ) => ipcRenderer.invoke('record:batchProcessing', libraryId, type, recordIds),
 
