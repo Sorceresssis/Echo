@@ -13,112 +13,27 @@ export default class ManageRecordSerivce {
         this.libraryDao = new LibraryDao(libraryId)
     }
 
-    public edit(formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result {
-        // BUG undefined trim() 报错
-        // 检查和处理数据 
-        if (options.batch) {
-            // 判断路径存在
-            if (!fm.isFolderExists(formData.batchDir)) {
-                return Result.error('folder not exists')
-            }
+    private handleCover(newCover: string, originCover: string): string | null {
+        if (newCover !== originCover) {
+            try {
+                if (originCover.length) {       // 删除旧的图片, 但是删除的过程中可能会出错(没有权限,文件被占用等)
+                    fm.unlinkSync(originCover)
+                }
+                if (newCover.length) {          // 保存新的图片
+                    const imageService = new ImageService(newCover, this.libraryId)
+                    return imageService.handleRecordCover() || null
+                }
+                return null
+            } catch { return null }
+        } else {
+            return path.basename(newCover) || null // 要取basename, 因为会把绝对路径保存到数据库 
         }
-        else if (
-            formData.dirname
-            && formData.basename
-            && !(fm.isLegalAbsolutePath(formData.dirname) && fm.isLegalFileName(formData.basename))
-        ) {
-            return Result.error('illegal path')
-        }
+    }
 
-        const record = {} as Entity.Record
-        record.id = formData.id
-        record.rate = formData.rate
-        record.hyperlink = formData.hyperlink.trim() || null
-        if (formData.cover !== formData.originCover) {
-            // 删除旧
-            if (formData.originCover.length) {
-                fm.unlinkSync(formData.originCover)
-            }
-            // 保存新
-            if (formData.cover.length) {
-                const imageService = new ImageService(formData.cover, this.libraryId)
-                record.cover = imageService.handleRecordCover() || null
-            }
-        }
-        const recordExtra = {} as Entity.RecordExtra
-        recordExtra.info = formData.info.trim()
-        recordExtra.intro = formData.intro.trim()
-
-
-        this.libraryDao.executeInTransaction(() => {
-            // 把新增的标签，系列添加到数据库，并获取id
-            const addTagIds = formData.addTags.map(title =>
-                this.libraryDao.queryTagIdByTitle(title) || this.libraryDao.addTag(title)
-            )
-            const addSeriesIds = formData.addSeries.map(name =>
-                this.libraryDao.querySeriesIdByName(name) || this.libraryDao.addSeries(name)
-            )
-
-            if (options.batch) {
-                record.infoStatus = this.generateInfoStatus(record.cover, record.hyperlink, 'batch')
-                formData.batchDir = path.resolve(formData.batchDir)
-                record.dirnameId = this.libraryDao.queryDirnameIdByPath(formData.batchDir) || this.libraryDao.addDirname(formData.batchDir)
-
-                const dirContents = fm.dirContentsWithType(formData.batchDir)
-                dirContents.forEach(item => {
-                    record.title = item.type === 'file' ? path.parse(item.name).name : item.name
-                    record.basename = item.name
-                    // 如果存在，跳过
-                    if (options.distinct && this.libraryDao.queryRecordIdByTitle(record.title)) return
-
-                    // 添加数据
-                    recordExtra.id = record.id = this.libraryDao.addRecord(record)
-                    this.libraryDao.addRecordExtra(recordExtra)
-                    this.editRecordAttribute(
-                        record.id,
-                        formData.addAuthors,
-                        formData.removeAuthors,
-                        addTagIds,
-                        formData.removeTags,
-                        addSeriesIds,
-                        formData.removeSeries
-                    )
-                })
-            }
-            else {
-                record.title = formData.title.trim()
-                record.basename = formData.basename.trim() || null
-                record.infoStatus = this.generateInfoStatus(record.cover, record.hyperlink, record.basename)
-                if (formData.dirname.trim()) {
-                    formData.dirname = path.resolve(formData.dirname)
-                    record.dirnameId = this.libraryDao.queryDirnameIdByPath(formData.dirname) || this.libraryDao.addDirname(formData.dirname)
-                }
-                else {
-                    record.dirnameId = 0
-                }
-
-                // 判读是编辑还是新增
-                if (record.id) {
-                    this.libraryDao.updateRecord(record)
-                    recordExtra.id = record.id
-                    this.libraryDao.updateRecordExtra(recordExtra)
-                }
-                else {
-                    recordExtra.id = record.id = this.libraryDao.addRecord(record)
-                    this.libraryDao.addRecordExtra(recordExtra)
-                }
-                this.editRecordAttribute(
-                    record.id,
-                    formData.addAuthors,
-                    formData.removeAuthors,
-                    addTagIds,
-                    formData.removeTags,
-                    addSeriesIds,
-                    formData.removeSeries
-                )
-            }
-        })
-        return Result.success()
+    private getTagAuthorSum(recordId: PrimaryKey) {
+        const authors = this.libraryDao.queryAuthorsByRecordId(recordId, false)
+        const tags = this.libraryDao.queryTagsByRecordId(recordId)
+        return tags.map(tag => tag.title).concat(authors.map(author => author.name)).join(' ')
     }
 
     private editRecordAttribute(
@@ -142,6 +57,122 @@ export default class ManageRecordSerivce {
 
     private generateInfoStatus(cover: string | null, hyperlink: string | null, basename: string | null) {
         return (cover ? '1' : '0') + (hyperlink ? '1' : '0') + (basename ? '1' : '0');
+    }
+
+    public edit(formData: DTO.EditRecordForm): Result {
+        if ((formData.dirname.trim() !== '' && !fm.isLegalAbsolutePath(formData.dirname))
+            || (formData.basename.trim() !== '' && !fm.isLegalFileName(formData.basename))) {
+            return Result.error('illegal path')
+        }
+
+        const record = {} as Entity.Record
+        record.id = formData.id
+        record.title = formData.title.trim()
+        record.rate = formData.rate
+        record.cover = this.handleCover(formData.cover, formData.originCover)
+        record.hyperlink = formData.hyperlink.trim() || null
+        record.basename = formData.basename.trim() || null
+        record.infoStatus = this.generateInfoStatus(record.cover, record.hyperlink, record.basename)
+        record.tagAuthorSum = null
+
+        const recordExtra = {} as Entity.RecordExtra
+        recordExtra.info = formData.info.trim()
+        recordExtra.intro = formData.intro.trim()
+
+        this.libraryDao.executeInTransaction(() => {
+            // record 和 recordExtra 表
+            if (formData.dirname.trim() !== '') {
+                formData.dirname = path.resolve(formData.dirname)
+                record.dirnameId = this.libraryDao.queryDirnameIdByPath(formData.dirname) || this.libraryDao.addDirname(formData.dirname)
+            } else {
+                record.dirnameId = 0
+            }
+            if (record.id === 0) {
+                recordExtra.id = record.id = this.libraryDao.addRecord(record)
+                this.libraryDao.addRecordExtra(recordExtra)
+            } else {
+                recordExtra.id = record.id
+                this.libraryDao.updateRecord(record)
+                this.libraryDao.updateRecordExtra(recordExtra)
+            }
+
+            // tag, author, series 表
+            const addTagIds = formData.addTags.map(
+                title => this.libraryDao.queryTagIdByTitle(title) || this.libraryDao.addTag(title)
+            )
+            const addSeriesIds = formData.addSeries.map(
+                name => this.libraryDao.querySeriesIdByName(name) || this.libraryDao.addSeries(name)
+            )
+            this.editRecordAttribute(
+                record.id,
+                formData.addAuthors,
+                formData.removeAuthors,
+                addTagIds,
+                formData.removeTags,
+                addSeriesIds,
+                formData.removeSeries
+            )
+
+            // 等待record的属性都设置完毕,开始更新冗余字段tagAuthorSum
+            this.libraryDao.updateRecordTagAuthorSum(record.id, this.getTagAuthorSum(record.id))
+        })
+
+        return Result.success()
+    }
+
+    public addBatch(formData: DTO.EditRecordForm, distinct: boolean): Result {
+        if (!fm.isFolderExists(formData.batchDir)) {
+            return Result.error('folder not exists')
+        }
+
+        const record = {} as Entity.Record
+        record.id = formData.id
+        record.rate = formData.rate
+        record.hyperlink = formData.hyperlink.trim() || null
+        record.cover = this.handleCover(formData.cover, formData.originCover)
+        record.infoStatus = this.generateInfoStatus(record.cover, record.hyperlink, 'batch')
+
+        const recordExtra = {} as Entity.RecordExtra
+        recordExtra.info = formData.info.trim()
+        recordExtra.intro = formData.intro.trim()
+
+        this.libraryDao.executeInTransaction(() => {
+            const addTagIds = formData.addTags.map(
+                title => this.libraryDao.queryTagIdByTitle(title) || this.libraryDao.addTag(title)
+            )
+            const addSeriesIds = formData.addSeries.map(
+                name => this.libraryDao.querySeriesIdByName(name) || this.libraryDao.addSeries(name)
+            )
+
+            record.tagAuthorSum = null
+            formData.batchDir = path.resolve(formData.batchDir)
+            record.dirnameId = this.libraryDao.queryDirnameIdByPath(formData.batchDir) || this.libraryDao.addDirname(formData.batchDir)
+            const dirContents = fm.dirContentsWithType(formData.batchDir)
+            dirContents.forEach((item, index) => {
+                record.title = item.type === 'file' ? path.parse(item.name).name : item.name
+                if (distinct && this.libraryDao.queryRecordIdByTitle(record.title)) return // 如果存在，跳过
+                record.basename = item.name
+                recordExtra.id = record.id = this.libraryDao.addRecord(record)
+
+                this.libraryDao.addRecordExtra(recordExtra)
+
+                this.editRecordAttribute(
+                    record.id,
+                    formData.addAuthors,
+                    formData.removeAuthors,
+                    addTagIds,
+                    formData.removeTags,
+                    addSeriesIds,
+                    formData.removeSeries
+                )
+
+                if (index === 0) {
+                    record.tagAuthorSum = this.getTagAuthorSum(record.id)
+                    this.libraryDao.updateRecordTagAuthorSum(record.id, record.tagAuthorSum)
+                }
+            })
+        })
+        return Result.success()
     }
 
     /**

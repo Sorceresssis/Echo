@@ -9,9 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     relaunch: () => ipcRenderer.invoke('app:relaunch'),
 
-
-
-    /******************** group ********************/
+    // ANCHOR group
 
     getGroups: () => ipcRenderer.invoke('group:getGroups'),
 
@@ -34,8 +32,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ) => ipcRenderer.invoke('group:sort', currId, tarNextId),
 
 
-
-    /******************** library ********************/
+    // ANCHOR library
 
     getPrimaryOpenLibrary: (
         callback: (e: IpcRendererEvent, libraryId: number) => void
@@ -65,7 +62,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
         groupId: number
     ) => ipcRenderer.invoke('library:sort', currId, tarNextId, groupId),
 
-    /******************** record ********************/
+    queryLibraryDetail: (
+        id: number,
+    ) => ipcRenderer.invoke('library:queryDetail', id),
+
+    // ANCHOR record
+
     autoCompleteRecord: (
         libraryId: number,
         options: DTO.AcOptions

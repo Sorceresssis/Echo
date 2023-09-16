@@ -13,9 +13,7 @@ export interface IElectronAPI {
 
     relaunch: () => Promise<void>
 
-
-
-    /******************** group ********************/
+    // ANCHOR group
 
     /**
      * 获取所有的group和library
@@ -56,9 +54,7 @@ export interface IElectronAPI {
         tarNextId: number
     ) => Promise<void>
 
-
-
-    /******************** library ********************/
+    // ANCHOR library
 
     /** 
      * 获取后台发送要打开的library
@@ -105,6 +101,10 @@ export interface IElectronAPI {
         tarNextId: number,
         groupId: number
     ) => Promise<void>
+
+    queryLibraryDetail: (
+        id: number,
+    ) => Promise<VO.LibraryDetail | null>
 
     //ANCHOR Record
 

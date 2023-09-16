@@ -71,8 +71,6 @@
                             <p> windows路径分隔符是'\', 输入类似于C:\foo。其他的路径分隔符是'/'。输入类似于/root </p>
                         </div>
                     </el-popover>
-                    <div class="tips">
-                    </div>
                 </el-form-item>
                 <el-form-item label="标题"
                               prop="title">
@@ -262,14 +260,11 @@ const rules = reactive<FormRules>({
             validator: (rule, value: string, callback) => {
                 const dirname = formData.dirname.trim()
                 const basename = formData.basename.trim()
-                // 都为空或者都不为空
-                if (options.batch || (dirname.length === 0 && basename.length === 0) ||
-                    (dirname.length !== 0 && basename.length !== 0)
-                ) {
-                    callback()
-                } else {
-                    callback('请填写完整的资源路径')
-                }
+                // 不能单独填写basename
+                if ((!options.batch)
+                    && dirname.length === 0
+                    && basename.length !== 0
+                ) { callback('不能单独填写basename') } else { callback() }
             },
             trigger: 'blur'
         },
@@ -298,21 +293,23 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-        const cb = () => {
+
+        function cb() {
             btnLoading.value = true
             submit(activeLibrary.value).then((result) => {
                 // 如果result是undefined，表示后台出错，有弹框警告
+                console.log(result)
+
                 if (!result) return
                 result.code
                     ? Message.success(submitBtnText.value + '成功')
                     : Message.error(submitBtnText.value + '失败' + ', ' + '建议检查路径和目录', 2000)
             }).catch(() => { })
             // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
-            if (!isAdd.value) {
-                init()
-            }
+            if (!isAdd.value) { init() }
             btnLoading.value = false
         }
+
         isAdd.value ? MessageBox.addConfirm(cb) : MessageBox.editConfirm(cb)
     })
 }

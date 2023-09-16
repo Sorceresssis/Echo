@@ -1,6 +1,5 @@
 import { error } from "node:console"
 import LibraryDao, { QueryRecordsSortRule } from "../dao/libraryDao"
-import FileManager from "../util/FileManager"
 
 const infoStatusFilterMap = new Map<string, string[]>()
 export default class RecordService {
@@ -98,6 +97,51 @@ export default class RecordService {
             current[index] = '1'
             this.generateFilter(input, index + 1, current, result)
         }
+    }
+
+    public delete(recordIds: number[] | 'ALL'): void {
+        // 删除record, recordExtra, recordAuthor, recordTag, recordSeries 5张表
+    }
+
+    public recycle(recordIds: number[]): void {
+
+    }
+
+    /**
+      * 根据属性删除记录
+      */
+    public deleteByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
+        // TODO 加入回收站不是真正删除
+        // TODO 批量删除时， 如果，根据tag删除，只会删除tag的链接，其他的链接删除不了
+        this.libraryDao.executeInTransaction(() => {
+            formData.dirnamePath = formData.dirnamePath.trim()
+            if (formData.dirnamePath.length) {
+                const dirnameId = this.libraryDao.queryDirnameIdByPath(formData.dirnamePath)
+                if (dirnameId) {
+                    this.libraryDao.deleteRecordByDirnameId(dirnameId)
+                    this.libraryDao.deleteDirname(dirnameId)
+                }
+            }
+            formData.tagTitle = formData.tagTitle.trim()
+            if (formData.tagTitle.length) {
+                const tagId = this.libraryDao.queryTagIdByTitle(formData.tagTitle)
+                if (tagId) {
+                    this.libraryDao.deleteRecordByTagId(tagId)
+                    this.libraryDao.deleteTag(tagId)
+                }
+            }
+            formData.seriesName = formData.seriesName.trim()
+            if (formData.seriesName.length) {
+                const seriesId = this.libraryDao.querySeriesIdByName(formData.seriesName)
+                if (seriesId) {
+                    this.libraryDao.deleteRecordBySeriesId(seriesId)
+                    this.libraryDao.deleteSeries(seriesId)
+                }
+            }
+        })
+    }
+
+    public recover(recordIds: number[]): void {
     }
 
     public close() {

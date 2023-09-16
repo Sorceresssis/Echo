@@ -86,8 +86,8 @@ export default class LibraryDao {
 	@oncePerObject()
 	private registerSQLFnPathResolve(): void {
 		this.db.function('PATH_RESOLVE', (dirname, basename) => {
-			return dirname && basename ?
-				path.resolve(dirname, basename)
+			return dirname && basename
+				? path.join(dirname, basename)
 				: null
 		})
 	}
@@ -229,8 +229,8 @@ export default class LibraryDao {
 	}
 
 	public addRecord(record: Entity.Record): PrimaryKey {
-		return this.db.run('INSERT INTO record(title, rate, cover, hyperlink, basename, info_status, dirname_id) VALUES(?,?,?,?,?,?,?);',
-			record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.dirnameId
+		return this.db.run('INSERT INTO record(title, rate, cover, hyperlink, basename, info_status, tag_author_sum, dirname_id) VALUES(?,?,?,?,?,?,?,?);',
+			record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.tagAuthorSum, record.dirnameId
 		).lastInsertRowid
 	}
 
@@ -238,6 +238,10 @@ export default class LibraryDao {
 		return this.db.run('UPDATE record SET title=?, rate=?, cover=?, hyperlink=?, basename=?, info_status=?, dirname_id=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;',
 			record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.dirnameId, record.id
 		).changes
+	}
+
+	public updateRecordTagAuthorSum(recordId: PrimaryKey, tagAuthorSum: string): number {
+		return this.db.run('UPDATE record SET tag_author_sum=? WHERE id = ?;', tagAuthorSum, recordId).changes
 	}
 
 	//  更改record的dirname_id滞空为0
@@ -321,12 +325,17 @@ export default class LibraryDao {
 		}
 	}
 
-	public queryAuthorsByRecordId(id: PrimaryKey): VO.AuthorProfile[] {
-		return this.db.all(`
-            SELECT a.id, a.name, PATH_RESOLVE(?, a.avatar) AS avatar
-            FROM author a
-                     JOIN record_author ra ON a.id = ra.author_id
-            WHERE ra.record_id = ?; `, appConfig.getLibraryImagesDirPath(this.libraryId), id)
+	public queryAuthorsByRecordId(id: PrimaryKey, fullPath: boolean = true): VO.AuthorProfile[] {
+		const sql = new DynamicSqlBuilder()
+		sql.append('SELECT a.id, a.name,')
+		if (fullPath) {
+			this.registerSQLFnPathResolve()
+			sql.append('PATH_RESOLVE(?, a.avatar) AS avatar', appConfig.getLibraryImagesDirPath(this.libraryId))
+		} else {
+			sql.append('a.avatar')
+		}
+		sql.append('FROM author a JOIN record_author ra ON a.id = ra.author_id WHERE ra.record_id = ?;', id)
+		return this.db.all(sql.getSql(), ...sql.getParams())
 	}
 
 	public addAuthor(author: Entity.Author): PrimaryKey {
@@ -347,7 +356,7 @@ export default class LibraryDao {
 
 	// ANCHOR tag
 
-	public queryTagsByRecordId(id: number): VO.Tag[] {
+	public queryTagsByRecordId(id: PrimaryKey): VO.Tag[] {
 		return this.db.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ?;', id)
 	}
 
@@ -397,7 +406,7 @@ export default class LibraryDao {
 
 	// ANCHOR series
 
-	public querySeriesByRecordId(id: number): VO.Series[] {
+	public querySeriesByRecordId(id: PrimaryKey): VO.Series[] {
 		return this.db.all('SELECT s.id, s.name FROM series s JOIN record_series rs ON s.id = rs.series_id WHERE rs.record_id = ?;', id)
 	}
 

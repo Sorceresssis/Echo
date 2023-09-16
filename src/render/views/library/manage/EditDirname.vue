@@ -71,7 +71,7 @@
 
 <script setup lang='ts'>
 import { ref, Ref, reactive, inject, } from 'vue'
-import { editConfirm } from '@/util/MessageBox'
+import MessageBox from '@/util/MessageBox'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import Message from '@/util/Message';
@@ -105,7 +105,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid) => {
         if (!valid) return
-        editConfirm(async () => {
+        MessageBox.editConfirm(async () => {
             btnLoading.value = true
             const result = await window.electronAPI.startsWithReplaceDirname(
                 activeLibrary.value,

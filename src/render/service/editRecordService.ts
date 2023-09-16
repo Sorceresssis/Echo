@@ -172,10 +172,12 @@ const useEditRecordService = () => {
     }
 
     const saveOriginData = async (libraryId: number, recordId: number) => {
-        // 保存数据时注意有些值是null, 有些值是undefined, 所以要替换成默认值
-
+        // 保存数据时注意有些值是null, 有些值是undefined, 所以要替换成默认值 
         const data = await window.electronAPI.queryRecordDetail(libraryId, recordId)
-        if (!data) return
+        if (!data) {
+            Message.error('该记录已经不存在')
+            return
+        }
         formData.id = data.id
         formData.title = data.title
         formData.rate = data.rate

@@ -7,6 +7,7 @@ namespace Entity {
         hyperlink: string | null
         basename: string | null
         infoStatus: string
+        tagAuthorSum: string | null
         dirnameId: PrimaryKey
     }
 

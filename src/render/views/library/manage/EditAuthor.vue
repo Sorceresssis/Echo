@@ -52,7 +52,7 @@
 <script setup lang='ts'>
 import { ref, Ref, toRaw, reactive, inject, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
-import { addConfirm, editConfirm } from '@/util/MessageBox'
+import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
@@ -107,12 +107,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid) => {
         if (!valid) return
         if (formData.id) {
-            editConfirm(() => {
+            MessageBox.editConfirm(() => {
                 // 编辑成功重新获取数据
-                window.electronAPI.editAuthor(
-                    activeLibrary.value,
-                    toRaw(formData)
-                ).then((result) => {
+                window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then((result) => {
                     if (result) {
                         Message.success('编辑成功')
                         queryAuthorDetail(formData.id)
@@ -121,12 +118,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             })
         }
         else {
-            addConfirm(() => {
+            MessageBox.addConfirm(() => {
                 // 添加成功要清空表单
-                window.electronAPI.editAuthor(
-                    activeLibrary.value,
-                    toRaw(formData)
-                ).then((result) => {
+                window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then((result) => {
                     if (result) {
                         Message.success('添加成功')
                         authorFormRef.value?.resetFields()

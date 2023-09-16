@@ -65,6 +65,10 @@ export default class GroupDao {
         ) SELECT id, name FROM library_list;`, g.id, g.id)))
     }
 
+    queryLibraryDetail(id: number): VO.LibraryDetail | null {
+        return this.db.get(`SELECT l.id, l.name, DATETIME(l.gmt_create, 'localtime') AS createTime, DATETIME(l.gmt_modified, 'localtime') AS modifiedTime, le.keyword, le.intro FROM library l LEFT JOIN library_extra le ON l.id = le.id WHERE l.id = ?;`, id)
+    }
+
     renameGroup(id: number, newName: string): void {
         this.db.run(`UPDATE 'group' SET name = ? WHERE id = ?;`, newName, id)
     }
@@ -97,6 +101,7 @@ export default class GroupDao {
             if (changes !== 1) { throw new Error('insert library error') }
             // 把新添加的library的作为新的链表的头, 
             if (headId) { this.__insertNode(lastInsertRowid, 0, headId, 'l') }
+            this.db.run(` INSERT INTO library_extra(id, keyword, intro) VALUES (?, ?, ?);`, lastInsertRowid, '', '')
         })
     }
 

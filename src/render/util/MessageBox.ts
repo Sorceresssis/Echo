@@ -39,47 +39,11 @@ class MessageBox {
             inputErrorMessage: '输入错误',
             inputValue: oldValue || '',
         }).then(({ value }) => {
-            MessageBox.editConfirm(() => { cb(value) })
+            MessageBox.editConfirm(() => {
+                cb(value)
+            })
         }).catch()
     }
 }
 
-export const deleteConfirm = (cb: () => void): void => {
-    ElMessageBox.confirm(
-        '你确定要删除吗？删除后无法恢复！',
-        '危险操作',
-        {
-            confirmButtonText: '删除',
-            cancelButtonText: '取消',
-            type: 'warning',
-        }
-    ).then(cb).catch(() => {
-    })
-}
-
-export const addConfirm = (cb: () => void): void => {
-    ElMessageBox.confirm(
-        '你确定要添加吗？',
-        '确认操作',
-        {
-            confirmButtonText: '添加',
-            cancelButtonText: '取消',
-            type: 'warning',
-        }
-    ).then(cb).catch(() => {
-    })
-}
-
-export const editConfirm = (cb: () => void): void => {
-    ElMessageBox.confirm(
-        '你确定要修改吗？',
-        '确认操作',
-        {
-            confirmButtonText: '修改',
-            cancelButtonText: '取消',
-            type: 'warning',
-        }
-    ).then(cb).catch(() => {
-    })
-}
 export default MessageBox

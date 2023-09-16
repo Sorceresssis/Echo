@@ -19,27 +19,30 @@ import { ref, shallowReactive, watch, onMounted } from 'vue'
 import { useRoute, } from 'vue-router'
 import Tabs from '@/components/Tabs.vue'
 import EditRecord from './EditRecord.vue'
-import DeleteRecord from './DeleteRecord.vue'
+import RecycleRecordByAttribute from './RecycleRecordByAttribute.vue'
 import EditAuthor from './EditAuthor.vue'
 import EditDirname from './EditDirname.vue'
 import DataSecurity from './DataSecurity.vue'
+import EditLibExtraInfoVue from './EditLibExtraInfo.vue'
 
 const route = useRoute()
 
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
     { id: 1, label: '添加记录', disabled: false },
-    { id: 2, label: '批量删除', disabled: false },
+    { id: 2, label: '批量回收记录', disabled: false },
     { id: 3, label: '添加作者', disabled: false },
     { id: 4, label: '编辑目录', disabled: false },
     { id: 5, label: '数据安全', disabled: false },
+    { id: 6, label: '编辑库信息', disabled: false }
 ])
 const components = [
     EditRecord,
-    DeleteRecord,
+    RecycleRecordByAttribute,
     EditAuthor,
     EditDirname,
     DataSecurity,
+    EditLibExtraInfoVue
 ]
 
 

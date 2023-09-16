@@ -48,9 +48,12 @@ export default function ipcMainLibrary() {
     ipcMain.handle('record:edit', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result | undefined => {
         const manageRecordSerivce = new ManageRecordSerivce(libraryId)
         try {
-            return manageRecordSerivce.edit(formData, options)
+            return options.batch
+                ? manageRecordSerivce.addBatch(formData, options.distinct)
+                : manageRecordSerivce.edit(formData)
         } catch (e: any) {
             dialog.showErrorBox('record:edit', e.message)
+            return Result.error()
         } finally {
             manageRecordSerivce.close()
         }

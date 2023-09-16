@@ -18,8 +18,6 @@ export function createWindow(libraryId?: number): BrowserWindow {
             webSecurity: false, // 为了开发方便，关闭安全策略，打包时打开
         }
     })
-    win.webContents.openDevTools()
-
     windowManager.add(win)
 
     if (isDev) {

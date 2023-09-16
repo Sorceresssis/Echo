@@ -94,4 +94,13 @@ export default function ipcMainGroup() {
             dialog.showErrorBox('SortLibrary Error', e.message)
         }
     })
+
+    ipcMain.handle('library:queryDetail', (e: IpcMainInvokeEvent, id: number): VO.LibraryDetail | null => {
+        try {
+            return groupDao.queryLibraryDetail(id)
+        } catch (e: any) {
+            dialog.showErrorBox('Library:QueryDetail Error', e.message)
+            return null
+        }
+    })
 }

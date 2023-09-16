@@ -1,4 +1,13 @@
 namespace VO {
+    type LibraryDetail = {
+        id: number,
+        name: string,
+        keyword: string,
+        intro: String,
+        createTime: string,
+        modifiedTime: string,
+    }
+
     type Record = {
         id: number,
         title: string,
@@ -147,9 +156,3 @@ type Group = {
     librarys: LibraryProfile[]
 }
 
-type LibraryDetail = {
-    id: number,
-    name: string,
-    intro: String,
-    createTime: string,
-}
