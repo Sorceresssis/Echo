@@ -11,7 +11,9 @@ export default class RecordService {
 
     public queryRecordDetail(id: number): VO.RecordDetail | undefined {
         const record = this.libraryDao.queryRecordById(id) as VO.RecordDetail
-        if (!record) { return void 0 }
+        if (!record) {
+            return void 0
+        }
 
         record.authors = this.libraryDao.queryAuthorsByRecordId(id)
         record.tags = this.libraryDao.queryTagsByRecordId(id)
@@ -91,7 +93,8 @@ export default class RecordService {
         if (input[index]) {
             current[index] = '1'
             this.generateFilter(input, index + 1, current, result)
-        } else {
+        }
+        else {
             current[index] = '0'
             this.generateFilter(input, index + 1, current, result)
             current[index] = '1'
@@ -99,49 +102,65 @@ export default class RecordService {
         }
     }
 
-    public delete(recordIds: number[] | 'ALL'): void {
-        // 删除record, recordExtra, recordAuthor, recordTag, recordSeries 5张表
+    public deleteRecycled(recordIds: number[]): void {
+        this.libraryDao.executeInTransaction(() => {
+            recordIds.forEach((id) => {
+                if (this.libraryDao.deleteRecordOfRecycled(id) > 0) {
+                    // 如果删除record不成功，说明不存在或者没有被回收
+                    this.libraryDao.deleteRecordExtraById(id)
+                    this.libraryDao.deleteRecordAuthorByRecordId(id)
+                    this.libraryDao.deleteRecordTagByRecordId(id)
+                    this.libraryDao.deleteRecordSeriesByRecordId(id)
+                }
+            })
+        })
+    }
+
+    public deleteRecycledAll(): void {
+        const rowCount = 150
+        let recycledLimit = this.libraryDao.queryRecordIdsOfRecycled(0, rowCount)
+        while (recycledLimit.length) {
+            this.deleteRecycled(recycledLimit)
+            if (recycledLimit.length < rowCount) break // 如果不足rowCount，说明已经删除完毕 
+            recycledLimit = this.libraryDao.queryRecordIdsOfRecycled(0, rowCount)
+        }
     }
 
     public recycle(recordIds: number[]): void {
+        this.libraryDao.updateRecordRecycled(recordIds, 1)
+    }
 
+    public recover(recordIds: number[]): void {
+        this.libraryDao.updateRecordRecycled(recordIds, 0)
     }
 
     /**
-      * 根据属性删除记录
-      */
-    public deleteByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
-        // TODO 加入回收站不是真正删除
-        // TODO 批量删除时， 如果，根据tag删除，只会删除tag的链接，其他的链接删除不了
+     * 根据属性删除记录
+     */
+    public recycleRecordByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
         this.libraryDao.executeInTransaction(() => {
             formData.dirnamePath = formData.dirnamePath.trim()
             if (formData.dirnamePath.length) {
                 const dirnameId = this.libraryDao.queryDirnameIdByPath(formData.dirnamePath)
                 if (dirnameId) {
-                    this.libraryDao.deleteRecordByDirnameId(dirnameId)
-                    this.libraryDao.deleteDirname(dirnameId)
+                    this.libraryDao.recycleRecordByDirnameId(dirnameId)
                 }
             }
             formData.tagTitle = formData.tagTitle.trim()
             if (formData.tagTitle.length) {
                 const tagId = this.libraryDao.queryTagIdByTitle(formData.tagTitle)
                 if (tagId) {
-                    this.libraryDao.deleteRecordByTagId(tagId)
-                    this.libraryDao.deleteTag(tagId)
+                    this.libraryDao.recycleRecordByTagId(tagId)
                 }
             }
             formData.seriesName = formData.seriesName.trim()
             if (formData.seriesName.length) {
                 const seriesId = this.libraryDao.querySeriesIdByName(formData.seriesName)
                 if (seriesId) {
-                    this.libraryDao.deleteRecordBySeriesId(seriesId)
-                    this.libraryDao.deleteSeries(seriesId)
+                    this.libraryDao.recycleRecordBySeriesId(seriesId)
                 }
             }
         })
-    }
-
-    public recover(recordIds: number[]): void {
     }
 
     public close() {

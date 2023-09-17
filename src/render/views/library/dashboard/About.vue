@@ -48,6 +48,8 @@ const queryLibraryDetail = async () => {
         libraryDetail.value = defaultLibraryDetail
     }
 }
+
+// TODO 加入 辅助搜索文本 搜索指令
 onActivated(queryLibraryDetail)
 onMounted(queryLibraryDetail)
 </script>

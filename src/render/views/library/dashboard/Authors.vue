@@ -22,10 +22,11 @@
 					:key="recmd.id"
 					class="author-recommendation-item divider">
 					<local-image :src="recmd.avatar"
-								 class="author-icon"
+								 class="author-icon avatar-icon"
 								 @click="router.push(`/library/${activeLibrary}/author?id=${recmd.id}`)" />
-					<div class="author-text">
+					<div class="author-info">
 						<h1 :title="recmd.name"
+							class="name"
 							@click="router.push(`/library/${activeLibrary}/author?id=${recmd.id}`)"> {{ recmd.name }} </h1>
 						<p class="meta">
 							<span class="inline-list-title">作品数</span>
@@ -177,18 +178,16 @@ onMounted(init)
 .author-icon {
 	width: var(--author-recommend-item-height);
 	height: var(--author-recommend-item-height);
-	border-radius: 50%;
 	cursor: pointer;
-	object-fit: cover;
 }
 
-.author-text {
+.author-info {
 	min-width: 0;
 	flex: 1;
 	margin-left: 10px;
 }
 
-.author-recommendation-item h1 {
+.author-info .name {
 	font-size: 16px;
 	font-weight: bold;
 	min-width: 0;
@@ -199,15 +198,15 @@ onMounted(init)
 	white-space: nowrap;
 }
 
-.author-recommendation-item .meta {
+.author-info .meta {
 	margin: 4px 0;
 }
 
-.author-recommendation-item .count {
+.author-info .count {
 	color: var(--echo-emphasis-color);
 }
 
-.author-recommendation-item .caption {
+.author-info .caption {
 	display: -webkit-box;
 	margin: 6px 0;
 	overflow: hidden;

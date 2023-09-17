@@ -145,8 +145,8 @@ export interface IElectronAPI {
 
     batchProcessingRecord: (
         libraryId: number,
-        type: 'recycle' | 'delete' | 'recover',
-        recordIds: number[]
+        type: DTO.RecordBatchProcessingType,
+        recordIds?: number[]
     ) => Promise<void>
 
     //ANCHOR Author

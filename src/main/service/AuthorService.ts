@@ -2,6 +2,7 @@ import { error } from "node:console"
 import { unlinkSync } from "../util/FileManager"
 import ImageService from "./ImageService"
 import LibraryDao, { QueryAuthorsSortRule } from "../dao/libraryDao"
+import ManageRecordSerivce from "./ManageRecordSerivce"
 
 export default class AuthorService {
     private libraryId: number
@@ -95,6 +96,21 @@ export default class AuthorService {
         }
         // 判断添加还是修改
         formData.id === 0 ? this.libraryDao.addAuthor(author) : this.libraryDao.editAuthor(author)
+
+        // 更新冗余字段tagAuthorSum
+        this.updateRecordTagAuthorSumOfAuthor(author.id)
+    }
+
+    private updateRecordTagAuthorSumOfAuthor(authorId: PrimaryKey) {
+        const rowCount = 150
+        let recordIds = this.libraryDao.queryRecordIdsByAuthorId(authorId, 0, rowCount)
+        while (recordIds.length) {
+            recordIds.forEach(id => {
+                this.libraryDao.updateRecordTagAuthorSum(id, ManageRecordSerivce.getTagAuthorSum(this.libraryDao, id))
+            })
+            if (recordIds.length < rowCount) break
+            recordIds = this.libraryDao.queryRecordIdsByAuthorId(authorId, 0, rowCount)
+        }
     }
 
     public close() {

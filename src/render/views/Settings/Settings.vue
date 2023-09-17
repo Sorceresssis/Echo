@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="tab-header">
+        <div class="module-header module_title">
             {{ $t('settings.settings') }}
         </div>
         <tabs v-model="activeLabelIdx"

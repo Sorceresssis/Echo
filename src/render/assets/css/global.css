@@ -25,6 +25,11 @@ img {
 }
 
 /******************** common ********************/
+
+.fw-700 {
+    font-weight: 700;
+}
+
 /* scrollbar */
 .scrollbar-y {
     overflow-x: hidden;
@@ -204,11 +209,12 @@ img {
     vertical-align: baseline;
 }
 
-.img-icon {
+.avatar-icon {
     display: inline-block;
     margin-right: 2px;
     border: 1px solid #e1e1e1;
     background-color: #fff;
+    border-radius: 50%;
     object-fit: cover;
 }
 
@@ -233,13 +239,6 @@ img {
     justify-content: space-around;
 }
 
-/******************** components ********************/
-.tab-header {
-    font-size: 30px;
-    padding: 10px 0;
-    font-weight: 700;
-}
-
 /******************** View ********************/
 /* titlebar */
 .titlebar {
@@ -249,6 +248,14 @@ img {
     font-size: 13px;
     color: #333333;
     -webkit-app-region: drag;
+}
+
+.module_title {
+    font-size: 30px;
+}
+
+.module-header {
+    padding: 10px 0;
 }
 
 /* dashboard */
@@ -379,8 +386,15 @@ img {
 
 /* tips */
 .tips__reference {
+    float: right;
     color: #9499a0;
     font-size: 12px;
+}
+
+.tips__reference ::after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 .tips__content {

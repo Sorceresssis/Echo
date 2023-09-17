@@ -129,8 +129,6 @@
 .record-recommendation-item .author img {
     height: var(--record-recommendation-item-line-height);
     width: var(--record-recommendation-item-line-height);
-    border-radius: 50%;
-    object-fit: cover;
     cursor: pointer;
 }
 

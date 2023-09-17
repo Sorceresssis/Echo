@@ -88,6 +88,8 @@ namespace DTO {
         ps: number,
     }
 
+    type RecordBatchProcessingType = 'recycle' | 'recover' | 'delete_recycled' | 'delete_recycled_all'
+
     type QueryAuthorRecommendationsOptions = {
         keyword: string,
         sortField: 'time' | 'name'

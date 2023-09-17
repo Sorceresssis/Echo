@@ -18,11 +18,11 @@
                 <span v-if="props.type === 'recycled'"
                       class="batch-processing-btn"
                       :class="[selectedSet.size === 0 ? 'disabled' : '']"
-                      @click="deleteRecord(...selectedSet)"> 删除 </span>
+                      @click="recoverRecord(...selectedSet)"> 恢复 </span>
                 <span v-if="props.type === 'recycled'"
                       class="batch-processing-btn"
                       :class="[selectedSet.size === 0 ? 'disabled' : '']"
-                      @click="recoverRecord(...selectedSet)"> 恢复 </span>
+                      @click="deleteRecord(...selectedSet)"> 删除 </span>
             </div>
         </div>
         <div v-else
@@ -31,7 +31,9 @@
                 <div class="batch-processing-btn"
                      @click="isBatch = true">批量操作</div>
                 <span v-if="props.type === 'recycled'"
-                      class="batch-processing-btn">清空回收站</span>
+                      class="batch-processing-btn"
+                      :class="[recordRecmds.length === 0 ? 'disabled' : '']"
+                      @click="deleteAllRecycled">清空回收站</span>
             </div>
             <div class="right-menu">
                 <echo-autocomplete class="menu-item search"
@@ -96,7 +98,7 @@
 </template>
 
 <script setup lang='ts'>
-import { onMounted, ref, Ref, inject, watch, toRaw, reactive } from 'vue'
+import { onMounted, ref, Ref, inject, watch, toRaw, reactive, onActivated } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { $t } from '@/locales/index'
 import { debounce } from '@/util/debounce'
@@ -208,6 +210,7 @@ const ctmOptions = {
     y: 200
 }
 const openCtm = (e: MouseEvent, idxRecord: number) => {
+    if (isBatch.value) return // 批量操作时不显示右键菜单
     ctmOptions.x = e.x
     ctmOptions.y = e.y
     isVisCtm.value = true
@@ -221,6 +224,7 @@ const selectedSet = reactive<Set<number>>(new Set())
 const closeBatch = () => {
     isBatch.value = false
     selectedSet.clear()
+    isSelectedAll.value = false
 }
 const handleSelect = (id: number) => {
     if (selectedSet.has(id)) {
@@ -239,20 +243,35 @@ const handleCheckAll = () => {
 }
 
 // ANCHOR 数据操作
+const handleDataChange = () => {
+    // 检查是否需要跳转到上一页，如果执行了改变数据的操作，是否还存在当前页, 防止出错调转到第一页，来重复查询
+    if (currentPage.value === 1 || total.value - selectedSet.size > (currentPage.value - 1) * pageSize) {
+        handlePageChange(currentPage.value)
+    } else {
+        handlePageChange(currentPage.value - 1)
+    }
+}
 // 放入回收站
 const recycleRecord = (...ids: number[]) => {
     if (ids.length === 0) return
     MessageBox.confirm(async () => {
         await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids)
-        queryRecords()
+        handleDataChange()
     }, '放入回收站', '确定要放入回收站吗？')
 }
 // 彻底删除
 const deleteRecord = (...ids: number[]) => {
     if (ids.length === 0) return
     MessageBox.deleteConfirm(async () => {
-        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'delete', ids)
-        queryRecords()
+        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled', ids)
+        handleDataChange()
+    })
+}
+const deleteAllRecycled = () => {
+    if (recordRecmds.value.length === 0) return
+    MessageBox.deleteConfirm(async () => {
+        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled_all')
+        handleDataChange()
     })
 }
 // 恢复
@@ -260,7 +279,7 @@ const recoverRecord = (...ids: number[]) => {
     if (ids.length === 0) return
     MessageBox.confirm(async () => {
         await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recover', ids)
-        queryRecords()
+        handleDataChange()
     }, '恢复', '确定要恢复吗？')
 }
 const queryRecords = debounce(async () => {
@@ -286,7 +305,9 @@ const handlePageChange = function (pn: number) {
     selectedSet.clear() // 清空选中
     isSelectedAll.value = false // 取消全选
     scrollbarRef.value?.setScrollPosition(0) // 恢复滚动条位置
-    currentPage.value = pn // 重置页码
+    if (pn) {
+        currentPage.value = pn // 重置页码
+    }
     queryRecords() // 重新查询
 }
 const handleQueryParamsChange = function () {
@@ -297,8 +318,9 @@ const init = function () {
     isBatch.value = false
     handleQueryParamsChange()
 }
-// 1. 路由变化，用户可能对记录进行了修改，只需要更新数据
-watch(route, queryRecords)
+// 1. 组件，用户可能对记录进行了修改，只需要更新数据
+// TODO, 如果用户更改了才更新，否则不更新
+onActivated(queryRecords)
 // 2. 请求参数改变，要跳到第一页
 watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order], handleQueryParamsChange, { deep: true })
 // 3. 第一次加载或切换library, 要把参数重置

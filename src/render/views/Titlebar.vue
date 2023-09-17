@@ -73,6 +73,7 @@ watch(route, async () => {
         activeLibrary.value = libraryID
         // 根据libraryID获取library的名字
         const libName = (await window.electronAPI.getLibraryNameByID(activeLibrary.value))
+        // 如果打开的库已不存在，跳转到欢迎页
         libName ? document.title = `${activeLibraryName.value = libName} - Echo` : router.push('/')
     }
     else {

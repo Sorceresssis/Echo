@@ -59,20 +59,26 @@ export default function ipcMainLibrary() {
         }
     })
 
-    ipcMain.handle('record:batchProcessing', (e: IpcMainInvokeEvent, libraryId: number, type: 'recycle' | 'delete' | 'recover', recordIds: number[]) => {
+    ipcMain.handle('record:batchProcessing', (
+        e: IpcMainInvokeEvent,
+        libraryId: number,
+        type: DTO.RecordBatchProcessingType,
+        recordIds: number[]
+    ) => {
         const recordService = new RecordService(libraryId)
         try {
-            console.log(type, recordIds);
-
             switch (type) {
                 case 'recycle':
-                    // recordService.recycle(recordIds)
-                    break
-                case 'delete':
-                    // recordService.delete(recordIds)
+                    recordService.recycle(recordIds)
                     break
                 case 'recover':
-                    // recordService.recover(recordIds)
+                    recordService.recover(recordIds)
+                    break
+                case 'delete_recycled':
+                    recordService.deleteRecycled(recordIds)
+                    break
+                case 'delete_recycled_all':
+                    recordService.deleteRecycledAll()
                     break
             }
         } catch (e: any) {
@@ -83,13 +89,13 @@ export default function ipcMainLibrary() {
     })
 
     ipcMain.handle('record:deleteByAttribute', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.DeleteRecordByAttributeForm) => {
-        const manageRecordSerivce = new ManageRecordSerivce(libraryId)
+        const recordService = new RecordService(libraryId)
         try {
-            return manageRecordSerivce.deleteByAttribute(formData)
+            return recordService.recycleRecordByAttribute(formData)
         } catch (e: any) {
             dialog.showErrorBox('record:batchDelete', e.message)
         } finally {
-            manageRecordSerivce.close()
+            recordService.close()
         }
     })
 
@@ -102,8 +108,7 @@ export default function ipcMainLibrary() {
         } catch (e: any) {
             dialog.showErrorBox('author:queryRecmds', e.message)
             return { total: 0, rows: [] }
-        }
-        finally {
+        } finally {
             authorService.close()
         }
     })

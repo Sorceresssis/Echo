@@ -121,11 +121,11 @@
                                @click="router.push(`/library/${ctmCurLib().id}/manage`)">
                 <template #icon> <span class="iconfont"></span> </template>
             </context-menu-item>
-            <context-menu-sperator />
             <context-menu-item label="在新窗口中打开"
                                @click="openLibraryInNewWindow">
                 <template #icon><span class="iconfont">&#xe7e9;</span></template>
             </context-menu-item>
+            <context-menu-sperator />
             <context-menu-item label="重命名"
                                @click="openRename" />
             <context-menu-item label="删除"
@@ -301,9 +301,9 @@ const openRename = () => {
     }
 }
 const handleRename = async () => {
-    // BUG 重命名的时候, 如果为空, 会一直显示重命名的输入框，而不是显示原来的名字
     if (newName.value.trim() === '') {
-        ElMessage.error('不能为空')
+        groupIdOfRename.value = 0
+        libraryIdOfRename.value = 0
         return
     }
     // 异步方法，保存operation的索引，防止在异步过程中，用户又进行了操作
@@ -344,10 +344,6 @@ const handleDelete = async () => {
     } else {
         await window.electronAPI.deleteLibrary(ctmCurLib(cg, cl).id)
     }
-    /* TODO: 如果一个库被删除了，用户右打开了这个库，那么应该怎么办？
-    * 但是正在打开的是这个库，那么应该怎么办？
-    * 如果用户通过后退按钮，返回到了这个库，那么应该怎么办？，对不存在数据的处理
-    */
     deleteDialogInfo.value.isVis = false
     getGroups()
     sendCrosTabMsg(bc, bcMsg)

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="tab-header">
+        <div class="module-header module_title">
             管理数据
         </div>
         <tabs v-model="activeLabelIdx"
@@ -15,7 +15,7 @@
 </template>
  
 <script lang="ts" setup>
-import { ref, shallowReactive, watch, onMounted } from 'vue'
+import { ref, shallowReactive, onMounted, watch } from 'vue'
 import { useRoute, } from 'vue-router'
 import Tabs from '@/components/Tabs.vue'
 import EditRecord from './EditRecord.vue'
@@ -60,8 +60,5 @@ const init = () => {
 }
 
 watch(route, init)
-// 监听路由改变，更新禁用状态
 onMounted(init) 
 </script>
-
-<style></style>

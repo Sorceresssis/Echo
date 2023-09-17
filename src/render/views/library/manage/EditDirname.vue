@@ -70,12 +70,14 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, reactive, inject, } from 'vue'
+import { ref, Ref, reactive, inject, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import MessageBox from '@/util/MessageBox'
+import Message from '@/util/Message'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
-import Message from '@/util/Message';
 
+const route = useRoute()
 const btnLoading = ref(false)
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 
@@ -119,6 +121,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         })
     })
 }
+const init = () => {
+    formData.targetPrefix = ''
+    formData.replacePrefix = ''
+}
+watch(route, init)
 </script>
 
 <style scoped>
@@ -127,4 +134,4 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     color: #7b7b7b;
     font-size: 12px;
 }
-</style>@/util/DAEMessageBox@/util/MessageBox
+</style>

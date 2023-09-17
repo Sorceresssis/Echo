@@ -2,7 +2,7 @@ namespace VO {
     type LibraryDetail = {
         id: number,
         name: string,
-        keywords: string,
+        keyword: string,
         intro: String,
         createTime: string,
         modifiedTime: string,
@@ -156,9 +156,3 @@ type Group = {
     librarys: LibraryProfile[]
 }
 
-type LibraryDetail = {
-    id: number,
-    name: string,
-    intro: String,
-    createTime: string,
-}

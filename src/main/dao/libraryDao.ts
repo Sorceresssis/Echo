@@ -224,6 +224,10 @@ export default class LibraryDao {
 		return this.db.prepare('SELECT id FROM record WHERE title = ?;').pluck().get(title) as PrimaryKey | null
 	}
 
+	public queryRecordIdsOfRecycled(offset: number, rowCount: number): number[] {
+		return this.db.prepare('SELECT id FROM record WHERE recycled=1 LIMIT ?,?;').pluck().all(offset, rowCount) as number[]
+	}
+
 	public queryCountOfRecordsByDirnameId(dirnameId: PrimaryKey): number {
 		return this.db.prepare('SELECT COUNT(id) FROM record WHERE dirname_id = ?;').pluck().get(dirnameId) as number
 	}
@@ -244,6 +248,29 @@ export default class LibraryDao {
 		return this.db.run('UPDATE record SET tag_author_sum=? WHERE id = ?;', tagAuthorSum, recordId).changes
 	}
 
+	public updateRecordRecycled(recordIds: PrimaryKey[], recycled: 0 | 1) {
+		const stmt = this.db.prepare('UPDATE record SET recycled=? WHERE id = ?;')
+		recordIds.forEach(id => {
+			stmt.run(recycled, id)
+		})
+	}
+
+	public recycleRecordByDirnameId(dirnameId: PrimaryKey): number {
+		return this.db.run('UPDATE record SET recycled=1 WHERE dirname_id = ?;', dirnameId).changes
+	}
+
+	public recycleRecordByTagId(tagId: PrimaryKey): number {
+		return this.db.run('UPDATE record SET recycled=1 WHERE id IN (SELECT record_id FROM record_tag WHERE tag_id = ?);', tagId).changes
+	}
+
+	public recycleRecordBySeriesId(seriesId: PrimaryKey): number {
+		return this.db.run('UPDATE record SET recycled=1 WHERE id IN (SELECT record_id FROM record_series WHERE series_id = ?);', seriesId).changes
+	}
+
+	public deleteRecordOfRecycled(recordId: PrimaryKey): number {
+		return this.db.run('DELETE FROM record WHERE recycled = 1 AND id = ?;', recordId).changes
+	}
+
 	//  更改record的dirname_id滞空为0
 	public updateRecordDirnameIdToZeroByDirnameId(dirnameId: PrimaryKey): number {
 		return this.db.run('UPDATE record SET dirname_id = 0 WHERE dirname_id = ?;', dirnameId).changes
@@ -251,18 +278,6 @@ export default class LibraryDao {
 
 	public updateRecordDirnameId(newDirnameId: PrimaryKey, oldDirnameId: PrimaryKey): number {
 		return this.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', newDirnameId, oldDirnameId).changes
-	}
-
-	public deleteRecordByDirnameId(id: PrimaryKey): number {
-		return this.db.run('DELETE FROM record WHERE dirname_id = ?;', id).changes
-	}
-
-	public deleteRecordByTagId(id: PrimaryKey): number {
-		return this.db.run('DELETE FROM record WHERE id IN (SELECT record_id FROM record_tag WHERE tag_id = ?);', id).changes
-	}
-
-	public deleteRecordBySeriesId(id: PrimaryKey): number {
-		return this.db.run('DELETE FROM record WHERE id IN (SELECT record_id FROM record_series WHERE series_id = ?);', id).changes
 	}
 
 	// ANCHOR record_extra
@@ -282,6 +297,11 @@ export default class LibraryDao {
 			recordExtra.intro, recordExtra.info, recordExtra.id
 		).changes
 	}
+
+	public deleteRecordExtraById(id: PrimaryKey): number {
+		return this.db.run('DELETE FROM record_extra WHERE id = ?;', id).changes
+	}
+
 
 	// ANCHOR author
 
@@ -326,16 +346,16 @@ export default class LibraryDao {
 	}
 
 	public queryAuthorsByRecordId(id: PrimaryKey, fullPath: boolean = true): VO.AuthorProfile[] {
-		const sql = new DynamicSqlBuilder()
-		sql.append('SELECT a.id, a.name,')
+		const rows = this.db.all('SELECT a.id, a.name, a.avatar FROM author a JOIN record_author ra ON a.id = ra.author_id WHERE ra.record_id = ?;', id)
 		if (fullPath) {
-			this.registerSQLFnPathResolve()
-			sql.append('PATH_RESOLVE(?, a.avatar) AS avatar', appConfig.getLibraryImagesDirPath(this.libraryId))
-		} else {
-			sql.append('a.avatar')
+			const dir = appConfig.getLibraryImagesDirPath(this.libraryId)
+			rows.forEach(row => {
+				if (row.avatar) {
+					row.avatar = path.join(dir, row.avatar)
+				}
+			})
 		}
-		sql.append('FROM author a JOIN record_author ra ON a.id = ra.author_id WHERE ra.record_id = ?;', id)
-		return this.db.all(sql.getSql(), ...sql.getParams())
+		return rows
 	}
 
 	public addAuthor(author: Entity.Author): PrimaryKey {
@@ -432,6 +452,11 @@ export default class LibraryDao {
 		return this.db.prepare(sql).pluck().get(authorId) as number
 	}
 
+	public queryRecordIdsByAuthorId(authorId: PrimaryKey, offset: number, rowCount: number): number[] {
+		const sql = 'SELECT record_id FROM record_author WHERE author_id = ? LIMIT ?,?;'
+		return this.db.prepare(sql).pluck().all(authorId, offset, rowCount) as number[]
+	}
+
 	public addRecordAuthor(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
 		const stmt = this.db.prepare("INSERT INTO record_author(record_id, author_id) VALUES(?,?);")
 		authorIds.forEach(id => {
@@ -446,14 +471,22 @@ export default class LibraryDao {
 		})
 	}
 
-	public deleteRecordAuthorByAuthorId(id: PrimaryKey): void {
-		this.db.run("DELETE FROM record_author WHERE author_id = ?;", id)
+	public deleteRecordAuthorByAuthorId(id: PrimaryKey): number {
+		return this.db.run("DELETE FROM record_author WHERE author_id = ?;", id).changes
+	}
+
+	public deleteRecordAuthorByRecordId(id: PrimaryKey): number {
+		return this.db.run("DELETE FROM record_author WHERE record_id = ?;", id).changes
 	}
 
 	// ANCHOR record_tag
 
 	public queryCountOfRecordsByTagId(tagId: number): number {
 		return this.db.prepare('SELECT COUNT(record_id) FROM record_tag WHERE tag_id = ?;').pluck().get(tagId) as number
+	}
+
+	public queryRecordIdsByTagId(tagId: PrimaryKey, offset: number, rowCount: number): number[] {
+		return this.db.prepare('SELECT record_id FROM record_tag WHERE tag_id = ? LIMIT ?,?;').pluck().all(tagId, offset, rowCount) as number[]
 	}
 
 	public addRecordTag(recordId: PrimaryKey, tagIds: PrimaryKey[]): void {
@@ -470,8 +503,12 @@ export default class LibraryDao {
 		})
 	}
 
-	public deleteRecordTagByTagId(id: PrimaryKey): void {
-		this.db.run('DELETE FROM record_tag WHERE tag_id = ?;', id)
+	public deleteRecordTagByTagId(id: PrimaryKey): number {
+		return this.db.run('DELETE FROM record_tag WHERE tag_id = ?;', id).changes
+	}
+
+	public deleteRecordTagByRecordId(id: PrimaryKey): number {
+		return this.db.run('DELETE FROM record_tag WHERE record_id = ?;', id).changes
 	}
 
 	public updateTagIdOfRecordTag(newTagId: PrimaryKey, oldTagId: PrimaryKey): void {
@@ -498,6 +535,10 @@ export default class LibraryDao {
 		seriesIds.forEach(id => {
 			stmt.run(recordId, id)
 		})
+	}
+
+	public deleteRecordSeriesByRecordId(id: PrimaryKey): number {
+		return this.db.run('DELETE FROM record_series WHERE record_id = ?;', id).changes
 	}
 
 	// ANCHOR dirname

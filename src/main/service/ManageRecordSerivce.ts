@@ -24,15 +24,18 @@ export default class ManageRecordSerivce {
                     return imageService.handleRecordCover() || null
                 }
                 return null
-            } catch { return null }
-        } else {
+            } catch {
+                return null
+            }
+        }
+        else {
             return path.basename(newCover) || null // 要取basename, 因为会把绝对路径保存到数据库 
         }
     }
 
-    private getTagAuthorSum(recordId: PrimaryKey) {
-        const authors = this.libraryDao.queryAuthorsByRecordId(recordId, false)
-        const tags = this.libraryDao.queryTagsByRecordId(recordId)
+    public static getTagAuthorSum(dao: LibraryDao, recordId: PrimaryKey) {
+        const authors = dao.queryAuthorsByRecordId(recordId, false)
+        const tags = dao.queryTagsByRecordId(recordId)
         return tags.map(tag => tag.title).concat(authors.map(author => author.name)).join(' ')
     }
 
@@ -84,13 +87,15 @@ export default class ManageRecordSerivce {
             if (formData.dirname.trim() !== '') {
                 formData.dirname = path.resolve(formData.dirname)
                 record.dirnameId = this.libraryDao.queryDirnameIdByPath(formData.dirname) || this.libraryDao.addDirname(formData.dirname)
-            } else {
+            }
+            else {
                 record.dirnameId = 0
             }
             if (record.id === 0) {
                 recordExtra.id = record.id = this.libraryDao.addRecord(record)
                 this.libraryDao.addRecordExtra(recordExtra)
-            } else {
+            }
+            else {
                 recordExtra.id = record.id
                 this.libraryDao.updateRecord(record)
                 this.libraryDao.updateRecordExtra(recordExtra)
@@ -114,7 +119,7 @@ export default class ManageRecordSerivce {
             )
 
             // 等待record的属性都设置完毕,开始更新冗余字段tagAuthorSum
-            this.libraryDao.updateRecordTagAuthorSum(record.id, this.getTagAuthorSum(record.id))
+            this.libraryDao.updateRecordTagAuthorSum(record.id, ManageRecordSerivce.getTagAuthorSum(this.libraryDao, record.id))
         })
 
         return Result.success()
@@ -167,46 +172,12 @@ export default class ManageRecordSerivce {
                 )
 
                 if (index === 0) {
-                    record.tagAuthorSum = this.getTagAuthorSum(record.id)
+                    record.tagAuthorSum = ManageRecordSerivce.getTagAuthorSum(this.libraryDao, record.id)
                     this.libraryDao.updateRecordTagAuthorSum(record.id, record.tagAuthorSum)
                 }
             })
         })
         return Result.success()
-    }
-
-    /**
-     * 根据属性删除记录
-     */
-    public deleteByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
-        // TODO 加入回收站不是真正删除
-        // TODO 批量删除时， 如果，根据tag删除，只会删除tag的链接，其他的链接删除不了
-        this.libraryDao.executeInTransaction(() => {
-            formData.dirnamePath = formData.dirnamePath.trim()
-            if (formData.dirnamePath.length) {
-                const dirnameId = this.libraryDao.queryDirnameIdByPath(formData.dirnamePath)
-                if (dirnameId) {
-                    this.libraryDao.deleteRecordByDirnameId(dirnameId)
-                    this.libraryDao.deleteDirname(dirnameId)
-                }
-            }
-            formData.tagTitle = formData.tagTitle.trim()
-            if (formData.tagTitle.length) {
-                const tagId = this.libraryDao.queryTagIdByTitle(formData.tagTitle)
-                if (tagId) {
-                    this.libraryDao.deleteRecordByTagId(tagId)
-                    this.libraryDao.deleteTag(tagId)
-                }
-            }
-            formData.seriesName = formData.seriesName.trim()
-            if (formData.seriesName.length) {
-                const seriesId = this.libraryDao.querySeriesIdByName(formData.seriesName)
-                if (seriesId) {
-                    this.libraryDao.deleteRecordBySeriesId(seriesId)
-                    this.libraryDao.deleteSeries(seriesId)
-                }
-            }
-        })
     }
 
     public close() {

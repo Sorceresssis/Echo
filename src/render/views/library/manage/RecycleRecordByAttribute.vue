@@ -47,12 +47,14 @@
 </template>
   
 <script lang="ts" setup>
-import { ref, Ref, reactive, inject, toRaw } from 'vue'
+import { ref, Ref, reactive, inject, toRaw, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import type { FormInstance, FormRules, } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
-import { onBeforeRouteUpdate } from 'vue-router';
-import MessageBox from '@/util/MessageBox';
-import Message from '@/util/Message';
+import MessageBox from '@/util/MessageBox'
+import Message from '@/util/Message'
+
+const route = useRoute()
 
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
 
@@ -76,12 +78,12 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-        MessageBox.deleteConfirm(async () => {
+        MessageBox.confirm(async () => {
             btnLoading.value = true
             await window.electronAPI.deleteRecordByAttribute(activeLibrary.value, toRaw(formData))
-            Message.success('删除成功')
+            Message.success('已放入回收站')
             btnLoading.value = false
-        })
+        }, '危险操作', '确定要回收吗?', 'warning')
     })
 }
 
@@ -90,7 +92,5 @@ const init = () => {
     formData.tagTitle = ''
     formData.seriesName = ''
 }
-onBeforeRouteUpdate(init)
+watch(route, init)
 </script>
-  
-<style></style>@/util/MessageBox

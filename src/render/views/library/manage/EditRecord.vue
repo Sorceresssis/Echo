@@ -297,9 +297,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         function cb() {
             btnLoading.value = true
             submit(activeLibrary.value).then((result) => {
-                // 如果result是undefined，表示后台出错，有弹框警告
-                console.log(result)
-
+                // 如果result是undefined，表示后台出错，有弹框警告 
                 if (!result) return
                 result.code
                     ? Message.success(submitBtnText.value + '成功')
@@ -314,7 +312,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     })
 }
 
-const init = () => {
+const init = function () {
     const id = route.query.record_id as string | undefined
     resetFormData()
     if (id) {
@@ -418,4 +416,4 @@ onMounted(init)
     border: 1px solid #e1e1e1;
     box-sizing: border-box;
 }
-</style>@/service/editRecordService@/util/MessageBox
+</style>

@@ -1,5 +1,6 @@
 import { error } from "node:console"
 import LibraryDao, { QueryTagsSortRule } from "../dao/libraryDao"
+import ManageRecordSerivce from "./ManageRecordSerivce"
 
 export default class TagService {
     private libraryDao: LibraryDao
@@ -62,13 +63,25 @@ export default class TagService {
             this.libraryDao.executeInTransaction(() => {
                 this.libraryDao.updateTagIdOfRecordTag(existId, id)
                 this.libraryDao.deleteTag(id)
+                this.updateRecordTagAuthorSumOfTag(existId) // 更新冗余字段
             })
         } else {
-            // 如果不存在，就修改tag
-            this.libraryDao.updateTag(id, newTag)
+            this.libraryDao.updateTag(id, newTag) // 如果不存在，就修改tag 
+            this.updateRecordTagAuthorSumOfTag(id)
         }
     }
 
+    private updateRecordTagAuthorSumOfTag(tagId: PrimaryKey) {
+        const rowCount = 150
+        let recordIds = this.libraryDao.queryRecordIdsByTagId(tagId, 0, rowCount)
+        while (recordIds.length) {
+            recordIds.forEach(id => {
+                this.libraryDao.updateRecordTagAuthorSum(id, ManageRecordSerivce.getTagAuthorSum(this.libraryDao, id))
+            })
+            if (recordIds.length < rowCount) break
+            recordIds = this.libraryDao.queryRecordIdsByAuthorId(tagId, 0, rowCount)
+        }
+    }
 
     public close() {
         this.libraryDao.destroy()
