@@ -1,4 +1,11 @@
 namespace DTO {
+    type LibraryExtraForm = {
+        id: number
+        auxiliarySt: string,
+        useAuxiliarySt: 0 | 1,
+        intro: string,
+    }
+
     /**
      * 分页数据
      */

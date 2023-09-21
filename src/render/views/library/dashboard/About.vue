@@ -1,57 +1,66 @@
 <template>
     <div class="flex-col">
-        <div class="dashboard__content scrollbar-y-w8">
-            <div class="row">
-                <span class="inline-list-title">ID </span>
-                {{ libraryDetail.id }}
-            </div>
-            <div class="row">
-                <span class="inline-list-title">创建时间 </span>
-                {{ libraryDetail.createTime }}
-            </div>
-            <div class="row">
-                <span class="inline-list-title">最近修改时间 </span>
-                {{ libraryDetail.modifiedTime }}
-            </div>
-            <div class="row section">
-                <span class="inline-list-title">关键词</span> {{ libraryDetail.keyword }}
-            </div>
-            <div class="row section"
-                 v-html="libraryDetail.intro">
-            </div>
-        </div>
+        <el-form ref="formRef"
+                 class="dashboard__content scrollbar-y-w8"
+                 label-position="left"
+                 label-width="120px"
+                 require-asterisk-position="right"
+                 status-icon>
+            <el-form-item label="搜索时使用">
+                <el-switch v-model="activeLibraryDetail.useAuxiliarySt" />
+            </el-form-item>
+            <el-form-item label="搜索辅助文本">
+                <el-input v-model="activeLibraryDetail.auxiliarySt"
+                          placeholder="eg: site:xxx.com"
+                          maxlength="255"
+                          :show-word-limit="true"
+                          clearable />
+            </el-form-item>
+            <el-form-item label="ID">
+                {{ activeLibraryDetail.id }}
+            </el-form-item>
+            <el-form-item label="创建时间">
+                {{ activeLibraryDetail.createTime }}
+            </el-form-item>
+            <el-form-item label="修改时间">
+                {{ activeLibraryDetail.modifiedTime }}
+            </el-form-item>
+            <el-form-item label="简介">
+                <el-input v-model="activeLibraryDetail.intro"
+                          type="textarea"
+                          spellcheck="false"
+                          :autosize="inputAutoSize"
+                          resize="none" />
+            </el-form-item>
+        </el-form>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, onMounted, Ref, inject, onActivated } from 'vue'
+import { watch, inject } from 'vue'
+import { debounce } from '@/util/debounce'
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
-
-const defaultLibraryDetail = {
-    id: 0,
-    name: '',
-    intro: '',
-    keyword: '',
-    createTime: '',
-    modifiedTime: '',
-}
-const libraryDetail = ref<VO.LibraryDetail>(defaultLibraryDetail)
-
-const queryLibraryDetail = async () => {
-    const res = await window.electronAPI.queryLibraryDetail(activeLibrary.value)
-    if (res) {
-        res.intro = res.intro ? res.intro.replace(/\n/g, '<br/>') : ''
-        res.keyword = res.keyword || ''
-        libraryDetail.value = res
-    } else { // 不存在
-        libraryDetail.value = defaultLibraryDetail
-    }
+const inputAutoSize = {
+    minRows: 8,
+    maxRows: 8,
 }
 
-// TODO 加入 辅助搜索文本 搜索指令
-onActivated(queryLibraryDetail)
-onMounted(queryLibraryDetail)
+const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail') as VO.LibraryDetail
+
+const editLibraryExtra = debounce(async function () {
+    window.electronAPI.editLibraryExtra({
+        id: activeLibraryDetail.id,
+        useAuxiliarySt: activeLibraryDetail.useAuxiliarySt ? 1 : 0,
+        auxiliarySt: activeLibraryDetail.auxiliarySt,
+        intro: activeLibraryDetail.intro,
+    })
+}, 700)
+
+watch(() => [
+    activeLibraryDetail.useAuxiliarySt,
+    activeLibraryDetail.auxiliarySt,
+    activeLibraryDetail.intro,
+], editLibraryExtra)
 </script>
 
 <style scoped>

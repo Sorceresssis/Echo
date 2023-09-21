@@ -289,6 +289,7 @@ const rules = reactive<FormRules>({
         },
     ]
 })
+// BUG 只有dirname 没有basename 编辑请求原始数据时会 无法显示dirname
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {

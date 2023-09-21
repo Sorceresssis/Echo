@@ -6,7 +6,7 @@ import GroupDao from '../dao/groupDao'
 export default function ipcMainGroup() {
     const groupDao = new GroupDao(config.getGroupDBFilePath())
 
-    ipcMain.handle('group:getGroups', (): Group[] => {
+    ipcMain.handle('group:getGroups', (): VO.Group[] => {
         try {
             return groupDao.getGroups()
         } catch (e: any) {
@@ -53,8 +53,13 @@ export default function ipcMainGroup() {
         }
     })
 
-    ipcMain.handle('library:getLibraryNameByID', (e: IpcMainInvokeEvent, id: number): string => {
-        return groupDao.getLibraryNameById(id)
+    ipcMain.handle('library:queryDetail', (e: IpcMainInvokeEvent, id: number): VO.LibraryDetail | null => {
+        try {
+            return groupDao.queryLibraryDetail(id)
+        } catch (e: any) {
+            dialog.showErrorBox('Library:QueryDetail Error', e.message)
+            return null
+        }
     })
 
     ipcMain.handle('library:rename', (e: IpcMainInvokeEvent, id: number, newName: string): boolean => {
@@ -95,12 +100,12 @@ export default function ipcMainGroup() {
         }
     })
 
-    ipcMain.handle('library:queryDetail', (e: IpcMainInvokeEvent, id: number): VO.LibraryDetail | null => {
+    ipcMain.handle('library:editExtra', (e: IpcMainInvokeEvent, data: DTO.LibraryExtraForm): boolean => {
         try {
-            return groupDao.queryLibraryDetail(id)
+            return groupDao.updateLibraryExtra(data) > 0
         } catch (e: any) {
-            dialog.showErrorBox('Library:QueryDetail Error', e.message)
-            return null
+            dialog.showErrorBox('UpdateLibraryExtra Error', e.message)
+            return false
         }
     })
 }

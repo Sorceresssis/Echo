@@ -34,7 +34,7 @@ const tabs = shallowReactive([
     { id: 3, label: '标签' },
     { id: 4, label: '目录' },
     { id: 5, label: '回收站' },
-    { id: 6, label: '关于' }
+    { id: 6, label: '关于库' }
 ])
 const components = [
     { component: Records, props: { type: 'common' } },

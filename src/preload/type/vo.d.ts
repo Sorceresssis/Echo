@@ -1,9 +1,26 @@
 namespace VO {
+    type GroupProfile = {
+        id: number,
+        name: string,
+    }
+
+    type LibraryProfile = {
+        id: number,
+        name: string,
+        dataPath: string,
+    }
+
+    type Group = {
+        id: number,
+        name: string,
+        librarys: LibraryProfile[]
+    }
+
     type LibraryDetail = {
         id: number,
         name: string,
         keyword: string,
-        intro: String,
+        intro: string,
         createTime: string,
         modifiedTime: string,
     }
@@ -138,21 +155,3 @@ namespace VO {
         image: string | null
     }
 }
-
-
-type GroupProfile = {
-    id: number,
-    name: string,
-}
-
-type LibraryProfile = {
-    id: number,
-    name: string,
-}
-
-type Group = {
-    id: number,
-    name: string,
-    librarys: LibraryProfile[]
-}
-

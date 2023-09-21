@@ -73,10 +73,17 @@ body .el-button {
     padding: 0 40px !important;
 }
 
-.el-button--primary:focus,
-.el-button--primary:hover {
+.el-button--primary:not(.is-disabled):focus,
+.el-button--primary:not(.is-disabled):hover {
     background: var(--echo-theme-color) !important;
     border-color: var(--echo-theme-color) !important;
+}
+
+.el-button--primary.is-disabled,
+.el-button--primary.is-disabled:hover {
+    background: var(--echo-theme-color) !important;
+    border-color: var(--echo-theme-color) !important;
+    opacity: 0.5;
 }
 
 .el-button--primary:hover {

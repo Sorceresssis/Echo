@@ -7,9 +7,11 @@ type Result = {
 export interface IElectronAPI {
     /******************** app ********************/
     config: (
-        key: keyof Config,
+        type: 'set' | 'get' | 'all' | 'reset',
+        key?: keyof Config,
         value?: string
-    ) => Promise<string>,
+    ) => Promise<string | Config | void>,
+
 
     relaunch: () => Promise<void>
 
@@ -19,7 +21,7 @@ export interface IElectronAPI {
      * 获取所有的group和library
      * @returns Groups
      */
-    getGroups: () => Promise<Group[]>
+    getGroups: () => Promise<VO.Group[]>
 
     /**
      * 重命名group
@@ -63,12 +65,14 @@ export interface IElectronAPI {
         callback: (e: IpcRendererEvent, libraryId: number) => void
     ) => void,
 
-    /** 
-     * 通过libraryId获取libraryName
+    /**
+     * 获取library的详细信息
+     * @param id library的id
+     * @returns library的详细信息
      */
-    getLibraryNameByID: (
-        id: number
-    ) => Promise<string | null>
+    queryLibraryDetail: (
+        id: number,
+    ) => Promise<VO.LibraryDetail | null>
 
     /** 
      * 重命名library
@@ -102,9 +106,9 @@ export interface IElectronAPI {
         groupId: number
     ) => Promise<void>
 
-    queryLibraryDetail: (
-        id: number,
-    ) => Promise<VO.LibraryDetail | null>
+    editLibraryExtra: (
+        data: DTO.LibraryExtraForm
+    ) => Promise<boolean>
 
     //ANCHOR Record
 

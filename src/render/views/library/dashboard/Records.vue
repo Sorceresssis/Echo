@@ -30,10 +30,10 @@
             <div class="left-menu">
                 <div class="batch-processing-btn"
                      @click="isBatch = true">批量操作</div>
-                <span v-if="props.type === 'recycled'"
-                      class="batch-processing-btn"
-                      :class="[recordRecmds.length === 0 ? 'disabled' : '']"
-                      @click="deleteAllRecycled">清空回收站</span>
+                <div v-if="props.type === 'recycled'"
+                     class="batch-processing-btn"
+                     :class="[recordRecmds.length === 0 ? 'disabled' : '']"
+                     @click="deleteAllRecycled">清空回收站</div>
             </div>
             <div class="right-menu">
                 <echo-autocomplete class="menu-item search"

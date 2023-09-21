@@ -1,9 +1,17 @@
-export async function getConfig(key: keyof Config) {
-    return await window.electronAPI.config(key)
+export function getConfig(key: keyof Config) {
+    return window.electronAPI.config('get', key) as Promise<string>
 }
 
-export async function setConfig(key: keyof Config, value: string) {
-    return await window.electronAPI.config(key, value)
+export function setConfig(key: keyof Config, value: string) {
+    return window.electronAPI.config('set', key, value) as Promise<string>
 }
 
-export default {getConfig, setConfig}
+export function resetConfig() {
+    return window.electronAPI.config('reset') as Promise<void>
+}
+
+export function getAllConfig(): Promise<Config> {
+    return window.electronAPI.config('all') as Promise<Config>
+}
+
+export default { getConfig, setConfig, resetConfig, getAllConfig }

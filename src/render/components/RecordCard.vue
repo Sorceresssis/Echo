@@ -27,7 +27,9 @@
             </div>
             <div class="operates">
                 <div :title="'搜索标题'"
-                     @click="internetSearch(recmd.title)"> <span class="iconfont">&#xe651;</span> </div>
+                     @click="searchTitle">
+                    <span class="iconfont">&#xe651;</span>
+                </div>
                 <div :title="'浏览器中打开链接'"
                      :class="recmd.hyperlink ? '' : 'disabled'"
                      @click="openInBrowser(recmd.hyperlink)"> <span class="iconfont">&#xe6c8;</span> </div>
@@ -67,6 +69,12 @@ const emit = defineEmits<{
 const router = useRouter()
 
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const activeLibDetail = inject<VO.LibraryDetail>('activeLibraryDetail') as VO.LibraryDetail
+
+const searchTitle = function () {
+    const t = props.recmd.title + (activeLibDetail.useAuxiliarySt ? `  ${activeLibDetail.auxiliarySt}` : '')
+    internetSearch(t)
+}
 
 let canScrollInfo = false
 let currentTarget: HTMLDivElement

@@ -51,15 +51,20 @@
                 </div>
             </div>
             <div class="settings-item">
+                <h2 class="settings-item__title"> 恢复默认设置</h2>
+                <div class="settings-item__content">
+                    <div class="row">
+                        <button2 @click="handleResetConfig">恢复默认设置</button2>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-item">
                 <h2 class="settings-item__title">升级</h2>
                 <div class="settings-item__content">
                     <div class="row">
 
                     </div>
                 </div>
-            </div>
-            <div>
-                恢复默认设置
             </div>
         </div>
     </div>
@@ -68,15 +73,10 @@
 <script setup lang='ts'>
 import { ref, onMounted, toRaw } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import { $t, i18n, localeList } from '@/locales'
+import { $t, i18n, localeList, Locale } from '@/locales'
 import { openInExplorer } from '@/util/systemUtil'
-import { getConfig, setConfig } from "@/util/ConfigUtil"
+import { setConfig, resetConfig, getAllConfig } from "@/util/ConfigUtil"
 import Button2 from '@/components/Button2.vue'
-
-onMounted(async () => {
-    userDataPath.value = await getConfig('userDataPath')
-    searchEngine.value = await getConfig('searchEngine')
-})
 
 /******************** 数据保存位置 ********************/
 const userDataPath = ref<string>('')
@@ -85,7 +85,7 @@ const selectUserDataPath = () => {
     ).then((p) => {
         const path = p[0]
         if (path === undefined || path === userDataPath.value) return Promise.reject()
-        return window.electronAPI.config('userDataPath', p[0])
+        return setConfig('userDataPath', p[0])
     }).then((value) => {
         userDataPath.value = value || userDataPath.value
         // 建议您重启应用程序以使更改生效
@@ -111,4 +111,17 @@ const engineList = ref<any[]>([
     { id: 5, label: 'DuckDuckGo', value: 'duckduckgo' },
     { id: 6, label: 'Yandex', value: 'yandex' },
 ])
+
+const handleResetConfig = async function () {
+    await resetConfig()
+    init()
+}
+
+const init = async function () {
+    const config = await getAllConfig()
+    userDataPath.value = config.userDataPath
+    searchEngine.value = config.searchEngine
+    i18n.global.locale.value = config.locale as Locale
+}
+onMounted(init)
 </script> 

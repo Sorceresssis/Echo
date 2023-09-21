@@ -20,13 +20,23 @@
 </template>
 
 <script setup lang='ts'>
-import { provide, ref } from 'vue'
+import { provide, reactive, ref } from 'vue'
 import Sidebar from './Sidebar.vue'
 import Titlebar from './Titlebar.vue'
 
 /* 正在打开的Library */
 const activeLibrary = ref<number>(0)
 provide('activeLibrary', activeLibrary)
+const activeLibraryDetail = reactive<VO.LibraryDetail>({
+    id: 0,
+    name: '',
+    auxiliarySt: '',
+    useAuxiliarySt: false,
+    intro: '',
+    createTime: '',
+    modifiedTime: '',
+})
+provide('activeLibraryDetail', activeLibraryDetail)
 
 /* 侧边开关 */
 const isOpenSideBar = ref<boolean>(true)

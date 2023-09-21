@@ -50,24 +50,28 @@ class AppConfig {
                 throw new Error('config is null')
             }
         } catch {
-            this.resetConfig()
+            this.reset()
         }
-    }
-
-    private resetConfig() {
-        this.config = AppConfig.DEFAULT_CONFIG
-        fs.writeFileSync(AppConfig.CONFIG_FILE_PATH, JSON.stringify(this.config), 'utf8')
     }
 
     public get(key: keyof Config): string {
         if (!this.config[key]) {
-            this.resetConfig()
+            this.reset()
         }
         return this.config[key]
     }
 
+    public all(): Config {
+        return this.config
+    }
+
     public set(key: keyof Config, value: string) {
         return this.config[key] = value
+    }
+
+    public reset() {
+        this.config = JSON.parse(JSON.stringify(AppConfig.DEFAULT_CONFIG))
+        fs.writeFileSync(AppConfig.CONFIG_FILE_PATH, JSON.stringify(this.config), 'utf8')
     }
 
     public getGroupDBFilePath() {

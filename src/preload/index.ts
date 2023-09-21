@@ -3,9 +3,10 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 contextBridge.exposeInMainWorld('electronAPI', {
     /******************** app ********************/
     config: (
-        key: keyof Config,
+        type: 'set' | 'get' | 'all' | 'reset',
+        key?: keyof Config,
         value?: string
-    ) => ipcRenderer.invoke('app:config', key, value),
+    ) => ipcRenderer.invoke('app:config', type, key, value),
 
     relaunch: () => ipcRenderer.invoke('app:relaunch'),
 
@@ -38,9 +39,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
         callback: (e: IpcRendererEvent, libraryId: number) => void
     ) => ipcRenderer.on('library:primaryOpenLibrary', callback),
 
-    getLibraryNameByID: (
-        id: number
-    ) => ipcRenderer.invoke('library:getLibraryNameByID', id),
+    queryLibraryDetail: (
+        id: number,
+    ) => ipcRenderer.invoke('library:queryDetail', id),
 
     renameLibrary: (
         id: number,
@@ -62,9 +63,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
         groupId: number
     ) => ipcRenderer.invoke('library:sort', currId, tarNextId, groupId),
 
-    queryLibraryDetail: (
-        id: number,
-    ) => ipcRenderer.invoke('library:queryDetail', id),
+    editLibraryExtra: (
+        data: DTO.LibraryExtraForm
+    ) => ipcRenderer.invoke('library:editExtra', data),
 
     // ANCHOR record
 

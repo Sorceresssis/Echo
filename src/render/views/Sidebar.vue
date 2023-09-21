@@ -128,16 +128,20 @@
             <context-menu-sperator />
             <context-menu-item label="重命名"
                                @click="openRename" />
-            <context-menu-item label="删除"
-                               @click="openDelete">
-                <template #icon> <span class="iconfont">&#xe636;</span> </template>
-            </context-menu-item>
             <context-menu-group label="移动到">
                 <context-menu-item v-for="(group, idxGroup) in groups"
                                    :key="group.id"
                                    :label="group.name"
                                    @click="moveLibrary(idxGroup)" />
             </context-menu-group>
+            <context-menu-item label="删除"
+                               @click="openDelete">
+                <template #icon> <span class="iconfont">&#xe636;</span> </template>
+            </context-menu-item>
+            <context-menu-item label="打开数据保存位置"
+                               @click="openInExplorer(ctmCurLib().dataPath)">
+                <template #icon> <span class="iconfont">&#xe73e;</span> </template>
+            </context-menu-item>
             <context-menu-item label="导出" />
         </context-menu>
     </div>
@@ -150,10 +154,10 @@ import { $t } from '@/locales/index'
 import { debounce } from '@/util/debounce'
 import { throttle } from '@/util/throttle'
 import { vFocus } from '@/util/directive'
+import { openInExplorer } from '@/util/systemUtil'
 import { sendCrosTabMsg, listenCrosTabMsg } from "@/util/CrosTabMsg"
 import CollapseTransition from '@/components/CollapseTransition.vue'
 import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
-import { ElMessage } from 'element-plus'
 
 const router = useRouter()
 
@@ -188,7 +192,7 @@ onMounted(async () => {
 })
 
 /******************** 页面数据 ********************/
-const groups = ref<Group[]>([])
+const groups = ref<VO.Group[]>([])
 const isExpandGroup = ref<boolean[]>([]) // 是否展开Group
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
 
@@ -233,10 +237,10 @@ const ctmOpIdx = {
     tg: -1, // target group
     tl: -1, // target library
 }
-const ctmCurGrp = (idxG?: number): Group => {
+const ctmCurGrp = (idxG?: number): VO.Group => {
     return groups.value[idxG || ctmOpIdx.cg]
 }
-const ctmCurLib = (idxG?: number, idxL?: number): LibraryProfile => {
+const ctmCurLib = (idxG?: number, idxL?: number): VO.LibraryProfile => {
     return groups.value[idxG || ctmOpIdx.cg].librarys[idxL || ctmOpIdx.cl]
 }
 const ctmOptions = {

@@ -1,4 +1,11 @@
 namespace Entity {
+    type LibraryExtra = {
+        id: PrimaryKey
+        auxiliarySt: string,
+        useAuxiliarySt: 0 | 1,
+        intro: string,
+    }
+
     type Record = {
         id: PrimaryKey
         title: string

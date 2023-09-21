@@ -76,9 +76,7 @@ watch(route, async () => {
         const libraryID: number = Number.parseInt(currentPath.match(/\/library\/(\d+)/)![1])
         if (libraryID === activeLibrary.value) return
         activeLibrary.value = libraryID
-        // 根据libraryID获取library的名字
-        const libName = (await window.electronAPI.getLibraryNameByID(activeLibrary.value))
-        libName ? document.title = `${activeLibraryName.value = libName} - Echo` : router.push('/')
+        // 根据libraryID获取library的名字  
     }
     else {
         // 重置当前激活的库

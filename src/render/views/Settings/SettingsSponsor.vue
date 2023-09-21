@@ -44,7 +44,7 @@ import { openInBrowser } from '@/util/systemUtil'
 
 const repositoryUrl = "https://github.com/Sorceresssis/echo"
 const paypalUrl = "https://www.paypal.me/FoxFairy"
-const patreonUrl = "https://patreon.com/Sorceresssis"
+const patreonUrl = "https://www.patreon.com/Sorceresssis/membership"
 </script>
 
 <style scoped></style>

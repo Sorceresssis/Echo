@@ -1,7 +1,7 @@
 <template>
     <div class="flex-1 flex-col overflow-hidden">
         <title-bar></title-bar>
-        <router-view class="main-container flex-1 flex-col overflow-hidden">
+        <router-view class="main-container flex-1 overflow-hidden">
         </router-view>
     </div>
 </template>
@@ -50,7 +50,6 @@ const isOpenSideBar = ref<boolean>(true)
 }
 
 .main-container {
-    padding: 0 20px;
     font-size: 14px;
 }
 </style>

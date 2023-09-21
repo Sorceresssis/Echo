@@ -276,7 +276,7 @@ img {
 }
 
 .dashboard__header .right-menu {
-    width: 70%;
+    width: 60%;
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -287,7 +287,7 @@ img {
 }
 
 .dashboard__header .search {
-    width: 60%;
+    width: 70%;
     max-width: 400px;
 }
 

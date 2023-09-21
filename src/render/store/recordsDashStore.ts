@@ -8,6 +8,8 @@ type RecordsDashState = {
     sortField: DTO.QueryRecordRecommendationsOptions['sortField'],
     order: DTO.QueryRecordRecommendationsOptions['order'],
 }
+// TODO 判断读取的对象是否符合类型
+
 
 const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
     state: (): RecordsDashState => {
