@@ -1,6 +1,6 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
 import { isLegalAbsolutePath } from "../util/FileManager"
-import LibraryDao from "../dao/libraryDao"
+import LibraryDao from "../dao/libraryDBDao"
 import RecordService from "../service/RecordService"
 import ManageRecordSerivce from "../service/ManageRecordSerivce"
 import AuthorService from "../service/AuthorService"

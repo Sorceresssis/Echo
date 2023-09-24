@@ -4,16 +4,23 @@ namespace VO {
         name: string,
     }
 
+    type Group = {
+        id: number,
+        name: string,
+        librarys: LibraryProfile[]
+    }
+
     type LibraryProfile = {
         id: number,
         name: string,
         dataPath: string,
     }
 
-    type Group = {
+    type Library = {
         id: number,
         name: string,
-        librarys: LibraryProfile[]
+        createTime?: string,
+        modifiedTime?: string,
     }
 
     type LibraryDetail = {

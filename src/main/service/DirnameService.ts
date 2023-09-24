@@ -1,7 +1,7 @@
 import path from "path"
 import { error } from "console"
 import fm from "../util/FileManager"
-import LibraryDao, { QueryDirnamesSortRule } from "../dao/libraryDao"
+import LibraryDao, { QueryDirnamesSortRule } from "../dao/libraryDBDao"
 
 export default class AuthorService {
     private libraryDao: LibraryDao

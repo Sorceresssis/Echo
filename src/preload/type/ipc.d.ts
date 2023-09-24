@@ -31,7 +31,7 @@ export interface IElectronAPI {
      */
     renameGroup: (
         id: number,
-        newName: string
+        name: string
     ) => Promise<boolean>
 
     /** 
@@ -39,14 +39,14 @@ export interface IElectronAPI {
      */
     addGroup: (
         name: string
-    ) => Promise<boolean>
+    ) => Promise<void>
 
     /** 
      * 删除group
      */
     deleteGroup: (
         id: number
-    ) => Promise<boolean>
+    ) => Promise<void>
 
     /** 
      * 排序group
@@ -72,14 +72,14 @@ export interface IElectronAPI {
      */
     queryLibraryDetail: (
         id: number,
-    ) => Promise<VO.LibraryDetail | null>
+    ) => Promise<VO.LibraryDetail | undefined>
 
     /** 
      * 重命名library
      */
     renameLibrary: (
         id: number,
-        newName: string
+        name: string
     ) => Promise<boolean>
 
     /** 
@@ -88,14 +88,14 @@ export interface IElectronAPI {
     addLibrary: (
         groupId: number,
         name: string
-    ) => Promise<boolean>
+    ) => Promise<void>
 
     /** 
      * 删除library
      */
     deleteLibrary: (
         id: number
-    ) => Promise<boolean>
+    ) => Promise<void>
 
     /** 
      * 排序library
@@ -103,7 +103,7 @@ export interface IElectronAPI {
     sortLibrary: (
         currId: number,
         tarNextId: number,
-        groupId: number
+        moveToGroupId: number
     ) => Promise<void>
 
     editLibraryExtra: (

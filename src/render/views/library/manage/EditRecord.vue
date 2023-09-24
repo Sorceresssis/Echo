@@ -217,6 +217,7 @@ import type { FormInstance, FormRules } from 'element-plus'
 import Button2 from '@/components/Button2.vue'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import LocalImage from '@/components/LocalImage.vue'
+import router from '@/router'
 
 const rateColors = ['#b5adf7', '#887cf7', '#9e94f7'] // 评分颜色 
 const inputAutoSize = {
@@ -290,6 +291,8 @@ const rules = reactive<FormRules>({
     ]
 })
 // BUG 只有dirname 没有basename 编辑请求原始数据时会 无法显示dirname
+// TODO 优化 表达提示信息
+// TODO 建议20万数据以内
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
@@ -312,8 +315,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         isAdd.value ? MessageBox.addConfirm(cb) : MessageBox.editConfirm(cb)
     })
 }
-
-const init = function () {
+// BUG 如果删除了lib, 注页依然存在
+const init = async function () {
     const id = route.query.record_id as string | undefined
     resetFormData()
     if (id) {

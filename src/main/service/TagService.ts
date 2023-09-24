@@ -1,5 +1,5 @@
 import { error } from "node:console"
-import LibraryDao, { QueryTagsSortRule } from "../dao/libraryDao"
+import LibraryDao, { QueryTagsSortRule } from "../dao/libraryDBDao"
 import ManageRecordSerivce from "./ManageRecordSerivce"
 
 export default class TagService {

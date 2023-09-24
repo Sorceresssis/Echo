@@ -1,4 +1,4 @@
-import LibraryDao from "../dao/libraryDao"
+import LibraryDao from "../dao/libraryDBDao"
 import path from "path"
 import fm from "../util/FileManager"
 import ImageService from "./ImageService"

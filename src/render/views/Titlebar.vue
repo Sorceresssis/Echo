@@ -73,8 +73,13 @@ watch(route, async () => {
 
 		activeLibrary.value = libraryID
 		const libDetail = (await window.electronAPI.queryLibraryDetail(activeLibrary.value)) // 根据libraryID获取library的名字
-		Object.assign(activeLibraryDetail, libDetail)
-		libDetail ? document.title = `${titleBarTitle.value = libDetail.name} - Echo` : router.push('/') // 如果打开的库已不存在，跳转到欢迎页
+		if (libDetail) {
+			document.title = `${titleBarTitle.value = libDetail.name} - Echo`
+			Object.assign(activeLibraryDetail, libDetail)
+		}
+		else {
+			router.push('/') // 如果打开的库已不存在，跳转到欢迎页
+		}
 	}
 	else {
 		activeLibrary.value = 0

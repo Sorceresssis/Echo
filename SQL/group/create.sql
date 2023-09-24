@@ -1,6 +1,3 @@
--- ----------------------------
---           table
--- ----------------------------
 DROP TABLE IF EXISTS 'group';
 CREATE TABLE 'group'
 (
@@ -8,7 +5,7 @@ CREATE TABLE 'group'
     'name'         VARCHAR(255)                       NOT NULL, -- 组的名字
     'prev_id'      INTEGER  DEFAULT 0                 NOT NULL, -- 上一条记录
     'next_id'      INTEGER  DEFAULT 0                 NOT NULL, -- 下一条记录
-    'gmt_create'   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
+    'gmt_create'   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,-- 创建时间
     'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
 );
 CREATE INDEX 'idx_group(prev_id)' ON 'group' (prev_id);
@@ -22,7 +19,7 @@ CREATE TABLE 'library'
     'name'         VARCHAR(255)                       NOT NULL, -- 库的名字
     'prev_id'      INTEGER  DEFAULT 0                 NOT NULL, -- 上一条记录
     'next_id'      INTEGER  DEFAULT 0                 NOT NULL, -- 下一条记录
-    'gmt_create'   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
+    'gmt_create'   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL,-- 创建时间
     'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 最近一次修改时间
     'group_id'     INTEGER                            NOT NULL  -- 所属的组
 );
@@ -31,33 +28,13 @@ CREATE INDEX 'idx_library(next_id)' ON library (next_id);
 CREATE INDEX 'idx_library(group_id)' ON library (group_id);
 
 
+-- library_extra
 DROP TABLE IF EXISTS 'library_extra';
 CREATE TABLE 'library_extra'
 (
-    'id'      INTEGER                 NOT NULL, -- 外键
-    'keyword' VARCHAR(255) DEFAULT '' NOT NULL, -- 关键词
-    'intro'   TEXT         DEFAULT '' NOT NULL  -- 介绍
+    'id'               INTEGER                 NOT NULL, -- 外键
+    'auxiliary_st'     VARCHAR(255) DEFAULT '' NOT NULL, -- 辅助搜索文本
+    'use_auxiliary_st' BOOLEAN      DEFAULT 1  NOT NULL, -- 使用辅助搜索文本
+    'intro'            TEXT         DEFAULT '' NOT NULL  -- 介绍
 );
 CREATE INDEX 'idx_library_extra(id)' ON library_extra (id);
-
--- ----------------------------
---          Trigger
--- ----------------------------
-DROP TRIGGER IF EXISTS del_libraryExtra;
-CREATE TRIGGER del_libraryExtra
-    AFTER DELETE
-    ON library
-    FOR EACH ROW
-BEGIN
-    DELETE FROM library_extra WHERE id = OLD.id;
-END;
-
-
-DROP TRIGGER IF EXISTS ins_libraryExtra;
-CREATE TRIGGER ins_libraryExtra
-    AFTER INSERT
-    ON library
-    FOR EACH ROW
-BEGIN
-    INSERT INTO library_extra(id, keyword, intro) VALUES (NEW.id, '', '');
-END;

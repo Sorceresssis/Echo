@@ -16,8 +16,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     renameGroup: (
         id: number,
-        newName: string
-    ) => ipcRenderer.invoke('group:rename', id, newName),
+        name: string
+    ) => ipcRenderer.invoke('group:rename', id, name),
 
     addGroup: (
         name: string
@@ -45,8 +45,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     renameLibrary: (
         id: number,
-        newName: string
-    ) => ipcRenderer.invoke('library:rename', id, newName),
+        name: string
+    ) => ipcRenderer.invoke('library:rename', id, name),
 
     addLibrary: (
         groupId: number,
@@ -60,8 +60,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
     sortLibrary: (
         currId: number,
         tarNextId: number,
-        groupId: number
-    ) => ipcRenderer.invoke('library:sort', currId, tarNextId, groupId),
+        moveToGroupId: number
+    ) => ipcRenderer.invoke('library:sort', currId, tarNextId, moveToGroupId),
 
     editLibraryExtra: (
         data: DTO.LibraryExtraForm

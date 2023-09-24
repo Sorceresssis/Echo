@@ -272,8 +272,8 @@ const openAddGroup = throttle(() => {
 const handleAddGroup = async () => {
     isVisAddGroup.value = false
     if (newName.value.trim() === '') return
-    const result = await window.electronAPI.addGroup(newName.value.trim())
-    if (result) isExpandGroup.value.unshift(false)
+    await window.electronAPI.addGroup(newName.value.trim())
+    isExpandGroup.value.unshift(true)
     getGroups()
     sendCrosTabMsg(bc, bcMsg)
 }
@@ -346,6 +346,9 @@ const handleDelete = async () => {
         await window.electronAPI.deleteGroup(ctmCurGrp(cg).id)
         isExpandGroup.value.splice(cg, 1)
     } else {
+        // BUG   如果删除的library正在被打开，关闭, 期间不能再一次被打开
+        // 等带titlebar的确认然后再打开，不能直接打开
+        // TODO， 加上一个操作锁，用于监听后台是否再操作，如果在操作，就不进行操作
         await window.electronAPI.deleteLibrary(ctmCurLib(cg, cl).id)
     }
     deleteDialogInfo.value.isVis = false

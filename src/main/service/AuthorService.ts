@@ -1,7 +1,7 @@
 import { error } from "node:console"
 import { unlinkSync } from "../util/FileManager"
 import ImageService from "./ImageService"
-import LibraryDao, { QueryAuthorsSortRule } from "../dao/libraryDao"
+import LibraryDao, { QueryAuthorsSortRule } from "../dao/libraryDBDao"
 import ManageRecordSerivce from "./ManageRecordSerivce"
 
 export default class AuthorService {

@@ -1,5 +1,5 @@
 import { error } from "node:console"
-import LibraryDao, { QueryRecordsSortRule } from "../dao/libraryDao"
+import LibraryDao, { QueryRecordsSortRule } from "../dao/libraryDBDao"
 
 const infoStatusFilterMap = new Map<string, string[]>()
 export default class RecordService {

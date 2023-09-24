@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, toRaw, getCurrentInstance } from 'vue'
+import { ref, Ref, inject, toRaw } from 'vue'
 import LocalImage from '@/components/LocalImage.vue'
 
 const props = withDefaults(defineProps<{
@@ -59,7 +59,7 @@ const emit = defineEmits<{
 }>()
 
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
-
+// BUG 建议会被缓存，导致切换Library后，出现错误的数据。
 const querySearch = (queryWord: string, cb: any) => {
     window.electronAPI.autoCompleteRecord(
         activeLibrary.value,
@@ -68,9 +68,7 @@ const querySearch = (queryWord: string, cb: any) => {
             queryWord: queryWord,
             ps: props.ps
         }
-    ).then((a) => {
-        cb(a)
-    })
+    ).then(a => cb(a))
 }
 
 const acRef = ref()
