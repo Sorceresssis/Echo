@@ -1,7 +1,6 @@
 import { ipcMain, IpcMainInvokeEvent } from 'electron'
-import { handleError } from '../util/common'
-import 'reflect-metadata'
 import DIContainer from '../DI/DIContainer'
+import { handleError } from '../util/common'
 import GroupService from '../service/GroupService'
 import LibraryService from '../service/LibraryService'
 

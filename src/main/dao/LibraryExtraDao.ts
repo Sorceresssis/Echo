@@ -1,12 +1,12 @@
 import { injectable, inject } from "inversify"
-import TYPES from "../DI/types"
+import DI_TYPES from "../DI/DITypes"
 import GroupDB from "../db/GroupDB"
 
 @injectable()
 class LibraryExtraDao {
     private db: GroupDB
 
-    public constructor(@inject(TYPES.GroupDB) db: GroupDB) {
+    public constructor(@inject(DI_TYPES.GroupDB) db: GroupDB) {
         this.db = db
     }
 

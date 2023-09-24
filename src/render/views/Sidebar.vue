@@ -116,10 +116,12 @@
         <context-menu v-model:show="isVisCtmLibrary"
                       :options="ctmOptions">
             <context-menu-item label="面板"
-                               @click="router.push(`/library/${ctmCurLib().id}`)" />
+                               @click="router.push(`/library/${ctmCurLib().id}`)">
+                <template #icon> <span class="iconfont">&#xe69c;</span> </template>
+            </context-menu-item>
             <context-menu-item label="管理数据"
                                @click="router.push(`/library/${ctmCurLib().id}/manage`)">
-                <template #icon> <span class="iconfont"></span> </template>
+                <template #icon> <span class="iconfont">&#xe617;</span> </template>
             </context-menu-item>
             <context-menu-item label="在新窗口中打开"
                                @click="openLibraryInNewWindow">
@@ -127,12 +129,15 @@
             </context-menu-item>
             <context-menu-sperator />
             <context-menu-item label="重命名"
-                               @click="openRename" />
+                               @click="openRename">
+                <template #icon> <span class="iconfont">&#xe7fb;</span> </template>
+            </context-menu-item>
             <context-menu-group label="移动到">
                 <context-menu-item v-for="(group, idxGroup) in groups"
                                    :key="group.id"
                                    :label="group.name"
-                                   @click="moveLibrary(idxGroup)" />
+                                   @click="moveLibrary(idxGroup)">
+                </context-menu-item>
             </context-menu-group>
             <context-menu-item label="删除"
                                @click="openDelete">
@@ -142,7 +147,9 @@
                                @click="openInExplorer(ctmCurLib().dataPath)">
                 <template #icon> <span class="iconfont">&#xe73e;</span> </template>
             </context-menu-item>
-            <context-menu-item label="导出" />
+            <context-menu-item label="导出">
+                <template #icon> <span class="iconfont">&#xe654;</span> </template>
+            </context-menu-item>
         </context-menu>
     </div>
 </template>

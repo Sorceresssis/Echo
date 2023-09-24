@@ -1,4 +1,9 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
+import 'reflect-metadata'
+import DIContainer from '../DI/DIContainer'
+import { handleError } from '../util/common'
+
+import AuthorDao from "../dao/AuthorDao"
 import { isLegalAbsolutePath } from "../util/FileManager"
 import LibraryDao from "../dao/libraryDBDao"
 import RecordService from "../service/RecordService"
@@ -7,9 +12,25 @@ import AuthorService from "../service/AuthorService"
 import TagService from "../service/TagService"
 import DirnameService from "../service/DirnameService"
 import Result from "../util/Result"
+import LibraryDB from "../db/LibraryDB"
+import appConfig from "../app/config"
+
+
+
+// export function rebindLibraryDBDependence(libraryId: number) {
+//     if (container.get<LibraryDB>(TYPES.LibraryDB)) {
+//         // container.unbind(TYPES.LibraryDB)
+//         container.rebind<LibraryDB>(TYPES.LibraryDB).toConstantValue(new LibraryDB(appConfig.getLibraryDBFilePath(libraryId)))
+//     } else {
+//         container.bind<LibraryDB>(TYPES.LibraryDB).toConstantValue(new LibraryDB(appConfig.getLibraryDBFilePath(libraryId)))
+//     }
+// }
+// container.bind<LibraryDB>(TYPES.LibraryDB).toConstantValue(new LibraryDB(appConfig.getLibraryDBFilePath(0)))
+
+
 
 // 多个窗口可能同时调用，所有不能使用唯一的LibraryDao
-export default function ipcMainLibrary() {
+function ipcMainLibrary() {
     ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.AcOptions): VO.AcSuggestion[] => {
         const libraryDao = new LibraryDao(libraryId)
         try {
@@ -23,6 +44,13 @@ export default function ipcMainLibrary() {
     })
 
     ipcMain.handle('record:queryRecmds', async (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): Promise<DTO.Page<VO.RecordRecommendation>> => {
+        // DIContainer.rebind<LibraryDB>(LibraryDB).toConstantValue(new LibraryDB(appConfig.getLibraryDBFilePath(libraryId)))
+        //    DIContainer.
+        // const dao = DIContainer.get<AuthorDao>(AuthorDao)
+        // dao.test()
+        // dao.destroy()
+
+
         const recordService = new RecordService(libraryId)
         try {
             return recordService.queryRecordRecmds(options)
@@ -242,3 +270,6 @@ export default function ipcMainLibrary() {
         }
     })
 }
+
+
+export default ipcMainLibrary

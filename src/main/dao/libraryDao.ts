@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify"
-import TYPES from "../DI/types"
+import DI_TYPES from "../DI/DITypes"
 import GroupDB from "../db/GroupDB"
 
 
@@ -7,7 +7,7 @@ import GroupDB from "../db/GroupDB"
 class LibraryDao {
 	private db: GroupDB
 
-	public constructor(@inject(TYPES.GroupDB) db: GroupDB) {
+	public constructor(@inject(DI_TYPES.GroupDB) db: GroupDB) {
 		this.db = db
 	}
 
@@ -33,7 +33,6 @@ class LibraryDao {
 	}
 
 	/**
-	 * 当要查找prevId为0的情况下无法使用queryPrevIdNextIdById方法代替。因为没有id为0的记录
 	 * 由于每一个Group都有一个prevId为0的节点表示头节点，所以要带上groupId
 	 */
 	public queryLibraryIdByGroupIdPrevId(groupId: PrimaryKey, prevId: PrimaryKey): number | undefined {
@@ -42,6 +41,14 @@ class LibraryDao {
 
 	public queryLibraryIdByGroupIdNextId(groupId: PrimaryKey, nextId: PrimaryKey): number | undefined {
 		return this.db.prepare('SELECT id FROM library WHERE group_id = ? AND next_id = ?;').pluck().get(groupId, nextId) as number | undefined
+	}
+
+	public queryLibraryPrevIdById(id: PrimaryKey): number | undefined {
+		return this.db.prepare(`SELECT prev_id FROM library WHERE id = ?;`).pluck().get(id) as number | undefined
+	}
+
+	public queryLibraryNextIdById(id: PrimaryKey): number | undefined {
+		return this.db.prepare(`SELECT next_id FROM library WHERE id = ?;`).pluck().get(id) as number | undefined
 	}
 
 	public queryLibraryPrevIdNextIdById(id: PrimaryKey): [number, number] | undefined {

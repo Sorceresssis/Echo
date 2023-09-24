@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify"
 import DIContainer from "../DI/DIContainer"
-import TYPES from "../DI/types"
+import DI_TYPES from "../DI/DITypes"
 import GroupDB from "../db/GroupDB"
 import GroupDao from "../dao/GroupDao"
 import LibraryService from "./LibraryService"
@@ -31,7 +31,7 @@ class GroupService {
     }
 
     public create(name: string) {
-        DIContainer.get<GroupDB>(TYPES.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
             // 获取第一位group的id
             const headId = this.groupDao.queryGroupIdByPrevId(0)
             // 新插入Group的prevId和nextId都默认为0，所以要先查询有没有第一位group。
@@ -42,7 +42,7 @@ class GroupService {
     }
 
     public delete(id: number) {
-        DIContainer.get<GroupDB>(TYPES.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
             this.removeNode(id) // 先删除链接关系
             this.groupDao.deleteGroupById(id) // 删除group记录
             this.libraryService.deleteByGroupId(id) // 删除group下的所有library
@@ -50,13 +50,13 @@ class GroupService {
     }
 
     public sort(curId: number, tarNextId: number) {
-        const curNextId = this.groupDao.queryGroupIdByPrevId(curId)
+        const curNextId = this.groupDao.queryGroupNextIdById(curId)
         // 要移动到的位置和当前位置相同，不需要移动，而且会导致死循环
         if (curNextId === void 0 || curNextId === tarNextId) return
-        // BUG ,倒数第一个移到第二个无法移动
-        // TODO 测试 能否自己建库
-        DIContainer.get<GroupDB>(TYPES.GroupDB).transaction(() => {
+
+        DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
             this.removeNode(curId)
+            // tarNextId可能为0，表示要移到最后
             const tarPrevId = this.groupDao.queryGroupIdByNextId(tarNextId) || 0
             this.insertNode(curId, tarPrevId, tarNextId)
         })

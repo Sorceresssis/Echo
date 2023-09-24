@@ -1,12 +1,12 @@
 import { injectable, inject } from "inversify"
-import TYPES from "../DI/types"
+import DI_TYPES from "../DI/DITypes"
 import GroupDB from "../db/GroupDB"
 
 @injectable()
 class GroupDao {
     private db: GroupDB
 
-    public constructor(@inject(TYPES.GroupDB) db: GroupDB) {
+    public constructor(@inject(DI_TYPES.GroupDB) db: GroupDB) {
         this.db = db
     }
 
@@ -20,8 +20,10 @@ class GroupDao {
     }
 
     /**
-     * PrevId和NextId都可以为0，表示头部或者尾部。
-     * 比queryGroupPrevIdNextIdById更加通用
+     * queryGroupIdBy[PrevId|NextId] : 查询 [前驱为prevId | 后继为nextId]的id. 建议用来查询[头|尾]节点
+     * 双向链表是通过0来作为头尾的标记.
+     * 优点:用0这个标记可以很方便的查询到[头|尾]节点.
+     * 缺点:由于没有把[尾|头]节点作为[前驱|后继]的记录，所以通过[尾|头]节点的id作为参数查询时，返回undefined.
      */
     public queryGroupIdByPrevId(prevId: PrimaryKey): number | undefined {
         return this.db.prepare(`SELECT id FROM 'group' WHERE prev_id = ?;`).pluck().get(prevId) as number | undefined
@@ -29,6 +31,19 @@ class GroupDao {
 
     public queryGroupIdByNextId(nextId: PrimaryKey): number | undefined {
         return this.db.prepare(`SELECT id FROM 'group' WHERE next_id = ?;`).pluck().get(nextId) as number | undefined
+    }
+
+    /**
+     * query[PrevId|NextId]ById : 查询主键为id的记录的 [前驱|后驱].
+     * 优点:可以很方便的查询到每一个节点的[前驱|后驱]节点.
+     * 缺点:无法一步到位的查询到[头|尾]节点.
+     */
+    public queryGroupPrevIdById(id: PrimaryKey): number | undefined {
+        return this.db.prepare(`SELECT prev_id FROM 'group' WHERE id = ?;`).pluck().get(id) as number | undefined
+    }
+
+    public queryGroupNextIdById(id: PrimaryKey): number | undefined {
+        return this.db.prepare(`SELECT next_id FROM 'group' WHERE id = ?;`).pluck().get(id) as number | undefined
     }
 
     public queryGroupPrevIdNextIdById(id: PrimaryKey): [number, number] | undefined {

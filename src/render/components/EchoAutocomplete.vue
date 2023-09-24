@@ -103,7 +103,7 @@ const handleKeyupEnter = () => {
 }
 
 .echo-ac-suggestion .series::before {
-    content: '\e69c';
+    content: '\e69e';
     font-family: "iconfont" !important;
     font-size: 16px;
 }

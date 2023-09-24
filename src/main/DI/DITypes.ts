@@ -1,6 +1,7 @@
-const TYPES = {
+const DI_TYPES = {
     GroupDB: Symbol('GroupDB'),
+
     LibraryDB: Symbol('LibraryDB'),
 }
 
-export default TYPES
+export default DI_TYPES
