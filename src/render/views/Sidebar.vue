@@ -349,14 +349,22 @@ const handleDelete = async () => {
     if (deleteDialogInfo.value.confirmInput !== deleteDialogInfo.value.confirmName) return
     const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
     if (cl === -1) {
-        // 处理展开的问题
+        // 如果正在打开的library在删除的group中，关闭
+        ctmCurGrp(cg).librarys.forEach(l => {
+            if (l.id === activeLibrary.value) {
+                router.push('/')
+            }
+        })
         await window.electronAPI.deleteGroup(ctmCurGrp(cg).id)
+
+        // 处理展开的问题
         isExpandGroup.value.splice(cg, 1)
     } else {
-        // BUG   如果删除的library正在被打开，关闭, 期间不能再一次被打开
-        // 等带titlebar的确认然后再打开，不能直接打开
-        // TODO， 加上一个操作锁，用于监听后台是否再操作，如果在操作，就不进行操作
+        if (ctmCurLib(cg, cl).id === activeLibrary.value) {
+            router.push('/')
+        }
         await window.electronAPI.deleteLibrary(ctmCurLib(cg, cl).id)
+
     }
     deleteDialogInfo.value.isVis = false
     getGroups()

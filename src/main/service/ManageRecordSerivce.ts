@@ -20,7 +20,7 @@ export default class ManageRecordSerivce {
                     fm.unlinkSync(originCover)
                 }
                 if (newCover.length) {          // 保存新的图片
-                    const imageService = new ImageService(newCover, this.libraryId)
+                    const imageService = new ImageService(newCover )
                     return imageService.handleRecordCover() || null
                 }
                 return null

@@ -8,7 +8,6 @@ import LibraryDao from "../dao/LibraryDao"
 import LibraryExtraDao from "../dao/LibraryExtraDao"
 import GroupService from "../service/GroupService"
 import LibraryService from "../service/LibraryService"
-import LibraryDB from "../db/LibraryDB"
 import AuthorDao from "../dao/AuthorDao"
 
 const container = new Container()
@@ -26,8 +25,7 @@ container.bind<GroupService>(GroupService).toSelf().inSingletonScope()
 container.bind<LibraryService>(LibraryService).toSelf().inSingletonScope()
 
 
-// 单列的LibraryDB
-
+container.bind<number>(DI_TYPES.LibraryId).toConstantValue(0)
 // 依赖的LibraryDB是动态的，所以不能使用inSingletonScope
 container.bind<AuthorDao>(AuthorDao).toSelf()
 

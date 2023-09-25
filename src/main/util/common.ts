@@ -1,16 +1,16 @@
-import { dialog } from "electron"
-
-export function handleError<T extends (...args: any[]) => any>
-    (fn: T, catchReturn: ReturnType<T>, title: string = 'Error', suggest?: string) {
+export function exceptionalHandler<T extends (...args: any[]) => any>
+    (tryFn: T, catchFn: (e: any) => void, catchReturn: ReturnType<T>, finallyFn?: () => void) {
     return function (...args: any[]) {
         try {
-            return fn(...args)
+            return tryFn(...args)
         } catch (e: any) {
-            // 处理异常，您可以在这里添加自定义的异常处理逻辑 
-            dialog.showErrorBox(title, suggest ? `${suggest}\n${e.message}` : e.message)
+            catchFn(e)
             return catchReturn
+        } finally {
+            finallyFn && finallyFn()
         }
     }
 }
 
-export default { handleError }
+
+export default { exceptionalHandler }

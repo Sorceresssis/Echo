@@ -291,8 +291,7 @@ const rules = reactive<FormRules>({
     ]
 })
 // BUG 只有dirname 没有basename 编辑请求原始数据时会 无法显示dirname
-// TODO 优化 表达提示信息
-// TODO 建议20万数据以内
+// TODO 优化 表达提示信息  建议20万数据以内
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
@@ -315,7 +314,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         isAdd.value ? MessageBox.addConfirm(cb) : MessageBox.editConfirm(cb)
     })
 }
-// BUG 如果删除了lib, 注页依然存在
+
 const init = async function () {
     const id = route.query.record_id as string | undefined
     resetFormData()

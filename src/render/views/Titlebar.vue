@@ -65,7 +65,10 @@ watch(route, async () => {
 	canGoBack.value = position !== 0   // 当前href的位置是第一个
 	canGoForward.value = position !== length - 1   // 当前href的位置是最后一个
 
-	/* 根据路由修改标题 */
+	/**
+	 * 1. 根据路由修改标题
+	 * 2. 根据路由修改当前激活的库，这是唯一一个可以修改activeLibrary的地方，其他地方只能读取
+	 */
 	const currentPath: string = route.fullPath
 	if (currentPath.startsWith('/library')) {
 		const libraryID: number = Number.parseInt(currentPath.match(/\/library\/(\d+)/)![1]) // 获取libraryId
@@ -73,6 +76,7 @@ watch(route, async () => {
 
 		activeLibrary.value = libraryID
 		const libDetail = (await window.electronAPI.queryLibraryDetail(activeLibrary.value)) // 根据libraryID获取library的名字
+		// 这相当于一个哨兵, 如果打开的库已不存在, 会立刻阻止后续的操作。
 		if (libDetail) {
 			document.title = `${titleBarTitle.value = libDetail.name} - Echo`
 			Object.assign(activeLibraryDetail, libDetail)

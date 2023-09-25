@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
+import { isSameType } from '@/util/common'
 
 type RecordsDashState = {
     view: 'compact' | 'thumbnail' | 'extended',
@@ -8,7 +9,6 @@ type RecordsDashState = {
     sortField: DTO.QueryRecordRecommendationsOptions['sortField'],
     order: DTO.QueryRecordRecommendationsOptions['order'],
 }
-// TODO 判断读取的对象是否符合类型
 
 
 const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
@@ -22,7 +22,7 @@ const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
         }
         // 读取本地存储
         const saved = getLocalStorage(StoreId.RECORDS_DASH)
-        if (saved) {
+        if (saved && isSameType(saved, defaultState)) {
             return saved
         } else {
             setLocalStorage(StoreId.RECORDS_DASH, defaultState)

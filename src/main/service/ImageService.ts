@@ -1,18 +1,20 @@
 import { nativeImage, type NativeImage } from 'electron'
 import fs from 'fs'
-import { resolve } from 'path'
+import path from 'path'
+import DIContainer from '../DI/DIContainer'
+import DI_TYPES from '../DI/DITypes'
 import config from '../app/config'
 import generateUid from "../util/uid"
 import { mkdirsSync } from '../util/FileManager'
 
-export default class ImageService {
+class ImageService {
     private static readonly MIN_SIZE = 300
-    image: NativeImage
-    libId: number
+    private image: NativeImage
+    private libraryId: number
 
-    constructor(srcPath: string, libId: number) {
+    constructor(srcPath: string) {
         this.image = nativeImage.createFromPath(srcPath)
-        this.libId = libId
+        this.libraryId = DIContainer.get<number>(DI_TYPES.LibraryId)
     }
 
     /**
@@ -72,12 +74,16 @@ export default class ImageService {
      * 保存图片
      */
     private save() {
-        // 检查文件夹是否存在，不存在则创建 
-        const dirname = config.getLibraryImagesDirPath(this.libId)
+        const dirname = config.getLibraryImagesDirPath(this.libraryId) // 检查文件夹是否存在，不存在则创建 
         mkdirsSync(dirname)
+
         const basename = generateUid() + '.jpg'
-        // 保存图片 
-        fs.writeFileSync(resolve(dirname, basename), this.image.toJPEG(100))
+
+        // 保存图片
+        fs.writeFileSync(path.join(dirname, basename), this.image.toJPEG(100))
         return basename
     }
 }
+
+
+export default ImageService

@@ -2,30 +2,6 @@ import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
 
-// type AppValue = {
-//     appDir: string,
-// }
-
-// const readAppValue = function (): AppValue {
-//     const appValueFilePath = path.join(__dirname, 'app_value.json')
-//     try {
-//         let appValue = JSON.parse(fs.readFileSync(appValueFilePath, 'utf8'))
-//         if (!appValue) {
-//             throw new Error('appValue is null')
-//         }
-//         return appValue
-//     } catch {
-//         const appValue = {
-//             // 先把app安装位置保存下来, 然后需要时从文件读取，因为有些操作是在其他线程使用的，而electron模块只能在主进程使用。
-//             appDir: path.dirname(app.getPath('exe')),
-//         }
-//         fs.writeFileSync(appValueFilePath, JSON.stringify(appValue), 'utf8')
-//         return readAppValue()
-//     }
-// }
-
-// const appValue = readAppValue()
-
 export type Config = {
     userDataPath: string,
     locale: string,

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
+import { isSameType } from '@/util/common'
 
 type TagsDashState = {
     sortField: DTO.QueryTagDetailsOptions['sortField'],
@@ -14,7 +15,7 @@ const useTagsDashStore = defineStore(StoreId.TAGS_DASH, {
             order: 'ASC'
         }
         const saved = getLocalStorage(StoreId.TAGS_DASH)
-        if (saved) {
+        if (saved && isSameType(saved, defaultState)) {
             return saved
         } else {
             setLocalStorage(StoreId.TAGS_DASH, defaultState)

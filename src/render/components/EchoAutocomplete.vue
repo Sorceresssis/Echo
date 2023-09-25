@@ -33,7 +33,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, toRaw } from 'vue'
+import { ref, Ref, inject, toRaw, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import LocalImage from '@/components/LocalImage.vue'
 
 const props = withDefaults(defineProps<{
@@ -73,10 +74,14 @@ const querySearch = (queryWord: string, cb: any) => {
 
 const acRef = ref()
 const handleKeyupEnter = () => {
-    // blur() and close() are the property exposed by the ElAutocomplete component
     acRef.value.blur()
-    acRef.value.close()
 }
+
+const route = useRoute()
+
+watch(route, () => {
+    // acRef.value.activated = false
+})
 </script>
 
 <style>

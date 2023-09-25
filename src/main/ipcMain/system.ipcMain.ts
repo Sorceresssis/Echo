@@ -10,7 +10,7 @@ export default function ipcMainSystem() {
         if (!hyperlink) return
         const protocolRegex = /^(http|https):\/\//
         if (!protocolRegex.test(hyperlink)) {
-            hyperlink = `http://${hyperlink}`
+            hyperlink = `https://${hyperlink}`
         }
         shell.openExternal(hyperlink)
     })

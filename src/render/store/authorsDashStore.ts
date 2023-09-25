@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
+import { isSameType } from '@/util/common'
 
 type AuthorsDashState = {
     sortField: DTO.QueryAuthorRecommendationsOptions['sortField'],
@@ -15,7 +16,7 @@ const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
         }
 
         const saved = getLocalStorage(StoreId.AUTHORS_DASH)
-        if (saved) {
+        if (saved && isSameType(saved, defaultState)) {
             return saved
         } else {
             setLocalStorage(StoreId.AUTHORS_DASH, defaultState)

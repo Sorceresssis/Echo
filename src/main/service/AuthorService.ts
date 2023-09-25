@@ -5,11 +5,9 @@ import LibraryDao, { QueryAuthorsSortRule } from "../dao/libraryDBDao"
 import ManageRecordSerivce from "./ManageRecordSerivce"
 
 export default class AuthorService {
-    private libraryId: number
     private libraryDao: LibraryDao
 
     constructor(libraryId: number) {
-        this.libraryId = libraryId
         this.libraryDao = new LibraryDao(libraryId)
     }
 
@@ -59,7 +57,6 @@ export default class AuthorService {
             author.recordCount = this.libraryDao.queryCountOfRecordsByAuthorId(authorId)
             return author
         }
-        return
     }
 
     public deleteAuthor(authorId: number) {
@@ -87,7 +84,7 @@ export default class AuthorService {
             }
             if (author.avatar) {
                 // 保存新的头像
-                const imageService = new ImageService(formData.avatar, this.libraryId)
+                const imageService = new ImageService(formData.avatar)
                 const avatar = imageService.handleAuthorAvatar()
                 if (avatar) {
                     author.avatar = avatar

@@ -1,9 +1,7 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
-import 'reflect-metadata'
 import DIContainer from '../DI/DIContainer'
-import { handleError } from '../util/common'
-
-import AuthorDao from "../dao/AuthorDao"
+import DI_TYPES from "../DI/DITypes"
+// import { exceptionalHandler } from '../util/common'
 import { isLegalAbsolutePath } from "../util/FileManager"
 import LibraryDao from "../dao/libraryDBDao"
 import RecordService from "../service/RecordService"
@@ -12,24 +10,24 @@ import AuthorService from "../service/AuthorService"
 import TagService from "../service/TagService"
 import DirnameService from "../service/DirnameService"
 import Result from "../util/Result"
-import LibraryDB from "../db/LibraryDB"
-import appConfig from "../app/config"
+// import LibraryDB from "../db/LibraryDB"
+// import appConfig from "../app/config"
 
-
-
-// export function rebindLibraryDBDependence(libraryId: number) {
-//     if (container.get<LibraryDB>(TYPES.LibraryDB)) {
-//         // container.unbind(TYPES.LibraryDB)
-//         container.rebind<LibraryDB>(TYPES.LibraryDB).toConstantValue(new LibraryDB(appConfig.getLibraryDBFilePath(libraryId)))
-//     } else {
-//         container.bind<LibraryDB>(TYPES.LibraryDB).toConstantValue(new LibraryDB(appConfig.getLibraryDBFilePath(libraryId)))
-//     }
+// function distroyLibraryDB() {
+//     const libraryDB = DIContainer.get<LibraryDB>(DI_TYPES.LibraryDB)
+//     libraryDB.close()
+//     DIContainer.unbind(DI_TYPES.LibraryDB)
 // }
-// container.bind<LibraryDB>(TYPES.LibraryDB).toConstantValue(new LibraryDB(appConfig.getLibraryDBFilePath(0)))
+
+function bindLibrary(libraryId: number) {
+
+    DIContainer.rebind<number>(DI_TYPES.LibraryId).toConstantValue(libraryId)
+    // const libraryDB = new LibraryDB(appConfig.getLibraryDBFilePath(libraryId))
+    // console.log(DIContainer.isBound(DI_TYPES.LibraryDB))
+    // DIContainer.bind<LibraryDB>(DI_TYPES.LibraryDB).toConstantValue(libraryDB)
+}
 
 
-
-// 多个窗口可能同时调用，所有不能使用唯一的LibraryDao
 function ipcMainLibrary() {
     ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.AcOptions): VO.AcSuggestion[] => {
         const libraryDao = new LibraryDao(libraryId)
@@ -44,13 +42,6 @@ function ipcMainLibrary() {
     })
 
     ipcMain.handle('record:queryRecmds', async (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): Promise<DTO.Page<VO.RecordRecommendation>> => {
-        // DIContainer.rebind<LibraryDB>(LibraryDB).toConstantValue(new LibraryDB(appConfig.getLibraryDBFilePath(libraryId)))
-        //    DIContainer.
-        // const dao = DIContainer.get<AuthorDao>(AuthorDao)
-        // dao.test()
-        // dao.destroy()
-
-
         const recordService = new RecordService(libraryId)
         try {
             return recordService.queryRecordRecmds(options)
@@ -74,6 +65,7 @@ function ipcMainLibrary() {
     })
 
     ipcMain.handle('record:edit', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result | undefined => {
+        bindLibrary(libraryId)
         const manageRecordSerivce = new ManageRecordSerivce(libraryId)
         try {
             return options.batch
@@ -153,6 +145,7 @@ function ipcMainLibrary() {
     })
 
     ipcMain.handle('author:edit', async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditAuthorForm,) => {
+        bindLibrary(libraryId)
         const authorService = new AuthorService(libraryId)
         try {
             authorService.editAuthor(formData)
@@ -258,8 +251,7 @@ function ipcMainLibrary() {
             if (isLegalAbsolutePath(target) && isLegalAbsolutePath(replace)) {
                 libraryDao.startsWithReplaceDirname(target, replace)
                 return Result.success()
-            }
-            else {
+            } else {
                 return Result.error('路径不合法')
             }
         } catch (e: any) {

@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
+import { isSameType } from '@/util/common'
 
 type DirnameDashState = {
     sortField: DTO.QueryDirnameDetailsOptions['sortField'],
@@ -14,7 +15,7 @@ const useDirnameDashStore = defineStore(StoreId.Dirname_Dash, {
             order: 'ASC'
         }
         const saved = getLocalStorage(StoreId.Dirname_Dash)
-        if (saved) {
+        if (saved && isSameType(saved, defaultState)) {
             return saved
         } else {
             setLocalStorage(StoreId.Dirname_Dash, defaultState)
