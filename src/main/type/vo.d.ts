@@ -53,6 +53,8 @@ namespace VO {
         rate: number,
         cover: string | null,
         hyperlink: string | null,
+        dirname: string | null,
+        basename: string | null,
         resourcePath: string | null,
         authors: VO.AuthorProfile[]
         tags: VO.Tag[]

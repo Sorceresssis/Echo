@@ -3,7 +3,7 @@ import { error } from "console"
 import fm from "../util/FileManager"
 import LibraryDao, { QueryDirnamesSortRule } from "../dao/libraryDBDao"
 
-export default class AuthorService {
+export default class DirnameService {
     private libraryDao: LibraryDao
 
     constructor(libraryId: number) {

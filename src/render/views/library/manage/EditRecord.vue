@@ -217,7 +217,6 @@ import type { FormInstance, FormRules } from 'element-plus'
 import Button2 from '@/components/Button2.vue'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import LocalImage from '@/components/LocalImage.vue'
-import router from '@/router'
 
 const rateColors = ['#b5adf7', '#887cf7', '#9e94f7'] // 评分颜色 
 const inputAutoSize = {

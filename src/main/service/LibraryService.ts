@@ -24,7 +24,7 @@ class LibraryService {
 		const lib = this.libraryDao.queryLibraryById(id) as VO.LibraryDetail | undefined
 		if (lib) {
 			const extra = this.libraryExtraDao.queryLibraryExtraById(id) as Entity.LibraryExtra
-			lib.useAuxiliarySt = extra.useAuxiliarySt ? true : false // 把1,0转换为true, false 
+			lib.useAuxiliarySt = extra.useAuxiliarySt ? true : false // 把1,0转换为true, false
 			lib.auxiliarySt = extra.auxiliarySt
 			lib.intro = extra.intro
 		}

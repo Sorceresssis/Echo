@@ -1,13 +1,12 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES from "../DI/DITypes"
-import LibraryDB from "../db/LibraryDB"
+import DI_TYPES, { DILibrary } from "../DI/DITypes"
 
 @injectable()
 class RecordAuthorDao {
-    private db: LibraryDB
+    private lib: DILibrary
 
-    public constructor(@inject(DI_TYPES.LibraryDB) db: LibraryDB) {
-        this.db = db
+    public constructor(@inject(DI_TYPES.Library) lib: DILibrary) {
+        this.lib = lib
     }
 
 

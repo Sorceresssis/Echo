@@ -10,7 +10,7 @@ class GroupDao {
         this.db = db
     }
 
-    public querySortedGroupAll(): VO.GroupProfile[] {
+    public querySortedGroupAll(): Domain.GroupProfile[] {
         return this.db.all(`
             WITH RECURSIVE group_list AS (
                 SELECT id, name, prev_id, next_id FROM 'group' WHERE prev_id = 0

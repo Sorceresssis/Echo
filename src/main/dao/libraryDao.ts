@@ -11,11 +11,11 @@ class LibraryDao {
 		this.db = db
 	}
 
-	public queryLibraryById(id: number): VO.Library | undefined {
+	public queryLibraryById(id: number): Domain.Library | undefined {
 		return this.db.get(`SELECT id, name, DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM library WHERE id=?;`, id)
 	}
 
-	public querySortedLibrarysByGroupId(groupId: number): { id: number, name: string }[] {
+	public querySortedLibrarysByGroupId(groupId: number): Domain.LibraryProfile[] {
 		return this.db.all(`
         	WITH RECURSIVE library_list AS (
             	SELECT id, name, prev_id, next_id FROM 'library' WHERE group_id = ? AND prev_id = 0

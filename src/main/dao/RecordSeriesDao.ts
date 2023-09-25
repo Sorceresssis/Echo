@@ -2,7 +2,7 @@ import { injectable, inject } from "inversify"
 import DI_TYPES, { DILibrary } from "../DI/DITypes"
 
 @injectable()
-class AuthorDao {
+class RecordSeriesDao {
     private lib: DILibrary
 
     public constructor(@inject(DI_TYPES.Library) lib: DILibrary) {
@@ -12,4 +12,4 @@ class AuthorDao {
 }
 
 
-export default AuthorDao
+export default RecordSeriesDao

@@ -1,9 +1,14 @@
+import LibraryDB from "../db/LibraryDB"
+
 const DI_TYPES = {
     GroupDB: Symbol('GroupDB'),
 
-    LibraryId: Symbol('LibraryId'),
+    Library: Symbol('Library'),
+}
 
-    LibraryDB: Symbol('LibraryDB'),
+export type DILibrary = {
+    id: number,
+    dbConnection: LibraryDB,
 }
 
 export default DI_TYPES

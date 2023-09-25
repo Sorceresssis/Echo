@@ -1,7 +1,9 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
+import appConfig from "../app/config"
 import DIContainer from '../DI/DIContainer'
-import DI_TYPES from "../DI/DITypes"
-// import { exceptionalHandler } from '../util/common'
+import DI_TYPES, { DILibrary } from "../DI/DITypes"
+import { exceptionalHandler } from '../util/common'
+import LibraryDB from "../db/LibraryDB"
 import { isLegalAbsolutePath } from "../util/FileManager"
 import LibraryDao from "../dao/libraryDBDao"
 import RecordService from "../service/RecordService"
@@ -10,22 +12,22 @@ import AuthorService from "../service/AuthorService"
 import TagService from "../service/TagService"
 import DirnameService from "../service/DirnameService"
 import Result from "../util/Result"
-// import LibraryDB from "../db/LibraryDB"
-// import appConfig from "../app/config"
+import TmmpRecordService from "../tmpService/RecordService"
 
-// function distroyLibraryDB() {
-//     const libraryDB = DIContainer.get<LibraryDB>(DI_TYPES.LibraryDB)
-//     libraryDB.close()
-//     DIContainer.unbind(DI_TYPES.LibraryDB)
-// }
 
-function bindLibrary(libraryId: number) {
+const { rebindLibrary, closeLibraryDB } = function () {
+    const library = DIContainer.get<DILibrary>(DI_TYPES.Library)
 
-    DIContainer.rebind<number>(DI_TYPES.LibraryId).toConstantValue(libraryId)
-    // const libraryDB = new LibraryDB(appConfig.getLibraryDBFilePath(libraryId))
-    // console.log(DIContainer.isBound(DI_TYPES.LibraryDB))
-    // DIContainer.bind<LibraryDB>(DI_TYPES.LibraryDB).toConstantValue(libraryDB)
-}
+    return {
+        rebindLibrary: function (libraryId: number) {
+            library.id = libraryId
+            library.dbConnection = new LibraryDB(appConfig.getLibraryDBFilePath(libraryId))
+        },
+        closeLibraryDB: function () {
+            library.dbConnection?.close()
+        }
+    }
+}()
 
 
 function ipcMainLibrary() {
@@ -42,6 +44,9 @@ function ipcMainLibrary() {
     })
 
     ipcMain.handle('record:queryRecmds', async (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): Promise<DTO.Page<VO.RecordRecommendation>> => {
+        rebindLibrary(libraryId)
+
+
         const recordService = new RecordService(libraryId)
         try {
             return recordService.queryRecordRecmds(options)
@@ -65,7 +70,7 @@ function ipcMainLibrary() {
     })
 
     ipcMain.handle('record:edit', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result | undefined => {
-        bindLibrary(libraryId)
+        rebindLibrary(libraryId)
         const manageRecordSerivce = new ManageRecordSerivce(libraryId)
         try {
             return options.batch
@@ -145,7 +150,7 @@ function ipcMainLibrary() {
     })
 
     ipcMain.handle('author:edit', async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditAuthorForm,) => {
-        bindLibrary(libraryId)
+        rebindLibrary(libraryId)
         const authorService = new AuthorService(libraryId)
         try {
             authorService.editAuthor(formData)
