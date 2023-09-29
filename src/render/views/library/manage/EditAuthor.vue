@@ -59,8 +59,8 @@ import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import LocalImage from '@/components/LocalImage.vue'
 
 const inputAutoSize = {
-    minRows: 4,
-    maxRows: 4
+    minRows: 8,
+    maxRows: 8,
 }
 const route = useRoute()
 const submitBtnText = ref('添加')

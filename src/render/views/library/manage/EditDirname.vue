@@ -8,7 +8,6 @@
                  label-width="120px"
                  require-asterisk-position="right"
                  status-icon>
-            <!-- <h1 style="font-size: 18px; border-bottom: 1px solid #777; margin: 10px 0;">目录从头部分替换</h1> -->
             <el-form-item label="匹配值"
                           prop="targetPrefix">
                 <echo-autocomplete v-model="formData.targetPrefix"

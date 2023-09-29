@@ -3,9 +3,12 @@ import appConfig from "../app/config"
 import { injectable, inject } from "inversify"
 import DIContainer from "../DI/DIContainer"
 import DI_TYPES from "../DI/DITypes"
+import DIDecorator from "../DI/DIDecorator"
 import GroupDB from "../db/GroupDB"
+import GroupService from "./GroupService"
 import LibraryDao from "../dao/LibraryDao"
 import LibraryExtraDao from "../dao/LibraryExtraDao"
+
 
 @injectable()
 class LibraryService {
@@ -13,8 +16,8 @@ class LibraryService {
 	private libraryExtraDao: LibraryExtraDao
 
 	public constructor(
-		@inject(LibraryDao) libraryDao: LibraryDao,
-		@inject(LibraryExtraDao) libraryExtraDao: LibraryExtraDao,
+		@inject(DI_TYPES.LibraryDao) libraryDao: LibraryDao,
+		@inject(DI_TYPES.LibraryExtraDao) libraryExtraDao: LibraryExtraDao,
 	) {
 		this.libraryDao = libraryDao
 		this.libraryExtraDao = libraryExtraDao

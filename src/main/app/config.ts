@@ -1,6 +1,8 @@
 import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
+import DIContainer from "../DI/DIContainer"
+import DI_TYPES, { DILibrary } from "../DI/DITypes"
 
 export type Config = {
     userDataPath: string,
@@ -54,7 +56,7 @@ class AppConfig {
         return path.join(this.get('userDataPath'), 'group.db')
     }
 
-    public getLibraryDirPath(id: PrimaryKey,) {
+    public getLibraryDirPath(id: PrimaryKey) {
         return path.join(this.get('userDataPath'), id.toString())
     }
 

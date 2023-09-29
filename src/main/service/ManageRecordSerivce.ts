@@ -17,10 +17,10 @@ export default class ManageRecordSerivce {
         if (newCover !== originCover) {
             try {
                 if (originCover.length) {       // 删除旧的图片, 但是删除的过程中可能会出错(没有权限,文件被占用等)
-                    fm.unlinkSync(originCover)
+                    fm.unlinkIfExistsSync(originCover)
                 }
                 if (newCover.length) {          // 保存新的图片
-                    const imageService = new ImageService(newCover )
+                    const imageService = new ImageService(newCover)
                     return imageService.handleRecordCover() || null
                 }
                 return null

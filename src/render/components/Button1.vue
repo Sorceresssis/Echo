@@ -18,6 +18,7 @@
     background-color: #fff;
     cursor: pointer;
     box-sizing: border-box;
+    user-select: none;
 }
 
 .button1 .iconfont {

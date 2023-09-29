@@ -220,8 +220,8 @@ import LocalImage from '@/components/LocalImage.vue'
 
 const rateColors = ['#b5adf7', '#887cf7', '#9e94f7'] // 评分颜色 
 const inputAutoSize = {
-    minRows: 4,
-    maxRows: 4
+    minRows: 6,
+    maxRows: 6,
 }
 const route = useRoute()
 
@@ -341,7 +341,7 @@ onMounted(init)
 
 .attribute-container {
     min-height: 38px;
-    max-height: 128px;
+    max-height: 178px;
     display: flex;
     margin-top: 15px;
     margin-bottom: 5px;

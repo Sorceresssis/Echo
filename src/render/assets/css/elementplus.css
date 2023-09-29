@@ -25,6 +25,7 @@
 /* input*/
 .el-input {
     --el-input-bg-color: #fff !important;
+    flex: 1;
 }
 
 .el-textarea {

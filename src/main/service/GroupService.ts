@@ -11,8 +11,8 @@ class GroupService {
     private libraryService: LibraryService
 
     public constructor(
-        @inject(GroupDao) groupDao: GroupDao,
-        @inject(LibraryService) libraryService: LibraryService,
+        @inject(DI_TYPES.GroupDao) groupDao: GroupDao,
+        @inject(DI_TYPES.LibraryService) libraryService: LibraryService,
     ) {
         this.groupDao = groupDao
         this.libraryService = libraryService
@@ -20,9 +20,7 @@ class GroupService {
 
     public queryGroups(): VO.Group[] {
         const gs = this.groupDao.querySortedGroupAll() as VO.Group[]
-        gs.forEach(
-            g => g.librarys = this.libraryService.querySortedLibrarysByGroupId(g.id)
-        )
+        gs.forEach(g => g.librarys = this.libraryService.querySortedLibrarysByGroupId(g.id))
         return gs
     }
 
@@ -30,7 +28,7 @@ class GroupService {
         return this.groupDao.updateGroupName(id, name) > 0
     }
 
-    public create(name: string) {
+    public create(name: string): void {
         DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
             // 获取第一位group的id
             const headId = this.groupDao.queryGroupIdByPrevId(0)
@@ -41,7 +39,7 @@ class GroupService {
         })
     }
 
-    public delete(id: number) {
+    public delete(id: number): void {
         DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
             this.removeNode(id) // 先删除链接关系
             this.groupDao.deleteGroupById(id) // 删除group记录

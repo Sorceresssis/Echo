@@ -1,5 +1,5 @@
 import { error } from "node:console"
-import { unlinkSync } from "../util/FileManager"
+import fm from "../util/FileManager"
 import ImageService from "./ImageService"
 import LibraryDao, { QueryAuthorsSortRule } from "../dao/libraryDBDao"
 import ManageRecordSerivce from "./ManageRecordSerivce"
@@ -62,7 +62,7 @@ export default class AuthorService {
     public deleteAuthor(authorId: number) {
         const author = this.libraryDao.queryAuthor(authorId)
         if (author?.avatar) {
-            unlinkSync(author.avatar)
+            fm.unlinkIfExistsSync(author.avatar)
         }
         this.libraryDao.executeInTransaction(() => {
             this.libraryDao.deleteAuthor(authorId) // 删除作者
@@ -80,7 +80,7 @@ export default class AuthorService {
         if (formData.avatar !== formData.originAvatar) {
             // 删除旧的头像
             if (formData.originAvatar.length) {
-                unlinkSync(formData.originAvatar)
+                fm.unlinkIfExistsSync(formData.originAvatar)
             }
             if (author.avatar) {
                 // 保存新的头像

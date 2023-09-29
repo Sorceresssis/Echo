@@ -25,7 +25,7 @@ export default class LibraryDB extends DB {
      * 给数据库添加一个自定义的REGEXP函数，在查询时使用
      */
     @oncePerObject()
-    private registerSQLFnRegexp(keyword: string): void {
+    public registerSQLFnRegexp(keyword: string): void {
         const pattern = new RegExp(tokenizer(keyword).join('|'), 'gi') // 使用 'gi' 标志进行全局和忽略大小写匹配
         this.function('REGEXP', (text: string) => {
             const matches = text.match(pattern)

@@ -22,15 +22,9 @@ class RecordService {
         this.recordDao = recordDao
         this.authorService = authorService
 
-        // TODO  console.log() 测试单例
     }
 
     public queryRecordDetail(id: number): VO.RecordDetail | undefined {
-        console.log('Di Ton', this.infoStatusFilterMap.size);
-        this.infoStatusFilterMap.set(id.toString(), ['1', '2'])
-
-
-
         const record = this.recordDao.queryRecordById(id) as VO.RecordDetail | undefined
         if (record === void 0) return record
 
@@ -96,6 +90,10 @@ class RecordService {
 
     public recycleRecordByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
 
+
+    }
+
+    public updateRecordTagAuthorSum(): void {
 
     }
 }

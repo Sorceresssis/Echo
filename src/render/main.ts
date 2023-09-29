@@ -17,6 +17,9 @@ import 'element-plus/dist/index.css'
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css'
 import ContextMenu from '@imengyu/vue3-context-menu'
 
+// vue 图片预览
+import 'viewerjs/dist/viewer.css'
+import VueViewer from 'v-viewer'
 
 const app = createApp(App)
 app.use(router)
@@ -24,4 +27,5 @@ app.use(locales.i18n)
 app.use(ElementPlus)
 app.use(createPinia())
 app.use(ContextMenu)
+app.use(VueViewer)
 app.mount('#app')

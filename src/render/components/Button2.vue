@@ -26,6 +26,7 @@
     background-color: #f5f7fa;
     border: 1px solid #dcdfe6;
     font-size: 14px;
+    user-select: none;
 }
 
 .button-2:hover {

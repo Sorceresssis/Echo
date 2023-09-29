@@ -181,40 +181,6 @@ onMounted(init)
 	cursor: pointer;
 }
 
-.author-info {
-	min-width: 0;
-	flex: 1;
-	margin-left: 10px;
-}
-
-.author-info .name {
-	font-size: 16px;
-	font-weight: bold;
-	min-width: 0;
-	color: var(--echo-emphasis-color);
-	cursor: pointer;
-	text-overflow: ellipsis;
-	overflow: hidden;
-	white-space: nowrap;
-}
-
-.author-info .meta {
-	margin: 4px 0;
-}
-
-.author-info .count {
-	color: var(--echo-emphasis-color);
-}
-
-.author-info .caption {
-	display: -webkit-box;
-	margin: 6px 0;
-	overflow: hidden;
-	white-space: normal;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 3;
-	text-overflow: ellipsis;
-}
 
 .author-recommendation-item .works {
 	display: flex;

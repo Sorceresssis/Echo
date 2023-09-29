@@ -8,6 +8,7 @@ import LibraryDao from "../dao/LibraryDao"
 import LibraryExtraDao from "../dao/LibraryExtraDao"
 import GroupService from "../service/GroupService"
 import LibraryService from "../service/LibraryService"
+
 import AuthorDao from "../dao/AuthorDao"
 import DirnameDao from "../dao/DirnameDao"
 import RecordDao from "../dao/RecordDao"
@@ -22,6 +23,7 @@ import RecordService from "../tmpService/RecordService"
 import DirnameService from "../tmpService/DirnameService"
 import SeriesService from "../tmpService/SeriesService"
 import TagService from "../tmpService/TagService"
+import ImageService from "../service/ImageService"
 
 const container = new Container()
 
@@ -29,13 +31,13 @@ const container = new Container()
 container.bind<GroupDB>(DI_TYPES.GroupDB).toConstantValue(new GroupDB(appConfig.getGroupDBFilePath()))
 
 // GroupDao,LibraryDao,LibraryExtraDao依赖GroupDB
-container.bind<GroupDao>(GroupDao).toSelf().inSingletonScope()
-container.bind<LibraryDao>(LibraryDao).toSelf().inSingletonScope()
-container.bind<LibraryExtraDao>(LibraryExtraDao).toSelf().inSingletonScope()
+container.bind<GroupDao>(DI_TYPES.GroupDao).to(GroupDao).inSingletonScope()
+container.bind<LibraryDao>(DI_TYPES.LibraryDao).to(LibraryDao).inSingletonScope()
+container.bind<LibraryExtraDao>(DI_TYPES.LibraryExtraDao).to(LibraryExtraDao).inSingletonScope()
 
 // GroupService,LibraryService依赖GroupDao,LibraryDao,LibraryExtraDao
-container.bind<GroupService>(GroupService).toSelf().inSingletonScope()
-container.bind<LibraryService>(LibraryService).toSelf().inSingletonScope()
+container.bind<GroupService>(DI_TYPES.GroupService).to(GroupService).inSingletonScope()
+container.bind<LibraryService>(DI_TYPES.LibraryService).to(LibraryService).inSingletonScope()
 
 
 

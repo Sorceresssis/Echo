@@ -2,8 +2,7 @@
     <div>
         <div class="module-header flex-row">
             <local-image :src="authorDetail.avatar"
-                         class="avatar-icon"
-                         style="width: 100px; " />
+                         class="avatar-icon" />
             <div class="author-info">
                 <h1 :title="authorDetail.name"
                     class="name"> {{ authorDetail.name }} </h1>
@@ -13,6 +12,14 @@
                 </p>
                 <p class="caption"
                    style="font-size: 12px;"> {{ authorDetail.intro }} </p>
+            </div>
+            <div class="operate">
+                <span class="iconfont"
+                      :title="'编辑'"
+                      @click="router.push(`/library/${activeLibrary}/manage?author_id=${authorDetail.id}`)">&#xe722;</span>
+                <span class="iconfont"
+                      :title="'删除'"
+                      @click="">&#xe636;</span>
             </div>
         </div>
         <tabs v-model="activeLabelIdx"
@@ -28,7 +35,7 @@
   
 <script lang="ts" setup>
 import { shallowReactive, ref, Ref, onMounted, inject, reactive, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { $t } from '@/locales'
 import Tabs from '@/components/Tabs.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
@@ -36,6 +43,7 @@ import LocalImage from '@/components/LocalImage.vue'
 import Records from '../dashboard/Records.vue'
 import About from './About.vue'
 
+const router = useRouter()
 const route = useRoute()
 const authorDetail = reactive<VO.AuthorDetail>({
     id: 0,
@@ -66,3 +74,19 @@ const init = async () => {
 watch(route, init)
 onMounted(init)
 </script>
+
+<style scoped>
+.avatar-icon {
+    width: 100px;
+}
+
+.operate span {
+    color: var(--echo-text-);
+    padding: 5px;
+    margin-right: 5px;
+}
+
+.operate span:hover {
+    color: var(--echo-theme-color);
+}
+</style>

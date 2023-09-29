@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'path'
 import DIContainer from '../DI/DIContainer'
 import DI_TYPES, { DILibrary } from '../DI/DITypes'
-import config from '../app/config'
+import appConfig from '../app/config'
 import generateUid from "../util/uid"
 import { mkdirsSync } from '../util/FileManager'
 
@@ -74,7 +74,7 @@ class ImageService {
      * 保存图片
      */
     private save() {
-        const dirname = config.getLibraryImagesDirPath(this.library.id) // 检查文件夹是否存在，不存在则创建 
+        const dirname = appConfig.getLibraryImagesDirPath(this.library.id) // 检查文件夹是否存在，不存在则创建 
         mkdirsSync(dirname)
 
         const basename = generateUid() + '.jpg'

@@ -15,7 +15,7 @@ export function mkdirsSync(path: string): void {
     }
 }
 
-export function unlinkSync(path: string): void {
+export function unlinkIfExistsSync(path: string): void {
     if (fs.existsSync(path)) {
         fs.unlinkSync(path)
     }
@@ -98,7 +98,7 @@ function dirContentsWithType(dirPath: string): { name: string, type: 'folder' | 
 
 export default {
     mkdirsSync,
-    unlinkSync,
+    unlinkIfExistsSync,
     isLegalAbsolutePath,
     isLegalFileName,
     isFileExists,

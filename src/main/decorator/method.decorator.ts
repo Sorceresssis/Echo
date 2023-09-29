@@ -1,3 +1,5 @@
+import DI_TYPES from "../DI/DITypes"
+
 /**
  *  在整个生命周期中，只能调用一次
  */
@@ -27,4 +29,8 @@ export function oncePerObject() {
     }
 }
 
-export default { oncePerGlobal, oncePerObject }
+export function transaction(identifier: symbol) {
+
+}
+
+export default { oncePerGlobal, oncePerObject, transaction }

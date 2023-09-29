@@ -1,7 +1,6 @@
 <template>
     <div class="flex-col">
-        <el-form ref="formRef"
-                 class="dashboard__content scrollbar-y-w8"
+        <el-form class="dashboard__content scrollbar-y-w8"
                  label-position="left"
                  label-width="120px"
                  require-asterisk-position="right"

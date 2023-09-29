@@ -103,6 +103,7 @@ export default class RecordService {
     }
 
     public deleteRecycled(recordIds: number[]): void {
+        // TODO 删除图片
         this.libraryDao.executeInTransaction(() => {
             recordIds.forEach((id) => {
                 if (this.libraryDao.deleteRecordOfRecycled(id) > 0) {

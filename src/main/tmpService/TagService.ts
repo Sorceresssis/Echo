@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify"
 import DIContainer from "../DI/DIContainer"
-import DI_TYPES from "../DI/DITypes"
+import DI_TYPES, { DILibrary } from "../DI/DITypes"
 import TagDao from "../dao/TagDao"
 import RecordTagDao from "../dao/RecordTagDao"
 
@@ -15,6 +15,15 @@ class TagService {
     ) {
         this.tagDao = tagDao
         this.recordTagDao = recordTagDao
+    }
+
+
+
+    deleteTag(id: number) {
+        DIContainer.get<DILibrary>(DI_TYPES.Library).dbConnection.transaction(() => {
+            // this.recordTagDao.deleteRecordTagByTagId(id)
+            this.tagDao.deleteTagById(id)
+        })
     }
 }
 
