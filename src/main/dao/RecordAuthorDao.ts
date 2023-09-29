@@ -29,12 +29,12 @@ class RecordAuthorDao {
         authorIds.forEach(authorId => stmt.run(recordId, authorId))
     }
 
-    public deleteRecordAuthorByAuthorId(id: PrimaryKey): number {
-        return this.lib.dbConnection.run("DELETE FROM record_author WHERE author_id = ?;", id).changes
+    public deleteRecordAuthorByAuthorId(authorId: PrimaryKey): number {
+        return this.lib.dbConnection.run("DELETE FROM record_author WHERE author_id = ?;", authorId).changes
     }
 
-    public deleteRecordAuthorByRecordId(id: PrimaryKey): number {
-        return this.lib.dbConnection.run("DELETE FROM record_author WHERE record_id = ?;", id).changes
+    public deleteRecordAuthorByRecordId(recordId: PrimaryKey): number {
+        return this.lib.dbConnection.run("DELETE FROM record_author WHERE record_id = ?;", recordId).changes
     }
 }
 

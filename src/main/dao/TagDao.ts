@@ -15,6 +15,10 @@ class TagDao {
         this.lib = lib
     }
 
+    public queryTagIdByTitle(title: string): PrimaryKey | null {
+        return this.lib.dbConnection.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as PrimaryKey | null
+    }
+
     public queryTagsByRecordId(recordId: PrimaryKey) {
         return this.lib.dbConnection.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ?;', recordId)
     }
@@ -31,6 +35,7 @@ class TagDao {
             this.lib.dbConnection.registerSQLFnRegexp(keyword)
 
         }
+
         return {
 
         }

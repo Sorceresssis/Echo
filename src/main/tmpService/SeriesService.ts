@@ -11,8 +11,8 @@ class SeriesService {
     private recordSeriesDao: RecordSeriesDao
 
     public constructor(
-        @inject(SeriesDao) seriesDao: SeriesDao,
-        @inject(RecordSeriesDao) recordSeriesDao: RecordSeriesDao,
+        @inject(DI_TYPES.SeriesDao) seriesDao: SeriesDao,
+        @inject(DI_TYPES.RecordSeriesDao) recordSeriesDao: RecordSeriesDao,
     ) {
         this.seriesDao = seriesDao
         this.recordSeriesDao = recordSeriesDao

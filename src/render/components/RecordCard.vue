@@ -14,7 +14,7 @@
                      class="author">
                     <local-image :src="author.avatar"
                                  class="avatar-icon"
-                                 @click="router.push(`/library/${activeLibrary}/author?id=${author.id}`)" />
+                                 @click="router.push(`/library/${activeLibrary}/author?author_id=${author.id}`)" />
                     <span> {{ author.name }} </span>
                 </div>
             </div>

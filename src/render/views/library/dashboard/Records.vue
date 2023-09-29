@@ -289,7 +289,7 @@ const queryRecords = debounce(async () => {
         {
             type: props.type,
             keyword: keyword.value,
-            authorId: route.query.id ? Number(route.query.id) : 0,
+            authorId: route.query.author_id ? Number(route.query.author_id) : 0,
             filters: toRaw(recordsDashStore.filter),
             sortField: recordsDashStore.sortField,
             order: recordsDashStore.order,
@@ -319,8 +319,9 @@ const init = function () {
     handleQueryParamsChange()
 }
 // 1. 组件，用户可能对记录进行了修改，只需要更新数据
-// TODO, 如果用户更改了才更新，否则不更新
+// TODO, 如果用户更改了才更新，否则不更新, 作者也要应用，作者id变化，要重新加载
 onActivated(queryRecords)
+// watch(route, queryRecords)
 // 2. 请求参数改变，要跳到第一页
 watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order], handleQueryParamsChange, { deep: true })
 // 3. 第一次加载或切换library, 要把参数重置

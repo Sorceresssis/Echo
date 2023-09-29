@@ -23,11 +23,12 @@
 					class="author-recommendation-item divider">
 					<local-image :src="recmd.avatar"
 								 class="author-icon avatar-icon"
-								 @click="router.push(`/library/${activeLibrary}/author?id=${recmd.id}`)" />
+								 @click="router.push(`/library/${activeLibrary}/author?author_id=${recmd.id}`)" />
 					<div class="author-info">
 						<h1 :title="recmd.name"
 							class="name"
-							@click="router.push(`/library/${activeLibrary}/author?id=${recmd.id}`)"> {{ recmd.name }} </h1>
+							@click="router.push(`/library/${activeLibrary}/author?author_id=${recmd.id}`)"> {{ recmd.name }}
+						</h1>
 						<p class="meta">
 							<span class="inline-list-title">作品数</span>
 							<a class="count">{{ recmd.worksCount }}</a>
@@ -72,7 +73,7 @@ import LocalImage from '@/components/LocalImage.vue'
 
 const route = useRoute()
 const router = useRouter()
-
+// TODO 统一跳转链接
 const authorsDashStore = useAuthorsDashStore()
 const dropdownMenus = [{
 	HTMLElementTitle: $t('mainContainer.sort'),

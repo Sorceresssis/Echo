@@ -23,6 +23,12 @@ namespace Domain {
         intro: string;
     }
 
+    type RecordProfile = {
+        id: number;
+        title: string;
+        cover: string | null;
+    }
+
     type Record = {
         id: number;
         title: string;
@@ -53,5 +59,11 @@ namespace Domain {
         intro: string;
         createTime?: string;
         modifiedTime?: string;
+    }
+
+    type AuthorProfile = {
+        id: number,
+        name: string,
+        avatar: string | null,
     }
 } 

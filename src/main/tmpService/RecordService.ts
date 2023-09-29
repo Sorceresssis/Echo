@@ -1,27 +1,37 @@
+import path from "path"
+import appConfig from "../app/config"
 import { injectable, inject } from "inversify"
-import DIContainer from "../DI/DIContainer"
-import DI_TYPES from "../DI/DITypes"
+import DI_TYPES, { DILibrary } from "../DI/DITypes"
 import RecordDao from "../dao/RecordDao"
-import AuthorService from "./AuthorService"
+import AuthorDao from "../dao/AuthorDao"
+import TagDao from "../dao/TagDao"
+import SeriesDao from "../dao/SeriesDao"
 
-// const infoStatusFilterMap = new Map<string, string[]>()
 
 @injectable()
 class RecordService {
     private infoStatusFilterMap: Map<string, string[]>
 
+    private library: DILibrary
     private recordDao: RecordDao
-    private authorService: AuthorService
+    private authorDao: AuthorDao
+    private tagDao: TagDao
+    private seriesDao: SeriesDao
 
     public constructor(
-        @inject(RecordDao) recordDao: RecordDao,
-        @inject(AuthorService) authorService: AuthorService,
+        @inject(DI_TYPES.Library) library: DILibrary,
+        @inject(DI_TYPES.RecordDao) recordDao: RecordDao,
+        @inject(DI_TYPES.AuthorDao) authorDao: AuthorDao,
+        @inject(DI_TYPES.TagDao) tagDao: TagDao,
+        @inject(DI_TYPES.SeriesDao) seriesDao: SeriesDao,
     ) {
         this.infoStatusFilterMap = new Map<string, string[]>()
 
+        this.library = library
         this.recordDao = recordDao
-        this.authorService = authorService
-
+        this.authorDao = authorDao
+        this.tagDao = tagDao
+        this.seriesDao = seriesDao
     }
 
     public queryRecordDetail(id: number): VO.RecordDetail | undefined {
@@ -43,6 +53,17 @@ class RecordService {
     }
 
     public queryRecordRecmds(options: DTO.QueryRecordRecommendationsOptions) {
+    }
+
+    // 查询作者的作品
+    public queryAuthorMasterpieces(authorId: number): { id: number, title: string, cover: string | null }[] {
+        const records = this.recordDao.queryRecordProfilesOfOrderRateByAuthor(authorId, 3)
+        records.forEach(record => record.cover = this.getCoverFullPath(record.cover))
+        return records
+    }
+
+    private getCoverFullPath(cover: string | null): string | null {
+        return cover ? path.join(appConfig.getLibraryImagesDirPath(this.library.id), cover) : null
     }
 
     private generateFilters(input: boolean[]): string[] {
@@ -93,8 +114,15 @@ class RecordService {
 
     }
 
-    public updateRecordTagAuthorSum(): void {
+    public updateRecordTagAuthorSum(id: PrimaryKey, value?: string): void {
+        if (value === void 0) { value = this.getTagAuthorSum(id) }
+        this.recordDao.updateRecordTagAuthorSum(id, value)
+    }
 
+    public getTagAuthorSum(id: PrimaryKey): string {
+        const authors = this.authorDao.queryAuthorsByRecordId(id)
+        const tags = this.tagDao.queryTagsByRecordId(id)
+        return authors.map(author => author.name).concat(tags.map(tag => tag.title)).join(' ')
     }
 }
 

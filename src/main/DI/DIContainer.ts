@@ -2,6 +2,7 @@ import appConfig from "../app/config"
 import 'reflect-metadata'
 import { Container } from "inversify"
 import DI_TYPES, { DILibrary } from "./DITypes"
+
 import GroupDB from "../db/GroupDB"
 import GroupDao from "../dao/GroupDao"
 import LibraryDao from "../dao/LibraryDao"
@@ -23,7 +24,6 @@ import RecordService from "../tmpService/RecordService"
 import DirnameService from "../tmpService/DirnameService"
 import SeriesService from "../tmpService/SeriesService"
 import TagService from "../tmpService/TagService"
-import ImageService from "../service/ImageService"
 
 const container = new Container()
 
@@ -48,22 +48,22 @@ container.bind<DILibrary>(DI_TYPES.Library).toConstantValue({
 })
 
 // 依赖的LibraryDB是动态的，所以不能使用inSingletonScope
-container.bind<AuthorDao>(AuthorDao).toSelf().inSingletonScope()
-container.bind<DirnameDao>(DirnameDao).toSelf().inSingletonScope()
-container.bind<RecordDao>(RecordDao).toSelf().inSingletonScope()
-container.bind<RecordAuthorDao>(RecordAuthorDao).toSelf().inSingletonScope()
-container.bind<RecordExtraDao>(RecordExtraDao).toSelf().inSingletonScope()
-container.bind<RecordSeriesDao>(RecordSeriesDao).toSelf().inSingletonScope()
-container.bind<RecordTagDao>(RecordTagDao).toSelf().inSingletonScope()
-container.bind<SeriesDao>(SeriesDao).toSelf().inSingletonScope()
-container.bind<TagDao>(TagDao).toSelf().inSingletonScope()
+container.bind<AuthorDao>(DI_TYPES.AuthorDao).to(AuthorDao).inSingletonScope()
+container.bind<DirnameDao>(DI_TYPES.DirnameDao).to(DirnameDao).inSingletonScope()
+container.bind<RecordDao>(DI_TYPES.RecordDao).to(RecordDao).inSingletonScope()
+container.bind<RecordAuthorDao>(DI_TYPES.RecordAuthorDao).to(RecordAuthorDao).inSingletonScope()
+container.bind<RecordExtraDao>(DI_TYPES.RecordExtraDao).to(RecordExtraDao).inSingletonScope()
+container.bind<RecordSeriesDao>(DI_TYPES.RecordSeriesDao).to(RecordSeriesDao).inSingletonScope()
+container.bind<RecordTagDao>(DI_TYPES.RecordTagDao).to(RecordTagDao).inSingletonScope()
+container.bind<SeriesDao>(DI_TYPES.SeriesDao).to(SeriesDao).inSingletonScope()
+container.bind<TagDao>(DI_TYPES.TagDao).to(TagDao).inSingletonScope()
 
 // Service
-container.bind<AuthorService>(AuthorService).toSelf().inSingletonScope()
-container.bind<DirnameService>(DirnameService).toSelf().inSingletonScope()
-container.bind<RecordService>(RecordService).toSelf().inSingletonScope()
-container.bind<SeriesService>(SeriesService).toSelf().inSingletonScope()
-container.bind<TagService>(TagService).toSelf().inSingletonScope()
+container.bind<RecordService>(DI_TYPES.RecordService).to(RecordService).inSingletonScope()
+container.bind<AuthorService>(DI_TYPES.AuthorService).to(AuthorService).inSingletonScope()
+container.bind<DirnameService>(DI_TYPES.DirnameService).to(DirnameService).inSingletonScope()
+container.bind<SeriesService>(DI_TYPES.SeriesService).to(SeriesService).inSingletonScope()
+container.bind<TagService>(DI_TYPES.TagService).to(TagService).inSingletonScope()
 
 
 export default container

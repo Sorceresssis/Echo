@@ -173,6 +173,10 @@ export interface IElectronAPI {
         formData: DTO.EditAuthorForm
     ) => Promise<boolean>
 
+    deleteAuthor: (
+        libraryId: number,
+        authorId: number
+    ) => Promise<boolean>,
 
 
     /******************** tag ********************/

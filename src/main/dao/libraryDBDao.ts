@@ -212,14 +212,6 @@ export default class LibraryDao {
 		}
 	}
 
-	public queryRecordsOfOrderRateByAuthor(authorId: number): { id: number, title: string, cover: string }[] {
-		this.registerSQLFnPathResolve()
-		return this.db.all(`SELECT r.id, r.title, PATH_RESOLVE(?, r.cover) AS cover
-                            FROM record r JOIN record_author ra ON r.id = ra.record_id
-                            WHERE ra.author_id = ? ORDER BY rate DESC LIMIT 3; `,
-			appConfig.getLibraryImagesDirPath(this.libraryId), authorId)
-	}
-
 	public queryRecordIdByTitle(title: string): PrimaryKey | null {
 		return this.db.prepare('SELECT id FROM record WHERE title = ?;').pluck().get(title) as PrimaryKey | null
 	}
@@ -305,46 +297,6 @@ export default class LibraryDao {
 
 	// ANCHOR author
 
-	public queryAuthor(id: PrimaryKey): VO.Author | null {
-		this.registerSQLFnPathResolve()
-		return this.db.get(`SELECT id, name, PATH_RESOLVE(?, avatar) AS avatar,
-                intro, DATETIME(gmt_create, 'localtime') AS createTime,
-                DATETIME(gmt_modified, 'localtime') AS modifiedTime
-                FROM author WHERE id = ?; `, appConfig.getLibraryImagesDirPath(this.libraryId), id)
-	}
-
-	public queryAuthorsByKeyword(
-		keyword: string,
-		sort: QueryAuthorsSortRule[],
-		offset: number,
-		rowCount: number,
-	): DaoPage<VO.Author> {
-		const rowsSQL = new DynamicSqlBuilder()
-		const countSQL = new DynamicSqlBuilder()
-		const sortRule: SortRule[] = []
-
-		this.registerSQLFnPathResolve()
-		rowsSQL.append(`SELECT id,
-            name, PATH_RESOLVE(?, avatar) AS avatar, intro, DATETIME(gmt_create, 'localtime')   AS createTime,
-            DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM author`,
-			appConfig.getLibraryImagesDirPath(this.libraryId))
-		countSQL.append('SELECT COUNT(id) FROM author')
-
-		if (keyword !== '') {    // 没有关键字就不用加where了
-			this.registerSQLFnRegexp(tokenizer(keyword))
-			rowsSQL.append('WHERE REGEXP(name) > 0')
-			sortRule.push({ field: 'REGEXP(name)', order: 'DESC' })
-			countSQL.append('WHERE REGEXP(name) > 0')
-		}
-		sortRule.push(...sort)
-		rowsSQL.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
-
-		return {
-			total: this.db.prepare(countSQL.getSql()).pluck().get() as number,
-			rows: this.db.all(rowsSQL.getSql(), ...rowsSQL.getParams()) as VO.Author[],
-		}
-	}
-
 	public queryAuthorsByRecordId(id: PrimaryKey, fullPath: boolean = true): VO.AuthorProfile[] {
 		const rows = this.db.all('SELECT a.id, a.name, a.avatar FROM author a JOIN record_author ra ON a.id = ra.author_id WHERE ra.record_id = ?;', id)
 		if (fullPath) {
@@ -356,22 +308,6 @@ export default class LibraryDao {
 			})
 		}
 		return rows
-	}
-
-	public addAuthor(author: Entity.Author): PrimaryKey {
-		return this.db.run("INSERT INTO author(name, avatar, intro) VALUES(?,?,?);",
-			author.name, author.avatar, author.intro
-		).lastInsertRowid
-	}
-
-	public editAuthor(author: Entity.Author): number {
-		return this.db.run("UPDATE author SET name=?, avatar=?, intro=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;",
-			author.name, author.avatar, author.intro, author.id
-		).changes
-	}
-
-	public deleteAuthor(id: PrimaryKey): void {
-		this.db.run("DELETE FROM author WHERE id = ?;", id)
 	}
 
 	// ANCHOR tag
@@ -412,14 +348,6 @@ export default class LibraryDao {
 		return this.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
 	}
 
-	public updateTag(id: number, newValue: string): void {
-		this.db.run("UPDATE tag SET title = ? WHERE id = ?;", newValue, id)
-	}
-
-	public deleteTag(id: PrimaryKey): void {
-		this.db.run('DELETE FROM tag WHERE id = ?;', id)
-	}
-
 	public queryTagIdByTitle(title: string): PrimaryKey | null {
 		return this.db.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as PrimaryKey | null
 	}
@@ -436,13 +364,6 @@ export default class LibraryDao {
 
 	public querySeriesIdByName(name: string): PrimaryKey | null {
 		return this.db.prepare('SELECT id FROM series WHERE name = ?;').pluck().get(name) as PrimaryKey | null
-	}
-
-	public deleteSeries(id: PrimaryKey): void {
-		this.db.transaction(() => {
-			this.db.run('DELETE FROM series WHERE id = ?;', id)
-			this.db.run('DELETE FROM record_series WHERE series_id = ?;', id)
-		})
 	}
 
 	// ANCHOR record_author
@@ -503,22 +424,8 @@ export default class LibraryDao {
 		})
 	}
 
-	public deleteRecordTagByTagId(id: PrimaryKey): number {
-		return this.db.run('DELETE FROM record_tag WHERE tag_id = ?;', id).changes
-	}
-
 	public deleteRecordTagByRecordId(id: PrimaryKey): number {
 		return this.db.run('DELETE FROM record_tag WHERE record_id = ?;', id).changes
-	}
-
-	public updateTagIdOfRecordTag(newTagId: PrimaryKey, oldTagId: PrimaryKey): void {
-		// Note 由于 record_tag 中的 record_id 和 tag_id 有联合 UNIQUE 约束
-		// 如果 newTagId 与 oldTagId 有相同的record_id, 直接修改会有(record_id, tag_id)重复的情况,导致修改失败
-		// 解决方法：分别找出newTagId和oldTagId的record_id，把相同的record_id删除，把不同的record_id修改 
-		this.db.transaction(() => {
-			this.db.run('DELETE FROM record_tag WHERE record_id IN (SELECT record_id FROM record_tag WHERE tag_id = ? INTERSECT SELECT record_id FROM record_tag WHERE tag_id = ?) AND tag_id = ?;', newTagId, oldTagId, oldTagId)
-			this.db.run('UPDATE record_tag SET tag_id = ? WHERE tag_id = ?;', newTagId, oldTagId)
-		})
 	}
 
 	// ANCHOR record_series

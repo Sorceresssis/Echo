@@ -43,46 +43,6 @@ export default class TagService {
         return tags
     }
 
-    deleteTag(id: number) {
-        this.libraryDao.executeInTransaction(() => {
-            this.libraryDao.deleteTag(id)
-            this.libraryDao.deleteRecordTagByTagId(id)
-        })
-    }
-
-    editTag(id: number, newValue: string) {
-        const newTag = newValue.trim()
-        if (newTag === '') {
-            throw new Error('tag can not be empty')
-        }
-        const existId = this.libraryDao.queryTagIdByTitle(newTag) // 查询是否已经存在
-
-        // id !== existId 的判断是为了防止修改的值和原值一样，导致被删除
-        if (existId && id !== existId) {
-            // 如果已经存在，就把record_tag中的tag_id重定向到existId 
-            this.libraryDao.executeInTransaction(() => {
-                this.libraryDao.updateTagIdOfRecordTag(existId, id)
-                this.libraryDao.deleteTag(id)
-                this.updateRecordTagAuthorSumOfTag(existId) // 更新冗余字段
-            })
-        } else {
-            this.libraryDao.updateTag(id, newTag) // 如果不存在，就修改tag 
-            this.updateRecordTagAuthorSumOfTag(id)
-        }
-    }
-
-    private updateRecordTagAuthorSumOfTag(tagId: PrimaryKey) {
-        const rowCount = 150
-        let recordIds = this.libraryDao.queryRecordIdsByTagId(tagId, 0, rowCount)
-        while (recordIds.length) {
-            recordIds.forEach(id => {
-                this.libraryDao.updateRecordTagAuthorSum(id, ManageRecordSerivce.getTagAuthorSum(this.libraryDao, id))
-            })
-            if (recordIds.length < rowCount) break
-            recordIds = this.libraryDao.queryRecordIdsByAuthorId(tagId, 0, rowCount)
-        }
-    }
-
     public close() {
         this.libraryDao.destroy()
     }

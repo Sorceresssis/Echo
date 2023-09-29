@@ -19,7 +19,7 @@
                       @click="router.push(`/library/${activeLibrary}/manage?author_id=${authorDetail.id}`)">&#xe722;</span>
                 <span class="iconfont"
                       :title="'删除'"
-                      @click="">&#xe636;</span>
+                      @click="deleteAuthor">&#xe636;</span>
             </div>
         </div>
         <tabs v-model="activeLabelIdx"
@@ -38,10 +38,11 @@ import { shallowReactive, ref, Ref, onMounted, inject, reactive, watch } from 'v
 import { useRouter, useRoute } from 'vue-router'
 import { $t } from '@/locales'
 import Tabs from '@/components/Tabs.vue'
-import Scrollbar from '@/components/Scrollbar.vue'
 import LocalImage from '@/components/LocalImage.vue'
 import Records from '../dashboard/Records.vue'
 import About from './About.vue'
+import MessageBox from '@/util/MessageBox'
+import Message from '@/util/Message'
 
 const router = useRouter()
 const route = useRoute()
@@ -65,10 +66,24 @@ const components = [
     { component: About, props: { info: authorDetail } }
 ]
 
+const deleteAuthor = async () => {
+    MessageBox.deleteConfirm(() => {
+        window.electronAPI.deleteAuthor(activeLibrary.value, authorDetail.id).then((res) => {
+            res ? router.back() : Message.error('删除失败')
+            // BUG 打开作者详情页后， 无法切换library
+            // BUG 在本页切换作者，不刷新
+        })
+    })
+}
+
 const init = async () => {
-    const id = route.query.id as string
+    const id = route.query.author_id as string
+    if (id === void 0) {
+        router.back()
+        return
+    }
     const res = await window.electronAPI.queryAuthorDetail(activeLibrary.value, parseInt(id))
-    Object.assign(authorDetail, res)
+    res === void 0 ? router.back() : Object.assign(authorDetail, res)
 }
 
 watch(route, init)

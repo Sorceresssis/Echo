@@ -6,14 +6,16 @@ import { exceptionalHandler } from '../util/common'
 import LibraryDB from "../db/LibraryDB"
 import { isLegalAbsolutePath } from "../util/FileManager"
 import LibraryDao from "../dao/libraryDBDao"
+
 import RecordService from "../service/RecordService"
 import ManageRecordSerivce from "../service/ManageRecordSerivce"
-import AuthorService from "../service/AuthorService"
 import TagService from "../service/TagService"
 import DirnameService from "../service/DirnameService"
+
 import Result from "../util/Result"
+import AuthorService from "../tmpService/AuthorService"
 import TmmpRecordService from "../tmpService/RecordService"
-import TmmpAuthorService from "../tmpService/AuthorService"
+import TmmpTagService from "../tmpService/TagService"
 
 
 const { rebindLibrary, closeLibraryDB } = function () {
@@ -129,75 +131,58 @@ function ipcMainLibrary() {
         }
     })
 
+
     //ANCHOR Author
 
-    ipcMain.handle('author:queryRecmds', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> => {
-        const authorService = new AuthorService(libraryId)
-        try {
-            return authorService.queryAuthorRecmds(options)
-        } catch (e: any) {
-            dialog.showErrorBox('author:queryRecmds', e.message)
-            return { total: 0, rows: [] }
-        } finally {
-            authorService.close()
-        }
-    })
+    ipcMain.handle('author:queryRecmds', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> => {
+        rebindLibrary(libraryId)
+        return DIContainer.get<AuthorService>(DI_TYPES.AuthorService).queryAuthorRecmds(options)
+    }, generateCatchFn('author:queryRecmds'), { total: 0, rows: [] }, closeLibraryDB))
+
 
     ipcMain.handle('author:queryDetail', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, authorId: number): VO.Author | undefined => {
         rebindLibrary(libraryId)
-        return DIContainer.get<TmmpAuthorService>(TmmpAuthorService).queryAuthorDetail(authorId)
+        return DIContainer.get<AuthorService>(DI_TYPES.AuthorService).queryAuthorDetail(authorId)
     }, generateCatchFn('author:queryDetail'), void 0, closeLibraryDB))
 
-    ipcMain.handle('author:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditAuthorForm,) => {
+
+    ipcMain.handle('author:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditAuthorForm) => {
         rebindLibrary(libraryId)
-        const authorService = new AuthorService(libraryId)
-        authorService.editAuthor(formData)
-        authorService.close()
+        DIContainer.get<AuthorService>(DI_TYPES.AuthorService).editAuthor(formData)
         return true
     }, generateCatchFn('author:edit'), false, closeLibraryDB))
 
-    ipcMain.handle('author:delete', (e: IpcMainInvokeEvent, libraryId: number, authorId: number) => {
-        const authorService = new AuthorService(libraryId)
-        try {
-            authorService.deleteAuthor(authorId)
-        } catch (e: any) {
-            dialog.showErrorBox('author:delete', e.message)
-        } finally {
-            authorService.close()
-        }
-    })
 
-    //ANCHOR Tag
+    ipcMain.handle('author:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, authorId: number): boolean => {
+        rebindLibrary(libraryId)
+        DIContainer.get<AuthorService>(DI_TYPES.AuthorService).deleteAuthor(authorId)
+        return true
+    }, generateCatchFn('author:delete'), false, closeLibraryDB))
 
-    ipcMain.handle('tag:queryDetails', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryTagDetailsOptions): DTO.Page<VO.TagDetail> => {
+
+    //ANCHOR Tag 
+
+    ipcMain.handle('tag:queryDetails', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryTagDetailsOptions): DTO.Page<VO.TagDetail> => {
+        rebindLibrary(libraryId)
+        DIContainer.get<TmmpTagService>(DI_TYPES.TagService).queryTagDetails(options)
+
         const tagService = new TagService(libraryId)
-        try {
-            return tagService.queryTagDetails(options)
-        } catch (e: any) {
-            dialog.showErrorBox('tag:query', e.message)
-            return { total: 0, rows: [] }
-        } finally {
-            tagService.close()
-        }
-    })
+        return tagService.queryTagDetails(options)
+        tagService.close()
+    }, generateCatchFn('tag:queryDetails'), { total: 0, rows: [] }, closeLibraryDB))
 
-    ipcMain.handle('tag:edit', (e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string) => {
-        const tagService = new TagService(libraryId)
-        try {
-            tagService.editTag(tagId, newValue)
-        } catch (e: any) {
-            dialog.showErrorBox('tag:edit', e.message)
-        } finally {
-            tagService.close()
-        }
-    })
+
+    ipcMain.handle('tag:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string) => {
+        rebindLibrary(libraryId)
+        DIContainer.get<TmmpTagService>(DI_TYPES.TagService).editTag(tagId, newValue)
+    }, generateCatchFn('tag:edit'), void 0, closeLibraryDB))
+
 
     ipcMain.handle('tag:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number) => {
         rebindLibrary(libraryId)
-        const tagService = new TagService(libraryId)
-        tagService.deleteTag(tagId)
-        tagService.close()
+        DIContainer.get<TmmpTagService>(DI_TYPES.TagService).deleteTag(tagId)
     }, generateCatchFn('tag:delete'), void 0, closeLibraryDB))
+
 
     //ANCHOR Dirname
 

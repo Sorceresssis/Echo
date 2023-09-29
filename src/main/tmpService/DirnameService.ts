@@ -9,7 +9,7 @@ class DirnameService {
     private dirnameDao: DirnameDao
 
     public constructor(
-        @inject(DirnameDao) dirnameDao: DirnameDao,
+        @inject(DI_TYPES.DirnameDao) dirnameDao: DirnameDao,
     ) {
         this.dirnameDao = dirnameDao
     }
