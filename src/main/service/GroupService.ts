@@ -7,15 +7,10 @@ import LibraryService from "./LibraryService"
 
 @injectable()
 class GroupService {
-    private groupDao: GroupDao
-    private libraryService: LibraryService
-
     public constructor(
-        @inject(DI_TYPES.GroupDao) groupDao: GroupDao,
-        @inject(DI_TYPES.LibraryService) libraryService: LibraryService,
+        @inject(DI_TYPES.GroupDao) private groupDao: GroupDao,
+        @inject(DI_TYPES.LibraryService) private libraryService: LibraryService,
     ) {
-        this.groupDao = groupDao
-        this.libraryService = libraryService
     }
 
     public queryGroups(): VO.Group[] {

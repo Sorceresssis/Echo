@@ -61,7 +61,7 @@ class AuthorDao {
         return this.lib.dbConnection.run("INSERT INTO author(name, avatar, intro) VALUES(?,?,?);", author.name, author.avatar, author.intro).lastInsertRowid
     }
 
-    public deleteAuthor(id: PrimaryKey): number {
+    public deleteAuthorById(id: PrimaryKey): number {
         return this.lib.dbConnection.run(`DELETE FROM author WHERE id = ?; `, id).changes
     }
 }

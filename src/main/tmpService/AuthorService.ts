@@ -1,5 +1,6 @@
 import path from "path"
-import { injectable, inject, LazyServiceIdentifer } from "inversify"
+import { injectable, inject } from "inversify"
+import DIContainer from "../DI/DIContainer"
 import DI_TYPES, { DILibrary } from "../DI/DITypes"
 import appConfig from "../app/config"
 import fm from "../util/FileManager"
@@ -10,21 +11,11 @@ import RecordService from "./RecordService"
 
 @injectable()
 class AuthorService {
-    private library: DILibrary
-    private authorDao: AuthorDao
-    private recordAuthorDao: RecordAuthorDao
-    private recordService: RecordService
-
     public constructor(
-        @inject(DI_TYPES.Library) library: DILibrary,
-        @inject(DI_TYPES.AuthorDao) authorDao: AuthorDao,
-        @inject(DI_TYPES.RecordAuthorDao) recordAuthorDao: RecordAuthorDao,
-        @inject(new LazyServiceIdentifer(() => DI_TYPES.RecordService)) recordService: RecordService,
+        @inject(DI_TYPES.Library) private library: DILibrary,
+        @inject(DI_TYPES.AuthorDao) private authorDao: AuthorDao,
+        @inject(DI_TYPES.RecordAuthorDao) private recordAuthorDao: RecordAuthorDao,
     ) {
-        this.library = library
-        this.authorDao = authorDao
-        this.recordAuthorDao = recordAuthorDao
-        this.recordService = recordService
     }
 
     public queryAuthorDetail(authorId: number): VO.AuthorDetail | undefined {
@@ -69,7 +60,7 @@ class AuthorService {
         page.rows.forEach(row => {
             row.avatar = this.getAvatarFullPath(row.avatar)
             row.worksCount = this.recordAuthorDao.queryCountOfRecordsByAuthorId(row.id)
-            row.masterpieces = this.recordService.queryAuthorMasterpieces(row.id)
+            row.masterpieces = DIContainer.get<RecordService>(DI_TYPES.RecordService).queryAuthorMasterpieces(row.id)
         })
 
         return page
@@ -103,7 +94,7 @@ class AuthorService {
         if (author === void 0) return
 
         this.library.dbConnection.transaction(() => {
-            this.authorDao.deleteAuthor(authorId) // 删除作者
+            this.authorDao.deleteAuthorById(authorId) // 删除作者
             this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新冗余字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
             this.recordAuthorDao.deleteRecordAuthorByAuthorId(authorId) // 删除关联
         })
@@ -137,14 +128,13 @@ class AuthorService {
     }
 
     private updateRecordTagAuthorSumOfAuthor(authorId: PrimaryKey): void {
-        const rowCount = 150
-        let recordIds = this.recordAuthorDao.queryRecordIdsByAuthorId(authorId, 0, rowCount)
-        while (recordIds.length) {
-            recordIds.forEach(id => this.recordService.updateRecordTagAuthorSum(id))
-
-            if (recordIds.length < rowCount) break
-            recordIds = this.recordAuthorDao.queryRecordIdsByAuthorId(authorId, 0, rowCount)
-        }
+        let pn = 0
+        const rowCount = 200
+        let recordIds: number[]
+        do {
+            recordIds = this.recordAuthorDao.queryRecordIdsByAuthorId(authorId, pn++ * rowCount, rowCount)
+            recordIds.forEach(id => DIContainer.get<RecordService>(DI_TYPES.RecordService).updateRecordTagAuthorSum(id))
+        } while (recordIds.length === rowCount)
     }
 }
 

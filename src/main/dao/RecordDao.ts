@@ -14,6 +14,10 @@ class RecordDao {
         this.lib = lib
     }
 
+    public queryCountOfRecordsByDirnameId(dirnameId: PrimaryKey): number {
+        return this.lib.dbConnection.prepare('SELECT COUNT(id) FROM record WHERE dirname_id = ?;').pluck().get(dirnameId) as number
+    }
+
     public queryRecordById(id: number): Domain.Record | undefined {
         return this.lib.dbConnection.get(`
             SELECT r.id, r.title, r.rate, r.cover, r.hyperlink, d.path AS dirname, r.basename,
@@ -29,7 +33,11 @@ class RecordDao {
 
     }
 
-    public updateRecordTagAuthorSum(recordId: PrimaryKey, tagAuthorSum: string): number {
+    public updateRecordDirnameIdByDirnameId(dirnameId: PrimaryKey, newDirnameId: PrimaryKey): number {
+        return this.lib.dbConnection.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', newDirnameId, dirnameId).changes
+    }
+
+    public updateRecordTagAuthorSumById(recordId: PrimaryKey, tagAuthorSum: string): number {
         return this.lib.dbConnection.run('UPDATE record SET tag_author_sum=? WHERE id = ?;', tagAuthorSum, recordId).changes
     }
 }

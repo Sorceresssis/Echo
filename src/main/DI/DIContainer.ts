@@ -59,8 +59,8 @@ container.bind<SeriesDao>(DI_TYPES.SeriesDao).to(SeriesDao).inSingletonScope()
 container.bind<TagDao>(DI_TYPES.TagDao).to(TagDao).inSingletonScope()
 
 // Service
-container.bind<RecordService>(DI_TYPES.RecordService).to(RecordService).inSingletonScope()
 container.bind<AuthorService>(DI_TYPES.AuthorService).to(AuthorService).inSingletonScope()
+container.bind<RecordService>(DI_TYPES.RecordService).to(RecordService).inSingletonScope()
 container.bind<DirnameService>(DI_TYPES.DirnameService).to(DirnameService).inSingletonScope()
 container.bind<SeriesService>(DI_TYPES.SeriesService).to(SeriesService).inSingletonScope()
 container.bind<TagService>(DI_TYPES.TagService).to(TagService).inSingletonScope()

@@ -10,15 +10,10 @@ import LibraryExtraDao from "../dao/LibraryExtraDao"
 
 @injectable()
 class LibraryService {
-	private libraryDao: LibraryDao
-	private libraryExtraDao: LibraryExtraDao
-
 	public constructor(
-		@inject(DI_TYPES.LibraryDao) libraryDao: LibraryDao,
-		@inject(DI_TYPES.LibraryExtraDao) libraryExtraDao: LibraryExtraDao,
+		@inject(DI_TYPES.LibraryDao) private libraryDao: LibraryDao,
+		@inject(DI_TYPES.LibraryExtraDao) private libraryExtraDao: LibraryExtraDao,
 	) {
-		this.libraryDao = libraryDao
-		this.libraryExtraDao = libraryExtraDao
 	}
 
 	public queryLibraryDetail(id: number): VO.LibraryDetail | undefined {

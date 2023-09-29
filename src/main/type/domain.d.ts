@@ -41,7 +41,11 @@ namespace Domain {
         modifiedTime?: string | undefined;
     }
 
-
+    type RecordExtra = {
+        id: number;
+        intro: string;
+        info: string;
+    }
 
 
 
@@ -65,5 +69,15 @@ namespace Domain {
         id: number,
         name: string,
         avatar: string | null,
+    }
+
+    type Tag = {
+        id: number,
+        title: string,
+    }
+
+    type Dirname = {
+        id: number;
+        path: string;
     }
 } 

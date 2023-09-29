@@ -17,12 +17,15 @@ class RecordTagDao {
         return this.lib.dbConnection.prepare('SELECT record_id FROM record_tag WHERE tag_id = ? LIMIT ?,?;').pluck().all(tagId, offset, rowCount) as number[]
     }
 
-    public updateTagIdOfRecordTag(newTagId: PrimaryKey, oldTagId: PrimaryKey): void {
+    public updateTagIdByTagId(tagId: PrimaryKey, newTagId: PrimaryKey): void {
         // Note 由于 record_tag 中的 record_id 和 tag_id 有联合 UNIQUE 约束
-        // 如果 newTagId 与 oldTagId 有相同的record_id, 直接修改会有(record_id, tag_id)重复的情况,导致修改失败
-        // 解决方法：分别找出newTagId和oldTagId的record_id，把相同的record_id删除，把不同的record_id修改 
-        this.lib.dbConnection.run('DELETE FROM record_tag WHERE record_id IN (SELECT record_id FROM record_tag WHERE tag_id = ? INTERSECT SELECT record_id FROM record_tag WHERE tag_id = ?) AND tag_id = ?;', newTagId, oldTagId, oldTagId)
-        this.lib.dbConnection.run('UPDATE record_tag SET tag_id = ? WHERE tag_id = ?;', newTagId, oldTagId)
+        // 如果 newTagId 与 tagId 有相同的record_id, 直接修改会有(record_id, tag_id)重复的情况,导致修改失败
+        // 解决方法：分别找出newTagId和tagId的record_id，把相同的record_id删除，把不同的record_id修改
+
+        // 先添加tag_id的筛选条件，为了走索引, 减少扫描行数
+        this.lib.dbConnection.run('DELETE FROM record_tag WHERE tag_id = ? AND record_id IN (SELECT record_id FROM record_tag WHERE tag_id = ? INTERSECT SELECT record_id FROM record_tag WHERE tag_id = ?);',
+            tagId, tagId, newTagId)
+        this.lib.dbConnection.run('UPDATE record_tag SET tag_id = ? WHERE tag_id = ?;', newTagId, tagId)
     }
 
     public insertRecordTagByRecordIdTagIds(recordId: PrimaryKey, tagIds: PrimaryKey[]): void {

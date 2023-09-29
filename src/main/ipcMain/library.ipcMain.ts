@@ -5,18 +5,16 @@ import DI_TYPES, { DILibrary } from "../DI/DITypes"
 import { exceptionalHandler } from '../util/common'
 import LibraryDB from "../db/LibraryDB"
 import { isLegalAbsolutePath } from "../util/FileManager"
-import LibraryDao from "../dao/libraryDBDao"
 
 import RecordService from "../service/RecordService"
 import ManageRecordSerivce from "../service/ManageRecordSerivce"
-import TagService from "../service/TagService"
-import DirnameService from "../service/DirnameService"
 
 import Result from "../util/Result"
+import LibraryDao from "../dao/libraryDBDao"
 import AuthorService from "../tmpService/AuthorService"
+import TagService from "../tmpService/TagService"
+import DirnameService from "../tmpService/DirnameService"
 import TmmpRecordService from "../tmpService/RecordService"
-import TmmpTagService from "../tmpService/TagService"
-
 
 const { rebindLibrary, closeLibraryDB } = function () {
     const library = DIContainer.get<DILibrary>(DI_TYPES.Library)
@@ -52,8 +50,6 @@ function ipcMainLibrary() {
     })
 
     ipcMain.handle('record:queryRecmds', async (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): Promise<DTO.Page<VO.RecordRecommendation>> => {
-
-
         const recordService = new RecordService(libraryId)
         try {
             return recordService.queryRecordRecmds(options)
@@ -164,64 +160,41 @@ function ipcMainLibrary() {
 
     ipcMain.handle('tag:queryDetails', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryTagDetailsOptions): DTO.Page<VO.TagDetail> => {
         rebindLibrary(libraryId)
-        DIContainer.get<TmmpTagService>(DI_TYPES.TagService).queryTagDetails(options)
-
-        const tagService = new TagService(libraryId)
-        return tagService.queryTagDetails(options)
-        tagService.close()
+        return DIContainer.get<TagService>(DI_TYPES.TagService).queryTagDetails(options)
     }, generateCatchFn('tag:queryDetails'), { total: 0, rows: [] }, closeLibraryDB))
 
 
     ipcMain.handle('tag:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string) => {
         rebindLibrary(libraryId)
-        DIContainer.get<TmmpTagService>(DI_TYPES.TagService).editTag(tagId, newValue)
+        DIContainer.get<TagService>(DI_TYPES.TagService).editTag(tagId, newValue)
     }, generateCatchFn('tag:edit'), void 0, closeLibraryDB))
 
 
     ipcMain.handle('tag:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number) => {
         rebindLibrary(libraryId)
-        DIContainer.get<TmmpTagService>(DI_TYPES.TagService).deleteTag(tagId)
+        DIContainer.get<TagService>(DI_TYPES.TagService).deleteTag(tagId)
     }, generateCatchFn('tag:delete'), void 0, closeLibraryDB))
 
 
     //ANCHOR Dirname
 
-    ipcMain.handle('dirname:queryDetails', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryDirnameDetailsOptions): DTO.Page<VO.DirnameDetail> | undefined => {
-        const dirnameService = new DirnameService(libraryId)
-        try {
-            return dirnameService.queryDirnameDetails(options)
-        } catch (e: any) {
-            dialog.showErrorBox('dirname:queryDetails', e.message)
-            return { total: 0, rows: [] }
-        } finally {
-            dirnameService.close()
-        }
-    })
+    ipcMain.handle('dirname:queryDetails', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryDirnameDetailsOptions): DTO.Page<VO.DirnameDetail> | undefined => {
+        rebindLibrary(libraryId)
+        return DIContainer.get<DirnameService>(DI_TYPES.DirnameService).queryDirnameDetails(options)
+    }, generateCatchFn('dirname:queryDetails'), { total: 0, rows: [] }, closeLibraryDB))
 
-    ipcMain.handle('dirname:edit', (e: IpcMainInvokeEvent, libraryId: number, dirnameId: number, newValue: string): Result => {
-        const dirnameService = new DirnameService(libraryId)
-        try {
-            return dirnameService.editDirname(dirnameId, newValue)
-                ? Result.success()
-                : Result.error('path is illegal')
-        } catch (e: any) {
-            dialog.showErrorBox('dirname:edit', e.message)
-            return Result.error(e.message)
-        } finally {
-            dirnameService.close()
-        }
-    })
 
-    ipcMain.handle('dirname:delete', (e: IpcMainInvokeEvent, libraryId: number, dirnameId: number) => {
-        const dirnameService = new DirnameService(libraryId)
-        try {
-            dirnameService.deleteDirname(dirnameId)
-        } catch (e: any) {
-            dialog.showErrorBox('dirname:delete', e.message)
-        } finally {
-            dirnameService.close()
-        }
-    })
+    ipcMain.handle('dirname:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, dirnameId: number, newValue: string): Result => {
+        rebindLibrary(libraryId)
+        return DIContainer.get<DirnameService>(DI_TYPES.DirnameService).editDirname(dirnameId, newValue)
+    }, generateCatchFn('dirname:edit'), Result.error(), closeLibraryDB))
+
+
+    ipcMain.handle('dirname:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, dirnameId: number): void => {
+        rebindLibrary(libraryId)
+        DIContainer.get<DirnameService>(DI_TYPES.DirnameService).deleteDirname(dirnameId)
+    }, generateCatchFn('dirname:delete'), void 0, closeLibraryDB))
+
 
     ipcMain.handle('dirname:startsWithReplace', (e: IpcMainInvokeEvent, libraryId: number, target: string, replace: string): Result => {
         const libraryDao = new LibraryDao(libraryId)

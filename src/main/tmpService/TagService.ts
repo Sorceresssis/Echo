@@ -1,4 +1,4 @@
-import { injectable, inject, LazyServiceIdentifer } from "inversify"
+import { injectable, inject } from "inversify"
 import DIContainer from "../DI/DIContainer"
 import DI_TYPES, { DILibrary } from "../DI/DITypes"
 import TagDao, { QueryTagsSortRule } from "../dao/TagDao"
@@ -7,21 +7,11 @@ import RecordService from "./RecordService"
 
 @injectable()
 class TagService {
-    private library: DILibrary
-    private tagDao: TagDao
-    private recordTagDao: RecordTagDao
-    private recordService: RecordService
-
     public constructor(
-        @inject(DI_TYPES.Library) library: DILibrary,
-        @inject(DI_TYPES.TagDao) tagDao: TagDao,
-        @inject(DI_TYPES.RecordTagDao) recordTagDao: RecordTagDao,
-        @inject(new LazyServiceIdentifer(() => DI_TYPES.RecordService)) recordService: RecordService,
+        @inject(DI_TYPES.Library) private library: DILibrary,
+        @inject(DI_TYPES.TagDao) private tagDao: TagDao,
+        @inject(DI_TYPES.RecordTagDao) private recordTagDao: RecordTagDao,
     ) {
-        this.library = library
-        this.tagDao = tagDao
-        this.recordTagDao = recordTagDao
-        this.recordService = recordService
     }
 
     public queryTagDetails(options: DTO.QueryTagDetailsOptions): DTO.Page<VO.TagDetail> {
@@ -72,7 +62,7 @@ class TagService {
             // id !== existId 的判断是为了防止修改的值和原值一样，导致被删除
             if (existId && id !== existId) {
                 // 如果已经存在，就把record_tag中的tag_id重定向到existId
-                this.recordTagDao.updateTagIdOfRecordTag(existId, id)
+                this.recordTagDao.updateTagIdByTagId(id, existId)
                 this.tagDao.deleteTagById(id)
                 this.updateRecordTagAuthorSumOfTag(existId) // 更新冗余字段
             } else {
@@ -82,7 +72,7 @@ class TagService {
         })
     }
 
-    public deleteTag(id: number) {
+    public deleteTag(id: number): void {
         this.library.dbConnection.transaction(() => {
             this.tagDao.deleteTagById(id)
             this.updateRecordTagAuthorSumOfTag(id)
@@ -91,14 +81,13 @@ class TagService {
     }
 
     private updateRecordTagAuthorSumOfTag(tagId: PrimaryKey): void {
-        const rowCount = 150
-        let recordIds = this.recordTagDao.queryRecordIdsByTagId(tagId, 0, rowCount)
-        while (recordIds.length) {
-            recordIds.forEach(id => this.recordService.updateRecordTagAuthorSum(id))
-
-            if (recordIds.length < rowCount) break
-            recordIds = this.recordTagDao.queryRecordIdsByTagId(tagId, 0, rowCount)
-        }
+        let pn = 0
+        const rowCount = 200
+        let recordIds: number[]
+        do {
+            recordIds = this.recordTagDao.queryRecordIdsByTagId(tagId, pn++ * rowCount, rowCount)
+            recordIds.forEach(id => DIContainer.get<RecordService>(DI_TYPES.RecordService).updateRecordTagAuthorSum(id))
+        } while (recordIds.length === rowCount)
     }
 }
 

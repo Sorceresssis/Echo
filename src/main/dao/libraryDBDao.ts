@@ -12,16 +12,6 @@ type DaoPage<T> = {
 	rows: T[]
 }
 
-export type QueryAuthorsSortRule = {
-	field: 'name' | 'id',
-	order: 'ASC' | 'DESC'
-}
-
-export type QueryTagsSortRule = {
-	field: 'title' | 'id',
-	order: 'ASC' | 'DESC'
-}
-
 export type QueryDirnamesSortRule = {
 	field: 'path' | 'id',
 	order: 'ASC' | 'DESC'
@@ -263,15 +253,6 @@ export default class LibraryDao {
 		return this.db.run('DELETE FROM record WHERE recycled = 1 AND id = ?;', recordId).changes
 	}
 
-	//  更改record的dirname_id滞空为0
-	public updateRecordDirnameIdToZeroByDirnameId(dirnameId: PrimaryKey): number {
-		return this.db.run('UPDATE record SET dirname_id = 0 WHERE dirname_id = ?;', dirnameId).changes
-	}
-
-	public updateRecordDirnameId(newDirnameId: PrimaryKey, oldDirnameId: PrimaryKey): number {
-		return this.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', newDirnameId, oldDirnameId).changes
-	}
-
 	// ANCHOR record_extra
 
 	public queryRecordExtraByRecordId(id: number): VO.RecordExtra | undefined {
@@ -316,34 +297,6 @@ export default class LibraryDao {
 		return this.db.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ?;', id)
 	}
 
-	public queryTagsByKeyword(
-		keyword: string,
-		sort: QueryTagsSortRule[],
-		offset: number,
-		rowCount: number,
-	): DaoPage<VO.Tag> {
-		const rowsSQL = new DynamicSqlBuilder()
-		const countSQL = new DynamicSqlBuilder()
-		const sortRule: SortRule[] = []
-
-		rowsSQL.append('SELECT id, title FROM tag')
-		countSQL.append("SELECT COUNT(id) FROM tag")
-
-		if (keyword !== '') {
-			this.registerSQLFnRegexp(tokenizer(keyword))
-			rowsSQL.append("WHERE REGEXP(title) > 0")
-			sortRule.push({ field: 'REGEXP(title)', order: 'DESC' })
-			countSQL.append("WHERE REGEXP(title) > 0")
-		}
-		sortRule.push(...sort)
-		rowsSQL.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
-
-		return {
-			total: this.db.prepare(countSQL.getSql()).pluck().get() as number,
-			rows: this.db.all(rowsSQL.getSql(), ...rowsSQL.getParams()) as VO.Tag[],
-		}
-	}
-
 	public addTag(title: string): PrimaryKey {
 		return this.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
 	}
@@ -367,17 +320,6 @@ export default class LibraryDao {
 	}
 
 	// ANCHOR record_author
-
-	public queryCountOfRecordsByAuthorId(authorId: number): number {
-		const sql = 'SELECT COUNT(record_id) FROM record_author WHERE author_id = ?;'
-		return this.db.prepare(sql).pluck().get(authorId) as number
-	}
-
-	public queryRecordIdsByAuthorId(authorId: PrimaryKey, offset: number, rowCount: number): number[] {
-		const sql = 'SELECT record_id FROM record_author WHERE author_id = ? LIMIT ?,?;'
-		return this.db.prepare(sql).pluck().all(authorId, offset, rowCount) as number[]
-	}
-
 	public addRecordAuthor(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
 		const stmt = this.db.prepare("INSERT INTO record_author(record_id, author_id) VALUES(?,?);")
 		authorIds.forEach(id => {
@@ -392,19 +334,11 @@ export default class LibraryDao {
 		})
 	}
 
-	public deleteRecordAuthorByAuthorId(id: PrimaryKey): number {
-		return this.db.run("DELETE FROM record_author WHERE author_id = ?;", id).changes
-	}
-
 	public deleteRecordAuthorByRecordId(id: PrimaryKey): number {
 		return this.db.run("DELETE FROM record_author WHERE record_id = ?;", id).changes
 	}
 
 	// ANCHOR record_tag
-
-	public queryCountOfRecordsByTagId(tagId: number): number {
-		return this.db.prepare('SELECT COUNT(record_id) FROM record_tag WHERE tag_id = ?;').pluck().get(tagId) as number
-	}
 
 	public queryRecordIdsByTagId(tagId: PrimaryKey, offset: number, rowCount: number): number[] {
 		return this.db.prepare('SELECT record_id FROM record_tag WHERE tag_id = ? LIMIT ?,?;').pluck().all(tagId, offset, rowCount) as number[]
@@ -448,46 +382,10 @@ export default class LibraryDao {
 		return this.db.run('DELETE FROM record_series WHERE record_id = ?;', id).changes
 	}
 
-	// ANCHOR dirname
-
-	public queryDirnamesByKeyword(
-		keyword: string,
-		sort: QueryDirnamesSortRule[],
-		offset: number,
-		rowCount: number
-	): DaoPage<VO.Dirname> {
-		const rowsSQL = new DynamicSqlBuilder()
-		const countSQL = new DynamicSqlBuilder()
-		const sortRule: SortRule[] = []
-
-		rowsSQL.append('SELECT id, path FROM dirname')
-		countSQL.append('SELECT COUNT(id) FROM dirname')
-
-		if (keyword !== '') {
-			this.registerSQLFnRegexp(tokenizer(keyword))
-			rowsSQL.append('WHERE REGEXP(path) > 0')
-			sortRule.push({ field: 'REGEXP(path)', order: 'DESC' })
-			countSQL.append('WHERE REGEXP(path) > 0')
-		}
-		sortRule.push(...sort)
-		rowsSQL.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
-
-		return {
-			total: this.db.prepare(countSQL.getSql()).pluck().get() as number,
-			rows: this.db.all(rowsSQL.getSql(), ...rowsSQL.getParams()) as VO.Dirname[],
-		}
-	}
-
-	public updateDirname(id: number, path: string): number {
-		return this.db.run("UPDATE dirname SET path = ? WHERE id = ?;", path, id).changes
-	}
+	// ANCHOR dirname 
 
 	public addDirname(path: string): PrimaryKey {
 		return this.db.run("INSERT INTO dirname(path) VALUES(?);", path).lastInsertRowid
-	}
-
-	public deleteDirname(id: PrimaryKey): number {
-		return this.db.run('DELETE FROM dirname WHERE id = ?;', id).changes
 	}
 
 	public queryDirnameIdByPath(name: string): PrimaryKey | null {

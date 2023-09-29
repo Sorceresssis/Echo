@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify"
 import DI_TYPES, { DILibrary } from "../DI/DITypes"
-import DynamicSqlBuilder from "../util/DynamicSqlBuilder"
+import DynamicSqlBuilder, { SortRule } from "../util/DynamicSqlBuilder"
 
 export type QueryTagsSortRule = {
     field: 'title' | 'id',
@@ -19,7 +19,7 @@ class TagDao {
         return this.lib.dbConnection.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as PrimaryKey | null
     }
 
-    public queryTagsByRecordId(recordId: PrimaryKey) {
+    public queryTagsByRecordId(recordId: PrimaryKey): Domain.Tag[] {
         return this.lib.dbConnection.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ?;', recordId)
     }
 
@@ -28,16 +28,26 @@ class TagDao {
         sort: QueryTagsSortRule[],
         offset: number,
         rowCount: number
-    ) {
+    ): Dao.Page<Domain.Tag> {
         const sql = new DynamicSqlBuilder()
+        const sortRule: SortRule[] = []
 
+        sql.append('SELECT COUNT(id) OVER () AS total_count, id, title FROM tag')
         if (keyword !== '') {
             this.lib.dbConnection.registerSQLFnRegexp(keyword)
-
+            sql.append('WHERE REGEXP(title) > 0')
+            sortRule.push({ field: 'REGEXP(title)', order: 'DESC' })
         }
+        sortRule.push(...sort)
+        sql.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
+
+        const rows = this.lib.dbConnection.all(sql.getSql(), ...sql.getParams())
+        const total = rows.length > 0 ? rows[0].total_count : 0
+        rows.forEach(row => { delete row.total_count })
 
         return {
-
+            total: total,
+            rows: rows
         }
     }
 
