@@ -76,11 +76,40 @@ class DirnameService {
         })
     }
 
+    /**
+     * 以目录为基本单位匹配不是以字符为基本单位匹配 F:\foor\b 是无法与 F:\foor\b 匹配的
+     * 一下是C:\foo\bar\baz\qux 的匹配表
+     * C:\foo\bar\baz\q     不符合
+     * C:\foo\bar\baz\qux   符合
+     * C:\                  符合
+     * C:                   非法路径
+     * @param target
+     * @param replace
+     */
     public startsWithReplacePath(target: string, replace: string): Result {
-        if (isLegalAbsolutePath(target) && isLegalAbsolutePath(replace)) {
-
+        if (!isLegalAbsolutePath(target) || !isLegalAbsolutePath(replace)) {
+            return Result.error('invalid absolute path')
         }
-        return Result.error('路径不合法')
+
+        // path.normalize()会保留尾部的分隔符，path.resolve()不保留尾部的分割符
+        const normalizeTarget = nodePath.normalize(target + nodePath.sep) // 带尾部分隔符的标准化路径,来体现以文件夹为基本单位匹配
+        const normalizeReplace = nodePath.normalize(replace)
+
+        // 注册数据库函数NEED_REPLACE_DP用于判断是否需要替换
+        this.library.dbConnection.function('NEED_REPLACE_DP', (source: string) => {
+            // F:\foo\与F:\foo\a和F:\foo都匹配
+            const normalizeSource = nodePath.normalize(source + nodePath.sep)
+            return normalizeSource.startsWith(normalizeTarget) ? 1 : 0
+        })
+
+        this.library.dbConnection.function('REPLACE_DP', (source: string) => {
+            // 都是经过标准化的路径，用substring直接截取不会出现问题
+            return nodePath.resolve(normalizeReplace, nodePath.normalize(source).substring(normalizeTarget.length))
+        })
+
+        this.library.dbConnection.run('UPDATE dirname SET path = REPLACE_DP(path) WHERE NEED_REPLACE_DP(path);')
+
+        return Result.success()
     }
 }
 

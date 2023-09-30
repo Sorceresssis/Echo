@@ -5,24 +5,24 @@ import DI_TYPES, { DILibrary } from "../DI/DITypes"
 import { exceptionalHandler } from '../util/common'
 import LibraryDB from "../db/LibraryDB"
 import { isLegalAbsolutePath } from "../util/FileManager"
-
-import RecordService from "../service/RecordService"
-import ManageRecordSerivce from "../service/ManageRecordSerivce"
-
 import Result from "../util/Result"
+
 import LibraryDao from "../dao/libraryDBDao"
-import AuthorService from "../tmpService/AuthorService"
-import TagService from "../tmpService/TagService"
-import DirnameService from "../tmpService/DirnameService"
-import TmmpRecordService from "../tmpService/RecordService"
+
+import AutocompleteService from "../service/AutocompleteService"
+import RecordService from "../service/RecordService"
+import AuthorService from "../service/AuthorService"
+import TagService from "../service/TagService"
+import DirnameService from "../service/DirnameService"
+import SeriesService from "../service/SeriesService"
+
 
 const { rebindLibrary, closeLibraryDB } = function () {
     const library = DIContainer.get<DILibrary>(DI_TYPES.Library)
-
     return {
         rebindLibrary: function (libraryId: number) {
             library.id = libraryId
-            library.dbConnection = new LibraryDB(appConfig.getLibraryDBFilePath(libraryId))
+            library.dbConnection = new LibraryDB(libraryId)
         },
         closeLibraryDB: function () {
             library.dbConnection?.close()
@@ -31,101 +31,50 @@ const { rebindLibrary, closeLibraryDB } = function () {
 }()
 
 function generateCatchFn(title: string, suggest?: string) {
+    // TODO 检查数据库结构是否正确
     return function (e: any) {
         dialog.showErrorBox(title, suggest ? `${suggest}\n${e.message}` : e.message)
     }
 }
 
 function ipcMainLibrary() {
-    ipcMain.handle('record:autoComplete', (e: IpcMainInvokeEvent, libraryId: number, options: DTO.AcOptions): VO.AcSuggestion[] => {
-        const libraryDao = new LibraryDao(libraryId)
-        try {
-            return libraryDao.autoComplete(options.type, options.queryWord, options.ps)
-        } catch (e: any) {
-            dialog.showErrorBox('record:autoComplete', e.message)
-            return []
-        } finally {
-            libraryDao.destroy()
-        }
-    })
-
-    ipcMain.handle('record:queryRecmds', async (e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): Promise<DTO.Page<VO.RecordRecommendation>> => {
-        const recordService = new RecordService(libraryId)
-        try {
-            return recordService.queryRecordRecmds(options)
-        } catch (e: any) {
-            dialog.showErrorBox('record:queryRecmds', e.message)
-            return { total: 0, rows: [] }
-        } finally {
-            recordService.close()
-        }
-    })
-
-    ipcMain.handle('record:queryDetail', (e: IpcMainInvokeEvent, libraryId: number, recordId: number): VO.RecordDetail | undefined => {
-        const recordService = new RecordService(libraryId)
-        try {
-            return recordService.queryRecordDetail(recordId)
-        } catch (e: any) {
-            dialog.showErrorBox('record:queryDetail', e.message)
-        } finally {
-            recordService.close()
-        }
-    })
-
-    ipcMain.handle('record:edit', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result | undefined => {
+    ipcMain.handle('record:autoComplete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.AcOptions): VO.AcSuggestion[] => {
         rebindLibrary(libraryId)
-        const manageRecordSerivce = new ManageRecordSerivce(libraryId)
-        try {
-            return options.batch
-                ? manageRecordSerivce.addBatch(formData, options.distinct)
-                : manageRecordSerivce.edit(formData)
-        } catch (e: any) {
-            dialog.showErrorBox('record:edit', e.message)
-            return Result.error()
-        } finally {
-            manageRecordSerivce.close()
-        }
-    })
+        return DIContainer.get<AutocompleteService>(DI_TYPES.AutocompleteService).query(options.type, options.queryWord, options.ps)
+    }, generateCatchFn('record:autoComplete'), [], closeLibraryDB))
 
-    ipcMain.handle('record:batchProcessing', (
-        e: IpcMainInvokeEvent,
-        libraryId: number,
-        type: DTO.RecordBatchProcessingType,
-        recordIds: number[]
-    ) => {
-        const recordService = new RecordService(libraryId)
-        try {
-            switch (type) {
-                case 'recycle':
-                    recordService.recycle(recordIds)
-                    break
-                case 'recover':
-                    recordService.recover(recordIds)
-                    break
-                case 'delete_recycled':
-                    recordService.deleteRecycled(recordIds)
-                    break
-                case 'delete_recycled_all':
-                    recordService.deleteRecycledAll()
-                    break
-            }
-        } catch (e: any) {
-            dialog.showErrorBox('record:batchProcessing', e.message)
-        } finally {
-            recordService.close()
-        }
-    })
 
-    ipcMain.handle('record:deleteByAttribute', (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.DeleteRecordByAttributeForm) => {
-        const recordService = new RecordService(libraryId)
-        try {
-            return recordService.recycleRecordByAttribute(formData)
-        } catch (e: any) {
-            dialog.showErrorBox('record:batchDelete', e.message)
-        } finally {
-            recordService.close()
-        }
-    })
+    ipcMain.handle('record:queryRecmds', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): DTO.Page<VO.RecordRecommendation> => {
+        rebindLibrary(libraryId)
+        return DIContainer.get<RecordService>(DI_TYPES.RecordService).queryRecordRecmds(options)
+    }, generateCatchFn('record:queryRecmds'), { total: 0, rows: [] }, closeLibraryDB))
+
+
+    ipcMain.handle('record:queryDetail', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, recordId: number): VO.RecordDetail | undefined => {
+        rebindLibrary(libraryId)
+        return DIContainer.get<RecordService>(DI_TYPES.RecordService).queryRecordDetail(recordId)
+    }, generateCatchFn('record:queryDetail'), void 0, closeLibraryDB))
+
+
+    ipcMain.handle('record:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result => {
+        rebindLibrary(libraryId)
+        const recordService = DIContainer.get<RecordService>(DI_TYPES.RecordService)
+        return options.batch
+            ? recordService.addBatchRecord(formData, options.distinct)
+            : recordService.editRecord(formData)
+    }, generateCatchFn('record:edit'), Result.error('runtime error'), closeLibraryDB))
+
+
+    ipcMain.handle('record:batchProcessing', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, type: DTO.RecordBatchProcessingType, recordIds: number[]): void => {
+        rebindLibrary(libraryId)
+        DIContainer.get<RecordService>(DI_TYPES.RecordService).batchProcessing(type, recordIds)
+    }, generateCatchFn('record:batchProcessing'), void 0, closeLibraryDB))
+
+
+    ipcMain.handle('record:deleteByAttribute', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.DeleteRecordByAttributeForm) => {
+        rebindLibrary(libraryId)
+        DIContainer.get<RecordService>(DI_TYPES.RecordService).recycleRecordByAttribute(formData)
+    }, generateCatchFn('record:batchDelete'), void 0, closeLibraryDB))
 
 
     //ANCHOR Author
@@ -156,7 +105,7 @@ function ipcMainLibrary() {
     }, generateCatchFn('author:delete'), false, closeLibraryDB))
 
 
-    //ANCHOR Tag 
+    //ANCHOR Tag
 
     ipcMain.handle('tag:queryDetails', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryTagDetailsOptions): DTO.Page<VO.TagDetail> => {
         rebindLibrary(libraryId)
@@ -187,7 +136,7 @@ function ipcMainLibrary() {
     ipcMain.handle('dirname:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, dirnameId: number, newValue: string): Result => {
         rebindLibrary(libraryId)
         return DIContainer.get<DirnameService>(DI_TYPES.DirnameService).editDirname(dirnameId, newValue)
-    }, generateCatchFn('dirname:edit'), Result.error(), closeLibraryDB))
+    }, generateCatchFn('dirname:edit'), Result.error('runtime error'), closeLibraryDB))
 
 
     ipcMain.handle('dirname:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, dirnameId: number): void => {
@@ -196,23 +145,10 @@ function ipcMainLibrary() {
     }, generateCatchFn('dirname:delete'), void 0, closeLibraryDB))
 
 
-    ipcMain.handle('dirname:startsWithReplace', (e: IpcMainInvokeEvent, libraryId: number, target: string, replace: string): Result => {
-        const libraryDao = new LibraryDao(libraryId)
-        try {
-            // 过滤掉window的 不合法的盘符
-            if (isLegalAbsolutePath(target) && isLegalAbsolutePath(replace)) {
-                libraryDao.startsWithReplaceDirname(target, replace)
-                return Result.success()
-            } else {
-                return Result.error('路径不合法')
-            }
-        } catch (e: any) {
-            dialog.showErrorBox('dirname:startsWithReplace', e.message)
-            return Result.error(e.message)
-        } finally {
-            libraryDao.destroy()
-        }
-    })
+    ipcMain.handle('dirname:startsWithReplace', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, target: string, replace: string): Result => {
+        rebindLibrary(libraryId)
+        return DIContainer.get<DirnameService>(DI_TYPES.DirnameService).startsWithReplacePath(target, replace)
+    }, generateCatchFn('dirname:startsWithReplace'), Result.error('runtime error'), closeLibraryDB))
 }
 
 

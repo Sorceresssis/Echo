@@ -19,11 +19,12 @@ import RecordSeriesDao from "../dao/RecordSeriesDao"
 import RecordTagDao from "../dao/RecordTagDao"
 import SeriesDao from "../dao/SeriesDao"
 import TagDao from "../dao/TagDao"
-import AuthorService from "../tmpService/AuthorService"
-import RecordService from "../tmpService/RecordService"
-import DirnameService from "../tmpService/DirnameService"
-import SeriesService from "../tmpService/SeriesService"
-import TagService from "../tmpService/TagService"
+import AutocompleteService from "../service/AutocompleteService"
+import AuthorService from "../service/AuthorService"
+import RecordService from "../service/RecordService"
+import DirnameService from "../service/DirnameService"
+import SeriesService from "../service/SeriesService"
+import TagService from "../service/TagService"
 
 const container = new Container()
 
@@ -59,6 +60,7 @@ container.bind<SeriesDao>(DI_TYPES.SeriesDao).to(SeriesDao).inSingletonScope()
 container.bind<TagDao>(DI_TYPES.TagDao).to(TagDao).inSingletonScope()
 
 // Service
+container.bind<AutocompleteService>(DI_TYPES.AutocompleteService).to(AutocompleteService).inSingletonScope()
 container.bind<AuthorService>(DI_TYPES.AuthorService).to(AuthorService).inSingletonScope()
 container.bind<RecordService>(DI_TYPES.RecordService).to(RecordService).inSingletonScope()
 container.bind<DirnameService>(DI_TYPES.DirnameService).to(DirnameService).inSingletonScope()

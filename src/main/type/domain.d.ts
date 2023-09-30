@@ -76,6 +76,11 @@ namespace Domain {
         title: string,
     }
 
+    type Series = {
+        id: number;
+        name: string;
+    }
+
     type Dirname = {
         id: number;
         path: string;

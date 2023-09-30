@@ -15,8 +15,8 @@ class DirnameDao {
         this.lib = lib
     }
 
-    public queryDirnameIdByPath(path: string): PrimaryKey | undefined {
-        return this.lib.dbConnection.prepare('SELECT id FROM dirname WHERE path = ?;').pluck().get(path) as PrimaryKey | undefined
+    public queryDirnameIdByPath(path: string): number | undefined {
+        return this.lib.dbConnection.prepare('SELECT id FROM dirname WHERE path = ?;').pluck().get(path) as number | undefined
     }
 
     public queryDirnamesByKeyword(

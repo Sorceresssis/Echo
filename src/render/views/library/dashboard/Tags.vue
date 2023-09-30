@@ -112,6 +112,7 @@ const deleteTag = (id: number) => {
         queryTags()
     })
 }
+// TODO 在修改标签时，添加loading, 防止用户操作
 const editTag = (id: number, oldValue: string) => {
     MessageBox.editPrompt(async (value: string) => {
         const trimValue = value.trim()

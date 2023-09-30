@@ -4,7 +4,7 @@ import DIContainer from "../DI/DIContainer"
 import DI_TYPES, { DILibrary } from "../DI/DITypes"
 import appConfig from "../app/config"
 import fm from "../util/FileManager"
-import ImageService from "../service/ImageService"
+import ImageService from "./ImageService"
 import AuthorDao, { QueryAuthorsSortRule } from "../dao/AuthorDao"
 import RecordAuthorDao from "../dao/RecordAuthorDao"
 import RecordService from "./RecordService"
@@ -66,6 +66,12 @@ class AuthorService {
         return page
     }
 
+    public queryAuthorsByRecordId(recordId: number) {
+        const authors = this.authorDao.queryAuthorsByRecordId(recordId)
+        authors.forEach(author => author.avatar = this.getAvatarFullPath(author.avatar))
+        return authors
+    }
+
     public editAuthor(formData: DTO.EditAuthorForm): void {
         const author: Entity.Author = {
             id: formData.id,
@@ -97,11 +103,13 @@ class AuthorService {
             this.authorDao.deleteAuthorById(authorId) // 删除作者
             this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新冗余字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
             this.recordAuthorDao.deleteRecordAuthorByAuthorId(authorId) // 删除关联
-        })
 
-        if (author.avatar) {
-            try { fm.unlinkIfExistsSync(author.avatar) } catch { }
-        }
+            // 删除图像
+            try {
+                const p = this.getAvatarFullPath(author.avatar)
+                if (p) { fm.unlinkIfExistsSync(p) }
+            } catch { }
+        })
     }
 
     private handleAvatar(newImg: string, originImg: string): string | null {
@@ -116,7 +124,7 @@ class AuthorService {
         }
         // 保存新的图片, 返回新的图片名, 如果失败直接提醒用户原因，让用户解决问题
         if (newImg.length) {
-            const imageService = new ImageService(newImg)
+            const imageService = new ImageService(this.library.id, newImg)
             return imageService.handleAuthorAvatar() || null
         }
 

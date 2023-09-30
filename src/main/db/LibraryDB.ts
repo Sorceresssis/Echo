@@ -1,10 +1,14 @@
 import fs from "fs"
-import { oncePerObject } from '../decorator/method.decorator'
+import appConfig from "../app/config"
+import fm from "../util/FileManager"
 import DB from "./DB"
+import { oncePerObject } from '../decorator/method.decorator'
 import tokenizer from "../util/tokenizer"
 
 export default class LibraryDB extends DB {
-    public constructor(path: string) {
+    public constructor(libraryId: PrimaryKey) {
+        fm.mkdirsSync(appConfig.getLibraryDirPath(libraryId))
+        const path = appConfig.getLibraryDBFilePath(libraryId)
         if (fs.existsSync(path)) {
             super(path)
         } else {

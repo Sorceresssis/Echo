@@ -18,6 +18,7 @@ const DI_TYPES = {
     RecordTagDao: Symbol('RecordTagDao'),
     SeriesDao: Symbol('SeriesDao'),
     TagDao: Symbol('TagDao'),
+    AutocompleteService: Symbol('AutocompleteService'),
     AuthorService: Symbol('AuthorService'),
     DirnameService: Symbol('DirnameService'),
     RecordService: Symbol('RecordService'),

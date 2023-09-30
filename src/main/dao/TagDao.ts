@@ -15,8 +15,8 @@ class TagDao {
         this.lib = lib
     }
 
-    public queryTagIdByTitle(title: string): PrimaryKey | null {
-        return this.lib.dbConnection.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as PrimaryKey | null
+    public queryTagIdByTitle(title: string): number | undefined {
+        return this.lib.dbConnection.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as number | undefined
     }
 
     public queryTagsByRecordId(recordId: PrimaryKey): Domain.Tag[] {

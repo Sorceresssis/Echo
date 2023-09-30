@@ -10,7 +10,7 @@ class LibraryExtraDao {
         this.db = db
     }
 
-    public queryLibraryExtraById(id: number): Domain.LibraryExtra | null {
+    public queryLibraryExtraById(id: number): Domain.LibraryExtra | undefined {
         return this.db.get('SELECT id, auxiliary_st AS auxiliarySt, use_auxiliary_st AS useAuxiliarySt, intro FROM library_extra WHERE id=?;', id)
     }
 

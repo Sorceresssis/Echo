@@ -9,7 +9,7 @@ class RecordTagDao {
         this.lib = lib
     }
 
-    public queryCountOfRecordsByTagId(tagId: number): number {
+    public queryCountOfRecordsByTagId(tagId: PrimaryKey): number {
         return this.lib.dbConnection.prepare('SELECT COUNT(record_id) FROM record_tag WHERE tag_id = ?;').pluck().get(tagId) as number
     }
 
