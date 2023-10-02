@@ -1,8 +1,8 @@
 import { createI18n } from 'vue-i18n'
 import { getConfig } from '@/util/ConfigUtil'
-import zhCN from './zhCN'
-import en from './en'
-import ja from './ja'
+import zhCN from './lang/zhCN'
+import en from './lang/en'
+import ja from './lang/ja'
 
 export enum Locale {
     zhCN = 'zhCN',

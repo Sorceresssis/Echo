@@ -16,7 +16,7 @@
             <div class="operate">
                 <span class="iconfont"
                       :title="'编辑'"
-                      @click="router.push(`/library/${activeLibrary}/manage?author_id=${authorDetail.id}`)">&#xe722;</span>
+                      @click="router.push(hrefGenerator.libraryManage(activeLibrary, `author_id=${authorDetail.id}`))">&#xe722;</span>
                 <span class="iconfont"
                       :title="'删除'"
                       @click="deleteAuthor">&#xe636;</span>
@@ -34,15 +34,16 @@
 </template>
   
 <script lang="ts" setup>
-import { shallowReactive, ref, Ref, onMounted, inject, reactive, watch } from 'vue'
+import { shallowReactive, ref, Ref, onMounted, inject, reactive, readonly } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { $t } from '@/locales'
+import { $t } from '@/locale'
 import Tabs from '@/components/Tabs.vue'
 import LocalImage from '@/components/LocalImage.vue'
 import Records from '../dashboard/Records.vue'
 import About from './About.vue'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
+import hrefGenerator from '@/router/hrefGenerator'
 
 const router = useRouter()
 const route = useRoute()
@@ -55,7 +56,7 @@ const authorDetail = reactive<VO.AuthorDetail>({
     modifiedTime: '',
     recordCount: 0
 })
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
     { id: 1, label: '记录' },
@@ -77,7 +78,7 @@ const deleteAuthor = async () => {
 }
 
 const init = async () => {
-    const id = route.query.author_id as string
+    const id = route.query.id as string
     if (id === void 0) {
         router.back()
         return
@@ -86,7 +87,7 @@ const init = async () => {
     res === void 0 ? router.back() : Object.assign(authorDetail, res)
 }
 
-watch(route, init)
+// watch(route, init) // BUG router.back 是导致route 无法切换librarary的原因 
 onMounted(init)
 </script>
 

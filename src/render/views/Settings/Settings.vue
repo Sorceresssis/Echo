@@ -16,7 +16,7 @@
 
 <script lang='ts' setup>
 import { ref, shallowReactive } from 'vue'
-import { $t } from '@/locales'
+import { $t } from '@/locale'
 import Tabs from '@/components/Tabs.vue'
 import SettingsSponsor from './SettingsSponsor.vue'
 import SettingsGeneral from './SettingsGeneral.vue'
@@ -24,9 +24,9 @@ import SettingsHelp from './SettingsHelp.vue'
 
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
-    { id: 1, label: '赞助' },
-    { id: 2, label: '常规' },
-    { id: 3, label: '帮助' },
+    { id: 1, label: $t('settings.sponsor') },
+    { id: 2, label: $t('settings.general') },
+    { id: 3, label: $t('settings.help') },
 ])
 const components = [
     SettingsSponsor,

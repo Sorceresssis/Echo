@@ -46,7 +46,7 @@
 <script setup lang='ts'>
 import { onMounted, ref, Ref, inject, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { $t } from '@/locales'
+import { $t } from '@/locale'
 
 const router = useRouter()
 const route = useRoute()

@@ -1,6 +1,15 @@
 export default {
+    operate: {
+        rename: '重命名',
+    },
+    siderBar: {
+        workbench: '工作台',
+        watchLater: '稍后再看',
+        recycleBin: '回收站',
+        createdGroup: '创建的组',
+    },
     titlebar: {
-        back: '返回',
+        back: '后退',
         forward: '前进',
         setting: '设置',
         minimize: '最小化',
@@ -8,6 +17,31 @@ export default {
         restore: '还原',
         close: '关闭',
     },
+    settings: {
+        settings: '设置',
+
+        sponsor: '赞助',
+        addStar: '给项目加星',
+        addStarTips: '如果你喜欢这个项目，可以给项目加星，这样可以让更多的人看到这个项目',
+        support: '经济支持',
+        china: '中国',
+        other: '其他',
+
+        general: '常规',
+        language: '语言',
+        dataLocation: '数据保存位置',
+        searchEngine: '搜索引擎',
+        openDir: '打开目录',
+        changeDir: '更改目录',
+
+        help: '帮助',
+        contact: '联系方式',
+        turorial: '教程',
+        version: '版本',
+        license: '版权',
+    },
+
+
 
 
     app: {
@@ -52,12 +86,6 @@ export default {
         inputImage: '支持格式jpg,jpeg, png',
         inputFolder: '输入记录所在的文件目录',
     },
-    siderBar: {
-        workbench: '工作台',
-        watchLater: '稍后再看',
-        recycleBin: '回收站',
-        createdGroup: '创建的组',
-    },
     mainContainer: {
         fav: '喜爱',
         infoList: '信息列表',
@@ -77,13 +105,5 @@ export default {
         display: '展示',
         thumbnail: '缩略图',
         extended: '扩展',
-    },
-    settings: {
-        settings: '设置',
-        sponsor: '赞助',
-        turorial: '教程',
-        greneral: '通用',
-        about: '关于',
-        lang: '语言',
     }
 }

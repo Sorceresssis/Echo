@@ -16,7 +16,7 @@
     </transition>
 </template>
 
-<script >
+<script>
 export default {
     name: "CollapseTransition",
 

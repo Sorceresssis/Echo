@@ -1,8 +1,8 @@
 <template>
-    <div>
+    <div class="flex-col">
         <div class="dashboard__content scrollbar-y-w8">
             <div class="settings-item">
-                <h2 class="settings-item__title">语言</h2>
+                <h2 class="settings-item__title">{{ $t('settings.language') }}</h2>
                 <div class="settings-item__content">
                     <div class="row">
                         <el-select v-model="i18n.global.locale.value"
@@ -16,18 +16,18 @@
                 </div>
             </div>
             <div class="settings-item">
-                <h2 class="settings-item__title">数据保存位置</h2>
+                <h2 class="settings-item__title">{{ $t('settings.dataLocation') }}</h2>
                 <div class="settings-item__content">
                     <div class="row">
                         <el-input v-model="userDataPath"
                                   readonly />
-                        <button2 @click="selectUserDataPath">更改目录</button2>
-                        <button2 @click="openInExplorer(userDataPath)">打开文件夹</button2>
+                        <button2 @click="selectUserDataPath">{{ $t('settings.changeDir') }}</button2>
+                        <button2 @click="openInExplorer(userDataPath)">{{ $t('settings.openDir') }}</button2>
                     </div>
                 </div>
             </div>
             <div class="settings-item">
-                <h2 class="settings-item__title">搜索引擎</h2>
+                <h2 class="settings-item__title">{{ $t('settings.searchEngine') }}</h2>
                 <div class="settings-item__content">
                     <div class="row">
                         <el-select v-model="searchEngine"
@@ -73,7 +73,7 @@
 <script setup lang='ts'>
 import { ref, onMounted, toRaw } from 'vue'
 import { ElMessageBox } from 'element-plus'
-import { $t, i18n, localeList, Locale } from '@/locales'
+import { $t, i18n, localeList, Locale } from '@/locale'
 import { openInExplorer } from '@/util/systemUtil'
 import { setConfig, resetConfig, getAllConfig } from "@/util/ConfigUtil"
 import Button2 from '@/components/Button2.vue'

@@ -12,6 +12,7 @@
     --echo-text-color-regular: #000;
     --echo-text-color-light1: #444;
     --echo-text-color-light2: #7b7b7b;
+    --echo-titlebar-height: 50px;
 }
 
 html,
@@ -249,9 +250,9 @@ img {
 /******************** View ********************/
 /* titlebar */
 .titlebar {
-    height: 50px;
+    height: var(--echo-titlebar-height);
     padding-right: 10px;
-    line-height: 50px;
+    line-height: var(--echo-titlebar-height);
     font-size: 13px;
     color: #333333;
     -webkit-app-region: drag;
@@ -417,6 +418,7 @@ img {
 
 .settings-item__content .row {
     display: flex;
+    flex-wrap: wrap;
     margin-bottom: 10px;
 }
 

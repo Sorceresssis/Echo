@@ -1,7 +1,7 @@
 import path from "path"
 import { injectable, inject } from "inversify"
 import DIContainer from "../DI/DIContainer"
-import DI_TYPES, { DILibrary } from "../DI/DITypes"
+import DI_TYPES, {type DILibrary } from "../DI/DITypes"
 import appConfig from "../app/config"
 import fm from "../util/FileManager"
 import ImageService from "./ImageService"

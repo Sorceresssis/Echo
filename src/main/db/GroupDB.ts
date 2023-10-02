@@ -27,4 +27,11 @@ export default class GroupDB extends DB {
             CREATE INDEX 'idx_library_extra(id)' ON library_extra(id);`)
 		})
 	}
+
+	public checkAndRepair(): void {
+		const count = 10
+		if (this.prepare('SELECT COUNT(name) FROM sqlite_master;').pluck().get() !== count) {
+			this.createTable()
+		}
+	}
 }

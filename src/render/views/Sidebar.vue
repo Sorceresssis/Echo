@@ -2,16 +2,12 @@
     <!-- 不能用id="" 否则Transition无效 -->
     <div class="sidebar flex-col overflow-hidden">
         <div id="logo"
-             class="titlebar">
-            Echo
-        </div>
+             class="titlebar"> Echo </div>
         <div id="menu-wrap"
              class="flex-1 scrollbar-y-w4">
             <div>
                 <div class="menu__title menu-row flex-row">
-                    <div>
-                        <span>{{ $t('siderBar.createdGroup') }}</span>
-                    </div>
+                    <div> <span> {{ $t('siderBar.createdGroup') }} </span> </div>
                     <div>
                         <span class="iconfont"
                               @click="getGroups">&#xe632;</span>
@@ -59,8 +55,8 @@
                                 <li v-if="idxGroup === idxGroupOfAddLibrary">
                                     <div class="menu-row  menu-library input-wrap">
                                         <input v-model="newName"
-                                               onfocus="this.select();"
                                                v-focus
+                                               onfocus="this.select();"
                                                maxlength="255"
                                                spellcheck="false"
                                                @keyup.enter="($event.target as HTMLInputElement).blur()"
@@ -116,11 +112,11 @@
         <context-menu v-model:show="isVisCtmLibrary"
                       :options="ctmOptions">
             <context-menu-item label="面板"
-                               @click="router.push(`/library/${ctmCurLib().id}`)">
+                               @click="router.push(hrefGenerator.libraryBashboard(ctmCurLib().id))">
                 <template #icon> <span class="iconfont">&#xe69c;</span> </template>
             </context-menu-item>
             <context-menu-item label="管理数据"
-                               @click="router.push(`/library/${ctmCurLib().id}/manage`)">
+                               @click="router.push(hrefGenerator.libraryManage(ctmCurLib().id))">
                 <template #icon> <span class="iconfont">&#xe617;</span> </template>
             </context-menu-item>
             <context-menu-item label="在新窗口中打开"
@@ -157,83 +153,48 @@
 <script setup lang='ts'>
 import { ref, Ref, watch, inject, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { $t } from '@/locales/index'
-import { debounce } from '@/util/debounce'
-import { throttle } from '@/util/throttle'
+import hrefGenerator from '@/router/hrefGenerator'
+import { $t } from '@/locale'
+import { debounce, throttle } from '@/util/common'
 import { vFocus } from '@/util/directive'
+import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
 import { openInExplorer } from '@/util/systemUtil'
 import { sendCrosTabMsg, listenCrosTabMsg } from "@/util/CrosTabMsg"
 import CollapseTransition from '@/components/CollapseTransition.vue'
 import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
 
 const router = useRouter()
-
 const bc = new BroadcastChannel('sideBar')
 const bcMsg = 'getGroups'
 
-onMounted(async () => {
-    // 监听background发来的消息
-    listenCrosTabMsg(bc, (e: MessageEvent) => {
-        switch (e.data) {
-            case 'getGroups':
-                getGroups()
-                break
-        }
-    })
+const activeLibrary = inject<Ref<number>>('activeLibrary')!
 
-    // 获取groups和启动就要打开的library。后台发送来的library(新建窗口打开) --> 上一次打开的library --> id=0 不打开任何library
-    const firstOpenLibrary: number = (await Promise.all([getGroups(), getPrimaryOpenLibrary()]))[1] || JSON.parse(window.localStorage.getItem('lastActiveLibrary') || '0')
-
-    // 为0到欢迎页，否则打开library页 
-    if (firstOpenLibrary !== 0) {
-        openLibrary(firstOpenLibrary)
-    }
-
-    // 获取group的展开信息，
-    isExpandGroup.value = JSON.parse(window.localStorage.getItem('isExpandGroup') || "[]")
-
-    // 检查isExpandGroup和groups的对应情况,少就补上false,
-    if (isExpandGroup.value.length < groups.value.length) {
-        isExpandGroup.value.concat(Array(groups.value.length - isExpandGroup.value.length).fill(false))
-    }
-})
 
 /******************** 页面数据 ********************/
 const groups = ref<VO.Group[]>([])
-const isExpandGroup = ref<boolean[]>([]) // 是否展开Group
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
+const isExpandGroup = ref<boolean[]>([]) // Group的展开情况
 
-// 保存侧边栏的group的展开信息
-watch(isExpandGroup, debounce((newVal: boolean[]) => {
-    window.localStorage.setItem('isExpandGroup', JSON.stringify(newVal))
-}, 200), { deep: true })
-// 保存最后打开的library
-watch(activeLibrary, debounce((newVal: number) => {
-    window.localStorage.setItem('lastActiveLibrary', newVal.toString())
-}, 200))
-
-// 获取侧边栏的group
-const getGroups = throttle(async () => {
+// 请求groups
+const getGroups = debounce(async () => {
     groups.value = await window.electronAPI.getGroups()
-}, 200)
-// 获取优先打开的library
-const getPrimaryOpenLibrary = async (): Promise<number | null> => {
-    return new Promise<number | null>((resolve) => {
-        window.electronAPI.getPrimaryOpenLibrary((e: any, libraryId: number) => {
-            resolve(libraryId ? libraryId : null)
-        })
-    })
-}
+}, 300)
+
 // 在本窗口打开library
 const openLibrary = (id: number) => {
     if (id !== activeLibrary.value) {
-        router.push(`/library/${id}`) // params 不能与 path 一起使用, 所以要自己补齐
+        router.push(hrefGenerator.libraryBashboard(id))
     }
 }
+
 // 在新窗口中打开library
 const openLibraryInNewWindow = () => {
     window.electronAPI.createMainWindow(ctmCurLib().id)
 }
+
+// 监听groups和isExpandGroup的变化，保存到localStorage
+watch(isExpandGroup, debounce(n => setLocalStorage('isExpandGroup', n), 500), { deep: true })
+watch(activeLibrary, debounce(n => setLocalStorage('lastActiveLibrary', n), 500))
+
 
 /******************** 右键菜单Ctm ********************/
 
@@ -352,7 +313,7 @@ const handleDelete = async () => {
         // 如果正在打开的library在删除的group中，关闭
         ctmCurGrp(cg).librarys.forEach(l => {
             if (l.id === activeLibrary.value) {
-                router.push('/')
+                router.push(hrefGenerator.welcome())
             }
         })
         await window.electronAPI.deleteGroup(ctmCurGrp(cg).id)
@@ -361,7 +322,7 @@ const handleDelete = async () => {
         isExpandGroup.value.splice(cg, 1)
     } else {
         if (ctmCurLib(cg, cl).id === activeLibrary.value) {
-            router.push('/')
+            router.push(hrefGenerator.welcome())
         }
         await window.electronAPI.deleteLibrary(ctmCurLib(cg, cl).id)
 
@@ -427,11 +388,48 @@ const moveLibrary = async (idxGroup: number) => {
     getGroups()
     sendCrosTabMsg(bc, bcMsg)
 }
+
+// 获取优先打开的library
+const getPrimaryOpenLibrary = async (): Promise<number | undefined> => {
+    return new Promise<number | undefined>(resolve => {
+        window.electronAPI.getPrimaryOpenLibrary((e: any, libraryId: number) => {
+            resolve(libraryId)
+        })
+    })
+}
+
+onMounted(async () => {
+    // 监听background发来的消息
+    listenCrosTabMsg(bc, (e: MessageEvent) => {
+        switch (e.data) {
+            case 'getGroups':
+                getGroups()
+                break
+        }
+    })
+
+    // 获取groups, 首要打开的library
+    const firstOpenLibrary: number = (await Promise.all([getGroups(), getPrimaryOpenLibrary()]))[1]
+        || getLocalStorage('lastActiveLibrary') || 0
+
+    // 为0到欢迎页，否则打开library页 
+    if (firstOpenLibrary !== 0) {
+        openLibrary(firstOpenLibrary)
+    }
+
+    // 获取group的展开信息，
+    isExpandGroup.value = getLocalStorage('isExpandGroup') || []
+
+    // 检查isExpandGroup和groups的对应情况,少就补上false,
+    if (isExpandGroup.value.length < groups.value.length) {
+        isExpandGroup.value.concat(Array(groups.value.length - isExpandGroup.value.length).fill(false))
+    }
+})
 </script>
 
 <style scoped>
 .sidebar {
-    width: 230px;
+    width: var(--echo-sidebar-width);
     background-color: #fff;
     border-right: 2px solid #eeeeed;
 }

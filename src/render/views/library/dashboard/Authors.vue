@@ -23,11 +23,12 @@
 					class="author-recommendation-item divider">
 					<local-image :src="recmd.avatar"
 								 class="author-icon avatar-icon"
-								 @click="router.push(`/library/${activeLibrary}/author?author_id=${recmd.id}`)" />
+								 @click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))" />
 					<div class="author-info">
 						<h1 :title="recmd.name"
 							class="name"
-							@click="router.push(`/library/${activeLibrary}/author?author_id=${recmd.id}`)"> {{ recmd.name }}
+							@click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))">
+							{{ recmd.name }}
 						</h1>
 						<p class="meta">
 							<span class="inline-list-title">作品数</span>
@@ -60,10 +61,11 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, onMounted, inject, watch } from 'vue'
+import { ref, Ref, onMounted, inject, watch, readonly } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { $t } from '@/locales/index'
-import { debounce } from '@/util/debounce'
+import hrefGenerator from '@/router/hrefGenerator'
+import { $t } from '@/locale'
+import { debounce } from '@/util/common'
 import useAuthorsDashStore from '@/store/authorsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
@@ -73,7 +75,10 @@ import LocalImage from '@/components/LocalImage.vue'
 
 const route = useRoute()
 const router = useRouter()
-// TODO 统一跳转链接
+
+const scrollbarRef = ref()
+const loading = ref<boolean>(false)
+
 const authorsDashStore = useAuthorsDashStore()
 const dropdownMenus = [{
 	HTMLElementTitle: $t('mainContainer.sort'),
@@ -105,11 +110,9 @@ const dropdownMenus = [{
 		},
 	]
 }]
-const scrollbarRef = ref()
-const loading = ref<boolean>(false)
 
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const authorRecmds = ref<VO.AuthorRecommendation[]>([])
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
 const pageSize = 20
@@ -149,7 +152,7 @@ const init = function () {
 // 刷新数据, 保留滚动位置, 保留页码
 watch(route, queryAuthorRecmds)
 watch(() => [authorsDashStore.sortField, authorsDashStore.order], handleQueryParamsChange)
-watch(() => activeLibrary.value, init)
+watch(activeLibrary, init)
 onMounted(init)
 </script>
 

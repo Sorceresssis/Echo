@@ -12,8 +12,8 @@
 </template>
   
 <script lang="ts" setup>
-import { shallowReactive, ref, Ref, inject, watch } from 'vue'
-import { $t } from '@/locales/index'
+import { shallowReactive, ref, Ref, inject, watch, readonly } from 'vue'
+import { $t } from '@/locale'
 import Tabs from '@/components/Tabs.vue'
 import Records from './Records.vue'
 import Authors from './Authors.vue'
@@ -22,8 +22,8 @@ import Dirnames from './Dirnames.vue'
 import Recycled from './Recycled.vue'
 import About from './About.vue'
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
-watch(() => activeLibrary.value, () => {
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
+watch(activeLibrary, () => {
     activeLabelIdx.value = 0
 })
 

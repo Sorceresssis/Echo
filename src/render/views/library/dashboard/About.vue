@@ -37,14 +37,14 @@
 
 <script setup lang='ts'>
 import { watch, inject } from 'vue'
-import { debounce } from '@/util/debounce'
+import { debounce } from '@/util/common'
 
 const inputAutoSize = {
     minRows: 8,
     maxRows: 8,
 }
 
-const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail') as VO.LibraryDetail
+const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
 
 const editLibraryExtra = debounce(async function () {
     window.electronAPI.editLibraryExtra({

@@ -26,6 +26,17 @@ export default class LibraryDB extends DB {
     }
 
     /**
+     * 检查数据库结构并修复
+     * 为了在建立数据库时, 所允许的createTable()可能出现的错误，但是文件会一直存在，所以需要检查并修复
+     */
+    public checkAndRepair(): void {
+        const count = 25
+        if (this.prepare('SELECT COUNT(name) FROM sqlite_master;').pluck().get() !== count) {
+            this.createTable()
+        }
+    }
+
+    /**
      * 给数据库添加一个自定义的REGEXP函数，在查询时使用
      */
     @oncePerObject()

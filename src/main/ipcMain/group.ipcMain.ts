@@ -4,9 +4,13 @@ import DI_TYPES from '../DI/DITypes'
 import { exceptionalHandler } from '../util/common'
 import GroupService from '../service/GroupService'
 import LibraryService from '../service/LibraryService'
+import GroupDB from '../db/GroupDB'
 
 function generateCatchFn(title: string, suggest?: string) {
     return function (e: any) {
+        // 修复数据库
+        DIContainer.get<GroupDB>(DI_TYPES.GroupDB).checkAndRepair()
+        // 弹出错误提示
         dialog.showErrorBox(title, suggest ? `${suggest}\n${e.message}` : e.message)
     }
 }

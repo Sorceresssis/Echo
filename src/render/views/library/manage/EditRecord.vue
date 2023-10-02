@@ -289,7 +289,6 @@ const rules = reactive<FormRules>({
         },
     ]
 })
-// BUG 只有dirname 没有basename 编辑请求原始数据时会 无法显示dirname
 // TODO 优化 表达提示信息  建议20万数据以内
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return

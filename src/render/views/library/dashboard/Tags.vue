@@ -53,8 +53,8 @@
 <script setup lang='ts'>
 import { ref, Ref, watch, onMounted, inject } from 'vue'
 import { useRoute } from 'vue-router'
-import { $t } from '@/locales/index'
-import { debounce } from '@/util/debounce'
+import { $t } from '@/locale'
+import { debounce } from '@/util/common'
 import { writeClibboard } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
 import useTagsDashStore from '@/store/tagsDashStore'

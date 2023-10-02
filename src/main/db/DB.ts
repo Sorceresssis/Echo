@@ -1,7 +1,6 @@
 import DatabaseConstructor, { Database, Statement } from "better-sqlite3"
 
-
-export default class DB {
+class DB {
     private db: Database
 
     public constructor(path: string) {
@@ -90,3 +89,6 @@ export default class DB {
         this.db.close()
     }
 }
+
+
+export default DB  

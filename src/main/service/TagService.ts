@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify"
 import DIContainer from "../DI/DIContainer"
-import DI_TYPES, { DILibrary } from "../DI/DITypes"
+import DI_TYPES, { type DILibrary } from "../DI/DITypes"
 import TagDao, { QueryTagsSortRule } from "../dao/TagDao"
 import RecordTagDao from "../dao/RecordTagDao"
 import RecordService from "./RecordService"

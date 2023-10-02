@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES, { DILibrary } from "../DI/DITypes"
+import DI_TYPES, {type DILibrary } from "../DI/DITypes"
 
 @injectable()
 class RecordSeriesDao {

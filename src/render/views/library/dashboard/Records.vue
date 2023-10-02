@@ -80,7 +80,7 @@
                                    + '\n' + recordRecmds[idxFocusRecord].authors.map(author => author.name).join(',')
                                    + '\n' + recordRecmds[idxFocusRecord].tags.map(tag => tag.title).join(','))" />
             <context-menu-item :label="'编辑'"
-                               @click="router.push(`/library/${activeLibrary}/manage?record_id=${recordRecmds[idxFocusRecord].id}`)">
+                               @click="router.push(hrefGenerator.libraryManage(activeLibrary, `record_id=${recordRecmds[idxFocusRecord].id}`))">
                 <template #icon> <span class="iconfont">&#xe722;</span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type !== 'recycled'"
@@ -98,10 +98,11 @@
 </template>
 
 <script setup lang='ts'>
-import { onMounted, ref, Ref, inject, watch, toRaw, reactive, onActivated } from 'vue'
+import { onMounted, ref, Ref, inject, watch, toRaw, reactive, onActivated, readonly } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { $t } from '@/locales/index'
-import { debounce } from '@/util/debounce'
+import hrefGenerator from '@/router/hrefGenerator'
+import { $t } from '@/locale'
+import { debounce } from '@/util/common'
 import { writeClibboard } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
 import useRecordsDashStore from '@/store/recordsDashStore'
@@ -193,8 +194,9 @@ const dropdownMenus: DashDropMenu[] = [
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
+
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const recordRecmds = ref<VO.RecordRecommendation[]>([])
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
 const pageSize = 50

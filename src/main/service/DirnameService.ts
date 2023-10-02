@@ -2,7 +2,7 @@ import nodePath from "path"
 import fm, { isLegalAbsolutePath } from "../util/FileManager"
 import Result from "../util/Result"
 import { injectable, inject } from "inversify"
-import DI_TYPES, { DILibrary } from "../DI/DITypes"
+import DI_TYPES, {type DILibrary } from "../DI/DITypes"
 import DirnameDao, { QueryDirnamesSortRule } from "../dao/DirnameDao"
 import RecordDao from "../dao/RecordDao"
 

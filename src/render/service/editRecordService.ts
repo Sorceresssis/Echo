@@ -187,25 +187,20 @@ const useEditRecordService = () => {
         if (data.hyperlink) {
             formData.hyperlink = data.hyperlink
         }
-        if (data.resourcePath) {
-            const sped = await separatePath(data.resourcePath)
-            if (sped) {
-                formData.dirname = sped[0]
-                formData.basename = sped[1]
-            }
-        }
+        formData.dirname = data.dirname || ''
+        formData.basename = data.basename || ''
         formData.intro = data.intro
         formData.info = data.info
 
-        data.tags.forEach((item) => {
+        data.tags.forEach(item => {
             originTags.set(item.title, item.id)
             displayTags.push(item.title)
         })
-        data.series.forEach((item) => {
+        data.series.forEach(item => {
             originSeries.set(item.name, item.id)
             displaySeries.push(item.name)
         })
-        data.authors.forEach((item) => {
+        data.authors.forEach(item => {
             originAuthors.set(item.id, item.id)
             __displayAuthors.push(item.id)
             displayAuthors.push(item)

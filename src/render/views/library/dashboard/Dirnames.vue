@@ -54,12 +54,12 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, onMounted, watch } from 'vue'
+import { ref, Ref, inject, onMounted, watch, readonly } from 'vue'
 import { useRoute } from 'vue-router'
-import { $t } from '@/locales/index'
+import { $t } from '@/locale'
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
-import { debounce } from '@/util/debounce'
+import { debounce } from '@/util/common'
 import useDirnamesDashStore from '@/store/dirnamesDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
@@ -68,6 +68,8 @@ import Scrollbar from '@/components/Scrollbar.vue'
 import Message from '@/util/Message'
 
 const route = useRoute()
+const scrollbarRef = ref()
+const loading = ref<boolean>(false)
 
 const dirnamesDashStore = useDirnamesDashStore()
 const dropdownMenus = [{
@@ -100,11 +102,9 @@ const dropdownMenus = [{
         },
     ]
 }]
-const scrollbarRef = ref()
-const loading = ref<boolean>(false)
 
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const dirnames = ref<VO.DirnameDetail[]>([])
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
 const pageSize = 30
@@ -155,7 +155,7 @@ const init = function () {
 }
 watch(route, queryDirnames)
 watch(() => [dirnamesDashStore.sortField, dirnamesDashStore.order], handleQueryParamsChange)
-watch(() => activeLibrary.value, init)
+watch(activeLibrary, init)
 onMounted(init)
 </script>
 

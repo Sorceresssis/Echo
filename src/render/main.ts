@@ -7,7 +7,7 @@ import '@/assets/css/elementplus.css'
 import '@/assets/css/recordcard.css'
 import '@/assets/font/iconfont.css'
 
-import locales from '@/locales/index'
+import locale from '@/locale'
 import router from '@/router'
 import { createPinia } from 'pinia'
 
@@ -23,7 +23,7 @@ import VueViewer from 'v-viewer'
 
 const app = createApp(App)
 app.use(router)
-app.use(locales.i18n)
+app.use(locale.i18n)
 app.use(ElementPlus)
 app.use(createPinia())
 app.use(ContextMenu)

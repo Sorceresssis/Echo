@@ -14,7 +14,7 @@
                      class="author">
                     <local-image :src="author.avatar"
                                  class="avatar-icon"
-                                 @click="router.push(`/library/${activeLibrary}/author?author_id=${author.id}`)" />
+                                 @click="router.push(hrefGenerator.libraryAuthor(activeLibrary, author.id))" />
                     <span> {{ author.name }} </span>
                 </div>
             </div>
@@ -52,8 +52,9 @@
 </template>
 
 <script setup lang='ts'>
-import { Ref, inject } from 'vue'
+import { Ref, inject, readonly } from 'vue'
 import { useRouter } from 'vue-router'
+import hrefGenerator from '@/router/hrefGenerator'
 import { openInExplorer, openInBrowser, internetSearch } from '@/util/systemUtil'
 import LocalImage from './LocalImage.vue'
 
@@ -68,7 +69,7 @@ const emit = defineEmits<{
 
 const router = useRouter()
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const activeLibDetail = inject<VO.LibraryDetail>('activeLibraryDetail') as VO.LibraryDetail
 
 const searchTitle = function () {

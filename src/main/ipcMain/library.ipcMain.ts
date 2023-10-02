@@ -1,14 +1,9 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
-import appConfig from "../app/config"
 import DIContainer from '../DI/DIContainer'
 import DI_TYPES, { DILibrary } from "../DI/DITypes"
 import { exceptionalHandler } from '../util/common'
 import LibraryDB from "../db/LibraryDB"
-import { isLegalAbsolutePath } from "../util/FileManager"
 import Result from "../util/Result"
-
-import LibraryDao from "../dao/libraryDBDao"
-
 import AutocompleteService from "../service/AutocompleteService"
 import RecordService from "../service/RecordService"
 import AuthorService from "../service/AuthorService"
@@ -31,8 +26,10 @@ const { rebindLibrary, closeLibraryDB } = function () {
 }()
 
 function generateCatchFn(title: string, suggest?: string) {
-    // TODO 检查数据库结构是否正确
     return function (e: any) {
+        // 修复数据库
+        DIContainer.get<DILibrary>(DI_TYPES.Library).dbConnection.checkAndRepair()
+        // 弹出错误提示
         dialog.showErrorBox(title, suggest ? `${suggest}\n${e.message}` : e.message)
     }
 }
