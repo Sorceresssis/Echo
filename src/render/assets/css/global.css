@@ -13,6 +13,7 @@
     --echo-text-color-light1: #444;
     --echo-text-color-light2: #7b7b7b;
     --echo-titlebar-height: 50px;
+    --echo-sidebar-width: 230px;
 }
 
 html,
@@ -281,6 +282,7 @@ img {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+    user-select: text;
 }
 
 .author-info .meta {

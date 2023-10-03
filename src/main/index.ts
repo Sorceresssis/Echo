@@ -4,7 +4,7 @@ import bootCheck from "./app/Bootcheck"
 import IPCMain from './ipcMain'
 
 async function bootstrap() {
-    Menu.setApplicationMenu(null) // 加快启动速度
+    Menu.setApplicationMenu(null) // 加快启动速度 
     app.on("ready", () => {
         bootCheck()         // 检查启动项
         IPCMain()           // 开启通信

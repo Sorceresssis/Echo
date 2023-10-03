@@ -39,6 +39,7 @@ import { Ref, ref, inject, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import hrefGenerator from '@/router/hrefGenerator'
 import { $t } from '@/locale'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 
 const router = useRouter()
 const route = useRoute()
@@ -57,6 +58,11 @@ const routerCanForward = ref<boolean>(false)
 const activeLibrary = inject<Ref<number>>('activeLibrary')!
 const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
 
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+
+// BUG 如果最开始的libraryId=0 , data会出现id为0的数据库
+let lastAuthorId = 0
+
 watch(route, async () => {
     /**
      * 读取路由的位置,判断是否可以继续进行前进或者后退.
@@ -66,20 +72,38 @@ watch(route, async () => {
     routerCanBack.value = position !== 0   // 当前href的位置是第一个
     routerCanForward.value = position !== length - 1   // 当前href的位置是最后一个
 
+
     /**
      * 如果路由参数中有libraryId,那么就是打开了一个库，需要修改标题为库名, 并且激活这个库.
      * 让其他组件可以读取到这个库的信息.
      */
-    const libraryId = route.params.libraryId as string | undefined
-    if (libraryId !== void 0) {
-        const libDetail = (await window.electronAPI.queryLibraryDetail(Number.parseInt(libraryId)))
-        if (libDetail !== void 0) {
-            document.title = `${titleBarTitle.value = libDetail.name} - Echo`
-            activeLibrary.value = libDetail.id // 激活这个库
-            Object.assign(activeLibraryDetail, libDetail)
-        } else {
-            router.push(hrefGenerator.welcome()) // 数据库查不到这个库，跳转到欢迎页
+    if (route.params.libraryId !== void 0) {
+        const libraryId = Number.parseInt(route.params.libraryId as string)
+        // 如果切换了库，那么就需要重置一些组件的状态，如果是进入设置页面(activeLibrary == 0)，那么就不需要重置
+
+        // bash视图
+        if (activeLibrary.value !== libraryId && activeLibrary.value !== 0) {
+            viewsTaskAfterRoutingStore.setAllViews('init')
         }
+        activeLibrary.value = libraryId
+
+        // 作者视图
+        const authorId = route.params.authorId ? Number.parseInt(route.params.authorId as string) : void 0
+        if ((authorId && authorId !== lastAuthorId)) {
+            viewsTaskAfterRoutingStore.setAuthorRecords('init')
+        }
+        lastAuthorId = authorId || 0
+
+        window.electronAPI.queryLibraryDetail(libraryId).then(libDetail => {
+            if (libDetail !== void 0) {
+                document.title = `${titleBarTitle.value = libDetail.name} - Echo`
+                Object.assign(activeLibraryDetail, libDetail)
+            } else {
+                router.push(hrefGenerator.welcome()) // 数据库查不到这个库，跳转到欢迎页
+            }
+        }).catch(() => {
+            router.push(hrefGenerator.welcome())
+        })
     } else {
         activeLibrary.value = 0
         const fullPath: string = route.fullPath
@@ -91,6 +115,11 @@ watch(route, async () => {
             document.title = 'Echo'
         }
     }
+})
+
+watch(() => activeLibraryDetail.name, async () => {
+    titleBarTitle.value = activeLibraryDetail.name
+    document.title = `${titleBarTitle.value} - Echo`
 })
 </script>
 

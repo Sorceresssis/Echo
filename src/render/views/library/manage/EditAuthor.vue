@@ -50,8 +50,9 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, toRaw, reactive, inject, onMounted, watch } from 'vue'
+import { ref, Ref, toRaw, reactive, inject, onMounted, watch, readonly } from 'vue'
 import { useRoute } from 'vue-router'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
 import { type FormInstance, type FormRules } from 'element-plus'
@@ -64,7 +65,8 @@ const inputAutoSize = {
 }
 const route = useRoute()
 const submitBtnText = ref('添加')
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 
 const authorFormRef = ref()
 const formData = reactive<DTO.EditAuthorForm>({
@@ -106,6 +108,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid) => {
         if (!valid) return
+        viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
         if (formData.id) {
             MessageBox.editConfirm(() => {
                 // 编辑成功重新获取数据

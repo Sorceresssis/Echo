@@ -60,6 +60,7 @@ import { $t } from '@/locale'
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
 import { debounce } from '@/util/common'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useDirnamesDashStore from '@/store/dirnamesDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
@@ -71,7 +72,9 @@ const route = useRoute()
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const dirnamesDashStore = useDirnamesDashStore()
+
 const dropdownMenus = [{
     HTMLElementTitle: $t('mainContainer.sort'),
     title: '&#xe81f;',
@@ -153,9 +156,19 @@ const init = function () {
     keyword.value = ''
     handleQueryParamsChange()
 }
-watch(route, queryDirnames)
+
 watch(() => [dirnamesDashStore.sortField, dirnamesDashStore.order], handleQueryParamsChange)
-watch(activeLibrary, init)
+watch(route, () => {
+    switch (viewsTaskAfterRoutingStore.bashboardDirnames) {
+        case 'init':
+            init()
+            break
+        case 'refresh':
+            queryDirnames()
+            break
+    }
+    viewsTaskAfterRoutingStore.setBashboardDirnames('none')
+})
 onMounted(init)
 </script>
 

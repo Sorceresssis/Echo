@@ -13,7 +13,9 @@
   
 <script lang="ts" setup>
 import { shallowReactive, ref, Ref, inject, watch, readonly } from 'vue'
+import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import Tabs from '@/components/Tabs.vue'
 import Records from './Records.vue'
 import Authors from './Authors.vue'
@@ -22,9 +24,15 @@ import Dirnames from './Dirnames.vue'
 import Recycled from './Recycled.vue'
 import About from './About.vue'
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
-watch(activeLibrary, () => {
-    activeLabelIdx.value = 0
+const route = useRoute()
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+watch(route, () => {
+    switch (viewsTaskAfterRoutingStore.bashboard) {
+        case 'init':
+            activeLabelIdx.value = 0
+            break
+    }
+    viewsTaskAfterRoutingStore.setBashboard('none')
 })
 
 const activeLabelIdx = ref<number>(0)

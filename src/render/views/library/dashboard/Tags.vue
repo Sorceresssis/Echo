@@ -54,6 +54,7 @@
 import { ref, Ref, watch, onMounted, inject } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { debounce } from '@/util/common'
 import { writeClibboard } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
@@ -65,7 +66,9 @@ import Empty from '@/components/Empty.vue'
 
 const route = useRoute()
 
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const tagsDashStore = useTagsDashStore()
+
 const dropdownMenus = [{
     HTMLElementTitle: $t('mainContainer.sort'),
     title: '&#xe81f;',
@@ -112,7 +115,6 @@ const deleteTag = (id: number) => {
         queryTags()
     })
 }
-// TODO 在修改标签时，添加loading, 防止用户操作
 const editTag = (id: number, oldValue: string) => {
     MessageBox.editPrompt(async (value: string) => {
         const trimValue = value.trim()
@@ -149,9 +151,19 @@ const init = function () {
     keyword.value = ''
     handleQueryParamsChange()
 }
-watch(route, queryTags)
+
 watch(() => [tagsDashStore.sortField, tagsDashStore.order], handleQueryParamsChange)
-watch(() => activeLibrary.value, init)
+watch(route, () => {
+    switch (viewsTaskAfterRoutingStore.bashboardTags) {
+        case 'init':
+            init()
+            break
+        case 'refresh':
+            queryTags()
+            break
+    }
+    viewsTaskAfterRoutingStore.setBashboardTags('none')
+})
 onMounted(init)
 </script>
 

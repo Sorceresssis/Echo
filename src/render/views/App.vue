@@ -5,20 +5,25 @@
         </Transition>
         <div class="flex-col">
             <div class="titlebar" />
-            <div class="slide-track flex-1 flex-row">
+            <div class="collapse-thumb-track">
                 <span @click="isOpenSideBar = !isOpenSideBar"
-                      class="slide-thumb iconfont"> &#xe653; </span>
+                      class="collapse-thumb iconfont"> &#xe653; </span>
             </div>
         </div>
         <div class="flex-1 flex-col overflow-hidden">
             <titlebar />
-            <router-view class="main-container flex-1 flex-col overflow-hidden" />
+            <router-view v-slot="{ Component }"
+                         class="main-container flex-1 flex-col overflow-hidden">
+                <keep-alive>
+                    <component :is="Component" />
+                </keep-alive>
+            </router-view>
         </div>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { provide, reactive, ref, readonly } from 'vue'
+import { provide, reactive, ref } from 'vue'
 import Sidebar from './Sidebar.vue'
 import Titlebar from './Titlebar.vue'
 
@@ -40,10 +45,6 @@ const activeLibraryDetail = reactive<VO.LibraryDetail>({
     modifiedTime: '',
 })
 provide('activeLibraryDetail', activeLibraryDetail)
-
-// TODO 全局Loading, 测试 多个窗口， 一个窗口堵塞时，其他窗口是否可以正常使用
-const windowLoading = ref<boolean>(false)
-provide('windowLoading', windowLoading)
 </script>
 
 <style scoped>
@@ -52,24 +53,21 @@ provide('windowLoading', windowLoading)
     padding: 0 10px;
 }
 
-.slide-track {
+.collapse-thumb-track {
+    display: flex;
+    flex: 1;
     align-items: center;
 }
 
-/* TODO collapse thumb */
-.slide-thumb {
+.collapse-thumb {
     height: 25px;
     line-height: 25px;
     color: #505050;
     transform: translateY(-25px);
 }
 
-.slide-thumb:hover {
+.collapse-thumb:hover {
     color: var(--echo-theme-color);
-}
-
-.sidebar {
-    --echo-sidebar-width: 230px;
 }
 
 .collapse-enter-from,

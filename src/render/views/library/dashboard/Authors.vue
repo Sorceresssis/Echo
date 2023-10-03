@@ -61,11 +61,12 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, onMounted, inject, watch, readonly } from 'vue'
+import { ref, Ref, onMounted, inject, watch, readonly, onActivated, onDeactivated } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import hrefGenerator from '@/router/hrefGenerator'
 import { $t } from '@/locale'
 import { debounce } from '@/util/common'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useAuthorsDashStore from '@/store/authorsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
@@ -79,7 +80,9 @@ const router = useRouter()
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const authorsDashStore = useAuthorsDashStore()
+
 const dropdownMenus = [{
 	HTMLElementTitle: $t('mainContainer.sort'),
 	title: '&#xe81f;',
@@ -149,10 +152,20 @@ const init = function () {
 	keyword.value = ''
 	handleQueryParamsChange()
 }
+
 // 刷新数据, 保留滚动位置, 保留页码
-watch(route, queryAuthorRecmds)
 watch(() => [authorsDashStore.sortField, authorsDashStore.order], handleQueryParamsChange)
-watch(activeLibrary, init)
+watch(route, () => {
+	switch (viewsTaskAfterRoutingStore.bashboardAuthors) {
+		case 'init':
+			init()
+			break
+		case 'refresh':
+			queryAuthorRecmds()
+			break
+	}
+	viewsTaskAfterRoutingStore.setBashboardAuthors('none')
+})
 onMounted(init)
 </script>
 

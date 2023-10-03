@@ -29,7 +29,7 @@
                     </li>
                     <li v-for="(group, idxGroup) in groups"
                         :key="group.id">
-                        <div class="menuItem-wrap">
+                        <div class="menu-item-wrap">
                             <div :class="[isExpandGroup[idxGroup] ? 'angle-down' : 'angle-right', groupIdOfRename === group.id ? 'input-wrap' : 'menu-item']"
                                  class="menu-row menu-group textover--ellopsis"
                                  @click="isExpandGroup[idxGroup] = !isExpandGroup[idxGroup]"
@@ -39,7 +39,9 @@
                                  @dragend="handleDragend()"
                                  @dragenter.prevent="handleDragenter($event, idxGroup)"
                                  @dragleave="handleDragleave($event)">
-                                <span v-if="groupIdOfRename !== group.id">{{ group.name }}</span>
+                                <span v-if="groupIdOfRename !== group.id"
+                                      :title="group.name"
+                                      class="flex-1 textover--ellopsis">{{ group.name }}</span>
                                 <input v-else
                                        v-model="newName"
                                        onfocus="this.select();"
@@ -53,7 +55,7 @@
                         <collapse-transition v-show="isExpandGroup[idxGroup]">
                             <ul>
                                 <li v-if="idxGroup === idxGroupOfAddLibrary">
-                                    <div class="menu-row  menu-library input-wrap">
+                                    <div class="menu-row menu-library input-wrap">
                                         <input v-model="newName"
                                                v-focus
                                                onfocus="this.select();"
@@ -65,9 +67,9 @@
                                 </li>
                                 <li v-for="(library, idxLibrary) in group.librarys"
                                     :key="library.id">
-                                    <div class="menuItem-wrap">
+                                    <div class="menu-item-wrap">
                                         <div :class="[library.id === activeLibrary ? 'active-library' : '', libraryIdOfRename === library.id ? 'input-wrap' : 'menu-item']"
-                                             class="menu-row menu-library textover--ellopsis"
+                                             class="menu-row menu-library"
                                              draggable="true"
                                              @click="openLibrary(library.id)"
                                              @contextmenu="openCtm($event, idxGroup, idxLibrary)"
@@ -76,13 +78,16 @@
                                              @dragenter.prevent="handleDragenter($event, idxGroup, idxLibrary)"
                                              @dragleave="handleDragleave($event)">
                                             <span v-if="libraryIdOfRename !== library.id"
-                                                  :title="library.name">{{ library.name }}</span>
+                                                  :title="library.name"
+                                                  class="flex-1 textover--ellopsis">{{ library.name }}</span>
                                             <input v-else
                                                    v-model="newName"
                                                    onfocus="this.select()"
                                                    v-focus
                                                    maxlength="255"
                                                    spellcheck="false"
+                                                   @dragstart.prevent
+                                                   @click.prevent
                                                    @keyup.enter="($event.target as HTMLInputElement).blur()"
                                                    @blur="handleRename" />
                                         </div>
@@ -168,7 +173,7 @@ const bc = new BroadcastChannel('sideBar')
 const bcMsg = 'getGroups'
 
 const activeLibrary = inject<Ref<number>>('activeLibrary')!
-
+const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
 
 /******************** 页面数据 ********************/
 const groups = ref<VO.Group[]>([])
@@ -286,6 +291,7 @@ const handleRename = async () => {
         if (result) groups.value[cg].name = newName.value // 重命名成功，更新group的名字
         groupIdOfRename.value = 0 // 重置
     } else if (libraryIdOfRename.value) {
+        activeLibraryDetail.name = newName.value
         const result: boolean = await window.electronAPI.renameLibrary(libraryIdOfRename.value, newName.value)
         if (result) groups.value[cg].librarys[cl].name = newName.value
         libraryIdOfRename.value = 0
@@ -440,22 +446,10 @@ onMounted(async () => {
 }
 
 #menu-wrap {
-    width: 230px;
+    width: var(--echo-sidebar-width);
     box-sizing: border-box;
-    padding: 0 15px;
-    font-size: 13px;
-}
-
-.menuItem-wrap {
-    padding: 5px 0;
-}
-
-.menu-row {
-    display: flex;
-    height: 32px;
     padding: 0 10px;
-    line-height: 32px;
-    box-sizing: border-box;
+    font-size: 13px;
 }
 
 .menu__title {
@@ -472,6 +466,18 @@ onMounted(async () => {
 
 .menu__title .iconfont:hover {
     color: #000;
+}
+
+.menu-item-wrap {
+    padding: 5px 0;
+}
+
+.menu-row {
+    display: flex;
+    height: 32px;
+    padding: 0 10px;
+    line-height: 32px;
+    box-sizing: border-box;
 }
 
 .menu-item {
@@ -497,12 +503,6 @@ onMounted(async () => {
     margin-right: 10px;
 }
 
-.menu-library::before {
-    display: inline-block;
-    content: '';
-    width: 26px;
-}
-
 .angle-right::before {
     transform: rotateZ(0deg);
 }
@@ -511,10 +511,15 @@ onMounted(async () => {
     transform: rotateZ(90deg);
 }
 
+.menu-library::before {
+    display: inline-block;
+    content: '';
+    width: 26px;
+}
+
 .input-wrap {
     border: 1px solid #929292;
     background-color: #fff;
-    overflow: hidden;
 }
 
 .input-wrap input {

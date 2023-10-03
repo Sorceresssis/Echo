@@ -80,7 +80,7 @@
                                    + '\n' + recordRecmds[idxFocusRecord].authors.map(author => author.name).join(',')
                                    + '\n' + recordRecmds[idxFocusRecord].tags.map(tag => tag.title).join(','))" />
             <context-menu-item :label="'编辑'"
-                               @click="router.push(hrefGenerator.libraryManage(activeLibrary, `record_id=${recordRecmds[idxFocusRecord].id}`))">
+                               @click="router.push(hrefGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
                 <template #icon> <span class="iconfont">&#xe722;</span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type !== 'recycled'"
@@ -100,6 +100,7 @@
 <script setup lang='ts'>
 import { onMounted, ref, Ref, inject, watch, toRaw, reactive, onActivated, readonly } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import hrefGenerator from '@/router/hrefGenerator'
 import { $t } from '@/locale'
 import { debounce } from '@/util/common'
@@ -126,7 +127,10 @@ const enum FilterKey {
     hyperlink,
     basename,
 }
+
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const recordsDashStore = useRecordsDashStore()
+
 const dropdownMenus: DashDropMenu[] = [
     {
         HTMLElementTitle: $t('mainContainer.filter'),
@@ -257,6 +261,9 @@ const handleDataChange = () => {
 const recycleRecord = (...ids: number[]) => {
     if (ids.length === 0) return
     MessageBox.confirm(async () => {
+        // 提醒其他组件刷新
+        viewsTaskAfterRoutingStore.setBashboardRecycled('refresh')
+
         await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids)
         handleDataChange()
     }, '放入回收站', '确定要放入回收站吗？')
@@ -276,11 +283,14 @@ const deleteAllRecycled = () => {
         handleDataChange()
     })
 }
-// TODO 设置退回 到本页，页码会重置， 应该保持原来的页码
 // 恢复
 const recoverRecord = (...ids: number[]) => {
     if (ids.length === 0) return
     MessageBox.confirm(async () => {
+        // 提醒其他组件刷新
+        viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
+        viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
+
         await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recover', ids)
         handleDataChange()
     }, '恢复', '确定要恢复吗？')
@@ -292,7 +302,7 @@ const queryRecords = debounce(async () => {
         {
             type: props.type,
             keyword: keyword.value,
-            authorId: route.query.author_id ? Number(route.query.author_id) : 0,
+            authorId: props.type === 'author' ? Number(route.params.authorId) : 0,
             filters: toRaw(recordsDashStore.filter),
             sortField: recordsDashStore.sortField,
             order: recordsDashStore.order,
@@ -303,7 +313,7 @@ const queryRecords = debounce(async () => {
     recordRecmds.value = page.rows
     total.value = page.total
     loading.value = false
-}, 100)
+}, 200)
 const handlePageChange = function (pn: number) {
     selectedSet.clear() // 清空选中
     isSelectedAll.value = false // 取消全选
@@ -321,14 +331,59 @@ const init = function () {
     isBatch.value = false
     handleQueryParamsChange()
 }
-// 1. 组件，用户可能对记录进行了修改，只需要更新数据
-// TODO, 如果用户更改了才更新，否则不更新, 作者也要应用，作者id变化，要重新加载
-onActivated(queryRecords)
-// watch(route, queryRecords)
 // 2. 请求参数改变，要跳到第一页
 watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order], handleQueryParamsChange, { deep: true })
-// 3. 第一次加载或切换library, 要把参数重置
-watch(() => activeLibrary.value, init)
+watch(route, () => {
+    if (props.type === 'common') {
+        switch (viewsTaskAfterRoutingStore.bashboardRecords) {
+            case 'init':
+                init()
+                break
+            case 'refresh':
+                queryRecords()
+                break
+        }
+        viewsTaskAfterRoutingStore.setBashboardRecords('none')
+    } else if (props.type === 'author') {
+        switch (viewsTaskAfterRoutingStore.authorRecords) {
+            case 'init':
+                init()
+                break
+            case 'refresh':
+                queryRecords()
+                break
+        }
+        viewsTaskAfterRoutingStore.setAuthorRecords('none')
+    } else if (props.type === 'recycled') {
+        switch (viewsTaskAfterRoutingStore.bashboardRecycled) {
+            case 'init':
+                init()
+                break
+            case 'refresh':
+                queryRecords()
+                break
+        }
+        viewsTaskAfterRoutingStore.setBashboardRecycled('none')
+    }
+})
+onActivated(() => {
+    if (props.type === 'common') {
+        if (viewsTaskAfterRoutingStore.bashboardRecords === 'refresh') {
+            queryRecords()
+        }
+        viewsTaskAfterRoutingStore.setBashboardRecords('none')
+    } else if (props.type === 'author') {
+        if (viewsTaskAfterRoutingStore.authorRecords === 'refresh') {
+            queryRecords()
+        }
+        viewsTaskAfterRoutingStore.setAuthorRecords('none')
+    } else if (props.type === 'recycled') {
+        if (viewsTaskAfterRoutingStore.bashboardRecycled === 'refresh') {
+            queryRecords()
+        }
+        viewsTaskAfterRoutingStore.setBashboardRecycled('none')
+    }
+})
 onMounted(init)
 </script>
 

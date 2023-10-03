@@ -208,8 +208,9 @@
 </template>
   
 <script lang="ts" setup>
-import { onMounted, reactive, ref, Ref, watch, inject } from 'vue'
+import { onMounted, reactive, ref, Ref, watch, inject, readonly } from 'vue'
 import { useRoute } from 'vue-router'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import Message from '@/util/Message'
 import MessageBox from '@/util/MessageBox'
 import useEditRecordServic from '@/service/editRecordService'
@@ -224,8 +225,9 @@ const inputAutoSize = {
     maxRows: 6,
 }
 const route = useRoute()
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const isAdd = ref<boolean>(true)
 const btnLoading = ref<boolean>(false)
 const submitBtnText = ref<string>('添加')
@@ -289,12 +291,13 @@ const rules = reactive<FormRules>({
         },
     ]
 })
-// TODO 优化 表达提示信息  建议20万数据以内
+
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-
+        viewsTaskAfterRoutingStore.setBashboardTags('refresh')
+        viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
         function cb() {
             btnLoading.value = true
             submit(activeLibrary.value).then((result) => {

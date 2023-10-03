@@ -16,7 +16,7 @@
             <div class="operate">
                 <span class="iconfont"
                       :title="'编辑'"
-                      @click="router.push(hrefGenerator.libraryManage(activeLibrary, `author_id=${authorDetail.id}`))">&#xe722;</span>
+                      @click="router.push(hrefGenerator.libraryEditAuthor(activeLibrary, authorDetail.id))">&#xe722;</span>
                 <span class="iconfont"
                       :title="'删除'"
                       @click="deleteAuthor">&#xe636;</span>
@@ -34,19 +34,23 @@
 </template>
   
 <script lang="ts" setup>
-import { shallowReactive, ref, Ref, onMounted, inject, reactive, readonly } from 'vue'
+import { shallowReactive, ref, Ref, onMounted, inject, reactive, readonly, watch, onActivated } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
+import hrefGenerator from '@/router/hrefGenerator'
+import MessageBox from '@/util/MessageBox'
+import Message from '@/util/Message'
 import { $t } from '@/locale'
 import Tabs from '@/components/Tabs.vue'
 import LocalImage from '@/components/LocalImage.vue'
 import Records from '../dashboard/Records.vue'
 import About from './About.vue'
-import MessageBox from '@/util/MessageBox'
-import Message from '@/util/Message'
-import hrefGenerator from '@/router/hrefGenerator'
 
 const router = useRouter()
 const route = useRoute()
+
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+
 const authorDetail = reactive<VO.AuthorDetail>({
     id: 0,
     name: '',
@@ -71,23 +75,26 @@ const deleteAuthor = async () => {
     MessageBox.deleteConfirm(() => {
         window.electronAPI.deleteAuthor(activeLibrary.value, authorDetail.id).then((res) => {
             res ? router.back() : Message.error('删除失败')
-            // BUG 打开作者详情页后， 无法切换library
-            // BUG 在本页切换作者，不刷新
         })
     })
 }
 
 const init = async () => {
-    const id = route.query.id as string
-    if (id === void 0) {
-        router.back()
-        return
-    }
-    const res = await window.electronAPI.queryAuthorDetail(activeLibrary.value, parseInt(id))
-    res === void 0 ? router.back() : Object.assign(authorDetail, res)
-}
+    // 重置标签页
+    activeLabelIdx.value = 0
 
-// watch(route, init) // BUG router.back 是导致route 无法切换librarary的原因 
+    // 加载新的作者信息
+    const id = route.params.authorId as string
+    const res = await window.electronAPI.queryAuthorDetail(activeLibrary.value, parseInt(id))
+    Object.assign(authorDetail, res)
+}
+watch(route, () => {
+    switch (viewsTaskAfterRoutingStore.authorRecords) {
+        case 'init':
+            init()
+            break
+    }
+})
 onMounted(init)
 </script>
 
