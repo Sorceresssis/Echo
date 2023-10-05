@@ -109,8 +109,9 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     await formEl.validate((valid) => {
         if (!valid) return
         viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
+        viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
         if (formData.id) {
-            MessageBox.editConfirm(() => {
+            MessageBox.editConfirm().then(() => {
                 // 编辑成功重新获取数据
                 window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then((result) => {
                     if (result) {
@@ -121,7 +122,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             })
         }
         else {
-            MessageBox.addConfirm(() => {
+            MessageBox.addConfirm().then(() => {
                 // 添加成功要清空表单
                 window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then((result) => {
                     if (result) {

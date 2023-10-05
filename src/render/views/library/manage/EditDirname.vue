@@ -109,7 +109,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
     await formEl.validate((valid) => {
         if (!valid) return
-        MessageBox.editConfirm(async () => {
+        MessageBox.editConfirm().then(async () => {
             btnLoading.value = true
             const result = await window.electronAPI.startsWithReplaceDirname(
                 activeLibrary.value,
@@ -118,7 +118,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             )
             result.code
                 ? Message.success('替换成功')
-                : Message.error(result.msg as string)
+                : Message.error(result.msg!)
             btnLoading.value = false
         })
     })

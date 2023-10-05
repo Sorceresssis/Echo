@@ -260,25 +260,25 @@ const handleDataChange = () => {
 // 放入回收站
 const recycleRecord = (...ids: number[]) => {
     if (ids.length === 0) return
-    MessageBox.confirm(async () => {
+    MessageBox.confirm('放入回收站', '确定要放入回收站吗?').then(async () => {
         // 提醒其他组件刷新
         viewsTaskAfterRoutingStore.setBashboardRecycled('refresh')
 
         await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids)
         handleDataChange()
-    }, '放入回收站', '确定要放入回收站吗？')
+    })
 }
 // 彻底删除
 const deleteRecord = (...ids: number[]) => {
     if (ids.length === 0) return
-    MessageBox.deleteConfirm(async () => {
+    MessageBox.deleteConfirm().then(async () => {
         await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled', ids)
         handleDataChange()
     })
 }
 const deleteAllRecycled = () => {
     if (recordRecmds.value.length === 0) return
-    MessageBox.deleteConfirm(async () => {
+    MessageBox.deleteConfirm().then(async () => {
         await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled_all')
         handleDataChange()
     })
@@ -286,14 +286,14 @@ const deleteAllRecycled = () => {
 // 恢复
 const recoverRecord = (...ids: number[]) => {
     if (ids.length === 0) return
-    MessageBox.confirm(async () => {
+    MessageBox.confirm('恢复', '确定要恢复吗?').then(async () => {
         // 提醒其他组件刷新
         viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
         viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
 
         await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recover', ids)
         handleDataChange()
-    }, '恢复', '确定要恢复吗？')
+    })
 }
 const queryRecords = debounce(async () => {
     loading.value = true
@@ -370,21 +370,21 @@ onActivated(() => {
     if (props.type === 'common') {
         if (viewsTaskAfterRoutingStore.bashboardRecords === 'refresh') {
             queryRecords()
+            viewsTaskAfterRoutingStore.setBashboardRecords('none')
         }
-        viewsTaskAfterRoutingStore.setBashboardRecords('none')
     } else if (props.type === 'author') {
         if (viewsTaskAfterRoutingStore.authorRecords === 'refresh') {
             queryRecords()
+            viewsTaskAfterRoutingStore.setAuthorRecords('none')
         }
-        viewsTaskAfterRoutingStore.setAuthorRecords('none')
     } else if (props.type === 'recycled') {
         if (viewsTaskAfterRoutingStore.bashboardRecycled === 'refresh') {
             queryRecords()
+            viewsTaskAfterRoutingStore.setBashboardRecycled('none')
         }
-        viewsTaskAfterRoutingStore.setBashboardRecycled('none')
     }
 })
-onMounted(init)
+onMounted(init) 
 </script>
 
 <style scoped>

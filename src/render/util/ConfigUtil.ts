@@ -3,7 +3,7 @@ export function getConfig(key: keyof Config) {
 }
 
 export function setConfig(key: keyof Config, value: string) {
-    return window.electronAPI.config('set', key, value) as Promise<string>
+    return window.electronAPI.config('set', key, value) as Promise<void>
 }
 
 export function resetConfig() {

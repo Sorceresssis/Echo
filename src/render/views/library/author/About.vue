@@ -24,7 +24,7 @@
                 <div class="detail-item__content">
                     <el-input v-model="info.avatar"
                               readonly />
-                    <button2>打开头像图片</button2>
+                    <button2 @click="openInExplorer(info.avatar)">打开头像图片</button2>
                 </div>
             </div>
             <div class="detail-item">
@@ -38,6 +38,7 @@
 </template>
 
 <script setup lang='ts'>
+import { openInExplorer } from '@/util/systemUtil'
 import Button2 from '@/components/Button2.vue'
 
 defineProps<{

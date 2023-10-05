@@ -114,19 +114,22 @@ const pageSize = 30
 const total = ref<number>(0)
 
 const deleteDirname = (id: number) => {
-    MessageBox.deleteConfirm(async () => {
+    MessageBox.deleteConfirm().then(async () => {
         await window.electronAPI.deleteDirname(activeLibrary.value, id)
         queryDirnames()
     })
 }
 const editDirname = (id: number, oldValue: string) => {
-    MessageBox.editPrompt(async (value: string) => {
-        const trimValue = value.trim()
-        if (trimValue === '' || trimValue === oldValue) return
-        const result = await window.electronAPI.editDirname(activeLibrary.value, id, value)
-        if (result.code === 0) { Message.error('路径不合法') }
-        queryDirnames()
-    }, oldValue)
+    MessageBox.editPrompt(oldValue).then(({ value }) => {
+        MessageBox.editConfirm().then(async () => {
+            const trimValue = value.trim()
+            if (trimValue === '' || trimValue === oldValue) return
+
+            const result = await window.electronAPI.editDirname(activeLibrary.value, id, value)
+            if (result.code === 0) Message.error(result.msg!)
+            queryDirnames()
+        })
+    },)
 }
 const queryDirnames = debounce(async () => {
     loading.value = true

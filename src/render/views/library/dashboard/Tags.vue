@@ -110,18 +110,21 @@ const pageSize = 50
 const total = ref<number>(0)
 
 const deleteTag = (id: number) => {
-    MessageBox.deleteConfirm(async () => {
+    MessageBox.deleteConfirm().then(async () => {
         await window.electronAPI.deleteTag(activeLibrary.value, id)
         queryTags()
     })
 }
 const editTag = (id: number, oldValue: string) => {
-    MessageBox.editPrompt(async (value: string) => {
-        const trimValue = value.trim()
-        if (trimValue === '' || trimValue === oldValue) return
-        await window.electronAPI.editTag(activeLibrary.value, id, value)
-        queryTags()
-    }, oldValue)
+    MessageBox.editPrompt(oldValue).then(({ value }) => {
+        MessageBox.editConfirm().then(async () => {
+            const trimValue = value.trim()
+            if (trimValue === '' || trimValue === oldValue) return
+
+            await window.electronAPI.editTag(activeLibrary.value, id, value)
+            queryTags()
+        })
+    })
 }
 const queryTags = debounce(async () => {
     loading.value = true

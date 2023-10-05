@@ -1,10 +1,11 @@
 import nodePath from "path"
-import fm, { isLegalAbsolutePath } from "../util/FileManager"
-import Result from "../util/Result"
 import { injectable, inject } from "inversify"
-import DI_TYPES, {type DILibrary } from "../DI/DITypes"
+import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import fm, { isLegalAbsolutePath } from "../util/FileManager"
+import i18n from "../locale"
 import DirnameDao, { QueryDirnamesSortRule } from "../dao/DirnameDao"
 import RecordDao from "../dao/RecordDao"
+import Result from "../util/Result"
 
 @injectable()
 class DirnameService {
@@ -53,7 +54,7 @@ class DirnameService {
 
     public editDirname(id: number, path: string): Result {
         // 不是一个合法的绝对路径
-        if (!fm.isLegalAbsolutePath(path)) return Result.error('invalid absolute path')
+        if (!fm.isLegalAbsolutePath(path)) return Result.error(i18n.global.t('invalidAbsolutePath'))
 
         path = nodePath.resolve(path)
         const existId = this.dirnameDao.queryDirnameIdByPath(path) // 查询是否已经存在
@@ -88,7 +89,7 @@ class DirnameService {
      */
     public startsWithReplacePath(target: string, replace: string): Result {
         if (!isLegalAbsolutePath(target) || !isLegalAbsolutePath(replace)) {
-            return Result.error('invalid absolute path')
+            return Result.error(i18n.global.t('invalidAbsolutePath'))
         }
 
         // path.normalize()会保留尾部的分隔符，path.resolve()不保留尾部的分割符

@@ -6,7 +6,7 @@ import '@/assets/css/global.css'
 import '@/assets/css/elementplus.css'
 import '@/assets/font/iconfont.css'
 
-import locales from '@/locale'
+import i18n from '@/locale'
 import { createPinia } from 'pinia'
 import router from '@/record/router'
 
@@ -19,7 +19,7 @@ import ContextMenu from '@imengyu/vue3-context-menu'
 
 const app = createApp(App)
 app.use(router)
-app.use(locales.i18n)
+app.use(i18n)
 app.use(ElementPlus)
 app.use(createPinia())
 app.use(ContextMenu)

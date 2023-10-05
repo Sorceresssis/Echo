@@ -45,6 +45,7 @@ import Tabs from '@/components/Tabs.vue'
 import LocalImage from '@/components/LocalImage.vue'
 import Records from '../dashboard/Records.vue'
 import About from './About.vue'
+import { ca } from 'element-plus/es/locale'
 
 const router = useRouter()
 const route = useRoute()
@@ -72,26 +73,31 @@ const components = [
 ]
 
 const deleteAuthor = async () => {
-    MessageBox.deleteConfirm(() => {
+    MessageBox.deleteConfirm().then(() => {
+        viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
         window.electronAPI.deleteAuthor(activeLibrary.value, authorDetail.id).then((res) => {
             res ? router.back() : Message.error('删除失败')
         })
     })
 }
-
-const init = async () => {
-    // 重置标签页
-    activeLabelIdx.value = 0
-
-    // 加载新的作者信息
+const queryAuthorDetail = async () => {
     const id = route.params.authorId as string
     const res = await window.electronAPI.queryAuthorDetail(activeLibrary.value, parseInt(id))
     Object.assign(authorDetail, res)
 }
+
+const init = async () => {
+    activeLabelIdx.value = 0  // 重置标签页
+    queryAuthorDetail()  // 加载新的作者信息
+}
+
 watch(route, () => {
     switch (viewsTaskAfterRoutingStore.authorRecords) {
         case 'init':
             init()
+            break
+        case 'refresh':
+            queryAuthorDetail()
             break
     }
 })

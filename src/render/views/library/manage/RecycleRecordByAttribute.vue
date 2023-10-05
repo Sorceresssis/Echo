@@ -78,12 +78,12 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-        MessageBox.confirm(async () => {
+        MessageBox.confirm('危险操作', '确定要回收吗?', 'warning').then(async () => {
             btnLoading.value = true
             await window.electronAPI.deleteRecordByAttribute(activeLibrary.value, toRaw(formData))
             Message.success('已放入回收站')
             btnLoading.value = false
-        }, '危险操作', '确定要回收吗?', 'warning')
+        })
     })
 }
 

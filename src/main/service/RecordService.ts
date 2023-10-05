@@ -4,6 +4,7 @@ import fm from "../util/FileManager"
 import { injectable, inject } from "inversify"
 import DIContainer from "../DI/DIContainer"
 import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import i18n from "../locale"
 import Result from "../util/Result"
 import ImageService from "../service/ImageService"
 import RecordDao, { QueryRecordsSortRule } from "../dao/RecordDao"
@@ -305,7 +306,7 @@ class RecordService {
         formData.basename = formData.basename.trim()
         if ((formData.dirname !== '' && !fm.isLegalAbsolutePath(formData.dirname))
             || (formData.basename !== '' && !fm.isLegalFileName(formData.basename))) {
-            return Result.error('illegal path')
+            return Result.error(i18n.global.t('resourcePathIllegal'))
         }
 
         const record = {} as Entity.Record
@@ -368,7 +369,7 @@ class RecordService {
 
     public addBatchRecord(formData: DTO.EditRecordForm, distinct: boolean): Result {
         if (!fm.isFolderExists(formData.batchDir)) {
-            return Result.error('folder not exists') // 文件夹不存在, 直接返回
+            return Result.error(i18n.global.t('folderNotExists')) // 文件夹不存在, 直接返回
         }
 
         // 准备数据

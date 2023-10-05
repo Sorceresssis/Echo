@@ -383,9 +383,7 @@ const handleDragleave = (e: MouseEvent) => {
 const moveLibrary = async (idxGroup: number) => {
     const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
     // 如果是移动到自己的组，不进行操作
-    if (cg === idxGroup) {
-        return
-    }
+    if (cg === idxGroup) return
     // 把library移动到groupId组的第一个位置
     await window.electronAPI.sortLibrary(
         groups.value[cg].librarys[cl].id,

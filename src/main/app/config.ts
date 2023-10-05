@@ -1,8 +1,7 @@
 import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
-import DIContainer from "../DI/DIContainer"
-import DI_TYPES, { DILibrary } from "../DI/DITypes"
+import fm from '../util/FileManager'
 
 export type Config = {
     userDataPath: string,
@@ -43,29 +42,31 @@ class AppConfig {
         return this.config
     }
 
-    public set(key: keyof Config, value: string) {
-        return this.config[key] = value
-    }
-
-    public reset() {
-        this.config = JSON.parse(JSON.stringify(AppConfig.DEFAULT_CONFIG))
+    public set(key: keyof Config, value: string): void {
+        this.config[key] = value
         fs.writeFileSync(AppConfig.CONFIG_FILE_PATH, JSON.stringify(this.config), 'utf8')
     }
 
-    public getGroupDBFilePath() {
+    public reset(): void {
+        const stringifiedConfig = JSON.stringify(AppConfig.DEFAULT_CONFIG)
+        fs.writeFileSync(AppConfig.CONFIG_FILE_PATH, stringifiedConfig, 'utf8')
+        this.config = JSON.parse(stringifiedConfig)
+    }
+
+    public getGroupDBFilePath(): string {
         return path.join(this.get('userDataPath'), 'group.db')
     }
 
-    public getLibraryDirPath(id: PrimaryKey) {
+    public getLibraryDirPath(id: PrimaryKey): string {
         return path.join(this.get('userDataPath'), id.toString())
     }
 
-    public getLibraryDBFilePath(id: PrimaryKey) {
+    public getLibraryDBFilePath(id: PrimaryKey): string {
         // [userDataPath]/1/1.db
-        return path.join(this.getLibraryDirPath(id), `${id}.db`)
+        return path.join(this.getLibraryDirPath(id), 'library.db')
     }
 
-    public getLibraryImagesDirPath(id: PrimaryKey) {
+    public getLibraryImagesDirPath(id: PrimaryKey): string {
         // [userDataPath]/1/images
         return path.join(this.getLibraryDirPath(id), 'images')
     }

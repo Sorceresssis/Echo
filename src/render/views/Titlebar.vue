@@ -60,7 +60,6 @@ const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 
-// BUG 如果最开始的libraryId=0 , data会出现id为0的数据库
 let lastAuthorId = 0
 
 watch(route, async () => {
@@ -82,17 +81,17 @@ watch(route, async () => {
         // 如果切换了库，那么就需要重置一些组件的状态，如果是进入设置页面(activeLibrary == 0)，那么就不需要重置
 
         // bash视图
-        if (activeLibrary.value !== libraryId && activeLibrary.value !== 0) {
+        if (activeLibrary.value !== libraryId) {
             viewsTaskAfterRoutingStore.setAllViews('init')
+            activeLibrary.value = libraryId
         }
-        activeLibrary.value = libraryId
 
         // 作者视图
         const authorId = route.params.authorId ? Number.parseInt(route.params.authorId as string) : void 0
         if ((authorId && authorId !== lastAuthorId)) {
             viewsTaskAfterRoutingStore.setAuthorRecords('init')
         }
-        lastAuthorId = authorId || 0
+        lastAuthorId = authorId || lastAuthorId
 
         window.electronAPI.queryLibraryDetail(libraryId).then(libDetail => {
             if (libDetail !== void 0) {

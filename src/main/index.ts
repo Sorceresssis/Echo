@@ -1,13 +1,15 @@
-import { BrowserWindow, app, Menu } from "electron";
-import { createWindow } from "./window/main.window"
+import { BrowserWindow, app, Menu } from "electron"
 import bootCheck from "./app/Bootcheck"
-import IPCMain from './ipcMain'
+import { createWindow } from "./window/main.window"
 
 async function bootstrap() {
     Menu.setApplicationMenu(null) // 加快启动速度 
     app.on("ready", () => {
-        bootCheck()         // 检查启动项
-        IPCMain()           // 开启通信
+        bootCheck()     // 检查启动
+
+        const IPCMain = require('./ipcMain') // 等待bootCheck完成后再引入，否则有些文件夹不存在
+        IPCMain.default()    // 开启通信   
+
         createWindow()  // 启动窗口
         app.on('activate', () => {
             if (BrowserWindow.getAllWindows().length === 0) createWindow()

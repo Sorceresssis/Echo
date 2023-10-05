@@ -296,8 +296,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
+        viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
+        viewsTaskAfterRoutingStore.setBashboardRecycled('refresh')
         viewsTaskAfterRoutingStore.setBashboardTags('refresh')
         viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
+        viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
         function cb() {
             btnLoading.value = true
             submit(activeLibrary.value).then((result) => {
@@ -305,14 +308,14 @@ const submitForm = async (formEl: FormInstance | undefined) => {
                 if (!result) return
                 result.code
                     ? Message.success(submitBtnText.value + '成功')
-                    : Message.error(submitBtnText.value + '失败' + ', ' + '建议检查路径和目录', 2000)
+                    : Message.error(submitBtnText.value + '失败' + ', ' + result.msg, 2000)
             }).catch(() => { })
             // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
             if (!isAdd.value) { init() }
             btnLoading.value = false
         }
 
-        isAdd.value ? MessageBox.addConfirm(cb) : MessageBox.editConfirm(cb)
+        isAdd.value ? MessageBox.addConfirm().then(cb) : MessageBox.editConfirm().then(cb)
     })
 }
 
