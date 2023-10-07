@@ -14,9 +14,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, onActivated, nextTick, onMounted, watch, handleError } from 'vue'
+import { ref, onActivated, nextTick, } from 'vue'
 import { debounce } from '@/util/common'
-import { onBeforeRouteLeave } from 'vue-router'
 
 const props = withDefaults(defineProps<{
     saveScrollPosition?: boolean

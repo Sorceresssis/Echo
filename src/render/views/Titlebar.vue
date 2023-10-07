@@ -115,17 +115,20 @@ watch(route, async () => {
         }
     }
 })
-
-watch(() => activeLibraryDetail.name, async () => {
-    titleBarTitle.value = activeLibraryDetail.name
-    document.title = `${titleBarTitle.value} - Echo`
-})
 </script>
 
 <style scoped>
+.titlebar {
+    padding-right: 10px;
+}
+
 .titlebar__title {
     text-align: center;
     padding: 0 20px;
+}
+
+.active {
+    color: var(--echo-theme-color);
 }
 
 span,

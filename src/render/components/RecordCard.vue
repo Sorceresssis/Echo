@@ -27,12 +27,10 @@
             </div>
             <div class="operates">
                 <div :title="'搜索标题'"
-                     @click="searchTitle">
-                    <span class="iconfont">&#xe651;</span>
-                </div>
+                     @click="searchTitle"> <span class="iconfont">&#xe8ba;</span> </div>
                 <div :title="'浏览器中打开链接'"
                      :class="recmd.hyperlink ? '' : 'disabled'"
-                     @click="openInBrowser(recmd.hyperlink)"> <span class="iconfont">&#xe6c8;</span> </div>
+                     @click="openInBrowser(recmd.hyperlink)"> <span class="iconfont">&#xe612;</span> </div>
                 <div :title="'在资源管理器中打开'"
                      :class="recmd.resourcePath ? '' : 'disabled'"
                      @click="openInExplorer(recmd.resourcePath)"> <span class="iconfont">&#xe73e;</span> </div>

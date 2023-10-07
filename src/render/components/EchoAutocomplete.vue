@@ -61,6 +61,7 @@ const emit = defineEmits<{
 
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
 // BUG 建议会被缓存，导致切换Library后，出现错误的数据。
+// TODO this.item = new Date().getTime() 组件 :key来刷新
 const querySearch = (queryWord: string, cb: any) => {
     window.electronAPI.autoCompleteRecord(
         activeLibrary.value,

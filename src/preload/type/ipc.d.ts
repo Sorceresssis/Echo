@@ -265,6 +265,10 @@ export interface IElectronAPI {
         recordId: number
     ) => Promise<void>
 
+    getRecordWindowParams: (
+        callback: (e: IpcRendererEvent, libraryId: number, recordId: number) => void
+    ) => void
+
     windowMinmize: () => Promise<void>
 
     windowMaxmize: () => Promise<void>

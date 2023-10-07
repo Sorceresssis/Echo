@@ -65,8 +65,10 @@ const inputAutoSize = {
 }
 const route = useRoute()
 const submitBtnText = ref('添加')
+
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
+const managePathPattern = inject<RegExp>('managePathPattern')!
 
 const authorFormRef = ref()
 const formData = reactive<DTO.EditAuthorForm>({
@@ -108,34 +110,35 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid) => {
         if (!valid) return
-        viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
-        viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
-        if (formData.id) {
-            MessageBox.editConfirm().then(() => {
-                // 编辑成功重新获取数据
-                window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then((result) => {
-                    if (result) {
+
+        function cb() {
+            viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
+            if (formData.id) {
+                // 编辑已经存在的author肯被records引用, 所以要刷新record相关的视图
+                viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
+                viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
+            }
+
+            window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
+                if (result) {
+                    if (formData.id) {
                         Message.success('编辑成功')
                         queryAuthorDetail(formData.id)
-                    }
-                })
-            })
-        }
-        else {
-            MessageBox.addConfirm().then(() => {
-                // 添加成功要清空表单
-                window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then((result) => {
-                    if (result) {
+                    } else {
                         Message.success('添加成功')
                         authorFormRef.value?.resetFields()
                     }
-                })
+                }
             })
         }
+
+        formData.id ? MessageBox.editConfirm().then(cb) : MessageBox.addConfirm().then(cb)
     })
 }
 
 const init = () => {
+    if (!managePathPattern.test(route.fullPath)) return
+
     const id = route.query.author_id as string | undefined
     if (id) {
         submitBtnText.value = '修改'

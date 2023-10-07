@@ -1,28 +1,28 @@
 <template>
     <div class="titlebar flex-row">
-        <div style="margin-left: 10px;">
-            <!-- 刷新 -->
-            <span :title="$t('titlebar.back')"
+        <div>
+            <span :title="'搜索标题'"
                   class="iconfont no-drag"
+                  @click="searchTitle">&#xe8ba;</span>
+            <span :title="'浏览器中打开链接'"
+                  class="iconfont no-drag"
+                  :class="record.hyperlink ? '' : 'disabled'"
+                  @click="openInBrowser(record.hyperlink)">&#xe612;</span>
+            <span :title="'在资源管理器中打开'"
+                  class="iconfont no-drag"
+                  :class="record.resourcePath ? '' : 'disabled'"
+                  @click="openInExplorer(record.resourcePath)">&#xe73e;</span>
+            <span :title="'全部信息'"
+                  class="iconfont no-drag"
+                  :class="[route.fullPath === '/' ? 'active' : '']"
                   @click="router.push('/')">&#xe6c9;</span>
             <span :title="'编辑'"
                   class="iconfont no-drag"
-                  @click="router.push('/manage')">&#xe722;</span>
-        </div>
-        <div>
-            <span :title="$t('titlebar.back')"
-                  class="iconfont no-drag"
-                  :class="[canGoBack ? '' : 'disabled']"
-                  @click="router.go(-1)">&#xe66d;</span>
-            <span :title="$t('titlebar.forward')"
-                  class="iconfont no-drag"
-                  :class="[canGoForward ? '' : 'disabled']"
-                  @click="router.go(1)">&#xe66c;</span>
+                  :class="[route.fullPath.startsWith('/manage') ? 'active' : '']"
+                  @click="router.push(`/manage?record_id=${record.id}`)">&#xe722;</span>
         </div>
         <div class="titlebar__title flex-1 min-width-0 textover--ellopsis">
-            <span>
-                {{ activeLibraryName }}
-            </span>
+            <span> {{ record.title }} </span>
         </div>
         <div class="flex">
             <span :title="$t('titlebar.minimize')"
@@ -44,68 +44,51 @@
 </template>
 
 <script setup lang='ts'>
-import { onMounted, ref, Ref, inject, watch } from 'vue'
+import { ref, Ref, inject, watch, readonly } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locale'
+import { openInBrowser, openInExplorer, internetSearch } from '@/util/systemUtil';
+import { ro } from 'element-plus/es/locale';
+
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
+const record = readonly(inject<VO.RecordDetail>('record')!)
 
 const router = useRouter()
 const route = useRoute()
 
-const isMaxmize = ref<boolean>();
+const isMaxmize = ref<boolean>()
+window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
 const windowMinmize = () => window.electronAPI.windowMinmize()
 const windowMaxmize = () => window.electronAPI.windowMaxmize()
 const windowClose = () => window.electronAPI.windowClose()
 
+const searchTitle = function () {
+    window.electronAPI.queryLibraryDetail(activeLibrary.value).then(libDetail => {
+        if (!libDetail) return
+        const t = record.title + (libDetail.useAuxiliarySt ? `  ${libDetail.auxiliarySt}` : '')
+        internetSearch(t)
+    })
+}
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
-const activeLibraryName = ref<string>('')
-
-const canGoBack = ref<boolean>(false)
-const canGoForward = ref<boolean>(false)
 watch(route, async () => {
-    /* 监听路由变化，判断是否可以继续进行前进和后退来提示用户 */
-    const position: number = window.history.state.position
-    const length: number = window.history.length
-    canGoBack.value = position !== 0   // 当前href的位置是第一个
-    canGoForward.value = position !== length - 1   // 当前href的位置是最后一个
+    // TODO 变化 ，刷新reacrd detail console.log(route.fullPath);
 
-    /* 根据路由修改标题 */
-    const currentPath: string = route.fullPath
-    if (currentPath.startsWith('/library')) {
-        // 获取libraryId
-        const libraryID: number = Number.parseInt(currentPath.match(/\/library\/(\d+)/)![1])
-        if (libraryID === activeLibrary.value) return
-        activeLibrary.value = libraryID
-        // 根据libraryID获取library的名字  
-    }
-    else {
-        // 重置当前激活的库
-        activeLibrary.value = 0
-        activeLibraryName.value = ''
-        if (currentPath.startsWith('/setting')) {
-            document.title = `${$t('settings.settings')} - Echo`
-            activeLibraryName.value = $t('settings.settings')
-        } else {
-            document.title = `Echo`
-        }
-    }
-})
-
-onMounted(async () => {
-    // 监听窗口最大化
-    window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
+    document.title = `${record.title}`
 })
 </script>
 
 <style scoped>
-.titlebar__title {
-    text-align: center;
+.titlebar {
     padding: 0 10px;
 }
 
 span,
 i {
     padding: 5px 10px;
+}
+
+.active {
+    color: var(--echo-theme-color);
 }
 
 span:not(.disabled):hover {

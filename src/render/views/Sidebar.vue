@@ -10,7 +10,7 @@
                     <div> <span> {{ $t('siderBar.createdGroup') }} </span> </div>
                     <div>
                         <span class="iconfont"
-                              @click="getGroups">&#xe632;</span>
+                              @click="getGroups">&#xe61f;</span>
                         <span class="iconfont"
                               @click="openAddGroup">&#xe68c;</span>
                     </div>
@@ -104,14 +104,19 @@
         <context-menu v-model:show="isVisCtmGroup"
                       :options="ctmOptions">
             <context-menu-item :label="$t('ctm.addLibrary')"
-                               @click="openAddLibrary" />
+                               @click="openAddLibrary">
+                <template #icon> <span class="iconfont">&#xe68c;</span> </template>
+            </context-menu-item>
             <context-menu-item :label="$t('ctm.rename')"
-                               @click="openRename" />
+                               @click="openRename">
+                <template #icon> <span class="iconfont">&#xe7fb;</span> </template>
+            </context-menu-item>
             <context-menu-item label="删除"
                                @click="openDelete">
-                <template #icon>
-                    <span class="iconfont">&#xe61a;</span>
-                </template>
+                <template #icon> <span class="iconfont">&#xe636;</span> </template>
+            </context-menu-item>
+            <context-menu-item label="导入库">
+                <template #icon> <span class="iconfont">&#xe655;</span> </template>
             </context-menu-item>
         </context-menu>
         <context-menu v-model:show="isVisCtmLibrary"
@@ -463,7 +468,7 @@ onMounted(async () => {
 }
 
 .menu__title .iconfont:hover {
-    color: #000;
+    color: var(--echo-theme-color);
 }
 
 .menu-item-wrap {

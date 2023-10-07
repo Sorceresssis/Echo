@@ -41,16 +41,6 @@
                 </div>
             </div>
             <div class="settings-item">
-                <h2 class="settings-item__title">数据</h2>
-                <div class="settings-item__content">
-                    <div class="row">
-                        <!-- 导入成功刷新 -->
-                        <button2 @click="">导出数据</button2>
-                        <button2 @click="">导入数据</button2>
-                    </div>
-                </div>
-            </div>
-            <div class="settings-item">
                 <h2 class="settings-item__title">升级</h2>
                 <div class="settings-item__content">
                     <div class="row">

@@ -26,7 +26,7 @@
 								 @click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))" />
 					<div class="author-info">
 						<h1 :title="recmd.name"
-							class="name"
+							class="name cursor--pointer"
 							@click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))">
 							{{ recmd.name }}
 						</h1>

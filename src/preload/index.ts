@@ -186,13 +186,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
         hyperlink: string
     ) => ipcRenderer.invoke('system:openInBrowser', hyperlink),
 
-    /**
-     * 打开由多个路径片段组成的路径，
-     * 如果是文件夹，直接打开文件夹.
-     * 如果是文件，打开文件所在的文件夹，滚动到文件的位置并高亮标记.
-     * @param paths 
-     * @returns 
-     */
     openInExplorer: (
         path: string
     ) => ipcRenderer.invoke('system:openInExplorer', path),
@@ -217,6 +210,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
         libraryId: number,
         recordId: number
     ) => ipcRenderer.invoke('window:createRecordWindow', libraryId, recordId),
+
+    getRecordWindowParams: (
+        callback: (e: IpcRendererEvent, libraryId: number, recordId: number) => void
+    ) => ipcRenderer.on('window:getRecordWindowParams', callback),
 
     windowMinmize: () => ipcRenderer.invoke('window:minmize'),
 

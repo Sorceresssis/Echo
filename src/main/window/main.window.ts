@@ -15,7 +15,8 @@ export function createWindow(libraryId?: number): BrowserWindow {
         backgroundColor: "#ffffff",
         webPreferences: {
             preload: resolve(__dirname, "../../preload/index.js"),
-            webSecurity: false, // 为了开发方便，关闭安全策略，打包时打开
+            sandbox: true, // 开启沙箱模式
+            webSecurity: false, // TODO 为了开发方便，关闭安全策略，打包时打开
         }
     })
     windowManager.add(win)

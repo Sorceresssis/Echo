@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 3790846 */
-  src: url('iconfont.woff2?t=1695537891747') format('woff2'),
-       url('iconfont.woff?t=1695537891747') format('woff'),
-       url('iconfont.ttf?t=1695537891747') format('truetype');
+  src: url('iconfont.woff2?t=1696707460049') format('woff2'),
+       url('iconfont.woff?t=1696707460049') format('woff'),
+       url('iconfont.ttf?t=1696707460049') format('truetype');
 }
 
 .iconfont {
@@ -13,120 +13,92 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-dashboard:before {
-  content: "\e6f7";
+.icon-tianjiazhankaizhijiao:before {
+  content: "\e67c";
 }
 
-.icon-shujutansuoshujuzhongxinmoxingguanli:before {
-  content: "\e65c";
+.icon-yuandiancaidan:before {
+  content: "\e6a9";
 }
 
-.icon-dashboard1:before {
-  content: "\e88b";
+.icon-daoru:before {
+  content: "\e655";
+}
+
+.icon-add4:before {
+  content: "\e661";
+}
+
+.icon-tianjia:before {
+  content: "\e635";
+}
+
+.icon-tianjia1:before {
+  content: "\e656";
+}
+
+.icon-fenxiang:before {
+  content: "\e601";
+}
+
+.icon-search:before {
+  content: "\e699";
+}
+
+.icon-search1:before {
+  content: "\e61d";
+}
+
+.icon-search2:before {
+  content: "\e613";
+}
+
+.icon-sousuo3:before {
+  content: "\e6bf";
+}
+
+.icon-shebeisousuo:before {
+  content: "\ead2";
+}
+
+.icon-search3:before {
+  content: "\e82e";
+}
+
+.icon-search4:before {
+  content: "\e65a";
+}
+
+.icon-search5:before {
+  content: "\e73c";
+}
+
+.icon-sousuo6:before {
+  content: "\e630";
+}
+
+.icon-search6:before {
+  content: "\e65f";
 }
 
 .icon-shujuyuan:before {
   content: "\e617";
 }
 
-.icon-shuju6:before {
-  content: "\e61d";
-}
-
-.icon-shuju9:before {
-  content: "\e61e";
-}
-
-.icon-dashboard2:before {
-  content: "\e7dd";
-}
-
-.icon-daochu:before {
-  content: "\e60d";
-}
-
 .icon-daochu1:before {
   content: "\e654";
-}
-
-.icon-daochu2:before {
-  content: "\e866";
-}
-
-.icon-daochu3:before {
-  content: "\e631";
-}
-
-.icon-daochu4:before {
-  content: "\e9c9";
 }
 
 .icon-rename:before {
   content: "\e7fb";
 }
 
-.icon-24gl-rename:before {
-  content: "\eb09";
-}
-
-.icon-24gf-rename:before {
-  content: "\eb12";
-}
-
-.icon-Rename-1:before {
-  content: "\e6ca";
-}
-
-.icon-rename1:before {
-  content: "\e692";
-}
-
-.icon-bx-rename:before {
-  content: "\e669";
-}
-
-.icon-RENAME:before {
-  content: "\e9ff";
-}
-
-.icon-backtop:before {
-  content: "\e609";
-}
-
-.icon-yidongduanicon-:before {
-  content: "\e615";
-}
-
-.icon-yidong:before {
-  content: "\e62d";
-}
-
-.icon-yidong1:before {
-  content: "\e64b";
-}
-
-.icon-a-BackTop:before {
-  content: "\e61c";
-}
-
 .icon-link:before {
   content: "\e612";
 }
 
-.icon-sousuo3:before {
+.icon-sousuo31:before {
   content: "\e8ba";
-}
-
-.icon-sousuo4:before {
-  content: "\eafe";
-}
-
-.icon-sousuo5:before {
-  content: "\e7ec";
-}
-
-.icon-List1:before {
-  content: "\e69e";
 }
 
 .icon-hashtag1:before {
@@ -165,10 +137,6 @@
   content: "\e7e9";
 }
 
-.icon-close2:before {
-  content: "\e668";
-}
-
 .icon-close-bold:before {
   content: "\e685";
 }
@@ -189,14 +157,6 @@
   content: "\e722";
 }
 
-.icon-sousuo1:before {
-  content: "\e651";
-}
-
-.icon-sousuo2:before {
-  content: "\e86e";
-}
-
 .icon-file-copy-fill:before {
   content: "\e85c";
 }
@@ -213,24 +173,12 @@
   content: "\e8a9";
 }
 
-.icon-open-outline:before {
-  content: "\e9fc";
-}
-
 .icon-triangleLineUp_1:before {
   content: "\e66e";
 }
 
-.icon-angle-up:before {
-  content: "\e60b";
-}
-
 .icon-backtop1:before {
   content: "\e60c";
-}
-
-.icon-top1:before {
-  content: "\e681";
 }
 
 .icon-triangleLineRight_1:before {
@@ -257,24 +205,8 @@
   content: "\e60a";
 }
 
-.icon-lianjie1:before {
-  content: "\e6c8";
-}
-
-.icon-xuexiao:before {
-  content: "\e632";
-}
-
 .icon-shuaxin4:before {
   content: "\e61f";
-}
-
-.icon-piliangxuanze:before {
-  content: "\e622";
-}
-
-.icon-piliangchuli:before {
-  content: "\e61b";
 }
 
 .icon-huishouzhan1:before {
@@ -289,28 +221,8 @@
   content: "\e608";
 }
 
-.icon-add:before {
-  content: "\e767";
-}
-
-.icon-select2:before {
-  content: "\e624";
-}
-
 .icon-add1:before {
   content: "\e68c";
-}
-
-.icon-add2:before {
-  content: "\e6df";
-}
-
-.icon-selects:before {
-  content: "\e614";
-}
-
-.icon-add3:before {
-  content: "\e664";
 }
 
 .icon-sort1:before {

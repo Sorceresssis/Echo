@@ -1,21 +1,50 @@
 <template>
     <div class="flex-1 flex-col overflow-hidden">
-        <title-bar></title-bar>
-        <router-view class="main-container flex-1 overflow-hidden">
+        <titlebar />
+        <router-view v-slot="{ Component }"
+                     class="main-container flex-1 flex-col overflow-hidden">
+            <keep-alive>
+                <component :is="Component" />
+            </keep-alive>
         </router-view>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { provide, ref } from 'vue'
-import TitleBar from './views/TitleBar.vue';
+import { onMounted, provide, reactive, ref } from 'vue'
+import Titlebar from './views/Titlebar.vue'
 
-/* 正在打开的Library */
 const activeLibrary = ref<number>(0)
 provide('activeLibrary', activeLibrary)
 
-/* 侧边开关 */
-const isOpenSideBar = ref<boolean>(true)
+const record = reactive<VO.RecordDetail>({
+    id: 0,
+    title: '',
+    rate: 0,
+    cover: null,
+    hyperlink: null,
+    dirname: null,
+    basename: null,
+    resourcePath: null,
+    authors: [],
+    tags: [],
+    series: [],
+    intro: '',
+    info: '',
+    createTime: '',
+    modifiedTime: '',
+})
+provide('record', record)
+
+onMounted(() => {
+    window.electronAPI.getRecordWindowParams((e: any, libraryId: number, recordId: number) => {
+        activeLibrary.value = libraryId
+
+        window.electronAPI.queryRecordDetail(libraryId, recordId).then(recordDetail => {
+            Object.assign(record, recordDetail)
+        })
+    })
+})
 </script>
 
 <style scoped>

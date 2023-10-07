@@ -79,6 +79,7 @@ import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 
 const route = useRoute()
 const btnLoading = ref(false)
+
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 
@@ -106,19 +107,20 @@ const rules = reactive<FormRules>({
 })
 const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
-    viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
     await formEl.validate((valid) => {
         if (!valid) return
+
         MessageBox.editConfirm().then(async () => {
+            viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
+            viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
+
             btnLoading.value = true
             const result = await window.electronAPI.startsWithReplaceDirname(
                 activeLibrary.value,
                 formData.targetPrefix,
                 formData.replacePrefix
             )
-            result.code
-                ? Message.success('替换成功')
-                : Message.error(result.msg!)
+            result.code ? Message.success('替换成功') : Message.error(result.msg!)
             btnLoading.value = false
         })
     })

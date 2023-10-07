@@ -15,8 +15,8 @@ export function createWindow(libraryId: number, recordId: number): BrowserWindow
         backgroundColor: "#ffffff",
         webPreferences: {
             preload: resolve(__dirname, "../../preload/index.js"),
-            // sandbox: true, // 开启沙箱模式
-            webSecurity: false, // 为了开发方便，关闭安全策略，打包时打开
+            sandbox: true, // 开启沙箱模式
+            webSecurity: false, // TODO 为了开发方便，关闭安全策略，打包时打开
         }
     })
 
@@ -31,7 +31,7 @@ export function createWindow(libraryId: number, recordId: number): BrowserWindow
     }
 
     win.once('ready-to-show', () => {
-        win.webContents.send('record:primaryOpenRecord', libraryId, recordId)
+        win.webContents.send('window:getRecordWindowParams', libraryId, recordId)
         win.show()
     })
 

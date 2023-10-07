@@ -136,6 +136,10 @@ img {
     overflow: hidden;
 }
 
+.cursor--pointer {
+    cursor: pointer;
+}
+
 .no-drag {
     -webkit-app-region: no-drag;
 }
@@ -252,11 +256,15 @@ img {
 /* titlebar */
 .titlebar {
     height: var(--echo-titlebar-height);
-    padding-right: 10px;
     line-height: var(--echo-titlebar-height);
-    font-size: 13px;
     color: #333333;
     -webkit-app-region: drag;
+}
+
+.titlebar__title {
+    text-align: center;
+    padding: 0 10px;
+    font-size: 13px;
 }
 
 .module_title {
@@ -278,7 +286,6 @@ img {
     font-weight: bold;
     min-width: 0;
     color: var(--echo-emphasis-color);
-    cursor: pointer;
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;

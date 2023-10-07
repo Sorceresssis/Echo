@@ -224,13 +224,15 @@ const inputAutoSize = {
     minRows: 6,
     maxRows: 6,
 }
-const route = useRoute()
-const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
-
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const isAdd = ref<boolean>(true)
 const btnLoading = ref<boolean>(false)
 const submitBtnText = ref<string>('添加')
+
+const route = useRoute()
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
+const managePathPattern = inject<RegExp>('managePathPattern')!
+
 const formRef = ref()
 
 const {
@@ -296,12 +298,14 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     if (!formEl) return
     await formEl.validate((valid, fields) => {
         if (!valid) return
-        viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
-        viewsTaskAfterRoutingStore.setBashboardRecycled('refresh')
-        viewsTaskAfterRoutingStore.setBashboardTags('refresh')
-        viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
-        viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
         function cb() {
+            viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
+            viewsTaskAfterRoutingStore.setBashboardRecycled('refresh')
+            viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
+            viewsTaskAfterRoutingStore.setBashboardTags('refresh')
+            viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
+            viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
+
             btnLoading.value = true
             submit(activeLibrary.value).then((result) => {
                 // 如果result是undefined，表示后台出错，有弹框警告 
@@ -320,7 +324,10 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 }
 
 const init = async function () {
+    if (!managePathPattern.test(route.fullPath)) return
+
     const id = route.query.record_id as string | undefined
+
     resetFormData()
     if (id) {
         isAdd.value = false
@@ -331,6 +338,7 @@ const init = async function () {
         submitBtnText.value = '添加'
     }
 }
+
 watch(route, init)
 onMounted(init)
 </script>
