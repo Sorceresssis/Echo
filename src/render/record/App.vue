@@ -11,12 +11,14 @@
 </template>
 
 <script setup lang='ts'>
-import { onMounted, provide, reactive, ref } from 'vue'
+import { onMounted, provide, reactive, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import Titlebar from './views/Titlebar.vue'
+
+const route = useRoute()
 
 const activeLibrary = ref<number>(0)
 provide('activeLibrary', activeLibrary)
-
 const record = reactive<VO.RecordDetail>({
     id: 0,
     title: '',
@@ -36,15 +38,25 @@ const record = reactive<VO.RecordDetail>({
 })
 provide('record', record)
 
+const queryRecordDetail = function () {
+    console.log('queryRecordDetail');
+
+    window.electronAPI.queryRecordDetail(activeLibrary.value, record.id).then(recordDetail => {
+        Object.assign(record, recordDetail)
+    })
+}
+
+// onBeforeUpdate(queryRecordDetail)
 onMounted(() => {
     window.electronAPI.getRecordWindowParams((e: any, libraryId: number, recordId: number) => {
         activeLibrary.value = libraryId
+        record.id = recordId
 
-        window.electronAPI.queryRecordDetail(libraryId, recordId).then(recordDetail => {
-            Object.assign(record, recordDetail)
-        })
+        queryRecordDetail()
     })
 })
+
+watch(route, queryRecordDetail)
 </script>
 
 <style scoped>

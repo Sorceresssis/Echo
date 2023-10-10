@@ -110,6 +110,7 @@
             <el-form-item label="作者">
                 <div class="flex-row">
                     <echo-autocomplete v-model="dispalyFormData.authorInput"
+                                       :key="autocompleteKey"
                                        type="author"
                                        :placeholder="'只能添加已经存在的作者'"
                                        :show-selectbtn="true"
@@ -226,6 +227,7 @@ const inputAutoSize = {
 }
 const isAdd = ref<boolean>(true)
 const btnLoading = ref<boolean>(false)
+const autocompleteKey = ref<number>(0)
 const submitBtnText = ref<string>('添加')
 
 const route = useRoute()
@@ -328,6 +330,8 @@ const init = async function () {
 
     const id = route.query.record_id as string | undefined
 
+    // 通过key时间戳来强制刷新autocomplete组件
+    autocompleteKey.value = new Date().getTime()
     resetFormData()
     if (id) {
         isAdd.value = false
@@ -415,7 +419,7 @@ onMounted(init)
     display: flex;
     margin: 4px 4px;
     padding: 0 16px 0 18px;
-    border: 1px solid var(--echo-emphasis-color);
+    border: 1px solid var(--echo-theme-color-light4);
     border-radius: 4px;
     line-height: 30px;
     font-size: 12px;

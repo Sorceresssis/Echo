@@ -6,9 +6,9 @@ const segment = new Segment()
 segment.useDefault()
 
 const tokenizer = (text: string, segmentsCount: number): string[] => {
-    // 测试发现, 如果有大块的文本, 会导致分词卡死, 所以需要先分割成小块
-    const regex = /(\S{15})(?=\S)/g
-    text = text.replace(regex, '$1 ')
+    // 把括号替换成空格, 分词器有时无法把括号过滤掉
+    // 把大块的文本分割成小块, 每块15个字符, 以防止分词器卡死
+    text = text.replace(/\(|\)/g, ' ').replace(/(\S{15})(?=\S)/g, '$1 ')
 
     const segments = segment.doSegment(text, {
         simple: true, // 不返回词性

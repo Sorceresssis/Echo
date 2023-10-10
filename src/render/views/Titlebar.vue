@@ -15,7 +15,6 @@
             <span :title="$t('titlebar.setting')"
                   class="iconfont no-drag"
                   @click="router.push(hrefGenerator.settings())">&#xe657;</span>
-            <i>|</i>
             <span :title="$t('titlebar.minimize')"
                   class="iconfont no-drag"
                   @click="windowMinmize">&#xe67a;</span>
@@ -127,16 +126,16 @@ watch(route, async () => {
     padding: 0 20px;
 }
 
-.active {
+.no-drag {
+    padding: 5px 10px;
+    cursor: pointer;
+}
+
+.no-drag:not(.disabled):hover {
     color: var(--echo-theme-color);
 }
 
-span,
-i {
-    padding: 5px 10px;
-}
-
-span:not(.disabled):hover {
+.active {
     color: var(--echo-theme-color);
 }
 </style>

@@ -12,6 +12,8 @@
                   class="iconfont no-drag"
                   :class="record.resourcePath ? '' : 'disabled'"
                   @click="openInExplorer(record.resourcePath)">&#xe73e;</span>
+            <span :title="'相似'"
+                  class="iconfont no-drag">&#xe67c;</span>
             <span :title="'全部信息'"
                   class="iconfont no-drag"
                   :class="[route.fullPath === '/' ? 'active' : '']"
@@ -47,8 +49,7 @@
 import { ref, Ref, inject, watch, readonly } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locale'
-import { openInBrowser, openInExplorer, internetSearch } from '@/util/systemUtil';
-import { ro } from 'element-plus/es/locale';
+import { openInBrowser, openInExplorer, internetSearch } from '@/util/systemUtil'
 
 const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const record = readonly(inject<VO.RecordDetail>('record')!)
@@ -82,9 +83,9 @@ watch(route, async () => {
     padding: 0 10px;
 }
 
-span,
-i {
+.no-drag {
     padding: 5px 10px;
+    cursor: pointer;
 }
 
 .active {

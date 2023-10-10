@@ -1,11 +1,13 @@
 <template>
     <div class="flex-row">
-        <detailbar />
-        <folder-container />
+        <Detailbar />
+        <Explorer />
     </div>
 </template>
 
 <script setup lang='ts'>
 import Detailbar from './Detailbar.vue'
-import FolderContainer from './FolderContainer.vue'
+import Explorer from './Explorer.vue'
+
+
 </script>

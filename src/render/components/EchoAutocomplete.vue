@@ -33,8 +33,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, toRaw, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, Ref, inject, toRaw, watch, readonly, onActivated } from 'vue'
 import LocalImage from '@/components/LocalImage.vue'
 
 const props = withDefaults(defineProps<{
@@ -59,9 +58,8 @@ const emit = defineEmits<{
     (e: 'btnSelect', item: VO.AcSuggestion): void // 点击一个固定的按钮，将item.value传出去
 }>()
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
-// BUG 建议会被缓存，导致切换Library后，出现错误的数据。
-// TODO this.item = new Date().getTime() 组件 :key来刷新
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)// 正在打开的Library
+
 const querySearch = (queryWord: string, cb: any) => {
     window.electronAPI.autoCompleteRecord(
         activeLibrary.value,
@@ -77,12 +75,6 @@ const acRef = ref()
 const handleKeyupEnter = () => {
     acRef.value.blur()
 }
-
-const route = useRoute()
-
-watch(route, () => {
-    // acRef.value.activated = false
-})
 </script>
 
 <style>

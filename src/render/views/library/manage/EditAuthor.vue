@@ -86,6 +86,8 @@ const queryAuthorDetail = async (id: number) => {
         formData.intro = author.intro
         if (author.avatar) {
             formData.avatar = formData.originAvatar = author.avatar
+        } else {
+            formData.avatar = formData.originAvatar = ''
         }
     }
 }
