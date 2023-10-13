@@ -8,7 +8,7 @@ filters: [
 { name: 'All Files', extensions: ['*'] } ] 
 */
 export default function ipcMainDialog() {
-    ipcMain.handle('dialog:open', async (e: IpcMainInvokeEvent, type: OpenDialogType, multiSelect: boolean): Promise<string[]> => {
+    ipcMain.handle('dialog:open', async (e: IpcMainInvokeEvent, type: OpenDialogType, multiSelect: boolean, title?: string): Promise<string[]> => {
         const option: Electron.OpenDialogOptions = { filters: [], properties: [] }
         option.properties!.push('createDirectory', 'promptToCreate', 'dontAddToRecent')
         //判断选择的是文件还是文件夹
@@ -31,6 +31,7 @@ export default function ipcMainDialog() {
         }
         // 判断是否多选
         if (multiSelect) option.properties!.push('multiSelections')
+        if (title) option.title = title
         const { filePaths } = await dialog.showOpenDialog(option)
         return filePaths
     })

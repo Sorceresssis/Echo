@@ -10,6 +10,10 @@ class GroupDao {
         this.db = db
     }
 
+    public queryGroupById(id: PrimaryKey): Domain.GroupProfile | undefined {
+        return this.db.prepare(`SELECT id, name FROM 'group' WHERE id = ?;`).get(id) as Domain.GroupProfile | undefined
+    }
+
     public querySortedGroupAll(): Domain.GroupProfile[] {
         return this.db.all(`
             WITH RECURSIVE group_list AS (

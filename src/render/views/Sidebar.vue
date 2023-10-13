@@ -115,7 +115,8 @@
                                @click="openDelete">
                 <template #icon> <span class="iconfont">&#xe636;</span> </template>
             </context-menu-item>
-            <context-menu-item label="导入库">
+            <context-menu-item label="导入库"
+                               @click="handleImportLibrary">
                 <template #icon> <span class="iconfont">&#xe655;</span> </template>
             </context-menu-item>
         </context-menu>
@@ -153,7 +154,8 @@
                                @click="openInExplorer(ctmCurLib().dataPath)">
                 <template #icon> <span class="iconfont">&#xe73e;</span> </template>
             </context-menu-item>
-            <context-menu-item label="导出">
+            <context-menu-item label="导出"
+                               @click="handleExportLibrary">
                 <template #icon> <span class="iconfont">&#xe654;</span> </template>
             </context-menu-item>
         </context-menu>
@@ -169,6 +171,8 @@ import { debounce, throttle } from '@/util/common'
 import { vFocus } from '@/util/directive'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
 import { openInExplorer } from '@/util/systemUtil'
+import MessageBox from '@/util/MessageBox'
+import Message from '@/util/Message'
 import { sendCrosTabMsg, listenCrosTabMsg } from "@/util/CrosTabMsg"
 import CollapseTransition from '@/components/CollapseTransition.vue'
 import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
@@ -404,6 +408,22 @@ const getPrimaryOpenLibrary = async (): Promise<number | undefined> => {
         window.electronAPI.getPrimaryOpenLibrary((e: any, libraryId: number) => {
             resolve(libraryId)
         })
+    })
+}
+
+const handleImportLibrary = () => {
+    const groupId = ctmCurGrp().id
+    window.electronAPI.openDialog('file', true, '选择要导入的数据').then(paths => {
+        if (!paths.length) return
+        window.electronAPI.importLibrary(groupId, paths)
+    })
+}
+
+const handleExportLibrary = () => {
+    const libraryId = ctmCurLib().id
+    window.electronAPI.openDialog('dir', false, '选择导出的位置').then(paths => {
+        if (!paths.length) return
+        window.electronAPI.exportLibrary(libraryId, paths[0])
     })
 }
 

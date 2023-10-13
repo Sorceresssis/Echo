@@ -5,6 +5,7 @@ import { exceptionalHandler } from '../util/common'
 import GroupService from '../service/GroupService'
 import LibraryService from '../service/LibraryService'
 import GroupDB from '../db/GroupDB'
+import Result from '../util/Result'
 
 function generateCatchFn(title: string, suggest?: string) {
     return function (e: any) {
@@ -69,4 +70,14 @@ export default function ipcMainGroup() {
     ipcMain.handle('library:editExtra', exceptionalHandler((e: IpcMainInvokeEvent, data: DTO.LibraryExtraForm): boolean => {
         return DIContainer.get<LibraryService>(DI_TYPES.LibraryService).editLibraryExtra(data)
     }, generateCatchFn('library:editExtra Error'), false))
+
+
+    ipcMain.handle('library:export', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, exportDir: string): void => {
+        DIContainer.get<LibraryService>(DI_TYPES.LibraryService).exportLibrary(libraryId, exportDir)
+    }, generateCatchFn('library:export Error'), void 0))
+
+
+    ipcMain.handle('library:import', exceptionalHandler((e: IpcMainInvokeEvent, groupId: number, importFiles: string[]): void => {
+        DIContainer.get<LibraryService>(DI_TYPES.LibraryService).importLibrary(groupId, importFiles)
+    }, generateCatchFn('library:import Error'), void 0))
 }

@@ -110,6 +110,17 @@ export interface IElectronAPI {
         data: DTO.LibraryExtraForm
     ) => Promise<boolean>
 
+    exportLibrary: (
+        libraryId: number,
+        exportDir: string
+    ) => Promise<void>,
+
+    importLibrary: (
+        groupId: number,
+        importFiles: string[]
+    ) => Promise<void>,
+
+
     //ANCHOR Record
 
     /** 
@@ -229,7 +240,8 @@ export interface IElectronAPI {
 
     openDialog: (
         type: OpenDialogType,
-        multiSelect: boolean
+        multiSelect: boolean,
+        title?: string
     ) => Promise<string[]>
 
 

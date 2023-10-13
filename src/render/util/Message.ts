@@ -1,7 +1,7 @@
 import { ElMessage } from 'element-plus'
 
 class Message {
-    private static readonly duration = 1000
+    private static readonly duration = 1500
 
     public static success(message: string, duration?: number) {
         ElMessage.closeAll()

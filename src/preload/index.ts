@@ -67,6 +67,17 @@ contextBridge.exposeInMainWorld('electronAPI', {
         data: DTO.LibraryExtraForm
     ) => ipcRenderer.invoke('library:editExtra', data),
 
+    exportLibrary: (
+        libraryId: number,
+        exportDir: string
+    ) => ipcRenderer.invoke('library:export', libraryId, exportDir),
+
+    importLibrary: (
+        groupId: number,
+        importFiles: string[]
+    ) => ipcRenderer.invoke('library:import', groupId, importFiles),
+
+
     // ANCHOR record
 
     autoCompleteRecord: (
@@ -175,8 +186,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     openDialog: (
         type: OpenDialogType,
-        multiSelect: boolean
-    ) => ipcRenderer.invoke('dialog:open', type, multiSelect),
+        multiSelect: boolean,
+        title?: string
+    ) => ipcRenderer.invoke('dialog:open', type, multiSelect, title),
 
 
 

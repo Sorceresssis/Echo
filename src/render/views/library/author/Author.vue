@@ -45,7 +45,6 @@ import Tabs from '@/components/Tabs.vue'
 import LocalImage from '@/components/LocalImage.vue'
 import Records from '../dashboard/Records.vue'
 import About from './About.vue'
-import { ca } from 'element-plus/es/locale'
 
 const router = useRouter()
 const route = useRoute()
