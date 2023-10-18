@@ -84,7 +84,7 @@ function isFileExists(filePath: string) {
     }
 }
 
-function dirContentsWithType(dirPath: string): { name: string, type: 'folder' | 'file' }[] {
+function dirContentsWithType(dirPath: string): DirContentItem[] {
     // 使用 fs.readdirSync 方法来读取文件夹内容
     const contents = fs.readdirSync(dirPath)
     return contents.map(item => {

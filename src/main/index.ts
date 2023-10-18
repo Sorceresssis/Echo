@@ -1,4 +1,4 @@
-import { BrowserWindow, app, Menu } from "electron"
+import { BrowserWindow, app, Menu, dialog } from "electron"
 import bootCheck from "./app/Bootcheck"
 import { createWindow } from "./window/main.window"
 
@@ -19,28 +19,7 @@ async function bootstrap() {
 
 bootstrap();
 app.on('window-all-closed', () => {
-    // TODO 彻底关闭app时，查询正在执行的一些任务，如果有，提示用户
-    // 任务， 任务名称， 任务进度， 任务状态
     if (process.platform !== 'darwin') {
         app.quit();
     }
 });
-
-app.on('before-quit', (event) => {
-    // if (isTaskRunning) {
-    //     // 有任务正在进行，显示询问对话框
-    //     const choice = dialog.showMessageBoxSync(mainWindow, {
-    //         type: 'question',
-    //         buttons: ['继续关闭', '取消关闭'],
-    //         title: '警告',
-    //         message: '有任务正在进行，确定要关闭应用吗？',
-    //     });
-
-    //     if (choice === 1) {
-    //         // 用户选择取消关闭
-    //         event.preventDefault(); // 阻止应用程序关闭
-    //     }
-    // }
-
-    // 导入导出任务
-})

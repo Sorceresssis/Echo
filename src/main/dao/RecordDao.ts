@@ -15,6 +15,10 @@ class RecordDao {
         this.lib = lib
     }
 
+    public queryCountOfRecords(): number {
+        return this.lib.dbConnection.prepare('SELECT COUNT(id) FROM record;').pluck().get() as number
+    }
+
     public queryCountOfRecordsByDirnameId(dirnameId: PrimaryKey): number {
         return this.lib.dbConnection.prepare('SELECT COUNT(id) FROM record WHERE dirname_id = ?;').pluck().get(dirnameId) as number
     }

@@ -17,6 +17,24 @@ class RecordTagDao {
         return this.lib.dbConnection.prepare('SELECT record_id FROM record_tag WHERE tag_id = ? LIMIT ?,?;').pluck().all(tagId, offset, rowCount) as number[]
     }
 
+    public querySimilarRecordIdsByRecordId(recordId: PrimaryKey, minSimilarity: number = 0.2, rowCount: number = 10,): number[] {
+        // Jaccard Similarity J(A, B) = | A ∩ B | / |A ∪ B|
+        const sql = `
+        SELECT
+            rt2.record_id AS id,
+            CAST(SUM(rt1.tag_id = rt3.tag_id) AS REAL) / CAST(COUNT(rt3.tag_id) AS REAL) AS similarity
+        FROM
+            record_tag rt1
+            JOIN record_tag rt2 ON rt1.tag_id = rt2.tag_id
+            JOIN record_tag rt3 ON rt2.record_id = rt3.record_id
+        WHERE rt1.record_id = ? AND rt2.record_id != ?
+        GROUP BY rt2.record_id
+        HAVING similarity >= ?
+        ORDER BY similarity DESC
+        LIMIT 0, ?;`
+        return this.lib.dbConnection.all(sql, recordId, recordId, minSimilarity, rowCount).map((row: any) => row.id)
+    }
+
     public updateTagIdByTagId(tagId: PrimaryKey, newTagId: PrimaryKey): void {
         // Note 由于 record_tag 中的 record_id 和 tag_id 有联合 UNIQUE 约束
         // 如果 newTagId 与 tagId 有相同的record_id, 直接修改会有(record_id, tag_id)重复的情况,导致修改失败

@@ -24,3 +24,8 @@ type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
 type AttributeSortField = 'date' | 'text'
 
 type QueryRecordFilter = 'image' | 'fafa' | 'dirname'
+
+type DirContentItem = {
+    name: string,
+    type: 'folder' | 'file',
+}

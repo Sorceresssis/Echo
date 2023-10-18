@@ -171,8 +171,6 @@ import { debounce, throttle } from '@/util/common'
 import { vFocus } from '@/util/directive'
 import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
 import { openInExplorer } from '@/util/systemUtil'
-import MessageBox from '@/util/MessageBox'
-import Message from '@/util/Message'
 import { sendCrosTabMsg, listenCrosTabMsg } from "@/util/CrosTabMsg"
 import CollapseTransition from '@/components/CollapseTransition.vue'
 import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'

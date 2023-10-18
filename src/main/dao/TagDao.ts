@@ -20,7 +20,7 @@ class TagDao {
     }
 
     public queryTagsByRecordId(recordId: PrimaryKey): Domain.Tag[] {
-        return this.lib.dbConnection.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ?;', recordId)
+        return this.lib.dbConnection.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ? ORDER BY rt.id;', recordId)
     }
 
     public queryTagsByKeyword(

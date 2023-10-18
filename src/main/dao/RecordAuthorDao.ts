@@ -1,5 +1,5 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES, {type DILibrary } from "../DI/DITypes"
+import DI_TYPES, { type DILibrary } from "../DI/DITypes"
 
 @injectable()
 class RecordAuthorDao {
@@ -17,6 +17,18 @@ class RecordAuthorDao {
     public queryRecordIdsByAuthorId(authorId: PrimaryKey, offset: number, rowCount: number): number[] {
         const sql = "SELECT record_id FROM record_author WHERE author_id = ? LIMIT ?,?;"
         return this.lib.dbConnection.prepare(sql).pluck().all(authorId, offset, rowCount) as number[]
+    }
+
+    public queryRandomRecordIdsOfSameAuthorByRecordId(recordId: PrimaryKey, rowCount: number = 10): number[] {
+        const sql = `
+        SELECT ra2.record_id
+        FROM record_author ra1 JOIN record_author ra2 ON ra1.author_id = ra2.author_id
+        WHERE
+	        ra1.record_id = ? AND ra2.record_id != ?
+        GROUP BY ra2.record_id
+        ORDER BY RANDOM() LIMIT 0, ?`
+
+        return this.lib.dbConnection.prepare(sql).pluck().all(recordId, recordId, rowCount) as number[]
     }
 
     public insertRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {

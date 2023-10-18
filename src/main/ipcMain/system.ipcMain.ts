@@ -2,6 +2,7 @@ import { clipboard, ipcMain, IpcMainInvokeEvent, shell, dialog } from "electron"
 import { exec } from "child_process"
 import nodePath from "path"
 import fs from "fs"
+import fm from "../util/FileManager"
 import Result from "../util/Result"
 
 export default function ipcMainSystem() {
@@ -55,6 +56,27 @@ export default function ipcMainSystem() {
     // 复制到剪贴板
     ipcMain.handle('system:writeClipboard', (e: IpcMainInvokeEvent, text: string) => {
         clipboard.writeText(text)
+    })
+
+    ipcMain.handle('system:readdir', (e: IpcMainInvokeEvent, dirPath: string): Result => {
+        try {
+            // 判断路径是否存在
+            if (!fs.existsSync(dirPath)) return Result.error('路径不存在')
+
+            // 检查是否是文件夹
+            if (fs.statSync(dirPath).isDirectory()) {
+                // 是文件夹就返回文件夹下所有的文件和文件夹的信息数组 
+                return Result.success(fm.dirContentsWithType(dirPath))
+            } else {
+                // 不是文件夹就返回只包含该文件的信息的数组
+                return Result.success([{
+                    name: nodePath.basename(dirPath),
+                    type: 'file'
+                }])
+            }
+        } catch (e: any) {
+            return Result.error(e.message)
+        }
     })
 
     ipcMain.handle('system:pathSep', (e: IpcMainInvokeEvent) => nodePath.sep)

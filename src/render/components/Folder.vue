@@ -6,10 +6,9 @@
             <div class="back"></div>
         </div>
         <div class="folderName">
-            <span>工作/学习</span>
-        </div>
-        <div class="folderTime">
-            <span>2021/07/17 10:49</span>
+            <span>
+                <slot></slot>
+            </span>
         </div>
     </div>
 </template>

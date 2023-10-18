@@ -210,6 +210,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
         text: string
     ) => ipcRenderer.invoke('system:writeClipboard', text),
 
+    readdir: (
+        dirPath: string
+    ) => ipcRenderer.invoke('system:readdir', dirPath),
 
 
     /******************** window ********************/

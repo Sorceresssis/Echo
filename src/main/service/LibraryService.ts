@@ -141,7 +141,7 @@ class LibraryService {
         const ops: zipperOperation[] = [
             {
                 type: "String",
-                source: JSON.stringify({ name: libInfo.name, intro: libExtra?.intro }),
+                source: JSON.stringify({ name: libInfo.name, intro: libExtra?.intro, }),
                 data: { name: "desc.json" }
             },
             {
@@ -165,7 +165,9 @@ class LibraryService {
                 })
 
             notification.show()
+            worker.terminate()
         })
+
     }
 
     public importLibrary(GroupId: number, importFiles: string[]): void {
@@ -175,20 +177,30 @@ class LibraryService {
         const tmpPath = path.join(appConfig.get('userDataPath'), 'tmp')
         const ops: unzipperOperation[] = [
             { type: 'read', entryName: 'desc.json' },
+            { type: 'extract', entryName: 'library.db', tragetPath: tmpPath },
             { type: 'extract', entryName: 'images/', tragetPath: tmpPath },
-            { type: 'extract', entryName: 'library.db', tragetPath: tmpPath }
         ]
 
         let importFileIdx = -1
+
         worker.postMessage({
             zipFilePath: importFiles[++importFileIdx],
             ops: ops
         })
-        worker.on('message', (results: Result[]) => {
+        worker.on('message', (result: Result) => {
+            try {
+                // 解压失败
+                if (result.code === 0) throw Error('unzip error')
 
-            // 第一个失败,就代表整个导入失败  
-            if (results.every(r => r && r.code === 1)) {
-                const { name, intro } = JSON.parse(Buffer.from(results[0].data).toString('utf-8'))
+                const opResults: Result[] = result.data
+
+                // 没有取到desc.json, library.db
+                if (opResults[0].code === 0 || opResults[1].code === 0) throw Error('error import file')
+
+                const { name, intro } = JSON.parse(Buffer.from(opResults[0].data).toString('utf-8'))
+
+                // 解析的数据不正确,错误的导入文件
+                if (name === void 0 || intro === void 0) throw Error('error import file')
 
                 // 数据提取后，再向数据库中插入数据s
                 const id = this.create(name, GroupId)
@@ -206,19 +218,27 @@ class LibraryService {
                     title: `${'导入成功'}  (${importFileIdx + 1}/${importFiles.length})`,
                     body: path.basename(importFiles[importFileIdx])
                 }).show()
-            } else {
+            } catch (err: any) {
+                // 删除用于保存解压后文件的文件夹
+                if (fs.existsSync(tmpPath)) {
+                    fs.rmdirSync(tmpPath, { recursive: true })
+                }
+
                 new Notification({
                     title: `${'导入失败'}  (${importFileIdx + 1}/${importFiles.length})`,
-                    body: `${path.basename(importFiles[importFileIdx])}\n选择的文件错误, 或者${appConfig.get('userDataPath')}没有修改权限`
+                    body: `${path.basename(importFiles[importFileIdx])}\n错误的导入文件或者没有写入权限. `
                 }).show()
             }
 
-            // 导入下一个文件
-            if (importFileIdx === importFiles.length - 1) return
-            worker.postMessage({
-                zipFilePath: importFiles[++importFileIdx],
-                ops: ops
-            })
+            if (importFileIdx === importFiles.length - 1) {
+                worker.terminate()
+            } else {
+                // 开始导入下一个文件
+                worker.postMessage({
+                    zipFilePath: importFiles[++importFileIdx],
+                    ops: ops
+                })
+            }
         })
     }
 }

@@ -14,7 +14,7 @@ parentPort?.on('message', (wData: {
     ops: unzipperOperation[]
 }) => {
     try {
-        const results: Result[] = Array.from({ length: wData.ops.length })
+        const opResults: Result[] = Array.from({ length: wData.ops.length })
 
         const zip = new AdmZip(wData.zipFilePath)
         const zipEntries = zip.getEntries()
@@ -23,34 +23,38 @@ parentPort?.on('message', (wData: {
             wData.ops.forEach((op, opIdx) => {
                 switch (op.type) {
                     case 'extract':
-                        if (results[opIdx]) return
+                        if (opResults[opIdx]) return
                         if (entry.entryName === op.entryName) {
                             zip.extractEntryTo(entry.entryName, op.tragetPath!, true, true)
-                            results[opIdx] = Result.success()
+                            opResults[opIdx] = Result.success()
                         }
                         break
                     case 'read':
-                        if (results[opIdx]) return
+                        if (opResults[opIdx]) return
                         if (entry.entryName === op.entryName) {
-                            results[opIdx] = Result.success(entry.getData())
+                            opResults[opIdx] = Result.success(entry.getData())
                         }
                         break
                     case 'extractAll':
-                        if (results[opIdx]) return
+                        if (opResults[opIdx]) return
                         zip.extractAllToAsync(op.tragetPath!, true, false, (err) => {
                             if (err) throw err
                         })
-                        results[opIdx] = Result.success()
+                        opResults[opIdx] = Result.success()
                         break
                 }
             })
 
             // 所有操作都完成了，就退出
-            if (results.every(r => r)) break
+            if (opResults.every(r => r)) break
         }
 
-        parentPort?.postMessage(results)
+        // 把undefined的结果改成error
+        opResults.forEach((r, idx) => {
+            if (!r) opResults[idx] = Result.error('no such entry')
+        })
+        parentPort?.postMessage(Result.success(opResults))
     } catch (err: any) {
-        parentPort?.postMessage([Result.error(err.message)])
+        parentPort?.postMessage(Result.error(err.message))
     }
 })

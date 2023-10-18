@@ -8,7 +8,8 @@
 
 /* grid */
 .compact-grid {
-    grid-template-columns: repeat(auto-fill, 600px);
+    --record-recommendation-item-width: 400px;
+    grid-template-columns: repeat(auto-fill, 400px);
 }
 
 .thumbnail-grid {
@@ -19,11 +20,14 @@
     grid-template-columns: repeat(auto-fill, 600px);
 }
 
-/* record-recommendation-item */
 .record-recommendation-item {
     display: flex;
     position: relative;
     font-size: 13px;
+}
+
+.record-recommendation-item .record-info {
+    width: 100%;
 }
 
 .thumbnail-grid .record-recommendation-item {
@@ -43,7 +47,6 @@
 
 .compact-grid .record-recommendation-item .meta {
     margin-bottom: 4px;
-    flex-wrap: wrap;
 }
 
 .thumbnail-grid .record-recommendation-item .meta {
@@ -53,6 +56,11 @@
 
 .extended-grid .record-recommendation-item .meta {
     margin-bottom: 4px;
+}
+
+.compact-grid .record-recommendation-item .meta-content,
+.extended-grid .record-recommendation-item .meta-content {
+    display: flex;
     flex-wrap: wrap;
 }
 

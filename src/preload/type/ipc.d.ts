@@ -264,6 +264,9 @@ export interface IElectronAPI {
         text: string
     ) => Promise<void>
 
+    readdir: (
+        dirPath: string
+    ) => Promise<Result>,
 
 
     /******************** window ********************/

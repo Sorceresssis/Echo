@@ -21,8 +21,9 @@
                 <li class="dashboard-text-card"
                     v-for="tag in tags"
                     :key="tag.id">
-                    <div>
-                        <span>{{ tag.title }}</span>
+                    <div class="content">
+                        <span :title="tag.title"
+                              class="textover--ellopsis">{{ tag.title }}</span>
                         <span class="count">{{ tag.recordCount }}</span>
                     </div>
                     <div class="operate">

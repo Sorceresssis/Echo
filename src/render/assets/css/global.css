@@ -149,6 +149,11 @@ img {
     opacity: .7;
 }
 
+.inline-list-title {
+    flex-shrink: 0;
+    user-select: none;
+}
+
 .inline-list-title::after {
     content: ":";
     margin: 0 9px 0 2px;
@@ -373,6 +378,7 @@ img {
     padding: 13px 20px;
     border-radius: 5px;
     font-size: 13px;
+    overflow: hidden;
 }
 
 .dashboard-text-card:hover {
@@ -383,17 +389,23 @@ img {
         0px 0px 5px rgba(0, 0, 0, 0.07);
 }
 
+.dashboard-text-card .content {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
 .dashboard-text-card .count {
     margin-left: 10px;
     color: var(--echo-emphasis-color);
 }
 
 .dashboard-text-card .operate {
-    visibility: hidden;
+    display: none;
 }
 
 .dashboard-text-card:hover .operate {
-    visibility: visible;
+    display: block;
 }
 
 .dashboard-text-card .operate span {

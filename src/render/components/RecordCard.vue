@@ -2,28 +2,31 @@
     <div class="record-recommendation-item overflow-hidden">
         <local-image :src="recmd.cover"
                      class="cover" />
-        <div>
+        <div class="record-info">
             <div class="meta scrollbar-x-nodisplay title"
                  :title="recmd.title"
                  @mousedown="startInfoScroll"> {{ recmd.title }} </div>
             <div class="meta scrollbar-x-nodisplay"
                  @mousedown="startInfoScroll">
-                <span class="inline-list-title"> {{ '作者' }}</span>
-                <div v-for="author in recmd.authors"
-                     :key="author.id"
-                     class="author">
-                    <local-image :src="author.avatar"
-                                 class="avatar-icon"
-                                 @click="router.push(hrefGenerator.libraryAuthor(activeLibrary, author.id))" />
-                    <span> {{ author.name }} </span>
+                <div class="inline-list-title"> {{ '作者' }}</div>
+                <div class="meta-content">
+                    <span v-for="author in recmd.authors"
+                          :key="author.id"
+                          class="author">
+                        <local-image :src="author.avatar"
+                                     class="avatar-icon"
+                                     @click="router.push(hrefGenerator.libraryAuthor(activeLibrary, author.id))" />
+                        {{ author.name }} </span>
                 </div>
             </div>
             <div class="meta scrollbar-x-nodisplay"
                  @mousedown="startInfoScroll">
-                <span class="inline-list-title">{{ '标签' }}</span>
-                <span v-for="tag in recmd.tags"
-                      :key="tag.id"
-                      class="tag"> {{ tag.title }} </span>
+                <div class="inline-list-title">{{ '标签' }}</div>
+                <div class="meta-content">
+                    <span v-for="tag in recmd.tags"
+                          :key="tag.id"
+                          class="tag"> {{ tag.title }} </span>
+                </div>
             </div>
             <div class="operates">
                 <div :title="'搜索标题'"
@@ -58,7 +61,7 @@ import LocalImage from './LocalImage.vue'
 
 const props = defineProps<{
     recmd: VO.RecordRecommendation,
-    selected: boolean
+    selected: boolean,
 }>()
 
 const emit = defineEmits<{

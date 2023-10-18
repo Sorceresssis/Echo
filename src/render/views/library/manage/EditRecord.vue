@@ -367,11 +367,11 @@ onMounted(init)
 }
 
 .deleteIcon::after {
-    content: '\e668';
+    content: '\e685';
     cursor: pointer;
     margin-left: 6px;
     font-family: "iconfont" !important;
-    font-size: 14px !important;
+    font-size: 13px !important;
 }
 
 .deleteIcon:hover {

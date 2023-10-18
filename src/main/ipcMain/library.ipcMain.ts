@@ -110,13 +110,13 @@ function ipcMainLibrary() {
     }, generateCatchFn('tag:queryDetails'), { total: 0, rows: [] }, closeLibraryDB))
 
 
-    ipcMain.handle('tag:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string) => {
+    ipcMain.handle('tag:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string): void => {
         rebindLibrary(libraryId)
         DIContainer.get<TagService>(DI_TYPES.TagService).editTag(tagId, newValue)
     }, generateCatchFn('tag:edit'), void 0, closeLibraryDB))
 
 
-    ipcMain.handle('tag:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number) => {
+    ipcMain.handle('tag:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number): void => {
         rebindLibrary(libraryId)
         DIContainer.get<TagService>(DI_TYPES.TagService).deleteTag(tagId)
     }, generateCatchFn('tag:delete'), void 0, closeLibraryDB))
@@ -146,6 +146,18 @@ function ipcMainLibrary() {
         rebindLibrary(libraryId)
         return DIContainer.get<DirnameService>(DI_TYPES.DirnameService).startsWithReplacePath(target, replace)
     }, generateCatchFn('dirname:startsWithReplace'), Result.error('runtime error'), closeLibraryDB))
+
+
+    ipcMain.handle('series:eidt', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number, newValue: string): void => {
+        rebindLibrary(libraryId)
+        DIContainer.get<SeriesService>(DI_TYPES.SeriesService).editSeries(seriesId, newValue)
+    }, generateCatchFn('series:edit'), void 0, closeLibraryDB))
+
+
+    ipcMain.handle('series:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number): void => {
+        rebindLibrary(libraryId)
+        DIContainer.get<SeriesService>(DI_TYPES.SeriesService).deleteSeries(seriesId)
+    }, generateCatchFn('series:delete'), void 0, closeLibraryDB))
 }
 
 

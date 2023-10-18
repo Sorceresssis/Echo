@@ -21,8 +21,9 @@
                 <li class="dashboard-text-card"
                     v-for="dirname in dirnames"
                     :key="dirname.id">
-                    <div>
-                        <span>{{ dirname.path }}</span>
+                    <div class="content">
+                        <span :title="dirname.path"
+                              class="textover--ellopsis">{{ dirname.path }}</span>
                         <span class="count">{{ dirname.recordCount }}</span>
                     </div>
                     <div class="operate">
