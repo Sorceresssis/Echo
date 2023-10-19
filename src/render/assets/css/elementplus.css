@@ -90,3 +90,13 @@ body .el-button {
 .el-button--primary:hover {
     opacity: 0.8;
 }
+
+.el-drawer__header {
+    padding: 20px;
+}
+
+.el-drawer__title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

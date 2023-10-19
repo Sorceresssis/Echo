@@ -1,12 +1,20 @@
 <template>
     <div class="empty">
         <div class="empty__text">
-            <span>还没有任何东西哦~</span>
+            <span> {{ title }} </span>
         </div>
     </div>
 </template>
 
-<script setup lang='ts'></script>
+<script setup lang='ts'>
+
+withDefaults(defineProps<{
+    title?: string
+}>(), {
+    title: '还没有任何东西哦~'
+})
+
+</script>
 
 <style>
 .empty {

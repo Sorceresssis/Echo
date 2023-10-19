@@ -36,13 +36,16 @@
 </template>
 
 <script setup lang='ts'>
-import { watch, inject } from 'vue'
+import { watch, inject, } from 'vue'
 import { debounce } from '@/util/common'
+import { sendCrosTabMsg } from "@/util/CrosTabMsg"
 
 const inputAutoSize = {
     minRows: 8,
     maxRows: 8,
 }
+
+const bc = new BroadcastChannel('updateLibraryDetail')
 
 const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
 
@@ -52,6 +55,9 @@ const editLibraryExtra = debounce(async function () {
         useAuxiliarySt: activeLibraryDetail.useAuxiliarySt ? 1 : 0,
         auxiliarySt: activeLibraryDetail.auxiliarySt,
         intro: activeLibraryDetail.intro,
+    }).then(() => {
+        // 通知activeLibrary相同的libraryDetail更新
+        sendCrosTabMsg(bc, activeLibraryDetail.id.toString())
     })
 }, 700)
 

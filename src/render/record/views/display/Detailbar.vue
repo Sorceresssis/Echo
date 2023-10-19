@@ -1,6 +1,7 @@
 <template>
     <div class="record-detail-sideBar">
-        <scrollbar class="record-info scrollbar-y-w4">
+        <scrollbar class="record-info scrollbar-y-w4"
+                   :show-back-top="false">
             <local-image :src="record.cover"
                          class="cover" />
             <h1 class="title">{{ record.title }}</h1>
@@ -34,14 +35,16 @@
             </div>
         </scrollbar>
         <div class="divider" />
-        <scrollbar class="series-list scrollbar-y-w4">
-            <empty v-if="record.series.length === 0" />
+        <scrollbar class="series-list scrollbar-y-w4"
+                   :show-back-top="false">
+            <empty v-if="record.series.length === 0"
+                   :title="'没有加入系列'" />
             <ul v-else
                 class="adaptive-grid">
                 <li v-for="series in record.series"
                     :key="series.id"
                     class="dashboard-text-card"
-                    @click="drawerVisible = !drawerVisible">
+                    @click="openSeries(series.id)">
                     <div class="content">
                         <span :title="series.name"
                               class="textover--ellopsis">{{ series.name }}</span>
@@ -65,9 +68,9 @@
                        style="background-color: #f6f6f8;">
                 <template #header="{ close, titleId, titleClass }">
                     <h4 :id="titleId"
-                        :class="titleClass">This is a custom header!</h4>
+                        :class="titleClass"> {{ record.series.find(s => s.id === activeSeriesId)?.name }} </h4>
                 </template>
-                This is drawer content.
+                <records />
             </el-drawer>
         </scrollbar>
     </div>
@@ -76,19 +79,19 @@
 <script setup lang='ts'>
 import { ref, readonly, inject } from 'vue'
 import { writeClibboard, } from '@/util/systemUtil'
+import MessageBox from '@/util/MessageBox'
 import LocalImage from '@/components/LocalImage.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
-import MessageBox from '@/util/MessageBox'
+import Records from '@/views/library/dashboard/Records.vue'
 
 const drawerVisible = ref(false)
 const record = readonly(inject<VO.RecordDetail>('record')!)
 
-
+const activeSeriesId = ref<number>(0)
 
 const deleteSeries = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
-
     })
 }
 
@@ -97,11 +100,14 @@ const editSeries = (d: number, oldValue: string) => {
         MessageBox.editConfirm().then(async () => {
             const trimValue = value.trim()
             if (trimValue === '' || trimValue === oldValue) return
-
         })
     })
 }
 
+const openSeries = (id: number) => {
+    activeSeriesId.value = id
+    drawerVisible.value = true
+}
 // const deleteTag = (id: number) => {
 //     await window.electronAPI.deleteTag(activeLibrary.value, id)
 //     queryTags()
@@ -110,6 +116,9 @@ const editSeries = (d: number, oldValue: string) => {
 //     await window.electronAPI.editTag(activeLibrary.value, id, value)
 //     queryTags()
 // }
+
+
+
 
 
 </script>

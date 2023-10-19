@@ -1,9 +1,12 @@
 <template>
-    <div ref="scrollBarRef"
+    <div :id="scrollBarId"
+         ref="scrollBarRef"
          class="scrollbar-y"
          @scroll="handleScroll">
         <slot></slot>
-        <el-backtop target=".scrollbar-y"
+        <!-- 等待滚动容器渲染完成绑定id, 然后再渲染返回顶部按钮绑定target -->
+        <el-backtop v-if="scrollBarRef && showBackTop"
+                    :target="`#${scrollBarId}`"
                     :visibility-height="100"
                     :right="100"
                     :bottom="100"
@@ -14,14 +17,18 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, onActivated, nextTick, } from 'vue'
-import { debounce } from '@/util/common'
+import { ref, onActivated, nextTick } from 'vue'
+import { debounce, generateUniqueID } from '@/util/common'
 
 const props = withDefaults(defineProps<{
     saveScrollPosition?: boolean
+    showBackTop?: boolean
 }>(), {
     saveScrollPosition: true,
+    showBackTop: true
 })
+
+const scrollBarId = ref<string>(`_${generateUniqueID()}`)
 
 const scrollBarRef = ref<HTMLElement>()
 const scrollTop = ref<number>(0)
@@ -37,6 +44,7 @@ const handleScroll = debounce(function (e: Event) {
 }, 200)
 
 onActivated(() => {
+    // 等待滚动容器渲染完成绑定id, 然后再渲染返回顶部按钮绑定target 
     nextTick(() => {
         scrollBarRef.value!.scrollTop = scrollTop.value
     })
@@ -45,6 +53,7 @@ onActivated(() => {
 defineExpose({
     setScrollPosition
 })
+
 </script>
 
 <style>

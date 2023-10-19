@@ -67,9 +67,15 @@ export function isSameType(a: any, b: any) {
     return true
 }
 
+export function generateUniqueID() {
+    const timestamp = Date.now().toString(36);
+    const randomStr = Math.random().toString(36).substring(2, 7); // 取随机数的一部分
+    return timestamp + randomStr;
+}
 
 export default {
     debounce,
     throttle,
     isSameType,
+    generateUniqueID
 }
