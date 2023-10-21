@@ -1,3 +1,4 @@
+import { count } from "console"
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -100,6 +101,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
         recordId: number
     ) => ipcRenderer.invoke('record:queryDetail', libraryId, recordId),
 
+    querySimilarRecordRecmds: (
+        libraryId: number,
+        recordId: number,
+        count?: number,
+    ) => ipcRenderer.invoke('record:querySimilarRecmds', libraryId, recordId, count),
+
     editRecord: (
         libraryId: number,
         formData: DTO.EditRecordForm,
@@ -134,9 +141,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         authorId: number
     ) => ipcRenderer.invoke('author:delete', libraryId, authorId),
 
-
-
-    /******************** tag ********************/
+    // ANCHOR Tag
 
     queryTagDetails: (
         libraryId: number,
@@ -154,9 +159,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         newValue: string
     ) => ipcRenderer.invoke('tag:edit', libraryId, tagId, newValue),
 
-
-
-    /******************** dirname ********************/
+    // ANCHOR Dirname
 
     queryDirnameDetails: (
         libraryId: number,
@@ -180,9 +183,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
         replace: string
     ) => ipcRenderer.invoke('dirname:startsWithReplace', libraryId, target, replace),
 
+    // ANCHOR Series
 
+    editSeries: (
+        libraryId: number,
+        seriesId: number,
+        newValue: string
+    ) => ipcRenderer.invoke('series:edit', libraryId, seriesId, newValue),
 
-    /******************** dialog ********************/
+    deleteSeries: (
+        libraryId: number,
+        seriesId: number
+    ) => ipcRenderer.invoke('series:delete', libraryId, seriesId),
+
+    // ANCHOR dialog
 
     openDialog: (
         type: OpenDialogType,
@@ -190,9 +204,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         title?: string
     ) => ipcRenderer.invoke('dialog:open', type, multiSelect, title),
 
-
-
-    /******************** system ********************/
+    // ANCHOR system
 
     openInBrowser: (
         hyperlink: string
@@ -214,8 +226,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
         dirPath: string
     ) => ipcRenderer.invoke('system:readdir', dirPath),
 
-
-    /******************** window ********************/
+    // ANCHOR window
 
     createMainWindow: (
         libraryId: number

@@ -1,17 +1,24 @@
 <template>
     <div class="explorer">
-        <div class="path-nav">
-            <span @click="explorer.back">退回</span>
+        <div class="path-nav"
+             style="display: flex; ">
+            <div style="flex-shrink: 0;">
+                <span @click="explorer.back"> 退回 </span>
 
-            <span v-for="(folder, idx) in pathLink "
-                  class="path-nav-item"
-                  @click=""> {{ folder }}</span>
+                <span> {{ '>>' }} </span>
+            </div>
+            <div style="">
+                <span v-for="(folder, idx) in pathLink "
+                      class="path-nav-item"
+                      style="margin: 0 10px;"
+                      @click=""> {{ folder }}</span>
+            </div>
         </div>
         <scrollbar class="folder-container adaptive-grid scrollbar-y-w8">
-            <folder v-for="item in currDirContent "
-                    @dblclick="explorer.push(item.name)">
+            <folder-item v-for="item in currDirContent "
+                         @dblclick="explorer.push(item.name)">
                 {{ item.name }}
-            </folder>
+            </folder-item>
         </scrollbar>
     </div>
 </template>
@@ -22,7 +29,7 @@ import useExplorerService from '@/record/service/explorerService'
 import { openInExplorer } from '@/util/systemUtil'
 import Message from '@/util/Message'
 import Scrollbar from '@/components/Scrollbar.vue'
-import Folder from '@/components/Folder.vue'
+import FolderItem from '@/components/FolderItem.vue'
 
 const record = readonly(inject<VO.RecordDetail>('record')!)
 
@@ -132,8 +139,8 @@ onMounted(() => {
 }
 
 .folder-container {
-    --folder-item-width: 200px;
-    --folder-item-height: 200px;
+    --folder-item-width: 180px;
+    --folder-item-height: 134px;
     flex: 1;
     grid-template-columns: repeat(auto-fill, var(--folder-item-width));
     column-gap: 25px;

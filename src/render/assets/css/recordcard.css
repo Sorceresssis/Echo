@@ -22,6 +22,7 @@
 
 .record-recommendation-item {
     display: flex;
+    flex-shrink: 0;
     position: relative;
     font-size: 13px;
 }
@@ -30,11 +31,12 @@
     width: 100%;
 }
 
-.thumbnail-grid .record-recommendation-item {
+.thumbnail-records .record-recommendation-item {
+    width: var(--record-recommendation-item-cover-width);
     flex-direction: column;
 }
 
-.extended-grid .record-recommendation-item {
+.extended-records .record-recommendation-item {
     flex-direction: row;
 }
 
@@ -45,21 +47,21 @@
     line-height: var(--record-recommendation-item-line-height);
 }
 
-.compact-grid .record-recommendation-item .meta {
+.compact-records .record-recommendation-item .meta {
     margin-bottom: 4px;
 }
 
-.thumbnail-grid .record-recommendation-item .meta {
+.thumbnail-records .record-recommendation-item .meta {
     margin-top: 4px;
     white-space: nowrap;
 }
 
-.extended-grid .record-recommendation-item .meta {
+.extended-records .record-recommendation-item .meta {
     margin-bottom: 4px;
 }
 
-.compact-grid .record-recommendation-item .meta-content,
-.extended-grid .record-recommendation-item .meta-content {
+.compact-records .record-recommendation-item .meta-content,
+.extended-records .record-recommendation-item .meta-content {
     display: flex;
     flex-wrap: wrap;
 }
@@ -74,7 +76,7 @@
     object-fit: contain;
 }
 
-.compact-grid .record-recommendation-item .cover {
+.compact-records .record-recommendation-item .cover {
     display: none;
 }
 
@@ -103,6 +105,7 @@
     padding: 10px;
     background-color: rgba(0, 0, 0, .4);
     text-align: center;
+    line-height: normal;
     color: #fff;
     font-weight: normal;
     cursor: pointer;
@@ -112,13 +115,13 @@
     color: rgba(255, 255, 255, .7);
 }
 
-.compact-grid .operates {
+.compact-records .operates {
     position: static;
     margin-left: auto;
 }
 
-.thumbnail-grid .record-recommendation-item .operates,
-.extended-grid .record-recommendation-item .operates {
+.thumbnail-records .record-recommendation-item .operates,
+.extended-records .record-recommendation-item .operates {
     top: calc(var(--record-recommendation-item-cover-height) - var(--operates-height));
 }
 

@@ -85,8 +85,9 @@ namespace DTO {
     }
 
     type QueryRecordRecommendationsOptions = {
-        type: 'common' | 'author' | 'recycled'
+        type: 'common' | 'recycled' | 'author' | 'series'
         authorId?: number,
+        seriesId?: number,
         filters: [boolean, boolean, boolean],
         keyword: string,
         sortField: 'time' | 'title' | 'rate',

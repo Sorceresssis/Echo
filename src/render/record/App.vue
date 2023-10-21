@@ -62,7 +62,6 @@ const queryLibraryDetail = function () {
     })
 }
 
-
 const bc = new BroadcastChannel('updateLibraryDetail')
 
 onMounted(() => {
@@ -80,6 +79,7 @@ onMounted(() => {
     })
 })
 
+// TODO record编辑后， 重新获取recordDetail
 watch(route, queryRecordDetail)
 </script>
 

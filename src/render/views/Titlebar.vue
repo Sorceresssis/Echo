@@ -82,6 +82,7 @@ watch(route, async () => {
         // bash视图
         if (activeLibrary.value !== libraryId) {
             viewsTaskAfterRoutingStore.setAllViews('init')
+            viewsTaskAfterRoutingStore.setAuthorRecords('init')
             activeLibrary.value = libraryId
         }
 

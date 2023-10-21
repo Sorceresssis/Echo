@@ -53,6 +53,12 @@ function ipcMainLibrary() {
     }, generateCatchFn('record:queryDetail'), void 0, closeLibraryDB))
 
 
+    ipcMain.handle('record:querySimilarRecmds', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, recordId: number, count?: number): VO.RecordRecommendation[] => {
+        rebindLibrary(libraryId)
+        return DIContainer.get<RecordService>(DI_TYPES.RecordService).querySimilarRecordRecmds(recordId, count)
+    }, generateCatchFn('record:querySimilarRecmds'), [], closeLibraryDB))
+
+
     ipcMain.handle('record:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Result => {
         rebindLibrary(libraryId)
         const recordService = DIContainer.get<RecordService>(DI_TYPES.RecordService)
@@ -148,16 +154,18 @@ function ipcMainLibrary() {
     }, generateCatchFn('dirname:startsWithReplace'), Result.error('runtime error'), closeLibraryDB))
 
 
-    ipcMain.handle('series:eidt', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number, newValue: string): void => {
+    ipcMain.handle('series:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number, newValue: string): Result => {
         rebindLibrary(libraryId)
         DIContainer.get<SeriesService>(DI_TYPES.SeriesService).editSeries(seriesId, newValue)
-    }, generateCatchFn('series:edit'), void 0, closeLibraryDB))
+        return Result.success()
+    }, generateCatchFn('series:edit'), Result.error(), closeLibraryDB))
 
 
-    ipcMain.handle('series:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number): void => {
+    ipcMain.handle('series:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number): Result => {
         rebindLibrary(libraryId)
         DIContainer.get<SeriesService>(DI_TYPES.SeriesService).deleteSeries(seriesId)
-    }, generateCatchFn('series:delete'), void 0, closeLibraryDB))
+        return Result.success()
+    }, generateCatchFn('series:delete'), Result.error(), closeLibraryDB))
 }
 
 

@@ -13,6 +13,17 @@ class RecordSeriesDao {
         return this.lib.dbConnection.prepare('SELECT record_id FROM record_series WHERE series_id = ? LIMIT ?,?;').pluck().all(seriesId, offset, rowCount) as number[]
     }
 
+    public queryRandomRecordIdsOfSameSeriesByRecordId(recordId: PrimaryKey, rowCount: number = 10): number[] {
+        const sql = `
+        SELECT rs2.record_id
+        FROM record_series rs1 JOIN record_series rs2 ON rs1.series_id = rs2.series_id
+        WHERE rs1.record_id = ? AND rs2.record_id != ?
+        GROUP BY rs2.record_id
+        ORDER BY RANDOM() LIMIT 0, ?;`
+
+        return this.lib.dbConnection.prepare(sql).pluck().all(recordId, recordId, rowCount) as number[]
+    }
+
     public updateSeriesIdBySeriesId(seriesId: PrimaryKey, newSeriesId: PrimaryKey): void {
         this.lib.dbConnection.run('DELETE FROM record_series WHERE series_id = ? AND record_id IN (SELECT record_id FROM record_series WHERE series_id = ? INTERSECT SELECT record_id FROM record_series WHERE series_id = ?);',
             seriesId, seriesId, newSeriesId)

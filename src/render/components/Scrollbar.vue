@@ -28,6 +28,7 @@ const props = withDefaults(defineProps<{
     showBackTop: true
 })
 
+// id不能以数字开头
 const scrollBarId = ref<string>(`_${generateUniqueID()}`)
 
 const scrollBarRef = ref<HTMLElement>()

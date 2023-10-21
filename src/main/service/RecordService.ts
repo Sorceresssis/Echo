@@ -92,6 +92,7 @@ class RecordService {
             {
                 type: options.type,
                 authorId: options.authorId,
+                seriesId: options.seriesId
             },
         ) as DTO.Page<any>
 
@@ -108,47 +109,51 @@ class RecordService {
         return page
     }
 
-    public querySimilarRecordRecmds(id: number): VO.RecordRecommendation[] {
-        const similarCount = 10
-
+    public querySimilarRecordRecmds(id: number, count: number = 10): VO.RecordRecommendation[] {
         const similarMap = new Map<number, number>()
 
         // 标签相似度
-        const similar = this.recordTagDao.querySimilarRecordIdsByRecordId(id, 0.2, similarCount)
-        if (similar.length < similarCount) {
-            // similar.concat(this.recordAuthorDao)
-        }
+        this.recordTagDao.querySimilarRecordIdsByRecordId(id, count).forEach(({ id, similarity }) => {
+            similarMap.set(id, similarity)
+        })
+        console.log(similarMap);
+
+
 
         // 作者相似度, 相当于0.1的标签相似度
-        this.recordAuthorDao.queryRandomRecordIdsOfSameAuthorByRecordId(id, similarCount).forEach(id => {
+        this.recordAuthorDao.queryRandomRecordIdsOfSameAuthorByRecordId(id, count).forEach(id => {
             if (similarMap.has(id)) {
-                similarMap.set(id, similarMap.get(id)! + 0.1)
+                similarMap.set(id, similarMap.get(id) as number + 0.1)
             } else {
                 similarMap.set(id, 0.1)
             }
         })
 
         // 系列相似度, 相当于0.1的标签相似度
+        this.recordSeriesDao.queryRandomRecordIdsOfSameSeriesByRecordId(id, count).forEach(id => {
+            if (similarMap.has(id)) {
+                similarMap.set(id, similarMap.get(id) as number + 0.1)
+            } else {
+                similarMap.set(id, 0.1)
+            }
+        })
 
+        const similar: any[] = Array.from(similarMap)
+            .sort((a, b) => b[1] - a[1])
+            .slice(0, count)
+            .map(item => this.recordDao.queryRecordById(item[0]))
+            .filter(record => record)
 
-        // 如果不够 随机推荐
-
-        const recordCount = this.recordDao.queryCountOfRecords()
-
-
-
-        return similar.map(id => {
-            const record = this.recordDao.queryRecordById(id) as any
-
+        similar.forEach(record => {
             record.cover = this.getCoverFullPath(record.cover)
             record.resourcePath = record.dirname && record.basename ? path.join(record.dirname, record.basename) : null
             delete record.dirname
             delete record.basename
             record.authors = DIContainer.get<AuthorService>(DI_TYPES.AuthorService).queryAuthorsByRecordId(record.id)
             record.tags = this.tagDao.queryTagsByRecordId(record.id)
+        })
 
-            return record
-        }) as VO.RecordRecommendation[]
+        return similar
     }
 
     private generateFilters(input: boolean[]): string[] {

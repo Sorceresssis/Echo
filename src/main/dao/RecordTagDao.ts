@@ -17,7 +17,7 @@ class RecordTagDao {
         return this.lib.dbConnection.prepare('SELECT record_id FROM record_tag WHERE tag_id = ? LIMIT ?,?;').pluck().all(tagId, offset, rowCount) as number[]
     }
 
-    public querySimilarRecordIdsByRecordId(recordId: PrimaryKey, minSimilarity: number = 0.2, rowCount: number = 10,): number[] {
+    public querySimilarRecordIdsByRecordId(recordId: PrimaryKey, rowCount: number = 10,): { id: number, similarity: number }[] {
         // Jaccard Similarity J(A, B) = | A ∩ B | / |A ∪ B|
         const sql = `
         SELECT
@@ -29,10 +29,9 @@ class RecordTagDao {
             JOIN record_tag rt3 ON rt2.record_id = rt3.record_id
         WHERE rt1.record_id = ? AND rt2.record_id != ?
         GROUP BY rt2.record_id
-        HAVING similarity >= ?
         ORDER BY similarity DESC
         LIMIT 0, ?;`
-        return this.lib.dbConnection.all(sql, recordId, recordId, minSimilarity, rowCount).map((row: any) => row.id)
+        return this.lib.dbConnection.all(sql, recordId, recordId, rowCount)
     }
 
     public updateTagIdByTagId(tagId: PrimaryKey, newTagId: PrimaryKey): void {

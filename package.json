@@ -80,6 +80,14 @@
       "allowToChangeInstallationDirectory": true,
       "perMachine": false,
       "deleteAppDataOnUninstall": false
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Sorceresssis",
+        "repo": "echo",
+        "releaseType": "draft"
+      }
+    ]
   }
 }

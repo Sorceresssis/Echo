@@ -85,6 +85,21 @@ img {
     display: none;
 }
 
+.scrollbar-x-h8 {
+    overflow-x: scroll;
+    overflow-y: hidden;
+}
+
+.scrollbar-x-h8::-webkit-scrollbar {
+    height: 8px;
+    background-color: transparent;
+}
+
+.scrollbar-x-h8::-webkit-scrollbar-thumb {
+    border-radius: 4px;
+    background-color: #cfcfcf;
+}
+
 /* fit */
 .fit--cover {
     width: 100%;

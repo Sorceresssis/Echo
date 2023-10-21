@@ -65,19 +65,22 @@
             <el-drawer v-model="drawerVisible"
                        direction="btt"
                        size="80%"
-                       style="background-color: #f6f6f8;">
+                       class="series-content-drawer">
                 <template #header="{ close, titleId, titleClass }">
                     <h4 :id="titleId"
-                        :class="titleClass"> {{ record.series.find(s => s.id === activeSeriesId)?.name }} </h4>
+                        :class="titleClass"
+                        :title="record.series.find(s => s.id === activeSeriesId)?.name">
+                        {{ record.series.find(s => s.id === activeSeriesId)?.name }} </h4>
                 </template>
-                <records />
+                <records type="series" />
             </el-drawer>
         </scrollbar>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, readonly, inject } from 'vue'
+import { ref, Ref, readonly, inject } from 'vue'
+import { useRouter } from 'vue-router'
 import { writeClibboard, } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
 import LocalImage from '@/components/LocalImage.vue'
@@ -85,42 +88,49 @@ import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 import Records from '@/views/library/dashboard/Records.vue'
 
-const drawerVisible = ref(false)
-const record = readonly(inject<VO.RecordDetail>('record')!)
+const router = useRouter()
 
+const drawerVisible = ref(false)
+
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
+const record = inject<VO.RecordDetail>('record')!
 const activeSeriesId = ref<number>(0)
 
 const deleteSeries = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
+        window.electronAPI.deleteSeries(activeLibrary.value, id).then(result => {
+            if (result.code) {
+                record.series = record.series.filter(s => s.id !== id)
+            }
+        })
     })
 }
 
-const editSeries = (d: number, oldValue: string) => {
+const editSeries = (id: number, oldValue: string) => {
     MessageBox.editPrompt(oldValue).then(({ value }) => {
         MessageBox.editConfirm().then(async () => {
             const trimValue = value.trim()
             if (trimValue === '' || trimValue === oldValue) return
+
+            window.electronAPI.editSeries(activeLibrary.value, id, trimValue).then(result => {
+                if (result.code) {
+                    record.series = record.series.map(s => {
+                        if (s.id === id) {
+                            s.name = trimValue
+                        }
+                        return s
+                    })
+                }
+            })
         })
     })
 }
 
 const openSeries = (id: number) => {
+    router.push(`/?seriesId=${id}`)
     activeSeriesId.value = id
     drawerVisible.value = true
 }
-// const deleteTag = (id: number) => {
-//     await window.electronAPI.deleteTag(activeLibrary.value, id)
-//     queryTags()
-// }
-// const editTag = (id: number, oldValue: string) => {
-//     await window.electronAPI.editTag(activeLibrary.value, id, value)
-//     queryTags()
-// }
-
-
-
-
-
 </script>
 
 <style scoped>

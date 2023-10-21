@@ -136,6 +136,12 @@ export interface IElectronAPI {
         options: DTO.QueryRecordRecommendationsOptions
     ) => Promise<DTO.Page<VO.RecordRecommendation>>
 
+    querySimilarRecordRecmds: (
+        libraryId: number,
+        recordId: number,
+        count?: number
+    ) => Promise<VO.RecordRecommendation[]>
+
     deleteRecordByAttribute: (
         libraryId: number,
         formData: DTO.DeleteRecordByAttributeForm
@@ -189,8 +195,7 @@ export interface IElectronAPI {
         authorId: number
     ) => Promise<boolean>,
 
-
-    /******************** tag ********************/
+    //ANCHOR Tag
 
     queryTagDetails: (
         libraryId: number,
@@ -208,9 +213,7 @@ export interface IElectronAPI {
         newValue: string
     ) => Promise<boolean>
 
-
-
-    /******************** dirname ********************/
+    //ANCHOR Dirname
 
     queryDirnameDetails: (
         libraryId: number,
@@ -234,9 +237,20 @@ export interface IElectronAPI {
         replace: string
     ) => Promise<Result>,
 
+    // ANCHOR Series
 
+    editSeries: (
+        libraryId: number,
+        seriesId: number,
+        newValue: string
+    ) => Promise<Result>,
 
-    /******************** dialog ********************/
+    deleteSeries: (
+        libraryId: number,
+        seriesId: number
+    ) => Promise<Result>,
+
+    // ANCHOR dialog 
 
     openDialog: (
         type: OpenDialogType,
@@ -244,9 +258,7 @@ export interface IElectronAPI {
         title?: string
     ) => Promise<string[]>
 
-
-
-    /******************** system ********************/
+    // ANCHOR system
 
     openInBrowser: (
         hyperlink: string

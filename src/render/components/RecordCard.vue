@@ -5,9 +5,9 @@
         <div class="record-info">
             <div class="meta scrollbar-x-nodisplay title"
                  :title="recmd.title"
-                 @mousedown="startInfoScroll"> {{ recmd.title }} </div>
+                 @mousedown="startScroll"> {{ recmd.title }} </div>
             <div class="meta scrollbar-x-nodisplay"
-                 @mousedown="startInfoScroll">
+                 @mousedown="startScroll">
                 <div class="inline-list-title"> {{ '作者' }}</div>
                 <div class="meta-content">
                     <span v-for="author in recmd.authors"
@@ -15,12 +15,12 @@
                           class="author">
                         <local-image :src="author.avatar"
                                      class="avatar-icon"
-                                     @click="router.push(hrefGenerator.libraryAuthor(activeLibrary, author.id))" />
+                                     @click="canPushToAuthorPage && router.push(hrefGenerator.libraryAuthor(activeLibrary, author.id))" />
                         {{ author.name }} </span>
                 </div>
             </div>
             <div class="meta scrollbar-x-nodisplay"
-                 @mousedown="startInfoScroll">
+                 @mousedown="startScroll">
                 <div class="inline-list-title">{{ '标签' }}</div>
                 <div class="meta-content">
                     <span v-for="tag in recmd.tags"
@@ -57,18 +57,23 @@ import { Ref, inject, readonly } from 'vue'
 import { useRouter } from 'vue-router'
 import hrefGenerator from '@/router/hrefGenerator'
 import { openInExplorer, openInBrowser, internetSearch } from '@/util/systemUtil'
+import { useDragScroll } from '@/util/common'
 import LocalImage from './LocalImage.vue'
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
     recmd: VO.RecordRecommendation,
     selected: boolean,
-}>()
+    canPushToAuthorPage?: boolean,
+}>(), {
+    canPushToAuthorPage: true,
+})
 
 const emit = defineEmits<{
     (e: 'select', recordId: number): void
 }>()
 
 const router = useRouter()
+const { startScroll } = useDragScroll()
 
 const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const activeLibDetail = inject<VO.LibraryDetail>('activeLibraryDetail') as VO.LibraryDetail
@@ -76,26 +81,6 @@ const activeLibDetail = inject<VO.LibraryDetail>('activeLibraryDetail') as VO.Li
 const searchTitle = function () {
     const t = props.recmd.title + (activeLibDetail.useAuxiliarySt ? `  ${activeLibDetail.auxiliarySt}` : '')
     internetSearch(t)
-}
-
-let canScrollInfo = false
-let currentTarget: HTMLDivElement
-function startInfoScroll(e: MouseEvent) {
-    e.preventDefault()
-    canScrollInfo = true
-    currentTarget = e.currentTarget as HTMLDivElement
-    document.addEventListener('mousemove', scrollInfo)
-    document.addEventListener('mouseup', stopScrollInfo)
-}
-function scrollInfo(e: MouseEvent) {
-    if (canScrollInfo) {
-        currentTarget.scrollLeft -= e.movementX
-    }
-}
-function stopScrollInfo() {
-    canScrollInfo = false
-    document.removeEventListener('mousemove', scrollInfo)
-    document.removeEventListener('mouseup', stopScrollInfo)
 }
 
 function createRecordWindow(libraryId: number, recordId: number) {

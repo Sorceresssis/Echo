@@ -92,11 +92,27 @@ body .el-button {
 }
 
 .el-drawer__header {
-    padding: 20px;
+    line-height: normal !important;
 }
 
-.el-drawer__title {
+
+.series-content-drawer.el-drawer,
+.similar-record-drawer .el-drawer {
+    background-color: #f6f6f8;
+}
+
+.series-content-drawer .el-drawer__header,
+.similar-record-drawer .el-drawer__header {
+    margin-bottom: 20px;
+}
+
+.series-content-drawer .el-drawer__body {
+    display: flex;
+    padding: 10px 2px 10px 20px;
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+}
+
+.similar-record-drawer .el-drawer__body {
+    padding: 20px;
+    overflow: hidden;
 }

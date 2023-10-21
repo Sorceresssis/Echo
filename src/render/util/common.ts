@@ -67,15 +67,44 @@ export function isSameType(a: any, b: any) {
     return true
 }
 
+
 export function generateUniqueID() {
     const timestamp = Date.now().toString(36);
     const randomStr = Math.random().toString(36).substring(2, 7); // 取随机数的一部分
     return timestamp + randomStr;
 }
 
+
+// scroll 拖拽滚动
+export function useDragScroll() {
+    let currentTarget: HTMLDivElement
+
+    function startScroll(e: MouseEvent) {
+        e.preventDefault()
+        currentTarget = e.currentTarget as HTMLDivElement
+        document.addEventListener('mousemove', scroll)
+        document.addEventListener('mouseup', stopScroll)
+    }
+
+    function scroll(e: MouseEvent) {
+        currentTarget.scrollLeft -= e.movementX
+    }
+
+    function stopScroll() {
+        document.removeEventListener('mousemove', scroll)
+        document.removeEventListener('mouseup', stopScroll)
+    }
+
+    return {
+        startScroll
+    }
+}
+
+
 export default {
     debounce,
     throttle,
     isSameType,
-    generateUniqueID
+    generateUniqueID,
+    useDragScroll,
 }

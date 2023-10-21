@@ -43,8 +43,9 @@ class RecordDao {
         offset: number,
         rowCount: number,
         options: {
-            type: 'common' | 'author' | 'recycled'
+            type: 'common' | 'recycled' | 'author' | 'series'
             authorId?: number,
+            seriesId?: number
         },
     ): Dao.Page<Domain.Record> {
         const rowsSQL = new DynamicSqlBuilder()
@@ -70,19 +71,24 @@ class RecordDao {
                 whereSubSQL.push('r.recycled = 0')
                 break
             case 'author':
-                rowsSQL.append('JOIN record_author ra ON r.id = ra.record_id JOIN author a ON ra.author_id = a.id')
+                rowsSQL.append('JOIN record_author ra ON r.id = ra.record_id')
                 whereSubSQL.push('r.recycled = 0')
-                whereSubSQL.push('a.id = ?')
+                whereSubSQL.push('ra.author_id = ?')
                 rowsSQL.appendParam(options.authorId)
                 break
             case 'recycled':
                 whereSubSQL.push('r.recycled = 1')
                 break
+            case 'series':
+                rowsSQL.append('JOIN record_series rs ON r.id = rs.record_id')
+                whereSubSQL.push('r.recycled = 0')
+                whereSubSQL.push('rs.series_id = ?')
+                rowsSQL.appendParam(options.seriesId)
+                break
             default:
                 throw new Error('invalid type')
         }
-        rowsSQL
-            .appendWhereSQL(whereSubSQL)
+        rowsSQL.appendWhereSQL(whereSubSQL)
             .appendOrderSQL(sortRule)
             .appendLimitSQL(offset, rowCount)
             .append(') f JOIN record r ON f.id = r.id LEFT JOIN dirname d ON r.dirname_id = d.id;')

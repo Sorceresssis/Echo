@@ -12,8 +12,9 @@
                   class="iconfont no-drag"
                   :class="record.resourcePath ? '' : 'disabled'"
                   @click="openInExplorer(record.resourcePath)">&#xe73e;</span>
-            <span :title="'相似'"
-                  class="iconfont no-drag">&#xe67c;</span>
+            <span :title="'相似推荐'"
+                  class="iconfont no-drag"
+                  @click="openSimilarDrawer">&#xe620;</span>
             <span :title="'全部信息'"
                   class="iconfont no-drag"
                   :class="[route.fullPath === '/' ? 'active' : '']"
@@ -42,20 +43,47 @@
                   class="iconfont no-drag"
                   @click="windowClose">&#xe685;</span>
         </div>
+        <el-drawer v-model="similarDrawerVisible"
+                   direction="btt"
+                   size="380px"
+                   class="similar-record-drawer">
+            <template #header="{ close, titleId, titleClass }">
+                <h4 :id="titleId"
+                    :class="titleClass"> {{ '相似推荐' }} </h4>
+            </template>
+            <div v-if="similarRecords.length"
+                 v-loading.lock="similarLoading"
+                 class="record-recommendations thumbnail-records scrollbar-x-h8"
+                 style="display: flex; flex: 1; padding-bottom: 20xp;"
+                 @mousedown="startScroll">
+                <record-card v-for="recmd in similarRecords"
+                             :key="recmd.id"
+                             :recmd="recmd"
+                             :selected="false"
+                             :can-push-to-author-page="false">
+                </record-card>
+            </div>
+            <empty v-else-if="!similarLoading"
+                   :title="'暂无相似推荐'" />
+        </el-drawer>
     </div>
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, watch, readonly } from 'vue'
+import { ref, Ref, inject, watch, readonly, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locale'
 import { openInBrowser, openInExplorer, internetSearch } from '@/util/systemUtil'
-
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
-const record = readonly(inject<VO.RecordDetail>('record')!)
+import { useDragScroll } from '@/util/common'
+import RecordCard from '@/components/RecordCard.vue'
+import Empty from '@/components/Empty.vue'
 
 const router = useRouter()
 const route = useRoute()
+const { startScroll } = useDragScroll()
+
+const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
+const record = readonly(inject<VO.RecordDetail>('record')!)
 
 const isMaxmize = ref<boolean>()
 window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
@@ -71,9 +99,29 @@ const searchTitle = function () {
     })
 }
 
-watch(route, async () => {
-    // TODO 变化 ，刷新reacrd detail console.log(route.fullPath);
+// 展示相似的record的抽屉
+const similarDrawerVisible = ref(false)
+const similarRecords = ref<VO.RecordRecommendation[]>([])
+const similarLoading = ref(false)
+const openSimilarDrawer = (function () {
+    let queryed = false
+    return () => {
+        similarDrawerVisible.value = true
 
+        if (queryed) return
+
+        similarLoading.value = true
+        window.electronAPI.querySimilarRecordRecmds(activeLibrary.value, record.id, 8).then(recmds => {
+            similarRecords.value = recmds
+            queryed = true
+            similarLoading.value = false
+        })
+    }
+})()
+
+watch(route, async () => {
+    // TODO 变化 ，刷新reacrd detail console.log(route.fullPath); 
+    // TODO 右键菜单
     document.title = `${record.title}`
 })
 </script>
@@ -94,5 +142,26 @@ watch(route, async () => {
 
 span:not(.disabled):hover {
     color: var(--echo-theme-color);
+}
+
+
+.demonstration {
+    color: var(--el-text-color-secondary);
+}
+
+.el-carousel__item h3 {
+    color: #475669;
+    opacity: 0.75;
+    line-height: 150px;
+    margin: 0;
+    text-align: center;
+}
+
+.el-carousel__item:nth-child(2n) {
+    background-color: #99a9bf;
+}
+
+.el-carousel__item:nth-child(2n + 1) {
+    background-color: #d3dce6;
 }
 </style>

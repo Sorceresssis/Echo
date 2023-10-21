@@ -23,8 +23,7 @@ class RecordAuthorDao {
         const sql = `
         SELECT ra2.record_id
         FROM record_author ra1 JOIN record_author ra2 ON ra1.author_id = ra2.author_id
-        WHERE
-	        ra1.record_id = ? AND ra2.record_id != ?
+        WHERE ra1.record_id = ? AND ra2.record_id != ?
         GROUP BY ra2.record_id
         ORDER BY RANDOM() LIMIT 0, ?`
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex-col">
+    <div class="flex-col flex-1">
         <div v-if="isBatch"
              class="dashboard__header divider">
             <div class="left-menu">
@@ -51,11 +51,12 @@
             <empty v-if="recordRecmds.length == 0" />
             <div v-else
                  class="record-recommendations adaptive-grid"
-                 :class="[`${recordsDashStore.view}-grid`, isBatch ? 'is-batch' : '']">
+                 :class="[`${recordsDashStore.view}-grid`, `${recordsDashStore.view}-records`, isBatch ? 'is-batch' : '']">
                 <record-card v-for="(recmd, idxRecmd) in recordRecmds"
                              :key="recmd.id"
                              :recmd="recmd"
                              :selected="selectedSet.has(recmd.id)"
+                             :can-push-to-author-page="props.type !== 'series'"
                              @contextmenu="openCtm($event, idxRecmd)"
                              @select="handleSelect(recmd.id)">
                 </record-card>
@@ -79,7 +80,13 @@
                                @click="writeClibboard(recordRecmds[idxFocusRecord].title
                                    + '\n' + recordRecmds[idxFocusRecord].authors.map(author => author.name).join(',')
                                    + '\n' + recordRecmds[idxFocusRecord].tags.map(tag => tag.title).join(','))" />
-            <context-menu-item :label="'编辑'"
+            <context-menu-item v-if="props.type !== 'series'"
+                               :label="'编辑'"
+                               @click="router.push(hrefGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
+                <template #icon> <span class="iconfont">&#xe722;</span> </template>
+            </context-menu-item>
+            <context-menu-item v-if="props.type === 'series'"
+                               :label="'从该系列中移除'"
                                @click="router.push(hrefGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
                 <template #icon> <span class="iconfont">&#xe722;</span> </template>
             </context-menu-item>
@@ -114,7 +121,7 @@ import Scrollbar from '@/components/Scrollbar.vue'
 import RecordCard from '@/components/RecordCard.vue'
 
 const props = withDefaults(defineProps<{
-    type?: 'common' | 'author' | 'recycled'
+    type?: 'common' | 'recycled' | 'author' | 'series'
 }>(), {
     type: 'common'
 })
@@ -303,6 +310,7 @@ const queryRecords = debounce(async () => {
             type: props.type,
             keyword: keyword.value,
             authorId: props.type === 'author' ? Number(route.params.authorId) : 0,
+            seriesId: props.type === 'series' ? Number(route.query.seriesId) : 0,
             filters: toRaw(recordsDashStore.filter),
             sortField: recordsDashStore.sortField,
             order: recordsDashStore.order,
@@ -364,6 +372,8 @@ watch(route, () => {
                 break
         }
         viewsTaskAfterRoutingStore.setBashboardRecycled('none')
+    } else if (props.type === 'series') {
+        init()
     }
 })
 onActivated(() => {
