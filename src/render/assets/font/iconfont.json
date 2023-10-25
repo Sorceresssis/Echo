@@ -6,11 +6,116 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "18211613",
-      "name": "推荐",
-      "font_class": "tuijian",
-      "unicode": "e7d1",
-      "unicode_decimal": 59345
+      "icon_id": "645691",
+      "name": "arrow-left",
+      "font_class": "arrowleft",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "10100612",
+      "name": "Arrow-right",
+      "font_class": "Arrow-right",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "10100613",
+      "name": "Arrow-left",
+      "font_class": "Arrow-left",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "10100615",
+      "name": "Arrow-left-double",
+      "font_class": "Arrow-left-double",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "10100616",
+      "name": "Arrow-right-double",
+      "font_class": "Arrow-right-double",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "15838437",
+      "name": "arrow-left-circle",
+      "font_class": "arrow-left-circle",
+      "unicode": "e665",
+      "unicode_decimal": 58981
+    },
+    {
+      "icon_id": "445409",
+      "name": "按键分割线",
+      "font_class": "anjianfengexian",
+      "unicode": "e680",
+      "unicode_decimal": 59008
+    },
+    {
+      "icon_id": "7239393",
+      "name": "backward",
+      "font_class": "backward",
+      "unicode": "e6e3",
+      "unicode_decimal": 59107
+    },
+    {
+      "icon_id": "7239406",
+      "name": "caret-down",
+      "font_class": "caret-down",
+      "unicode": "e6e6",
+      "unicode_decimal": 59110
+    },
+    {
+      "icon_id": "7239408",
+      "name": "caret-right",
+      "font_class": "caret-right",
+      "unicode": "e6e7",
+      "unicode_decimal": 59111
+    },
+    {
+      "icon_id": "7239411",
+      "name": "caret-left",
+      "font_class": "caret-left",
+      "unicode": "e6e8",
+      "unicode_decimal": 59112
+    },
+    {
+      "icon_id": "7239467",
+      "name": "filter",
+      "font_class": "filter",
+      "unicode": "e6f2",
+      "unicode_decimal": 59122
+    },
+    {
+      "icon_id": "22138734",
+      "name": "恢复",
+      "font_class": "huifu",
+      "unicode": "e652",
+      "unicode_decimal": 58962
+    },
+    {
+      "icon_id": "22813453",
+      "name": "menu",
+      "font_class": "menu",
+      "unicode": "e63e",
+      "unicode_decimal": 58942
+    },
+    {
+      "icon_id": "22813493",
+      "name": "circle-full",
+      "font_class": "circle-full",
+      "unicode": "e643",
+      "unicode_decimal": 58947
+    },
+    {
+      "icon_id": "22813557",
+      "name": "refresh",
+      "font_class": "refresh",
+      "unicode": "e64f",
+      "unicode_decimal": 58959
     },
     {
       "icon_id": "36196880",

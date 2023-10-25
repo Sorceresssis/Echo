@@ -64,6 +64,7 @@ provide('activeLibraryDetail', activeLibraryDetail)
     line-height: 25px;
     color: #505050;
     transform: translateY(-25px);
+    cursor: pointer;
 }
 
 .collapse-thumb:hover {

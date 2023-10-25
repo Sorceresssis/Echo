@@ -176,7 +176,6 @@ const openSeries = (id: number) => {
     margin-bottom: 8px;
     line-height: var(--record-info-line-height);
     font-size: 13px;
-    /* white-space: pre-line; */
 }
 
 .record-info .meta-content {

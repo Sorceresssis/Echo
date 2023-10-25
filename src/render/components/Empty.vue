@@ -1,5 +1,6 @@
 <template>
-    <div class="empty">
+    <div class="empty"
+         :style="boxStyle">
         <div class="empty__text">
             <span> {{ title }} </span>
         </div>
@@ -8,22 +9,26 @@
 
 <script setup lang='ts'>
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
     title?: string
+    bgColor?: string
 }>(), {
-    title: '还没有任何东西哦~'
+    title: '还没有任何东西哦~',
+    bgColor: 'transparent'
 })
 
+const boxStyle = `background-color: ${props.bgColor}`
 </script>
 
 <style>
 .empty {
+    height: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
-    width: 100%;
+    background-color: v-bind(bgColor);
 }
 
 .empty__text {

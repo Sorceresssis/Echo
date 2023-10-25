@@ -10,9 +10,9 @@
                     <div> <span> {{ $t('siderBar.createdGroup') }} </span> </div>
                     <div>
                         <span class="iconfont"
-                              @click="getGroups">&#xe61f;</span>
+                              @click="getGroups"> &#xe61f; </span>
                         <span class="iconfont"
-                              @click="openAddGroup">&#xe68c;</span>
+                              @click="openAddGroup"> &#xe68c; </span>
                     </div>
                 </div>
                 <ul>

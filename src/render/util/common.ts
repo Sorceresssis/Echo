@@ -100,6 +100,16 @@ export function useDragScroll() {
     }
 }
 
+export function createRange(start: number, end: number) {
+    if (start < end) {
+        return Array.from({ length: Math.abs(end - start) + 1 }, (_, index) => start + index);
+    } else if (start > end) {
+        return Array.from({ length: Math.abs(end - start) + 1 }, (_, index) => start - index);
+    } else {
+        return [start];
+    }
+}
+
 
 export default {
     debounce,
@@ -107,4 +117,5 @@ export default {
     isSameType,
     generateUniqueID,
     useDragScroll,
+    createRange,
 }

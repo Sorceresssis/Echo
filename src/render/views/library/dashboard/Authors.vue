@@ -198,7 +198,6 @@ onMounted(init)
 	cursor: pointer;
 }
 
-
 .author-recommendation-item .works {
 	display: flex;
 	align-items: center;

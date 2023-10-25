@@ -83,22 +83,25 @@
             <context-menu-item v-if="props.type !== 'series'"
                                :label="'编辑'"
                                @click="router.push(hrefGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
-                <template #icon> <span class="iconfont">&#xe722;</span> </template>
+                <template #icon> <span class="iconfont"> &#xe722; </span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type === 'series'"
                                :label="'从该系列中移除'"
                                @click="router.push(hrefGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
-                <template #icon> <span class="iconfont">&#xe722;</span> </template>
+                <template #icon> <span class="iconfont"> &#xe722; </span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type !== 'recycled'"
                                label="放入回收站"
                                @click="recycleRecord(recordRecmds[idxFocusRecord].id)">
-                <template #icon> <span class="iconfont">&#xe636;</span> </template></context-menu-item>
+                <template #icon> <span class="iconfont"> &#xe636; </span> </template>
+            </context-menu-item>
             <context-menu-item v-if="props.type === 'recycled'"
                                label="恢复"
-                               @click="recoverRecord(recordRecmds[idxFocusRecord].id)" />
+                               @click="recoverRecord(recordRecmds[idxFocusRecord].id)">
+                <template #icon> <span class="iconfont"> &#xe652; </span> </template>
+            </context-menu-item>
             <context-menu-item v-if="props.type === 'recycled'"
-                               label="删除"
+                               label="彻底删除"
                                @click="deleteRecord(recordRecmds[idxFocusRecord].id)" />
         </context-menu>
     </div>

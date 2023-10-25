@@ -54,4 +54,10 @@ export async function internetSearch(word: string) {
     window.electronAPI.openInBrowser(engines[key] + word)
 }
 
-export default { openInBrowser, openInExplorer, openFile, writeClibboard, internetSearch }
+export default {
+    openInBrowser,
+    openInExplorer,
+    openFile,
+    writeClibboard,
+    internetSearch
+}

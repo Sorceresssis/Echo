@@ -25,7 +25,6 @@ body,
     background-color: #f6f6f8;
 }
 
-
 *::selection {
     background-color: #b6d4fa;
 }
@@ -38,6 +37,46 @@ img {
 
 .fw-700 {
     font-weight: 700;
+}
+
+.margin-tb-10 {
+    margin: 10px 0;
+}
+
+.margin-tb-20 {
+    margin: 20px 0;
+}
+
+.margin-rl-10 {
+    margin: 0 10px;
+}
+
+.margin-rl-20 {
+    margin: 0 20px;
+}
+
+.padding-tb-10 {
+    padding: 10px 0;
+}
+
+.padding-tb-20 {
+    padding: 20px 0;
+}
+
+.padding-rl-10 {
+    padding: 0 10px;
+}
+
+.padding-rl-20 {
+    padding: 0 20px;
+}
+
+.fz-20 {
+    font-size: 20px !important;
+}
+
+.fz-26 {
+    font-size: 26px !important;
 }
 
 /* scrollbar */
@@ -108,8 +147,10 @@ img {
 }
 
 .fit--contain {
-    width: 100%;
-    height: 100%;
+    width: inherit;
+    height: inherit;
+    max-width: inherit;
+    max-height: inherit;
     object-fit: contain;
 }
 
@@ -162,6 +203,18 @@ img {
 .disabled {
     cursor: not-allowed !important;
     opacity: .7;
+}
+
+.shadow {
+    visibility: hidden;
+    opacity: 0;
+}
+
+.v-center {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .inline-list-title {
@@ -329,6 +382,8 @@ img {
     user-select: text;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+    /* 允许单词内的换行 */
+    overflow-wrap: break-word;
     text-overflow: ellipsis;
 }
 
@@ -387,6 +442,7 @@ img {
 
 /* dashboard text card*/
 .dashboard-text-card {
+    height: 44px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -394,6 +450,7 @@ img {
     border-radius: 5px;
     font-size: 13px;
     overflow: hidden;
+    box-sizing: border-box;
 }
 
 .dashboard-text-card:hover {

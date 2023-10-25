@@ -8,7 +8,7 @@ export function createWindow(libraryId: number, recordId: number): BrowserWindow
     const win = new BrowserWindow({
         width: 1025,
         height: 649,
-        minWidth: 720,
+        minWidth: 800,
         minHeight: 600,
         show: false,
         frame: false,

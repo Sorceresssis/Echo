@@ -1,149 +1,204 @@
 <template>
-    <div class="explorer">
-        <div class="path-nav"
-             style="display: flex; ">
-            <div style="flex-shrink: 0;">
-                <span @click="explorer.back"> 退回 </span>
+    <div v-if="record.resourcePath"
+         class="file-explorer">
+        <header class="file-explorer__header">
+            <div class="operate">
+                <span class="iconfont fz-26 icon"
+                      @click="explorer.back"> &#xe665; </span>
+                <span class="iconfont fz-26"> &#xe680; </span>
 
-                <span> {{ '>>' }} </span>
+                <el-dropdown v-show="showFolderIdxs.length < shadowFolders.length"
+                             trigger="click"
+                             placement="bottom-start"
+                             size="small">
+                    <span class="iconfont fz-20 icon"> &#xe63e; </span>
+                    <template #dropdown>
+                        <el-dropdown-menu>
+                            <el-dropdown-item v-for="i in collapseFolderIdxs"
+                                              :key="i"
+                                              :title="shadowFolders[i]"
+                                              @click="explorer.go(i)"> {{ shadowFolders[i] }}
+                            </el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
             </div>
-            <div style="">
-                <span v-for="(folder, idx) in pathLink "
-                      class="path-nav-item"
-                      style="margin: 0 10px;"
-                      @click=""> {{ folder }}</span>
+            <nav class="folder-nav">
+                <ul>
+                    <li v-for="i in showFolderIdxs"
+                        :key="i"
+                        class="v-center">
+                        <span class="folder-nav-item textover--ellopsis"
+                              :title="shadowFolders[i]"
+                              @click="explorer.go(i)"> {{ shadowFolders[i] }} </span>
+
+                        <el-dropdown v-if="i !== shadowFolders.length - 1 || !currDirContent.every(item => item.type === 'file')"
+                                     trigger="click"
+                                     placement="bottom-start"
+                                     size="small">
+                            <span class="iconfont fz-20 icon"
+                                  @click=""> &#xe614; </span>
+                            <template #dropdown>
+                                <el-dropdown-menu>
+                                    <el-dropdown-item v-for="i in collapseFolderIdxs"
+                                                      :key="i"
+                                                      :title="shadowFolders[i]"
+                                                      @click="explorer.go(i)"> {{ shadowFolders[i] }}
+                                    </el-dropdown-item>
+                                </el-dropdown-menu>
+                            </template>
+                        </el-dropdown>
+                    </li>
+                </ul>
+                <ul class="shadow">
+                    <li v-for="folder in shadowFolders"
+                        :key="folder"
+                        class="v-center">
+                        <span class="folder-nav-item textover--ellopsis"> {{ folder }} </span>
+                        <span class="iconfont fz-20 icon"> &#xe614; </span>
+                    </li>
+                </ul>
+            </nav>
+            <div class="operate">
             </div>
-        </div>
-        <scrollbar class="folder-container adaptive-grid scrollbar-y-w8">
-            <folder-item v-for="item in currDirContent "
-                         @dblclick="explorer.push(item.name)">
-                {{ item.name }}
-            </folder-item>
+        </header>
+        <scrollbar v-if="currDirContent.length"
+                   class="scrollbar-y-w8 margin-tb-10 flex-1">
+            <div class="adaptive-grid folder-container"
+                 v-viewer="{ transition: false }">
+                <FolderContentItem v-for="item in currDirContent"
+                                   :key="item.name"
+                                   :dirContentItem="item"
+                                   @openDir="explorer.push" />
+            </div>
+            <context-menu v-model:show="isVisCtm"
+                          :options="ctmOptions">
+                <context-menu-item :label="'用默认程序打开'"
+                                   @click="">
+                    <template #icon> <span class="iconfont"> &#xe722; </span> </template>
+                </context-menu-item>
+                <context-menu-item label="在文件资源管理器中打开"
+                                   @click=" ">
+                    <template #icon> <span class="iconfont"> &#xe636; </span> </template>
+                </context-menu-item>
+                <context-menu-item label="在文件资源管理器中显示"
+                                   @click=" ">
+                    <template #icon> <span class="iconfont"> &#xe636; </span> </template>
+                </context-menu-item>
+            </context-menu>
         </scrollbar>
+        <empty v-else
+               :title="'当前文件夹为空'" />
     </div>
+    <empty v-else
+           class="file-explorer"
+           :title="'未设置资源路径'"
+           bg-color="#fff" />
 </template>
 
 <script setup lang='ts'>
-import { inject, ref, readonly, onMounted, watch } from 'vue'
+import { inject, ref, readonly, onMounted, } from 'vue'
 import useExplorerService from '@/record/service/explorerService'
+import { useRoute } from 'vue-router'
 import { openInExplorer } from '@/util/systemUtil'
-import Message from '@/util/Message'
 import Scrollbar from '@/components/Scrollbar.vue'
-import FolderItem from '@/components/FolderItem.vue'
+import Empty from '@/components/Empty.vue'
+import FolderContentItem from '@/components/FolderContentItem.vue'
+import { watch } from 'fs'
+
+const route = useRoute()
 
 const record = readonly(inject<VO.RecordDetail>('record')!)
 
-
 const explorer = useExplorerService()
+const {
+    showFolderIdxs,
+    collapseFolderIdxs,
+    shadowFolders,
+    currDirContent,
+} = explorer
 
-const { pathLink, currDirContent } = explorer
 
-// class PathNav {
-//     private pathLink: string[] = []
+const isVisCtm = ref(false)
+const ctmOptions = {
 
-//     constructor(basePath: string) {
-//         this.pathLink.push(basePath)
-//     }
-
-//     public push(path: string) {
-//         this.pathLink.push(path)
-//     }
-
-//     public pop() {
-//         this.pathLink.pop()
-//     }
-
-//     public get() {
-//         return this.pathLink
-//     }
-
-//     public async getFullPath() {
-//         return this.pathLink.join(await window.systemAPI.pathSep())
-//     }
-// }
-// const pathNav = new PathNav(record.resourcePath!)
+}
 
 
 
-// 查询路径下的所有文件和文件夹
-// const queryDirContent = async (path: string) => {
-//     const result = await window.electronAPI.readdir(path)
-//     if (result.code) {
-//         currDirContent.value = result.data
-//         // console.log(result.data)
-
-//     } else {
-//         pathLink.value.pop()
-//         Message.error(result.msg!)
-//     }
-// }
-
-
-// 未设置， 不存在， 此文件夹为空
-
-
-// 如果sroucePath是文件夹，则打开文件夹, 如果是文件，显示文件信息，
-// const openFolder = (function () {
-
-
-//     return (item: DirContentItem) => {
-//         if (item.type === 'folder') {
-//             pathLink.value.push(item.name)
-//             window.systemAPI.pathSep().then((sep) => {
-//                 // console.log(pathLink.value.join(sep));
-
-//                 queryDirContent(pathLink.value.join(sep))
-//             })
-//         }
-//     }
-// })()
-
-
-// watch(pathLink.value, (newVal, oldVal) => {
-//     queryDirContent
-// },)
 
 onMounted(() => {
     if (record.resourcePath) {
-        explorer.push(record.resourcePath)
+        explorer.init(record.resourcePath)
     }
-}) 
+})
+
+// TODO 瀑布流
+// TODO 右键菜单  在资源管理器中打开，打开文件夹， 用默认打开，用指定程序打开
+// TODO 文件夹读取其下的图片
 </script>
 
 <style scoped>
-.explorer {
+.file-explorer {
     flex: 1;
     display: flex;
     flex-direction: column;
     padding: 0 10px;
     background-color: #fff;
+    line-height: 40px;
+    overflow: hidden;
 }
 
-.path-nav {
-    height: 30px;
+.file-explorer__header {
+    height: 40px;
     display: flex;
-    font-size: 14px;
+    justify-content: space-between;
+    line-height: 1;
+    font-size: 12px;
+    min-width: 0;
+}
+
+.file-explorer__header .operate {
+    display: flex;
     align-items: center;
 }
 
-.path-nav-item {
-    cursor: pointer;
-    font-size: 14px;
-    margin-right: 5px;
+.folder-nav {
+    flex: 1;
+    color: #333;
+    min-width: 0;
 }
 
-.path-nav-item::after {
-    content: '\e66c';
-    font-family: 'iconfont' !important;
-    margin-left: 5px;
+.folder-nav ul {
+    display: flex;
+    height: 100%;
+}
+
+.folder-nav-item {
+    max-width: 250px;
+    padding: 4px 5px;
+    margin: 0 3px;
+    cursor: pointer;
+}
+
+.folder-nav-item:hover {
+    border-radius: 3px;
+    background-color: var(--echo-theme-color-light6);
+}
+
+.icon {
+    cursor: pointer;
+}
+
+.file-explorer__header .icon:hover {
+    color: var(--echo-theme-color);
 }
 
 .folder-container {
-    --folder-item-width: 180px;
-    --folder-item-height: 134px;
-    flex: 1;
+    --folder-item-width: 220px;
+    --folder-item-height: 196px;
     grid-template-columns: repeat(auto-fill, var(--folder-item-width));
     column-gap: 25px;
-    row-gap: 25px;
+    row-gap: 15px;
 }
 </style> 

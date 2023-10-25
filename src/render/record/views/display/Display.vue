@@ -9,5 +9,4 @@
 import Detailbar from './Detailbar.vue'
 import Explorer from './Explorer.vue'
 
-
 </script>
