@@ -211,8 +211,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ) => ipcRenderer.invoke('system:openInBrowser', hyperlink),
 
     openInExplorer: (
-        path: string
-    ) => ipcRenderer.invoke('system:openInExplorer', path),
+        path: string,
+        method?: 'showItemInFolder' | 'openPath'
+    ) => ipcRenderer.invoke('system:openInExplorer', path, method),
 
     openFile: (
         path: string

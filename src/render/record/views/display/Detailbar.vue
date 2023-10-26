@@ -33,6 +33,14 @@
                 <div class="inline-list-title"> 信息 </div>
                 <div class="meta-content"> {{ record.info }} </div>
             </div>
+            <div class="meta">
+                <div class="inline-list-title"> 创建时间 </div>
+                <div class="meta-comtent"> {{ record.createTime }} </div>
+            </div>
+            <div class="meta">
+                <div class="inline-list-title"> 修改时间 </div>
+                <div class="meta-comtent"> {{ record.modifiedTime }} </div>
+            </div>
         </scrollbar>
         <div class="divider" />
         <scrollbar class="series-list scrollbar-y-w4"

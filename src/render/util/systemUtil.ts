@@ -14,9 +14,12 @@ export function openInBrowser(hyperlink: string | null) {
  * 在资源管理器中打开，如果是文件夹，直接打开文件夹。如果是文件，打开文件所在的文件夹，滚动到文件的位置并高亮标记
  * @param path 
  */
-export async function openInExplorer(path: string | null) {
+export async function openInExplorer(
+    path: string | null,
+    method?: 'showItemInFolder' | 'openPath'
+) {
     if (!path) return
-    if ((await window.electronAPI.openInExplorer(path)).code === 0) {
+    if ((await window.electronAPI.openInExplorer(path, method)).code === 0) {
         Message.error('资源管理器中不存在')
     }
 }

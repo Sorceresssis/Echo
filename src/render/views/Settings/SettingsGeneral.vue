@@ -39,15 +39,7 @@
                         </el-select>
                     </div>
                 </div>
-            </div>
-            <div class="settings-item">
-                <h2 class="settings-item__title">升级</h2>
-                <div class="settings-item__content">
-                    <div class="row">
-
-                    </div>
-                </div>
-            </div>
+            </div> 
         </div>
     </div>
 </template>

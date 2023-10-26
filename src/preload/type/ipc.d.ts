@@ -265,7 +265,8 @@ export interface IElectronAPI {
     ) => Promise<void>
 
     openInExplorer: (
-        path: string
+        path: string,
+        method?: 'showItemInFolder' | 'openPath'
     ) => Promise<Result>
 
     openFile: (

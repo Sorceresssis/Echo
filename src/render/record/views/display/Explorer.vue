@@ -69,22 +69,19 @@
                 <FolderContentItem v-for="item in currDirContent"
                                    :key="item.name"
                                    :dirContentItem="item"
-                                   @openDir="explorer.push" />
+                                   @openDir="explorer.push"
+                                   @contextmenu="openCtm($event, item)" />
             </div>
             <context-menu v-model:show="isVisCtm"
                           :options="ctmOptions">
-                <context-menu-item :label="'用默认程序打开'"
-                                   @click="">
-                    <template #icon> <span class="iconfont"> &#xe722; </span> </template>
-                </context-menu-item>
-                <context-menu-item label="在文件资源管理器中打开"
-                                   @click=" ">
-                    <template #icon> <span class="iconfont"> &#xe636; </span> </template>
-                </context-menu-item>
-                <context-menu-item label="在文件资源管理器中显示"
-                                   @click=" ">
-                    <template #icon> <span class="iconfont"> &#xe636; </span> </template>
-                </context-menu-item>
+                <context-menu-item v-show="focusDirContentItem!.type === 'file'"
+                                   :label="'默认程序打开'"
+                                   @click="openFile(focusDirContentItem!.fullPath)" />
+                <context-menu-item v-show="focusDirContentItem!.type === 'folder'"
+                                   :label="'资源管理器中打开'"
+                                   @click="openInExplorer(focusDirContentItem!.fullPath, 'openPath')" />
+                <context-menu-item :label="'资源管理器中显示'"
+                                   @click="openInExplorer(focusDirContentItem!.fullPath, 'showItemInFolder')" />
             </context-menu>
         </scrollbar>
         <empty v-else
@@ -97,35 +94,59 @@
 </template>
 
 <script setup lang='ts'>
-import { inject, ref, readonly, onMounted, } from 'vue'
+import { inject, ref, readonly, onMounted, onActivated, watch } from 'vue'
 import useExplorerService from '@/record/service/explorerService'
-import { useRoute } from 'vue-router'
-import { openInExplorer } from '@/util/systemUtil'
+import { openInExplorer, openFile } from '@/util/systemUtil'
 import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 import FolderContentItem from '@/components/FolderContentItem.vue'
-import { watch } from 'fs'
-
-const route = useRoute()
 
 const record = readonly(inject<VO.RecordDetail>('record')!)
 
 const explorer = useExplorerService()
 const {
+    realFolders,
     showFolderIdxs,
     collapseFolderIdxs,
     shadowFolders,
     currDirContent,
 } = explorer
 
-
+// ANCHOR 右键菜单
 const isVisCtm = ref(false)
 const ctmOptions = {
-
+    theme: 'flat',
+    zIndex: 3000,
+    minWidth: 300,
+    x: 500,
+    y: 200
+}
+let focusDirContentItem: typeof currDirContent.value[number] | undefined = void 0
+const openCtm = (
+    e: MouseEvent,
+    item: DirContentItem & {
+        fullPath: string
+    }) => {
+    ctmOptions.x = e.x
+    ctmOptions.y = e.y
+    focusDirContentItem = item
+    isVisCtm.value = true
 }
 
 
-
+watch(() => record.resourcePath, () => {
+    if (realFolders.value.length === 0) {
+        if (record.resourcePath) {
+            explorer.init(record.resourcePath)
+        }
+    } else {
+        if (!record.resourcePath) {
+            explorer.reset()
+        } else if (record.resourcePath !== realFolders.value[0]) {
+            explorer.init(record.resourcePath)
+        }
+    }
+})
 
 onMounted(() => {
     if (record.resourcePath) {
@@ -133,9 +154,9 @@ onMounted(() => {
     }
 })
 
-// TODO 瀑布流
-// TODO 右键菜单  在资源管理器中打开，打开文件夹， 用默认打开，用指定程序打开
-// TODO 文件夹读取其下的图片
+// TODO 右键菜单
+// TODO 瀑布流, 预览图片
+// TODO 文件夹读取其下的图片,作为封面
 </script>
 
 <style scoped>

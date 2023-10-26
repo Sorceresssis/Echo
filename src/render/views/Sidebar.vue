@@ -225,7 +225,7 @@ const ctmCurLib = (idxG?: number, idxL?: number): VO.LibraryProfile => {
 }
 const ctmOptions = {
     zIndex: 3000,
-    minWidth: 300,
+    minWidth: 230,
     x: 500,
     y: 200
 }

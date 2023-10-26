@@ -6,13 +6,15 @@
   "scripts": {
     "preview": "vite preview",
     "dev:render": "vite",
+    "dev:electron": "npm run build:electron && electron .",
+    "dev": "concurrently \"npm run dev:render\" \"npm run dev:electron\"",
     "build:render": "vue-tsc && vite build",
     "build:preload": "tsc -p ./src/preload",
     "build:electron": "npm run build:preload && tsc -p ./src/main",
-    "dev:electron": "npm run build:electron && electron .",
-    "dev": "concurrently \"npm run dev:render\" \"npm run dev:electron\"",
     "build": "npm run build:render && npm run build:electron",
-    "dist": "electron-builder"
+    "release:win": "electron-builder --win",
+    "release:mac": "electron-builder --mac",
+    "release:linux": "electron-builder --linux"
   },
   "dependencies": {
     "@imengyu/vue3-context-menu": "^1.2.3",
@@ -46,7 +48,6 @@
     "vite-plugin-top-level-await": "^1.3.0",
     "vue-tsc": "^1.0.9"
   },
-  "description": "集中管理，高效查找，留存时刻",
   "author": {
     "email": "Sorceresssis@gmail.com",
     "name": "何骏涛"
@@ -58,10 +59,10 @@
     "directories": {
       "output": "release/${version}"
     },
-    "asar": false,
     "files": [
       "dist"
     ],
+    "asar": true,
     "win": {
       "icon": null,
       "artifactName": "${productName}_${version}.${ext}",
@@ -80,6 +81,30 @@
       "allowToChangeInstallationDirectory": true,
       "perMachine": false,
       "deleteAppDataOnUninstall": false
+    },
+    "mac": {
+      "icon": null,
+      "target": "dmg",
+      "category": "public.app-category.utilities"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "linux": {
+      "icon": null,
+      "target": "deb",
+      "category": "Utility"
     },
     "publish": [
       {

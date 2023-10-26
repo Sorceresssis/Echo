@@ -61,17 +61,23 @@ const mouseenterVideo = () => {
 
 const mouseleaveVideo = () => {
     if (video.value) {
+        video.value.pause()
         video.value.currentTime = 0;
         video.value.muted = false
-        video.value.pause()
     }
 }
 
 const dbclickVideo = () => {
     if (video.value) {
+        if (video.value.muted) {
+            video.value.muted = false
+        }
         video.value.requestFullscreen()
     }
 }
+
+// TODO 视频功能 hover 自动播放， 修复
+// 其他文件的完善
 
 </script>
 

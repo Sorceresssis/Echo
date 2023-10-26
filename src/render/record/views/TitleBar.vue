@@ -62,6 +62,8 @@
                              :selected="false"
                              :can-push-to-author-page="false">
                 </record-card>
+
+
             </div>
             <empty v-else-if="!similarLoading"
                    :title="'暂无相似推荐'" />
@@ -73,17 +75,22 @@
 import { ref, Ref, inject, watch, readonly, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locale'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { openInBrowser, openInExplorer, internetSearch } from '@/util/systemUtil'
 import { useDragScroll } from '@/util/common'
+import { listenCrosTabMsg } from '@/util/CrosTabMsg'
 import RecordCard from '@/components/RecordCard.vue'
 import Empty from '@/components/Empty.vue'
 
 const router = useRouter()
 const route = useRoute()
+
 const { startScroll } = useDragScroll()
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
-const record = readonly(inject<VO.RecordDetail>('record')!)
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+const activeLibrary = inject<Ref<number>>('activeLibrary')!
+const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
+const record = inject<VO.RecordDetail>('record')!
 
 const isMaxmize = ref<boolean>()
 window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
@@ -119,10 +126,41 @@ const openSimilarDrawer = (function () {
     }
 })()
 
+
+const queryRecordDetail = function () {
+    window.electronAPI.queryRecordDetail(activeLibrary.value, record.id).then(recordDetail => {
+        Object.assign(record, recordDetail)
+    })
+}
+const queryLibraryDetail = function () {
+    window.electronAPI.queryLibraryDetail(activeLibrary.value).then(libraryDetail => {
+        Object.assign(activeLibraryDetail, libraryDetail)
+    })
+}
+
 watch(route, async () => {
-    // TODO 变化 ，刷新reacrd detail console.log(route.fullPath); 
-    // TODO 右键菜单
+    if (viewsTaskAfterRoutingStore.bashboardRecycled !== 'none') {
+        queryRecordDetail()
+        viewsTaskAfterRoutingStore.setBashboardRecycled('none')
+    }
     document.title = `${record.title}`
+})
+
+const bc = new BroadcastChannel('updateLibraryDetail')
+
+onMounted(() => {
+    listenCrosTabMsg(bc, (e: MessageEvent) => {
+        if (e.data === activeLibrary.value.toString()) {
+            queryLibraryDetail()
+        }
+    })
+
+    window.electronAPI.getRecordWindowParams((e: any, libraryId: number, recordId: number) => {
+        activeLibrary.value = libraryId
+        record.id = recordId
+        queryLibraryDetail()
+        queryRecordDetail()
+    })
 })
 </script>
 

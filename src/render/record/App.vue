@@ -11,12 +11,9 @@
 </template>
 
 <script setup lang='ts'>
-import { onMounted, provide, reactive, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { provide, reactive, ref } from 'vue'
 import Titlebar from './views/Titlebar.vue'
-import { listenCrosTabMsg } from '@/util/CrosTabMsg';
 
-const route = useRoute()
 
 const activeLibrary = ref<number>(0)
 provide('activeLibrary', activeLibrary)
@@ -51,36 +48,6 @@ const record = reactive<VO.RecordDetail>({
 })
 provide('record', record)
 
-const queryRecordDetail = function () {
-    window.electronAPI.queryRecordDetail(activeLibrary.value, record.id).then(recordDetail => {
-        Object.assign(record, recordDetail)
-    })
-}
-const queryLibraryDetail = function () {
-    window.electronAPI.queryLibraryDetail(activeLibrary.value).then(libraryDetail => {
-        Object.assign(activeLibraryDetail, libraryDetail)
-    })
-}
-
-const bc = new BroadcastChannel('updateLibraryDetail')
-
-onMounted(() => {
-    listenCrosTabMsg(bc, (e: MessageEvent) => {
-        if (e.data === activeLibrary.value.toString()) {
-            queryLibraryDetail()
-        }
-    })
-
-    window.electronAPI.getRecordWindowParams((e: any, libraryId: number, recordId: number) => {
-        activeLibrary.value = libraryId
-        record.id = recordId
-        queryLibraryDetail()
-        queryRecordDetail()
-    })
-})
-
-// TODO record编辑后， 重新获取recordDetail
-watch(route, queryRecordDetail)
 </script>
 
 <style scoped>

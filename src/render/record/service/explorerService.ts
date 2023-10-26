@@ -21,7 +21,7 @@ const useExplorer = function () {
     })[]>([])
 
 
-    const back = function () {
+    function back() {
         if (realFolders.value.length > 1) {
             shadowFolders.value.pop()
             realFolders.value.pop()
@@ -48,7 +48,7 @@ const useExplorer = function () {
         updateCurrDirContent()
     }
 
-    const updateCurrDirContent = () => {
+    function updateCurrDirContent() {
         const dirname = realFolders.value.join('/')
 
         window.electronAPI.readdir(dirname).then(res => {
@@ -106,7 +106,11 @@ const useExplorer = function () {
 
     function init(rootPath: string) {
         // 监听窗口大小变化
-        new ResizeObserver(throttle(__refreshFolderNav, 300)).observe(document.querySelector('.folder-nav') as HTMLElement)
+        const folderNavNode = document.querySelector('.folder-nav') as HTMLElement
+        if (folderNavNode) {
+            new ResizeObserver(throttle(__refreshFolderNav, 300)).observe(folderNavNode)
+        }
+        reset()
 
         realFolders.value.push(rootPath)
         shadowFolders.value.push('根目录')
@@ -114,6 +118,12 @@ const useExplorer = function () {
         updateCurrDirContent()
     }
 
+    function reset() {
+        realFolders.value = []
+        collapseFolderIdxs.value = []
+        showFolderIdxs.value = []
+        shadowFolders.value = []
+    }
 
     return {
         realFolders,
@@ -122,6 +132,7 @@ const useExplorer = function () {
         collapseFolderIdxs,
         currDirContent,
         init,
+        reset,
         push,
         go,
         back,
