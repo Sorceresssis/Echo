@@ -100,12 +100,14 @@
 }
 
 .record-recommendation-item .operates>div {
+    width: calc(var(--operates-height) - 10px);
+    height: calc(var(--operates-height) - 10px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 5px;
     border-radius: 50%;
-    margin: 5px 8px;
-    padding: 10px;
     background-color: rgba(0, 0, 0, .4);
-    text-align: center;
-    line-height: normal;
     color: #fff;
     font-weight: normal;
     cursor: pointer;

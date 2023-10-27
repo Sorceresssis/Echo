@@ -1,4 +1,3 @@
-import { count } from "console"
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -195,6 +194,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
         libraryId: number,
         seriesId: number
     ) => ipcRenderer.invoke('series:delete', libraryId, seriesId),
+
+    removeRecordFromSeries: (
+        libraryId: number,
+        recordId: number,
+        seriesId: number
+    ) => ipcRenderer.invoke('series:removeRecord', libraryId, recordId, seriesId),
 
     // ANCHOR dialog
 

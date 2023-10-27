@@ -116,9 +116,6 @@ class RecordService {
         this.recordTagDao.querySimilarRecordIdsByRecordId(id, count).forEach(({ id, similarity }) => {
             similarMap.set(id, similarity)
         })
-        console.log(similarMap);
-
-
 
         // 作者相似度, 相当于0.1的标签相似度
         this.recordAuthorDao.queryRandomRecordIdsOfSameAuthorByRecordId(id, count).forEach(id => {

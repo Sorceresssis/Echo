@@ -11,6 +11,20 @@
     --el-dropdown-menuItem-hover-color: #000;
 }
 
+.dashboard__dropdown-menu .el-dropdown-menu__item {
+    min-width: 60px;
+    padding-right: 20px;
+}
+
+.file-explorer__dropdown-menu {
+    overflow-y: auto;
+    max-height: 400px;
+}
+
+.file-explorer__dropdown-menu .el-dropdown-menu__item {
+    min-width: 100px;
+}
+
 /* poper  */
 .el-popper__arrow {
     display: none;

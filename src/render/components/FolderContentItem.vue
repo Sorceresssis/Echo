@@ -4,7 +4,7 @@
             <div v-if="dirContentItem.type === 'folder'"
                  class="folder"
                  @dblclick="emit('openDir', dirContentItem.name)">
-                <div class="front"> </div>
+                <div class="front" />
                 <div class="center" />
                 <div class="back" />
             </div>
@@ -20,12 +20,25 @@
                        class="fit--contain explorer-video"
                        @mouseenter="mouseenterVideo"
                        @mouseleave="mouseleaveVideo"
-                       @dblclick="dbclickVideo" />
+                       @dblclick="toggleFullscreen" />
             </div>
             <div v-else
                  class="image">
-                <local-image :src="`C:\\Users\\RachelGardner\\OneDrive\\图片\\ACG\\EeXEza1UcAE1SMo - 副本.jfif`"
-                             class="fit--contain" />
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     width="98"
+                     height="118"
+                     viewBox="0 0 98 118"
+                     fill="none">
+                    <path opacity="0.483448"
+                          fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M0 15.68C0 7.02016 7.02017 0 15.68 0H47.04L98 50.96V101.92C98 110.58 90.9798 117.6 82.32 117.6H15.68C7.02018 117.6 0 110.58 0 101.92V15.68Z"
+                          fill="#5B6267" />
+                    <path fill-rule="evenodd"
+                          clip-rule="evenodd"
+                          d="M47.04 0L98 50.96H62.7201C54.0602 50.96 47.04 43.9398 47.04 35.28V0Z"
+                          fill="#6F767A" />
+                </svg>
             </div>
         </div>
         <div class="folder-content-item__name">
@@ -53,31 +66,35 @@ const videoReg = /\.(mp4|webm|ogg|ogv|avi|wmv|rm|rmvb|mpeg|mpg|mov|mkv|flv|f4v|f
 
 const video = ref<HTMLVideoElement | undefined>()
 const mouseenterVideo = () => {
-    if (video.value) {
-        video.value.muted = true
-        video.value.play()
-    }
+    if (document.fullscreenElement || !video.value) return
+
+    // 静音播放
+    video.value.currentTime = 0
+    video.value.muted = true
+    video.value.play()
 }
 
 const mouseleaveVideo = () => {
-    if (video.value) {
-        video.value.pause()
-        video.value.currentTime = 0;
-        video.value.muted = false
-    }
+    if (document.fullscreenElement || !video.value) return
+
+    video.value.pause()
+    video.value.currentTime = 0
+    video.value.muted = false
 }
 
-const dbclickVideo = () => {
-    if (video.value) {
-        if (video.value.muted) {
-            video.value.muted = false
-        }
+
+const toggleFullscreen = () => {
+    if (!video.value) return
+
+    video.value.currentTime = 0
+    if (document.fullscreenElement) {
+        video.value.muted = true
+        document.exitFullscreen()
+    } else {
+        video.value.muted = false
         video.value.requestFullscreen()
     }
 }
-
-// TODO 视频功能 hover 自动播放， 修复
-// 其他文件的完善
 
 </script>
 
@@ -169,8 +186,7 @@ const dbclickVideo = () => {
 }
 
 
-/* .folder-content-item .folder:hover .front::before,
-.folder-content-item .image:hover::before {
+.folder-content-item .folder:hover .front::before {
     content: "";
     position: absolute;
     top: -2px;
@@ -178,8 +194,8 @@ const dbclickVideo = () => {
     right: -2px;
     bottom: -2px;
     border: 3px solid #93ddff;
-    z-index: 5px;  
-} */
+    z-index: 5px;
+}
 
 .folder-content-item__name {
     display: -webkit-box;

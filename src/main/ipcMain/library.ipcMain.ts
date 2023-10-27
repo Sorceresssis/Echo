@@ -154,6 +154,8 @@ function ipcMainLibrary() {
     }, generateCatchFn('dirname:startsWithReplace'), Result.error('runtime error'), closeLibraryDB))
 
 
+    //ANCHOR Series
+
     ipcMain.handle('series:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number, newValue: string): Result => {
         rebindLibrary(libraryId)
         DIContainer.get<SeriesService>(DI_TYPES.SeriesService).editSeries(seriesId, newValue)
@@ -166,6 +168,12 @@ function ipcMainLibrary() {
         DIContainer.get<SeriesService>(DI_TYPES.SeriesService).deleteSeries(seriesId)
         return Result.success()
     }, generateCatchFn('series:delete'), Result.error(), closeLibraryDB))
+
+
+    ipcMain.handle('series:removeRecord', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, recordId: number, seriesId: number): void => {
+        rebindLibrary(libraryId)
+        DIContainer.get<SeriesService>(DI_TYPES.SeriesService).removeRecordFromSeries(recordId, seriesId)
+    }, generateCatchFn('series:removeRecord'), void 0, closeLibraryDB))
 }
 
 

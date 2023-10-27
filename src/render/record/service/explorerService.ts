@@ -20,6 +20,8 @@ const useExplorer = function () {
         fullPath: string
     })[]>([])
 
+    // dropdown的 目录下面的文件夹
+    const dropdownFolders = ref<string[]>([])
 
     function back() {
         if (realFolders.value.length > 1) {
@@ -46,6 +48,20 @@ const useExplorer = function () {
         }
 
         updateCurrDirContent()
+    }
+
+    function showFoldersDropdownMenu(index: number) {
+        dropdownFolders.value = []
+
+        const dirname = realFolders.value.slice(0, index + 1).join('/')
+        window.electronAPI.readdir(dirname).then(res => {
+            if (res.code === 1) {
+                dropdownFolders.value = (res.data as DirContentItem[]).filter(item => item.type === 'folder').map(item => item.name)
+            } else {
+                Message.error(res.msg!)
+                dropdownFolders.value = []
+            }
+        })
     }
 
     function updateCurrDirContent() {
@@ -131,10 +147,12 @@ const useExplorer = function () {
         showFolderIdxs,
         collapseFolderIdxs,
         currDirContent,
+        dropdownFolders,
         init,
         reset,
         push,
         go,
+        showFoldersDropdownMenu,
         back,
     }
 }

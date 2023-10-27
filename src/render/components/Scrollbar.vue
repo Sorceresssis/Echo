@@ -40,7 +40,7 @@ const setScrollPosition = function (position: number) {
 
 const handleScroll = debounce(function (e: Event) {
     if (props.saveScrollPosition) {
-        scrollTop.value = (e.target as HTMLElement).scrollTop
+        scrollTop.value = (e.target as HTMLElement)?.scrollTop
     }
 }, 200)
 

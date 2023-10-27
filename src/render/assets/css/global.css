@@ -424,10 +424,6 @@ img {
     margin-right: 6px;
 }
 
-.dashboard__dropdown-menu .el-dropdown-menu__item {
-    padding-right: 20px;
-}
-
 .dashboard__content {
     flex: 1;
     padding: 4px 10px 4px 4px;

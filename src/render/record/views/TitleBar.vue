@@ -54,16 +54,29 @@
             <div v-if="similarRecords.length"
                  v-loading.lock="similarLoading"
                  class="record-recommendations thumbnail-records scrollbar-x-h8"
-                 style="display: flex; flex: 1; padding-bottom: 20xp;"
                  @mousedown="startScroll">
-                <record-card v-for="recmd in similarRecords"
+                <record-card v-for="(recmd, idxRecmd) in similarRecords"
                              :key="recmd.id"
                              :recmd="recmd"
                              :selected="false"
-                             :can-push-to-author-page="false">
+                             :can-push-to-author-page="false"
+                             @contextmenu="openCtm($event, idxRecmd)">
                 </record-card>
-
-
+                <context-menu v-model:show="isVisCtm"
+                              :options="ctmOptions">
+                    <context-menu-item :label="'复制标题'"
+                                       @click="writeClibboard(similarRecords[idxFocusRecord].title)">
+                        <template #icon> <span class="iconfont">&#xe85c;</span> </template>
+                    </context-menu-item>
+                    <context-menu-item :label="'复制全部信息'"
+                                       @click="writeClibboard(similarRecords[idxFocusRecord].title
+                                           + '\n' + similarRecords[idxFocusRecord].authors.map(author => author.name).join(',')
+                                           + '\n' + similarRecords[idxFocusRecord].tags.map(tag => tag.title).join(','))" />
+                    <context-menu-item label="放入回收站"
+                                       @click="recycleRecord(similarRecords[idxFocusRecord].id)">
+                        <template #icon> <span class="iconfont"> &#xe636; </span> </template>
+                    </context-menu-item>
+                </context-menu>
             </div>
             <empty v-else-if="!similarLoading"
                    :title="'暂无相似推荐'" />
@@ -72,15 +85,16 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, watch, readonly, onMounted } from 'vue'
+import { ref, Ref, inject, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
-import { openInBrowser, openInExplorer, internetSearch } from '@/util/systemUtil'
+import { openInBrowser, openInExplorer, internetSearch, writeClibboard } from '@/util/systemUtil'
 import { useDragScroll } from '@/util/common'
 import { listenCrosTabMsg } from '@/util/CrosTabMsg'
 import RecordCard from '@/components/RecordCard.vue'
 import Empty from '@/components/Empty.vue'
+import MessageBox from '@/util/MessageBox'
 
 const router = useRouter()
 const route = useRoute()
@@ -138,6 +152,30 @@ const queryLibraryDetail = function () {
     })
 }
 
+// 右键菜单
+const isVisCtm = ref(false)
+const idxFocusRecord = ref(-1)
+const ctmOptions = {
+    zIndex: 3000,
+    minWidth: 300,
+    x: 500,
+    y: 200
+}
+const openCtm = (e: MouseEvent, idxRecord: number) => {
+    ctmOptions.x = e.x
+    ctmOptions.y = e.y
+    isVisCtm.value = true
+    idxFocusRecord.value = idxRecord
+}
+const recycleRecord = (...ids: number[]) => {
+    if (ids.length === 0) return
+    MessageBox.confirm('放入回收站', '确定要放入回收站吗?').then(async () => {
+        window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids).then(() => {
+            similarRecords.value = similarRecords.value.filter(recmd => !ids.includes(recmd.id))
+        })
+    })
+}
+
 watch(route, async () => {
     if (viewsTaskAfterRoutingStore.bashboardRecycled !== 'none') {
         queryRecordDetail()
@@ -178,28 +216,13 @@ onMounted(() => {
     color: var(--echo-theme-color);
 }
 
-span:not(.disabled):hover {
+.no-drag:not(.disabled):hover {
     color: var(--echo-theme-color);
 }
 
-
-.demonstration {
-    color: var(--el-text-color-secondary);
-}
-
-.el-carousel__item h3 {
-    color: #475669;
-    opacity: 0.75;
-    line-height: 150px;
-    margin: 0;
-    text-align: center;
-}
-
-.el-carousel__item:nth-child(2n) {
-    background-color: #99a9bf;
-}
-
-.el-carousel__item:nth-child(2n + 1) {
-    background-color: #d3dce6;
+.record-recommendations {
+    display: flex;
+    flex: 1;
+    padding-bottom: 10px;
 }
 </style>

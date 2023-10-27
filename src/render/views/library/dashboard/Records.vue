@@ -87,7 +87,7 @@
             </context-menu-item>
             <context-menu-item v-if="props.type === 'series'"
                                :label="'从该系列中移除'"
-                               @click="router.push(hrefGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
+                               @click="removeRecordFromSeries(recordRecmds[idxFocusRecord].id)">
                 <template #icon> <span class="iconfont"> &#xe722; </span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type !== 'recycled'"
@@ -128,6 +128,10 @@ const props = withDefaults(defineProps<{
 }>(), {
     type: 'common'
 })
+
+const emit = defineEmits<{
+    (e: 'removeRecordFromSeries', recordId: number, seriesId: number): void
+}>()
 
 const router = useRouter()
 const route = useRoute()
@@ -305,6 +309,18 @@ const recoverRecord = (...ids: number[]) => {
         handleDataChange()
     })
 }
+
+const removeRecordFromSeries = function (recordId: number) {
+    if (!route.query.seriesId) return
+
+    const seriesId = Number(route.query.seriesId)
+    MessageBox.confirm('危险操作', '确定要从该系列中移除吗?', 'warning').then(() =>
+        window.electronAPI.removeRecordFromSeries(activeLibrary.value, recordId, seriesId
+        ).then(handleDataChange)
+    )
+    emit('removeRecordFromSeries', recordId, seriesId)
+}
+
 const queryRecords = debounce(async () => {
     loading.value = true
     const page = await window.electronAPI.queryRecordRecmds(

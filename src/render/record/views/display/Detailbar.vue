@@ -80,7 +80,8 @@
                         :title="record.series.find(s => s.id === activeSeriesId)?.name">
                         {{ record.series.find(s => s.id === activeSeriesId)?.name }} </h4>
                 </template>
-                <records type="series" />
+                <records type="series"
+                         @remove-record-from-series="handleRemoveRecordFromSeries" />
             </el-drawer>
         </scrollbar>
     </div>
@@ -139,6 +140,13 @@ const openSeries = (id: number) => {
     activeSeriesId.value = id
     drawerVisible.value = true
 }
+
+const handleRemoveRecordFromSeries = (recordId: number, seriesId: number) => {
+    if (recordId === record.id) {
+        record.series = record.series.filter(s => s.id !== seriesId)
+    }
+}
+
 </script>
 
 <style scoped>

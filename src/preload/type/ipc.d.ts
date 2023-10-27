@@ -250,6 +250,12 @@ export interface IElectronAPI {
         seriesId: number
     ) => Promise<Result>,
 
+    removeRecordFromSeries: (
+        libraryId: number,
+        recordId: number,
+        seriesId: number
+    ) => Promise<void>,
+
     // ANCHOR dialog 
 
     openDialog: (

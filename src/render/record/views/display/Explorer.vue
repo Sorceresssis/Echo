@@ -6,11 +6,11 @@
                 <span class="iconfont fz-26 icon"
                       @click="explorer.back"> &#xe665; </span>
                 <span class="iconfont fz-26"> &#xe680; </span>
-
                 <el-dropdown v-show="showFolderIdxs.length < shadowFolders.length"
                              trigger="click"
                              placement="bottom-start"
-                             size="small">
+                             size="small"
+                             popper-class="file-explorer__dropdown-menu">
                     <span class="iconfont fz-20 icon"> &#xe63e; </span>
                     <template #dropdown>
                         <el-dropdown-menu>
@@ -31,19 +31,19 @@
                         <span class="folder-nav-item textover--ellopsis"
                               :title="shadowFolders[i]"
                               @click="explorer.go(i)"> {{ shadowFolders[i] }} </span>
-
                         <el-dropdown v-if="i !== shadowFolders.length - 1 || !currDirContent.every(item => item.type === 'file')"
                                      trigger="click"
                                      placement="bottom-start"
-                                     size="small">
+                                     size="small"
+                                     popper-class="file-explorer__dropdown-menu">
                             <span class="iconfont fz-20 icon"
-                                  @click=""> &#xe614; </span>
+                                  @click="explorer.showFoldersDropdownMenu(i)"> &#xe614; </span>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item v-for="i in collapseFolderIdxs"
-                                                      :key="i"
-                                                      :title="shadowFolders[i]"
-                                                      @click="explorer.go(i)"> {{ shadowFolders[i] }}
+                                    <el-dropdown-item v-for="folderName in dropdownFolders"
+                                                      :key="folderName"
+                                                      :title="folderName"
+                                                      @click="explorer.go(i, folderName)"> {{ folderName }}
                                     </el-dropdown-item>
                                 </el-dropdown-menu>
                             </template>
@@ -94,7 +94,7 @@
 </template>
 
 <script setup lang='ts'>
-import { inject, ref, readonly, onMounted, onActivated, watch } from 'vue'
+import { inject, ref, readonly, onMounted, watch } from 'vue'
 import useExplorerService from '@/record/service/explorerService'
 import { openInExplorer, openFile } from '@/util/systemUtil'
 import Scrollbar from '@/components/Scrollbar.vue'
@@ -110,6 +110,7 @@ const {
     collapseFolderIdxs,
     shadowFolders,
     currDirContent,
+    dropdownFolders,
 } = explorer
 
 // ANCHOR 右键菜单
@@ -154,7 +155,6 @@ onMounted(() => {
     }
 })
 
-// TODO 右键菜单
 // TODO 瀑布流, 预览图片
 // TODO 文件夹读取其下的图片,作为封面
 </script>
