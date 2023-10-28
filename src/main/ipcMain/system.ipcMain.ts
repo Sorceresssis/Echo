@@ -4,7 +4,7 @@ import nodePath from "path"
 import fs from "fs"
 import fm from "../util/FileManager"
 import Result from "../util/Result"
-import { el } from "element-plus/es/locale"
+import i18n from "../locale"
 
 export default function ipcMainSystem() {
     // 用系统默认方式打开url
@@ -81,7 +81,7 @@ export default function ipcMainSystem() {
     ipcMain.handle('system:readdir', (e: IpcMainInvokeEvent, dirPath: string): Result => {
         try {
             // 判断路径是否存在
-            if (!fs.existsSync(dirPath)) return Result.error('路径不存在')
+            if (!fs.existsSync(dirPath)) return Result.error(i18n.global.t('folderNotExists'))
 
             // 检查是否是文件夹
             if (fs.statSync(dirPath).isDirectory()) {

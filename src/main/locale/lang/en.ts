@@ -1,5 +1,13 @@
 export default {
-    folderNotExists: 'The folder does not exist locally',
-    resourcePathIllegal: 'The resource path filled in is illegal',
+    folderNotExists: 'The local folder does not exist',
+    resourcePathIllegal: 'The provided resource path is not valid',
     invalidAbsolutePath: 'Not a valid absolute path',
+
+    importSuccess: 'Import successful',
+    importFailed: 'Import failed',
+    importFailedReason: 'Incorrect import file or insufficient write permissions',
+
+    exportSuccess: 'Export successful',
+    exportSuccessOpenDir: 'Click to open the directory containing the exported file',
+    exportFailed: 'Export failed',
 }

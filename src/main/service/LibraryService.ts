@@ -14,6 +14,7 @@ import GroupDB from "../db/GroupDB"
 import GroupDao from "../dao/GroupDao"
 import LibraryDao from "../dao/LibraryDao"
 import LibraryExtraDao from "../dao/LibraryExtraDao"
+import i18n from "../locale"
 
 @injectable()
 class LibraryService {
@@ -156,11 +157,11 @@ class LibraryService {
         worker.on('message', (result: Result) => {
             const notification = result.code
                 ? new Notification({
-                    title: `${libInfo.name} ${'导出成功'}`,
-                    body: '点击打开文件所在目录',
+                    title: `${libInfo.name} ${i18n.global.t('exportSuccess')}`,
+                    body: i18n.global.t('exportSuccessOpenDir'),
                 }).addListener('click', () => shell.showItemInFolder(exportPath))
                 : new Notification({
-                    title: `${libInfo.name} ${'导出失败'}`,
+                    title: `${libInfo.name} ${i18n.global.t('exportFailed')}`,
                     body: result.msg,
                 })
 
@@ -215,7 +216,7 @@ class LibraryService {
                 fs.renameSync(tmpPath, appConfig.getLibraryDirPath(id))
 
                 new Notification({
-                    title: `${'导入成功'}  (${importFileIdx + 1}/${importFiles.length})`,
+                    title: `${i18n.global.t('importSuccess')}  (${importFileIdx + 1}/${importFiles.length})`,
                     body: path.basename(importFiles[importFileIdx])
                 }).show()
             } catch (err: any) {
@@ -225,8 +226,8 @@ class LibraryService {
                 }
 
                 new Notification({
-                    title: `${'导入失败'}  (${importFileIdx + 1}/${importFiles.length})`,
-                    body: `${path.basename(importFiles[importFileIdx])}\n错误的导入文件或者没有写入权限. `
+                    title: `${i18n.global.t('importFailed')}  (${importFileIdx + 1}/${importFiles.length})`,
+                    body: `${path.basename(importFiles[importFileIdx])}\n ${i18n.global.t('importFailedReason')}`
                 }).show()
             }
 
