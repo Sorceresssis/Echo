@@ -27,7 +27,6 @@ export function createWindow(libraryId: number, recordId: number): BrowserWindow
         win.webContents.openDevTools()
     } else {
         win?.loadFile(resolve(__dirname, "../../render/record/index.html"))
-        win.removeMenu()
     }
 
     win.once('ready-to-show', () => {

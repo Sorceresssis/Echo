@@ -1,3 +1,4 @@
+import { $t } from '@/locale';
 import { ElMessageBox, type MessageBoxData } from 'element-plus'
 
 type MessageBoxType = 'error' | 'info' | 'success' | 'warning'
@@ -10,8 +11,8 @@ class MessageBox {
         title: string,
         message: string,
         type: MessageBoxType = 'info',
-        confirmButtonText: string = '确定',
-        cancelButtonText: string = '取消',
+        confirmButtonText: string = $t('layout.confirm'),
+        cancelButtonText: string = $t('layout.cancel'),
         options?: { [key: string]: any; type?: never; confirmButtonText?: never; cancelButtonText?: never }
     ): Promise<MessageBoxData> {
         return ElMessageBox.confirm(
@@ -27,24 +28,24 @@ class MessageBox {
     }
 
     public static deleteConfirm(): Promise<MessageBoxData> {
-        return this.confirm('危险操作', '你确定要删除吗?删除后无法恢复!', 'warning', '删除')
+        return this.confirm($t('tips.dangerousOperation'), $t('tips.sureDelete'), 'warning', $t('layout.delete'))
     }
 
     public static addConfirm(): Promise<MessageBoxData> {
-        return this.confirm('确认操作', '你确定要添加吗?', 'warning', '添加')
+        return this.confirm($t('tips.confirmOperation'), $t('tips.sureAdd'), 'warning', $t('layout.create'))
     }
 
     public static editConfirm(): Promise<MessageBoxData> {
-        return this.confirm('危险操作', '你确定要修改吗?', 'warning', '修改')
+        return this.confirm($t('tips.dangerousOperation'), $t('tips.sureEdit'), 'warning', $t('layout.modify'))
     }
 
     public static editPrompt(inputValue: string): Promise<MessageBoxData> {
         return ElMessageBox.prompt(
-            '请输入新值', '编辑', {
-            confirmButtonText: '完成',
-            cancelButtonText: '取消',
+            $t('tips.pleaseInputNewValue'), $t('layout.edit'), {
+            confirmButtonText: $t('layout.finish'),
+            cancelButtonText: $t('layout.cancel'),
             inputPattern: /\S/,
-            inputErrorMessage: '输入值不能为空',
+            inputErrorMessage: $t('tips.inputValueNotEmpty'),
             inputValue: inputValue || '',
         })
     }

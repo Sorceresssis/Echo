@@ -8,12 +8,14 @@
 </template>
 
 <script setup lang='ts'>
+import { $t } from '@/locale';
+
 
 const props = withDefaults(defineProps<{
     title?: string
     bgColor?: string
 }>(), {
-    title: '还没有任何东西哦~',
+    title: $t('layout.thereIsNothingYet'),
     bgColor: 'transparent'
 })
 

@@ -1,22 +1,249 @@
 export default {
-    operate: {
-        rename: '重命名',
-    },
-    siderBar: {
-        workbench: '工作台',
-        watchLater: '稍后再看',
-        recycleBin: '回收站',
-        createdGroup: '创建的组',
-    },
-    titlebar: {
+    layout: {
+        // ANCHOR components empty 
+        thereIsNothingYet: '还没有任何东西哦~',
+
+        // ANCHOR home page titlebar
         back: '后退',
         forward: '前进',
-        setting: '设置',
-        minimize: '最小化',
-        maximize: '最大化',
-        restore: '还原',
-        close: '关闭',
+        settings: '设置',
+
+        // ANCHOR home page siderbar
+        delete: '删除',
+        rename: '重命名',
+
+        createdGroup: '创建的组',
+        addGroup: '添加组',
+        newGroup: '新建组',
+        refresh: '刷新',
+        select: '选择',
+
+        addLibrary: '添加库',
+        newLibrary: '新建库',
+        importLibrary: '导入库',
+
+        panel: '面板',
+        manageData: '管理数据',
+        openInNewWindow: '在新建窗口中打开',
+        moveTo: '移动到',
+        openDataLocation: '打开数据保存位置',
+        export: '导出',
+        selectImportData: '请选择要导入的数据',
+        selectExportLocation: '请选择要导出的位置',
+
+
+        // ANCHOR home page Dash
+
+        records: '记录',
+        authors: '作者',
+        tags: '标签',
+        dirnames: '文件夹目录',
+        recycleBin: '回收站',
+        aboutLibrary: '关于库',
+
+        exitBatchOperation: '退出批量操作',
+        selectAll: '全选',
+        putInRecycleBin: '放入回收站',
+        restore: '恢复',
+        batchOperation: '批量操作',
+        emptyRecycleBin: '清空回收站',
+        search: '搜索',
+        deletePermanently: '彻底删除',
+        copyTitle: '复制标题',
+        copyAllInfo: '复制全部信息',
+        edit: '编辑',
+        removeFromSeries: '从该系列中移除',
+
+        filter: '过滤',
+        hasCover: '有封面',
+        hasHyperlink: '有链接',
+        hasFile: '有源文件',
+
+        sortBy: '排序',
+        time: '时间',
+        title: '标题',
+        name: '名字',
+        path: '路径',
+        rate: '评分',
+        ascending: '升序',
+        descending: '降序',
+
+        view: '视图',
+        compact: '紧凑',
+        thumbnail: '缩略图',
+        extended: '扩展',
+
+        copyToClipboard: '复制到剪贴板',
+        openInFileExplorer: '资源管理器中打开',
+        showInFileExplorer: '资源管理器中显示',
+        searchTitle: '搜索标题',
+        openLinkInBrowser: '浏览器中打开链接',
+        openWithDefaultProgram: '默认程序打开',
+
+        // author
+        detailInfo: '详细信息',
+        numberOfWorks: '作品数',
+        avatarUrl: '头像地址',
+
+        // about
+        useSearchAuxiliaryText: '使用搜索辅助文本',
+        searchAuxiliaryText: '搜索辅助文本',
+
+        // manage data
+        addRecord: '添加记录',
+        editRecord: '编辑记录',
+        batchRecycleRecord: '批量回收记录',
+        addAuthor: '添加作者',
+        editAuthor: '编辑作者',
+        editDir: '编辑目录',
+
+        selectImage: '选择图片',
+        reset: '重置',
+        create: '添加',
+        add: '添加',
+        modify: '修改',
+        confirm: '确认',
+        cancel: '取消',
+        finish: '完成',
+        replace: '替换',
+        example: '举例',
+        iKnowTheConsequences: '我明白后果，确认删除',
+
+        // 功能介绍
+        functionIntro: '功能介绍',
+
+        avatar: '头像',
+        authorName: '作者的名字',
+        authorIntro: '作者的介绍',
+
+        searchValue: '搜索值',
+        inputSearchValue: '输入搜索值',
+        replaceValue: '替换值',
+        inputReplaceValue: '输入替换值',
+
+        localSourcePath: '本地资源路径',
+
+        batchAdd: '批量添加',
+        importDir: '导入文件夹',
+        editRecordBatchAddPlaceholder: '资源所在目录的绝对路径, 注意window盘符要写成C: \\',
+        editRecordDirnamePlaceholder: `资源所在的目录，是一个绝对路径(dirname), 注意根目录要写成'C:\\'或'/'`,
+        editRecordBasenamePlaceholder: `basename,可以是文件也可以是文件夹`,
+        editRecordTitlePlaceholder: '记录的标题',
+        editRecordAuthorsPlaceholder: '只能添加已经存在的作者',
+        editRecordTagsPlaceholder: '库中没有则会自动添加',
+        editRecordIntroPlaceholder: '记录的介绍, 和内容有关',
+        editRecordInfoPlaceholder: '记录的额外信息, 比如文件备份的保存位置.',
+        basenameCannotBeAlone: '不能单独填写basename',
+        titleNotEmpty: '标题不能为空',
+        importDirNotEmpty: '导入文件夹不能为空',
+
+        filterExisting: '过滤已经存在的',
+        filterExistingP1: '当存在和basename相同标题的记录时跳过',
+        selectFile: '选择文件',
+        selectDir: '选择文件夹',
+        hyperlink: '链接',
+        editRecordHyperlinkPlaceholder: '希望指向的网址(例: www.google.com)',
+        cover: '封面',
+        noAuthors: '没有添加作者',
+        tag: '标签',
+        tagName: '标签名',
+        noTags: '没有添加标签',
+        series: '系列',
+        seriesName: '系列名',
+        noSeries: '没有加入系列',
+        dirname: '文件夹目录',
+        dirnamePath: '文件夹目录路径',
+
+
+        createdTime: '创建时间',
+        lastModifiedTime: '最近修改时间',
+        intro: '介绍',
+        info: '信息',
+
+        switchLanguage: '切换语言',
+        changeDataLocation: '更改数据保存位置',
+        restartNow: '立即重启',
+
+
+        // ANCHOR record page 
+
+        allInfo: '全部信息',
+        similarRecommendation: '相似推荐',
+        noSimilarRecommendation: '暂无相似推荐',
+        noSourcePath: '未设置资源路径',
+        currentFolderIsEmpty: '当前文件夹为空',
+        backToParentFolder: '返回上一级',
+        rootDir: '根目录',
     },
+    tips: {
+        dangerousOperation: '危险操作',
+        confirmOperation: '确认操作',
+
+        // 删除库 
+        deleteLibraryP1: '此操作无法撤销! 数据会被 <span class="fw-700"> 永久删除 </span>.',
+        deleteLibraryP2: '如果删除的是组, 那么组下面的库 <span class="fw-700"> 都会被删除 </span>.',
+        deleteLibraryP3: '请输入<span class="fw-700 select-text">{name}</span> 进行确认.',
+
+
+        replaceDirnameFunctionIntroP1: '根据输入的搜索值去从头开始, 以文件夹为基本单位对比所有已有的路径. 把匹配的部分路径替换成输入的替换值',
+        replaceDirnameFunctionIntroP2: '如果你想把 C:\\foo\\a 变成 C:bar\\a, C:\\foo\\b 变成 C:\\bar\\b',
+        replaceDirnameFunctionIntroP3: '你可以在搜索值里输入C:\\foo, 替换值里输入 C:\\bar',
+        replaceDirnameFunctionIntroP4: '匹配的基本单位是文件夹, 这不是简单的字符串替换, 如果你搜索值输入的是C:\\fo 这是无法实现替换的',
+
+        // 请至少填写一个表单项
+        pleaseFillAtLeastOneForm: '请至少填写一个表单项',
+
+
+        sureAdd: '确定要添加吗?',
+        sureEdit: '确定要修改吗?',
+        sureDelete: '确定要删除吗? 删除后无法恢复!',
+
+        pleaseInputNewValue: '请输入新值',
+        inputValueNotEmpty: '输入值不能为空',
+
+        sureRecycle: '确定要回收吗?',
+        surePutInRecycleBin: '确定要放入回收站吗？',
+        sureRestore: '确定要恢复吗?',
+        sureRemoveFromSeries: '确定要从该系列中移除吗?',
+
+        // 姓名不能为空
+        authorNameNotEmpty: '姓名不能为空',
+
+        // 路径输入建议
+        pathInputSuggestion: '路径输入建议',
+        pathInputSuggestionP1: '程序不会去检查你填写的路径是否在设备上存在，但是会检查路径是否合法, 比如basename不能超过255个字且不能包含\\/:*?"<>|等',
+        pathInputSuggestionP2: `最好使用当前平台的分隔符('\\' | '/')，因为后台会强制把分隔符转化成当前平台的分隔符.`,
+        pathInputSuggestionP3: `windows平台路径分隔符是'\\', 输入类似于C:\\foo。其他平台的路径分隔符是'/'。输入类似于/root`,
+
+        // 什么是批量添加
+        whatIsBatchAdd: '什么是批量添加',
+        whatIsBatchAddP1: '通过读取给定的目录, 软件会遍历该目录下所有的文件和文件夹, 以然后以basename当作记录(文件的扩展名会被去掉)的标题将其添加到数据库中.',
+        whatIsBatchAddP2: '表单下面的属性，会给批量导入的所有记录都添加上',
+
+        restartToMakeEffect: '重启后才能生效, 是否立即重启?',
+        restartToMakeEffect2: '由于数据保存位置被改变，建议您重启应用程序以加载正确的数据, 是否立即重启?',
+    },
+    msg: {
+        deleteFailed: '删除失败',
+        editSuccess: '编辑成功',
+        editFailed: '编辑失败',
+        createSuccess: '添加成功',
+        createFailed: '添加失败',
+        replaceSuccess: '替换成功',
+        recycleSuccess: '回收成功',
+
+        thisRecordAlreadyNotExists: '该记录已经不存在',
+        thisTagAlreadyExists: '该标签已存在',
+        thisAuthorAlreadyExists: '该作者已存在',
+        thisSeriesAlreadyExists: '该系列已存在',
+
+        notExistsInFileExplorer: '资源管理器中不存在',
+        copiedToClipboard: '已复制到剪贴板',
+
+        // 路径不合法
+        invalidPath: '路径不合法',
+    },
+
     settings: {
         settings: '设置',
 
@@ -40,70 +267,4 @@ export default {
         version: '版本',
         license: '版权',
     },
-
-
-
-
-    app: {
-        item: '记录',
-        title: '标题',
-        coverImage: '封面',
-        author: '作者',
-        avatar: '头像',
-        name: '名字',
-        tag: '标签',
-        intro: '简介',
-        info: '信息',
-        folder: '保存目录',
-        series: '系列',
-    },
-    ctm: {
-        rename: '重命名',
-        addLibrary: '添加库',
-    },
-    dialog: {
-        confirm: '确认',
-        cancel: '取消',
-        delete: '删除',
-        search: '搜索',
-        add: '添加',
-        batchAdd: '批量添加',
-        batchDelete: '批量删除',
-        addAuthor: '添加作者',
-        edOrDeAttri: '编辑/删除属性',
-        filePath: '文件路径',
-        selectDir: '选择文件夹',
-        selectFile: '选择文件',
-        selectImage: '选择图片',
-        oldValue: '旧值',
-        newValue: '新值',
-        alter: '更改',
-        inputTag: '输入要添加的标签',
-        inputBaseName: '记录映射的文件',
-        inputDirName: '文件所在的文件夹',
-        inputIntro_item: '记录的内容的介绍',
-        inputInfo_item: '记录的额外信息，例如备份的保存位置，或者是内容的整理，残缺等信息，',
-        inputImage: '支持格式jpg,jpeg, png',
-        inputFolder: '输入记录所在的文件目录',
-    },
-    mainContainer: {
-        fav: '喜爱',
-        infoList: '信息列表',
-        universalSearch: '通用搜索',
-        advancedSearch: '高级搜索',
-        manageData: '管理数据',
-        filter: '筛选',
-        noHyperlink: '无链接',
-        noFile: '无源文件',
-        noImage: '无封面',
-        sort: '排序',
-        title: '标题',
-        hits: '点击量',
-        time: '时间',
-        ascending: '升序',
-        descending: '降序',
-        display: '展示',
-        thumbnail: '缩略图',
-        extended: '扩展',
-    }
 }

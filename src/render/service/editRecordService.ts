@@ -1,5 +1,6 @@
 import { reactive, toRaw } from "vue"
 import Message from "@/util/Message"
+import { $t } from "@/locale"
 
 // 简单类型
 type SimpleType = string | number | boolean | undefined | null | symbol
@@ -53,7 +54,7 @@ const useEditRecordService = () => {
         const tag = dispalyFormData.tagInput.trim()       // 去除空格
         if (tag.length === 0) return   // 空字符串不处理
         if (!attributeAdder(originTags, displayTags, removeTags, addTags, tag)) {
-            Message.error('标签已存在')
+            Message.error($t('msg.thisTagAlreadyExists'))
         }
         dispalyFormData.tagInput = '' // 清空输入框
     }
@@ -69,7 +70,7 @@ const useEditRecordService = () => {
         const series = dispalyFormData.seriesInput.trim()       // 去除空格
         if (series.length === 0) return   // 空字符串不处理 
         if (!attributeAdder(originSeries, displaySeries, removeSeries, addSeries, series)) {
-            Message.error('已加入系列')
+            Message.error($t('msg.thisSeriesAlreadyExists'))
         }
         dispalyFormData.seriesInput = '' // 清空输入框
     }
@@ -90,7 +91,7 @@ const useEditRecordService = () => {
                 name: obj.value,
                 avatar: obj.image
             })
-            : Message.error('已加入作者')
+            : Message.error($t('msg.thisAuthorAlreadyExists'))
     }
     const authorRemover = (id: number) => {
         if (attributeRemover(originAuthors, __displayAuthors, removeAuthors, addAuthors, id)) {
@@ -138,7 +139,7 @@ const useEditRecordService = () => {
     const separatePath = async (path: string): Promise<[dirname: string, basename: string] | undefined> => {
         const idx = path.lastIndexOf(await window.systemAPI.pathSep())
         if (idx === -1) {
-            Message.error('路径不合法')
+            Message.error($t('msg.invalidPath'))
             return void 0
         }
         return [path.substring(0, idx + 1), path.substring(idx + 1)]
@@ -175,7 +176,7 @@ const useEditRecordService = () => {
         // 保存数据时注意有些值是null, 有些值是undefined, 所以要替换成默认值 
         const data = await window.electronAPI.queryRecordDetail(libraryId, recordId)
         if (!data) {
-            Message.error('该记录已经不存在')
+            Message.error($t('msg.thisRecordAlreadyNotExists'))
             return
         }
         formData.id = data.id

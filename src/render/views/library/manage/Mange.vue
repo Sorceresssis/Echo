@@ -1,7 +1,7 @@
 <template>
     <div>
         <div class="module-header module_title">
-            管理数据
+            {{ $t('layout.manageData') }}
         </div>
         <tabs v-model="activeLabelIdx"
               :tabs="tabs">
@@ -22,6 +22,7 @@ import EditRecord from './EditRecord.vue'
 import RecycleRecordByAttribute from './RecycleRecordByAttribute.vue'
 import EditAuthor from './EditAuthor.vue'
 import EditDirname from './EditDirname.vue'
+import { $t } from '@/locale'
 
 const props = defineProps({
     pathPattern: {
@@ -37,10 +38,10 @@ const route = useRoute()
 
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
-    { id: 1, label: '添加记录', disabled: false },
-    { id: 2, label: '批量回收记录', disabled: false },
-    { id: 3, label: '添加作者', disabled: false },
-    { id: 4, label: '编辑目录', disabled: false },
+    { id: 1, label: $t('layout.addRecord'), disabled: false },
+    { id: 2, label: $t('layout.batchRecycleRecord'), disabled: false },
+    { id: 3, label: $t('layout.addAuthor'), disabled: false },
+    { id: 4, label: $t('layout.editDir'), disabled: false },
 ])
 const components = [
     EditRecord,
@@ -55,13 +56,20 @@ const init = () => {
     // 如果是编辑作者，禁用管理记录, 批量删除, 编辑目录; 并且把activeLabelIdx设置为编辑作者 
     if (route.query.author_id) {
         tabs[0].disabled = true
-        tabs[2].label = '编辑作者'
+        tabs[2].label = $t('layout.editAuthor')
         activeLabelIdx.value = 2
     } else {
         tabs[0].disabled = false
-        tabs[2].label = '添加作者'
+        tabs[2].label = $t('layout.addAuthor')
         activeLabelIdx.value = 0
     }
+
+    if (route.query.record_id) {
+        tabs[0].label = $t('layout.editRecord')
+    } else {
+        tabs[0].label = $t('layout.addRecord')
+    }
+
 }
 
 watch(route, init)

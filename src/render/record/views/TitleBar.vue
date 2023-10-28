@@ -1,25 +1,25 @@
 <template>
     <div class="titlebar flex-row">
         <div>
-            <span :title="'搜索标题'"
+            <span :title="$t('layout.searchTitle')"
                   class="iconfont no-drag"
                   @click="searchTitle">&#xe8ba;</span>
-            <span :title="'浏览器中打开链接'"
+            <span :title="$t('layout.openLinkInBrowser')"
                   class="iconfont no-drag"
                   :class="record.hyperlink ? '' : 'disabled'"
                   @click="openInBrowser(record.hyperlink)">&#xe612;</span>
-            <span :title="'在资源管理器中打开'"
+            <span :title="$t('layout.openInFileExplorer')"
                   class="iconfont no-drag"
                   :class="record.resourcePath ? '' : 'disabled'"
                   @click="openInExplorer(record.resourcePath)">&#xe73e;</span>
-            <span :title="'相似推荐'"
+            <span :title="$t('layout.similarRecommendation')"
                   class="iconfont no-drag"
                   @click="openSimilarDrawer">&#xe620;</span>
-            <span :title="'全部信息'"
+            <span :title="$t('layout.allInfo')"
                   class="iconfont no-drag"
                   :class="[route.fullPath === '/' ? 'active' : '']"
                   @click="router.push('/')">&#xe6c9;</span>
-            <span :title="'编辑'"
+            <span :title="$t('layout.edit')"
                   class="iconfont no-drag"
                   :class="[route.fullPath.startsWith('/manage') ? 'active' : '']"
                   @click="router.push(`/manage?record_id=${record.id}`)">&#xe722;</span>
@@ -28,19 +28,15 @@
             <span> {{ record.title }} </span>
         </div>
         <div class="flex">
-            <span :title="$t('titlebar.minimize')"
-                  class="iconfont no-drag"
+            <span class="iconfont no-drag"
                   @click="windowMinmize">&#xe67a;</span>
             <span v-if="isMaxmize"
-                  :title="$t('titlebar.restore')"
                   class="iconfont no-drag"
                   @click="windowMaxmize">&#xe607;</span>
             <span v-else
-                  :title="$t('titlebar.maximize')"
                   class="iconfont no-drag"
                   @click="windowMaxmize">&#xe606;</span>
-            <span :title="$t('titlebar.close')"
-                  class="iconfont no-drag"
+            <span class="iconfont no-drag"
                   @click="windowClose">&#xe685;</span>
         </div>
         <el-drawer v-model="similarDrawerVisible"
@@ -49,7 +45,7 @@
                    class="similar-record-drawer">
             <template #header="{ close, titleId, titleClass }">
                 <h4 :id="titleId"
-                    :class="titleClass"> {{ '相似推荐' }} </h4>
+                    :class="titleClass"> {{ $t('layout.similarRecommendation') }} </h4>
             </template>
             <div v-if="similarRecords.length"
                  v-loading.lock="similarLoading"
@@ -64,22 +60,22 @@
                 </record-card>
                 <context-menu v-model:show="isVisCtm"
                               :options="ctmOptions">
-                    <context-menu-item :label="'复制标题'"
+                    <context-menu-item :label="$t('layout.copyTitle')"
                                        @click="writeClibboard(similarRecords[idxFocusRecord].title)">
                         <template #icon> <span class="iconfont">&#xe85c;</span> </template>
                     </context-menu-item>
-                    <context-menu-item :label="'复制全部信息'"
+                    <context-menu-item :label="$t('layout.copyAllInfo')"
                                        @click="writeClibboard(similarRecords[idxFocusRecord].title
                                            + '\n' + similarRecords[idxFocusRecord].authors.map(author => author.name).join(',')
                                            + '\n' + similarRecords[idxFocusRecord].tags.map(tag => tag.title).join(','))" />
-                    <context-menu-item label="放入回收站"
+                    <context-menu-item :label="$t('layout.putInRecycleBin')"
                                        @click="recycleRecord(similarRecords[idxFocusRecord].id)">
                         <template #icon> <span class="iconfont"> &#xe636; </span> </template>
                     </context-menu-item>
                 </context-menu>
             </div>
             <empty v-else-if="!similarLoading"
-                   :title="'暂无相似推荐'" />
+                   :title="$t('layout.noSimilarRecommendation')" />
         </el-drawer>
     </div>
 </template>
@@ -169,7 +165,7 @@ const openCtm = (e: MouseEvent, idxRecord: number) => {
 }
 const recycleRecord = (...ids: number[]) => {
     if (ids.length === 0) return
-    MessageBox.confirm('放入回收站', '确定要放入回收站吗?').then(async () => {
+    MessageBox.confirm($t('layout.putInRecycleBin'), $t('tips.surePutInRecycleBin')).then(async () => {
         window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids).then(() => {
             similarRecords.value = similarRecords.value.filter(recmd => !ids.includes(recmd.id))
         })

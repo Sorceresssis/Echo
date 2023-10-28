@@ -5,7 +5,7 @@
 				<echo-autocomplete v-model="keyword"
 								   type="author"
 								   class="menu-item search"
-								   :placeholder="'搜索'"
+								   :placeholder="$t('layout.search')"
 								   @keyup.enter="handleQueryParamsChange" />
 				<dash-drop-menu v-for="menu in dropdownMenus"
 								class="menu-item"
@@ -31,7 +31,7 @@
 							{{ recmd.name }}
 						</h1>
 						<p class="meta">
-							<span class="inline-list-title">作品数</span>
+							<span class="inline-list-title"> {{ $t('layout.numberOfWorks') }}</span>
 							<a class="count">{{ recmd.worksCount }}</a>
 						</p>
 						<p class="caption"> {{ recmd.intro }} </p>
@@ -84,29 +84,29 @@ const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const authorsDashStore = useAuthorsDashStore()
 
 const dropdownMenus = [{
-	HTMLElementTitle: $t('mainContainer.sort'),
+	HTMLElementTitle: $t('layout.sortBy'),
 	title: '&#xe81f;',
 	items: [
 		{
-			title: '名字',
+			title: $t('layout.name'),
 			divided: false,
 			click: () => authorsDashStore.handleSortField('name'),
 			dot: () => authorsDashStore.sortField === 'name'
 		},
 		{
-			title: $t('mainContainer.time'),
+			title: $t('layout.time'),
 			divided: false,
 			click: () => authorsDashStore.handleSortField('time'),
 			dot: () => authorsDashStore.sortField === 'time'
 		},
 		{
-			title: '升序',
+			title: $t('layout.ascending'),
 			divided: true,
 			click: () => authorsDashStore.handleOrder('ASC'),
 			dot: () => authorsDashStore.order === 'ASC'
 		},
 		{
-			title: '降序',
+			title: $t('layout.descending'),
 			divided: false,
 			click: () => authorsDashStore.handleOrder('DESC'),
 			dot: () => authorsDashStore.order === 'DESC'

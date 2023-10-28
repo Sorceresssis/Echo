@@ -5,7 +5,7 @@
                 <echo-autocomplete v-model="keyword"
                                    type="dirname"
                                    class="menu-item search"
-                                   :placeholder="'搜索'"
+                                   :placeholder="$t('layout.search')"
                                    @keyup.enter="handleQueryParamsChange" />
                 <dash-drop-menu v-for="menu in dropdownMenus"
                                 class="menu-item"
@@ -28,16 +28,16 @@
                     </div>
                     <div class="operate">
                         <span class="iconfont"
-                              :title="'在文件管理器中打开'"
+                              :title="$t('layout.openInFileExplorer')"
                               @click="openInExplorer(dirname.path)">&#xe73e;</span>
                         <span class="iconfont"
-                              :title="'复制到剪贴板'"
+                              :title="$t('layout.copyToClipboard')"
                               @click="writeClibboard(dirname.path)">&#xe85c;</span>
                         <span class="iconfont"
-                              :title="'编辑'"
+                              :title="$t('layout.edit')"
                               @click="editDirname(dirname.id, dirname.path)">&#xe722;</span>
                         <span class="iconfont"
-                              :title="'删除'"
+                              :title="$t('layout.delete')"
                               @click="deleteDirname(dirname.id)">&#xe636;</span>
                     </div>
                 </li>
@@ -77,29 +77,29 @@ const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const dirnamesDashStore = useDirnamesDashStore()
 
 const dropdownMenus = [{
-    HTMLElementTitle: $t('mainContainer.sort'),
+    HTMLElementTitle: $t('layout.sortBy'),
     title: '&#xe81f;',
     items: [
         {
-            title: $t('mainContainer.time'),
+            title: $t('layout.time'),
             divided: false,
             click: () => dirnamesDashStore.handleSortField('time'),
             dot: () => dirnamesDashStore.sortField === 'time'
         },
         {
-            title: '路径',
+            title: $t('layout.path'),
             divided: false,
             click: () => dirnamesDashStore.handleSortField('path'),
             dot: () => dirnamesDashStore.sortField === 'path'
         },
         {
-            title: $t('mainContainer.ascending'),
+            title: $t('layout.ascending'),
             divided: true,
             click: () => dirnamesDashStore.handleOrder('ASC'),
             dot: () => dirnamesDashStore.order === 'ASC'
         },
         {
-            title: $t('mainContainer.descending'),
+            title: $t('layout.descending'),
             divided: false,
             click: () => dirnamesDashStore.handleOrder('DESC'),
             dot: () => dirnamesDashStore.order === 'DESC'

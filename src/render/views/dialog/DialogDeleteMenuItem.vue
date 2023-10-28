@@ -1,25 +1,22 @@
 <template>
     <el-dialog v-model="modelValue.isVis"
                align-center
-               title="危险操作"
+               :title="$t('tips.dangerousOperation')"
                width="420px"
                class="dialog-confirm">
-        <p class="row">
-            此操作无法撤销。这将<span class="fw-700">永久删除</span>数据。
-            <br>如果删除的是组，那么组下面的库<span class="fw-700">都会被删除</span>。
-        </p>
-        <p class="row">
-            请输入<span class="fw-700 select-text"> {{ modelValue.confirmName }} </span>进行确认。
-        </p>
-        <div class="row">
-            <el-input v-model="modelValue.confirmInput"
-                      spellcheck="false" />
-        </div>
+        <p v-html="$t('tips.deleteLibraryP1')"
+           class="row" />
+        <p v-html="$t('tips.deleteLibraryP2')"
+           class="row" />
+        <p v-html="$t('tips.deleteLibraryP3', { name: modelValue.confirmName })"
+           class="row"> </p>
+        <div class="row"> <el-input v-model="modelValue.confirmInput"
+                      spellcheck="false" /> </div>
         <div class="row">
             <el-button :class="[modelValue.confirmName === modelValue.confirmInput ? 'confirmed' : 'no-confirm']"
                        :disabled="modelValue.confirmName !== modelValue.confirmInput"
                        @click="emit('handle-delete')">
-                我明白后果，确认删除
+                {{ $t('layout.iKnowTheConsequences') }}
             </el-button>
         </div>
     </el-dialog>
@@ -41,6 +38,7 @@ const emit = defineEmits<{
 <style scoped>
 .row {
     padding: 5px 0;
+    line-height: 25px;
 }
 
 .el-button {

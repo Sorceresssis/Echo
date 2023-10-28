@@ -2,33 +2,33 @@
     <div class="flex-col">
         <div class="dashboard__content scrollbar-y-w8">
             <div class="detail-item">
-                <label class="detail-item__lable">姓名</label>
+                <label class="detail-item__lable"> {{ $t('layout.name') }} </label>
                 <div class="detail-item__content">
                     {{ info.name }}
                 </div>
             </div>
             <div class="detail-item">
-                <label class="detail-item__lable">创建时间</label>
+                <label class="detail-item__lable"> {{ $t('layout.createdTime') }} </label>
                 <div class="detail-item__content">
                     {{ info.createTime }}
                 </div>
             </div>
             <div class="detail-item">
-                <label class="detail-item__lable">修改时间</label>
+                <label class="detail-item__lable"> {{ $t('layout.lastModifiedTime') }} </label>
                 <div class="detail-item__content">
                     {{ info.modifiedTime }}
                 </div>
             </div>
             <div class="detail-item">
-                <label class="detail-item__lable">头像地址</label>
+                <label class="detail-item__lable"> {{ $t('layout.avatarUrl') }} </label>
                 <div class="detail-item__content">
                     <el-input v-model="info.avatar"
                               readonly />
-                    <button2 @click="openInExplorer(info.avatar)">打开头像图片</button2>
+                    <button2 @click="openInExplorer(info.avatar)"> {{ $t('layout.showInFileExplorer') }} </button2>
                 </div>
             </div>
             <div class="detail-item">
-                <label class="detail-item__lable">介绍</label>
+                <label class="detail-item__lable"> {{ $t('layout.intro') }} </label>
                 <div class="detail-item__content">
                     {{ info.intro }}
                 </div>
@@ -53,7 +53,7 @@ defineProps<{
 }
 
 .detail-item__lable {
-    width: 100px;
+    width: 140px;
     display: inline-flex;
     justify-content: flex-start;
     align-items: flex-start;

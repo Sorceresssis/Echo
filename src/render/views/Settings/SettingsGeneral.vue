@@ -39,7 +39,7 @@
                         </el-select>
                     </div>
                 </div>
-            </div> 
+            </div>
         </div>
     </div>
 </template>
@@ -48,7 +48,7 @@
 import { ref, onMounted } from 'vue'
 import i18n, { $t, type Lang } from '@/locale'
 import { openInExplorer } from '@/util/systemUtil'
-import { setConfig, resetConfig, getAllConfig } from "@/util/ConfigUtil"
+import { setConfig, getAllConfig } from "@/util/ConfigUtil"
 import MessageBox from '@/util/MessageBox'
 import Button2 from '@/components/Button2.vue'
 
@@ -57,7 +57,7 @@ const langOptions: { label: string, value: Lang }[] = [
     { label: '简体中文', value: 'zhCN' },
     { label: 'English', value: 'en' },
     { label: '日本語', value: 'ja' },
-    // { label: '繁體中文', value: Locale.zhTW },
+    { label: '繁體中文', value: 'zhTW' },
     // { label: '한국어', value: Locale.ko },
     // { label: 'Deutsch', value: Locale.de },
     // { label: 'Français', value: Locale.fr },
@@ -65,8 +65,9 @@ const langOptions: { label: string, value: Lang }[] = [
 ]
 const curLang = ref<Lang>()
 const handleLangChange = (value: Lang) => {
-    MessageBox.confirm('切换语言', '重启后才能生效, 是否立即重启?',
-        'info', '立即重启'
+    MessageBox.confirm($t('layout.switchLanguage'),
+        $t('tips.restartToMakeEffect'),
+        'info', $t('layout.restartNow'), $t('layout.cancel'),
     ).then(() => {
         setConfig('locale', value)
         window.electronAPI.relaunch()
@@ -89,9 +90,9 @@ const selectUserDataPath = () => {
     }).then(() => {
         // 建议您重启应用程序以使更改生效
         return MessageBox.confirm(
-            '建议重启',
-            '由于数据保存位置被改变，建议您重启应用程序以加载正确的数据',
-            'info', '立即重启', '取消',
+            $t('layout.changeDataLocation'),
+            $t('tips.restartToMakeEffect2'),
+            'info', $t('layout.restartNow'), $t('layout.cancel'),
             {
                 closeOnClickModal: false,
                 closeOnPressEscape: false,

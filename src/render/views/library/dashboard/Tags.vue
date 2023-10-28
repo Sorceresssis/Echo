@@ -5,7 +5,7 @@
                 <echo-autocomplete v-model="keyword"
                                    type="tag"
                                    class="menu-item search"
-                                   :placeholder="'搜索'"
+                                   :placeholder="$t('layout.search')"
                                    @keyup.enter="handleQueryParamsChange" />
                 <dash-drop-menu v-for="menu in dropdownMenus"
                                 class="menu-item"
@@ -28,13 +28,13 @@
                     </div>
                     <div class="operate">
                         <span class="iconfont"
-                              :title="'复制到剪贴板'"
+                              :title="$t('layout.copyToClipboard')"
                               @click="writeClibboard(tag.title)">&#xe85c;</span>
                         <span class="iconfont"
-                              :title="'编辑'"
+                              :title="$t('layout.edit')"
                               @click="editTag(tag.id, tag.title)">&#xe722;</span>
                         <span class="iconfont"
-                              :title="'删除'"
+                              :title="$t('layout.delete')"
                               @click="deleteTag(tag.id)">&#xe636;</span>
                     </div>
                 </li>
@@ -71,29 +71,29 @@ const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const tagsDashStore = useTagsDashStore()
 
 const dropdownMenus = [{
-    HTMLElementTitle: $t('mainContainer.sort'),
+    HTMLElementTitle: $t('layout.sortBy'),
     title: '&#xe81f;',
     items: [
         {
-            title: '标题',
+            title: $t('layout.title'),
             divided: false,
             click: () => tagsDashStore.handleSortField('title'),
             dot: () => tagsDashStore.sortField === 'title'
         },
         {
-            title: $t('mainContainer.time'),
+            title: $t('layout.time'),
             divided: false,
             click: () => tagsDashStore.handleSortField('time'),
             dot: () => tagsDashStore.sortField === 'time'
         },
         {
-            title: $t('mainContainer.ascending'),
+            title: $t('layout.ascending'),
             divided: true,
             click: () => tagsDashStore.handleOrder('ASC'),
             dot: () => tagsDashStore.order === 'ASC'
         },
         {
-            title: $t('mainContainer.descending'),
+            title: $t('layout.descending'),
             divided: false,
             click: () => tagsDashStore.handleOrder('DESC'),
             dot: () => tagsDashStore.order === 'DESC'

@@ -1,5 +1,6 @@
 import Message from "@/util/Message"
 import { getConfig } from "@/util/ConfigUtil"
+import { $t } from "@/locale"
 
 /**
  * 用于打开外部 URL 或文件资源。例如，你可以使用这个方法在用户默认的浏览器中打开一个网页。
@@ -20,7 +21,7 @@ export async function openInExplorer(
 ) {
     if (!path) return
     if ((await window.electronAPI.openInExplorer(path, method)).code === 0) {
-        Message.error('资源管理器中不存在')
+        Message.error($t('msg.notExistsInFileExplorer'))
     }
 }
 
@@ -31,7 +32,7 @@ export async function openInExplorer(
 export async function openFile(path: string | null) {
     if (!path) return
     if ((await window.electronAPI.openFile(path)).code === 0) {
-        Message.error('资源管理器中不存在')
+        Message.error($t('msg.notExistsInFileExplorer'))
     }
 }
 
@@ -41,7 +42,7 @@ export async function openFile(path: string | null) {
  */
 export function writeClibboard(text: string) {
     window.electronAPI.writeClipboard(text)
-    Message.success('已复制')
+    Message.success($t('msg.copiedToClipboard'))
 }
 
 export async function internetSearch(word: string) {

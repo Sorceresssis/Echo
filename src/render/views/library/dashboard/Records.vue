@@ -4,41 +4,41 @@
              class="dashboard__header divider">
             <div class="left-menu">
                 <span class="batch-processing-btn"
-                      @click="closeBatch"> 返回 </span>
+                      @click="closeBatch"> {{ $t('layout.exitBatchOperation') }} </span>
             </div>
             <div class="right-menu">
                 <el-checkbox v-model="isSelectedAll"
-                             label="全选"
+                             :label="$t('layout.selectAll')"
                              class="batch-processing-btn"
                              @click.prevent="handleCheckAll" />
                 <span v-if="props.type !== 'recycled'"
                       class="batch-processing-btn"
                       :class="[selectedSet.size === 0 ? 'disabled' : '']"
-                      @click="recycleRecord(...selectedSet)">放入回收站</span>
+                      @click="recycleRecord(...selectedSet)"> {{ $t('layout.putInRecycleBin') }} </span>
                 <span v-if="props.type === 'recycled'"
                       class="batch-processing-btn"
                       :class="[selectedSet.size === 0 ? 'disabled' : '']"
-                      @click="recoverRecord(...selectedSet)"> 恢复 </span>
+                      @click="recoverRecord(...selectedSet)"> {{ $t('layout.restore') }} </span>
                 <span v-if="props.type === 'recycled'"
                       class="batch-processing-btn"
                       :class="[selectedSet.size === 0 ? 'disabled' : '']"
-                      @click="deleteRecord(...selectedSet)"> 删除 </span>
+                      @click="deleteRecord(...selectedSet)"> {{ $t('layout.delete') }} </span>
             </div>
         </div>
         <div v-else
              class="dashboard__header">
             <div class="left-menu">
                 <div class="batch-processing-btn"
-                     @click="isBatch = true">批量操作</div>
+                     @click="isBatch = true"> {{ $t('layout.batchOperation') }} </div>
                 <div v-if="props.type === 'recycled'"
                      class="batch-processing-btn"
                      :class="[recordRecmds.length === 0 ? 'disabled' : '']"
-                     @click="deleteAllRecycled">清空回收站</div>
+                     @click="deleteAllRecycled"> {{ $t('layout.emptyRecycleBin') }} </div>
             </div>
             <div class="right-menu">
                 <echo-autocomplete class="menu-item search"
                                    v-model="keyword"
-                                   :placeholder="'搜索'"
+                                   :placeholder="$t('layout.search')"
                                    @keyup.enter="handleQueryParamsChange" />
                 <dash-drop-menu v-for="menu in dropdownMenus"
                                 :menu="menu"
@@ -72,36 +72,36 @@
                        @current-change="handlePageChange" />
         <context-menu v-model:show="isVisCtm"
                       :options="ctmOptions">
-            <context-menu-item :label="'复制标题'"
+            <context-menu-item :label="$t('layout.copyTitle')"
                                @click="writeClibboard(recordRecmds[idxFocusRecord].title)">
                 <template #icon> <span class="iconfont">&#xe85c;</span> </template>
             </context-menu-item>
-            <context-menu-item :label="'复制全部信息'"
+            <context-menu-item :label="$t('layout.copyAllInfo')"
                                @click="writeClibboard(recordRecmds[idxFocusRecord].title
                                    + '\n' + recordRecmds[idxFocusRecord].authors.map(author => author.name).join(',')
                                    + '\n' + recordRecmds[idxFocusRecord].tags.map(tag => tag.title).join(','))" />
             <context-menu-item v-if="props.type !== 'series'"
-                               :label="'编辑'"
+                               :label="$t('layout.edit')"
                                @click="router.push(hrefGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
                 <template #icon> <span class="iconfont"> &#xe722; </span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type === 'series'"
-                               :label="'从该系列中移除'"
+                               :label="$t('layout.removeFromSeries')"
                                @click="removeRecordFromSeries(recordRecmds[idxFocusRecord].id)">
                 <template #icon> <span class="iconfont"> &#xe722; </span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type !== 'recycled'"
-                               label="放入回收站"
+                               :label="$t('layout.putInRecycleBin')"
                                @click="recycleRecord(recordRecmds[idxFocusRecord].id)">
                 <template #icon> <span class="iconfont"> &#xe636; </span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type === 'recycled'"
-                               label="恢复"
+                               :label="$t('layout.restore')"
                                @click="recoverRecord(recordRecmds[idxFocusRecord].id)">
                 <template #icon> <span class="iconfont"> &#xe652; </span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type === 'recycled'"
-                               label="彻底删除"
+                               :label="$t('layout.deletePermanently')"
                                @click="deleteRecord(recordRecmds[idxFocusRecord].id)" />
         </context-menu>
     </div>
@@ -147,63 +147,63 @@ const recordsDashStore = useRecordsDashStore()
 
 const dropdownMenus: DashDropMenu[] = [
     {
-        HTMLElementTitle: $t('mainContainer.filter'),
+        HTMLElementTitle: $t('layout.filter'),
         title: '&#xe7e6;',
         items: [
             {
-                title: '有封面', divided: false,
+                title: $t('layout.hasCover'), divided: false,
                 click: () => recordsDashStore.handleFilter(FilterKey.cover), dot: () => recordsDashStore.filter[FilterKey.cover]
             },
             {
-                title: '有链接', divided: false,
+                title: $t('layout.hasHyperlink'), divided: false,
                 click: () => recordsDashStore.handleFilter(FilterKey.hyperlink), dot: () => recordsDashStore.filter[FilterKey.hyperlink]
             },
             {
-                title: '有文件', divided: false,
+                title: $t('layout.hasFile'), divided: false,
                 click: () => recordsDashStore.handleFilter(FilterKey.basename), dot: () => recordsDashStore.filter[FilterKey.basename]
             },
         ]
     },
     {
-        HTMLElementTitle: $t('mainContainer.sort'),
+        HTMLElementTitle: $t('layout.sortBy'),
         title: '&#xe81f;',
         items: [
             {
-                title: $t('mainContainer.time'), divided: false,
+                title: $t('layout.time'), divided: false,
                 click: () => recordsDashStore.handleSortField('time'), dot: () => recordsDashStore.sortField === 'time'
             },
             {
-                title: '名称', divided: false,
+                title: $t('layout.title'), divided: false,
                 click: () => recordsDashStore.handleSortField('title'), dot: () => recordsDashStore.sortField === 'title'
             },
             {
-                title: '评分', divided: false,
+                title: $t('layout.rate'), divided: false,
                 click: () => recordsDashStore.handleSortField('rate'), dot: () => recordsDashStore.sortField === 'rate'
             },
             {
-                title: $t('mainContainer.ascending'), divided: true,
+                title: $t('layout.ascending'), divided: true,
                 click: () => recordsDashStore.handleOrder('ASC'), dot: () => recordsDashStore.order === 'ASC'
             },
             {
-                title: $t('mainContainer.descending'), divided: false,
+                title: $t('layout.descending'), divided: false,
                 click: () => recordsDashStore.handleOrder('DESC'), dot: () => recordsDashStore.order === 'DESC'
             },
         ]
     },
     {
-        HTMLElementTitle: '视图',
+        HTMLElementTitle: $t('layout.view'),
         title: '&#xe6c7;',
         items: [
             {
-                title: '紧凑', divided: false,
+                title: $t('layout.compact'), divided: false,
                 click: () => recordsDashStore.handleView('compact'), dot: () => recordsDashStore.view === 'compact'
             },
             {
-                title: $t('mainContainer.thumbnail'), divided: false,
+                title: $t('layout.thumbnail'), divided: false,
                 click: () => recordsDashStore.handleView('thumbnail'), dot: () => recordsDashStore.view === 'thumbnail'
             },
             {
-                title: $t('mainContainer.extended'), divided: false,
+                title: $t('layout.extended'), divided: false,
                 click: () => recordsDashStore.handleView('extended'), dot: () => recordsDashStore.view === 'extended'
             },
         ]
@@ -274,7 +274,7 @@ const handleDataChange = () => {
 // 放入回收站
 const recycleRecord = (...ids: number[]) => {
     if (ids.length === 0) return
-    MessageBox.confirm('放入回收站', '确定要放入回收站吗?').then(async () => {
+    MessageBox.confirm($t('layout.putInRecycleBin'), $t('tips.surePutInRecycleBin')).then(async () => {
         // 提醒其他组件刷新
         viewsTaskAfterRoutingStore.setBashboardRecycled('refresh')
 
@@ -300,7 +300,7 @@ const deleteAllRecycled = () => {
 // 恢复
 const recoverRecord = (...ids: number[]) => {
     if (ids.length === 0) return
-    MessageBox.confirm('恢复', '确定要恢复吗?').then(async () => {
+    MessageBox.confirm($t('layout.restore'), $t('tips.sureRestore')).then(async () => {
         // 提醒其他组件刷新
         viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
         viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
@@ -314,7 +314,7 @@ const removeRecordFromSeries = function (recordId: number) {
     if (!route.query.seriesId) return
 
     const seriesId = Number(route.query.seriesId)
-    MessageBox.confirm('危险操作', '确定要从该系列中移除吗?', 'warning').then(() =>
+    MessageBox.confirm($t('tips.dangerousOperation'), $t('tips.sureRemoveFromSeries'), 'warning').then(() =>
         window.electronAPI.removeRecordFromSeries(activeLibrary.value, recordId, seriesId
         ).then(handleDataChange)
     )

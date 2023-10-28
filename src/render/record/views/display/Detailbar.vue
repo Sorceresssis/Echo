@@ -6,11 +6,11 @@
                          class="cover" />
             <h1 class="title">{{ record.title }}</h1>
             <div class="meta">
-                <div class="inline-list-title"> 介绍 </div>
+                <div class="inline-list-title"> {{ $t('layout.intro') }} </div>
                 <div class="meta-content"> {{ record.intro }} </div>
             </div>
             <div class="meta">
-                <div class="inline-list-title"> 作者 </div>
+                <div class="inline-list-title"> {{ $t('layout.authors') }} </div>
                 <div class="meta-content">
                     <span v-for="author in record.authors"
                           :key="author.id"
@@ -22,7 +22,7 @@
                 </div>
             </div>
             <div class="meta">
-                <div class="inline-list-title"> 标签 </div>
+                <div class="inline-list-title"> {{ $t('layout.tags') }} </div>
                 <div class="meta-content">
                     <span v-for="tag in record.tags"
                           :key="tag.id"
@@ -30,15 +30,15 @@
                 </div>
             </div>
             <div class="meta">
-                <div class="inline-list-title"> 信息 </div>
+                <div class="inline-list-title"> {{ $t('layout.info') }} </div>
                 <div class="meta-content"> {{ record.info }} </div>
             </div>
             <div class="meta">
-                <div class="inline-list-title"> 创建时间 </div>
+                <div class="inline-list-title"> {{ $t('layout.createdTime') }} </div>
                 <div class="meta-comtent"> {{ record.createTime }} </div>
             </div>
             <div class="meta">
-                <div class="inline-list-title"> 修改时间 </div>
+                <div class="inline-list-title"> {{ $t('layout.lastModifiedTime') }} </div>
                 <div class="meta-comtent"> {{ record.modifiedTime }} </div>
             </div>
         </scrollbar>
@@ -46,10 +46,10 @@
         <scrollbar class="series-list scrollbar-y-w4"
                    :show-back-top="false">
             <empty v-if="record.series.length === 0"
-                   :title="'没有加入系列'" />
+                   :title="$t('layout.noSeries')" />
             <ul v-else
                 class="adaptive-grid">
-                <li v-for="series in record.series"
+                <li v-for=" series  in   record.series  "
                     :key="series.id"
                     class="dashboard-text-card"
                     @click="openSeries(series.id)">
@@ -59,13 +59,13 @@
                     </div>
                     <div class="operate">
                         <span class="iconfont"
-                              :title="'复制到剪贴板'"
+                              :title="$t('layout.copyToClipboard')"
                               @click.stop="writeClibboard(series.name)">&#xe85c;</span>
                         <span class="iconfont"
-                              :title="'编辑'"
+                              :title="$t('layout.edit')"
                               @click.stop="editSeries(series.id, series.name)">&#xe722;</span>
                         <span class="iconfont"
-                              :title="'删除'"
+                              :title="$t('layout.delete')"
                               @click.stop="deleteSeries(series.id)">&#xe636;</span>
                     </div>
                 </li>

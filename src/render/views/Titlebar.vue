@@ -1,33 +1,29 @@
 <template>
     <div class="titlebar flex-row">
         <div>
-            <span :title="$t('titlebar.back')"
+            <span :title="$t('layout.back')"
                   class="iconfont no-drag"
                   :class="[routerCanBack ? '' : 'disabled']"
                   @click="routerCanBack && router.back()">&#xe66d;</span>
-            <span :title="$t('titlebar.forward')"
+            <span :title="$t('layout.forward')"
                   class="iconfont no-drag"
                   :class="[routerCanForward ? '' : 'disabled']"
                   @click="routerCanForward && router.forward()">&#xe66c;</span>
         </div>
         <div class="titlebar__title flex-1 textover--ellopsis"> {{ titleBarTitle }} </div>
         <div class="flex">
-            <span :title="$t('titlebar.setting')"
+            <span :title="$t('layout.settings')"
                   class="iconfont no-drag"
                   @click="router.push(hrefGenerator.settings())">&#xe657;</span>
-            <span :title="$t('titlebar.minimize')"
-                  class="iconfont no-drag"
+            <span class="iconfont no-drag"
                   @click="windowMinmize">&#xe67a;</span>
             <span v-if="isMaxmize"
-                  :title="$t('titlebar.restore')"
                   class="iconfont no-drag"
                   @click="windowMaxmize">&#xe607;</span>
             <span v-else
-                  :title="$t('titlebar.maximize')"
                   class="iconfont no-drag"
                   @click="windowMaxmize">&#xe606;</span>
-            <span :title="$t('titlebar.close')"
-                  class="iconfont no-drag"
+            <span class="iconfont no-drag"
                   @click="windowClose">&#xe685;</span>
         </div>
     </div>
@@ -107,7 +103,7 @@ watch(route, async () => {
         activeLibrary.value = 0
         const fullPath: string = route.fullPath
         if (fullPath.startsWith('/settings')) {
-            titleBarTitle.value = $t('settings.settings')
+            titleBarTitle.value = $t('layout.settings')
             document.title = `${titleBarTitle.value} - Echo`
         } else if (fullPath.startsWith('/')) {
             titleBarTitle.value = ''

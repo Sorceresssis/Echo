@@ -8,7 +8,7 @@
                  @mousedown="startScroll"> {{ recmd.title }} </div>
             <div class="meta scrollbar-x-nodisplay"
                  @mousedown="startScroll">
-                <div class="inline-list-title"> {{ '作者' }}</div>
+                <div class="inline-list-title"> {{ $t('layout.authors') }}</div>
                 <div class="meta-content">
                     <span v-for="author in recmd.authors"
                           :key="author.id"
@@ -21,7 +21,7 @@
             </div>
             <div class="meta scrollbar-x-nodisplay"
                  @mousedown="startScroll">
-                <div class="inline-list-title">{{ '标签' }}</div>
+                <div class="inline-list-title">{{ $t('layout.tags') }}</div>
                 <div class="meta-content">
                     <span v-for="tag in recmd.tags"
                           :key="tag.id"
@@ -29,15 +29,15 @@
                 </div>
             </div>
             <div class="operates">
-                <div :title="'搜索标题'"
+                <div :title="$t('layout.searchTitle')"
                      @click="searchTitle"> <span class="iconfont">&#xe8ba;</span> </div>
-                <div :title="'浏览器中打开链接'"
+                <div :title="$t('layout.openLinkInBrowser')"
                      :class="recmd.hyperlink ? '' : 'disabled'"
                      @click="openInBrowser(recmd.hyperlink)"> <span class="iconfont">&#xe612;</span> </div>
-                <div :title="'在资源管理器中打开'"
+                <div :title="$t('layout.openInFileExplorer')"
                      :class="recmd.resourcePath ? '' : 'disabled'"
                      @click="openInExplorer(recmd.resourcePath)"> <span class="iconfont">&#xe73e;</span> </div>
-                <div :title="'在新窗口中打开'"
+                <div :title="$t('layout.openInNewWindow')"
                      @click="createRecordWindow(activeLibrary, recmd.id)"> <span class="iconfont">&#xe7e9;</span> </div>
             </div>
         </div>

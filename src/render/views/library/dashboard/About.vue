@@ -2,13 +2,13 @@
     <div class="flex-col">
         <el-form class="dashboard__content scrollbar-y-w8"
                  label-position="left"
-                 label-width="120px"
                  require-asterisk-position="right"
-                 status-icon>
-            <el-form-item label="搜索时使用">
+                 status-icon
+                 label-width="auto">
+            <el-form-item :label="$t('layout.useSearchAuxiliaryText')">
                 <el-switch v-model="activeLibraryDetail.useAuxiliarySt" />
             </el-form-item>
-            <el-form-item label="搜索辅助文本">
+            <el-form-item :label="$t('layout.searchAuxiliaryText')">
                 <el-input v-model="activeLibraryDetail.auxiliarySt"
                           placeholder="eg: site:xxx.com"
                           maxlength="255"
@@ -18,13 +18,10 @@
             <el-form-item label="ID">
                 {{ activeLibraryDetail.id }}
             </el-form-item>
-            <el-form-item label="创建时间">
+            <el-form-item :label="$t('layout.createdTime')">
                 {{ activeLibraryDetail.createTime }}
             </el-form-item>
-            <el-form-item label="修改时间">
-                {{ activeLibraryDetail.modifiedTime }}
-            </el-form-item>
-            <el-form-item label="简介">
+            <el-form-item :label="$t('layout.intro')">
                 <el-input v-model="activeLibraryDetail.intro"
                           type="textarea"
                           spellcheck="false"

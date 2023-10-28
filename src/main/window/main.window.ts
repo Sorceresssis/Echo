@@ -26,8 +26,6 @@ export function createWindow(libraryId?: number): BrowserWindow {
         win.webContents.openDevTools()
     } else {
         win?.loadFile(resolve(__dirname, "../../render/index.html"))
-        win.removeMenu();
-        // 虽然菜单栏消失了，但是依然可以通过快捷键进行菜单操作，比如ctrl+shift+i打开开发者工具，为避免这种情况，我们需要去掉菜单栏window.removeMenu();
     }
 
     win.once('ready-to-show', () => {

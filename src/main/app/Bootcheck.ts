@@ -1,8 +1,8 @@
-import fm from '../util/FileManager'
+import fs from 'fs'
 import appConfig from './config'
 
 const bootCheck = () => {
-    fm.mkdirsSync(appConfig.get('userDataPath'))
+    fs.mkdirSync(appConfig.get('userDataPath'), { recursive: true })
 }
 
 export default bootCheck

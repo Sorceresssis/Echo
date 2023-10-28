@@ -3,7 +3,8 @@
          class="file-explorer">
         <header class="file-explorer__header">
             <div class="operate">
-                <span class="iconfont fz-26 icon"
+                <span :title="$t('layout.backToParentFolder')"
+                      class="iconfont fz-26 icon"
                       @click="explorer.back"> &#xe665; </span>
                 <span class="iconfont fz-26"> &#xe680; </span>
                 <el-dropdown v-show="showFolderIdxs.length < shadowFolders.length"
@@ -14,7 +15,7 @@
                     <span class="iconfont fz-20 icon"> &#xe63e; </span>
                     <template #dropdown>
                         <el-dropdown-menu>
-                            <el-dropdown-item v-for="i in collapseFolderIdxs"
+                            <el-dropdown-item v-for=" i  in  collapseFolderIdxs "
                                               :key="i"
                                               :title="shadowFolders[i]"
                                               @click="explorer.go(i)"> {{ shadowFolders[i] }}
@@ -25,7 +26,7 @@
             </div>
             <nav class="folder-nav">
                 <ul>
-                    <li v-for="i in showFolderIdxs"
+                    <li v-for=" i  in  showFolderIdxs "
                         :key="i"
                         class="v-center">
                         <span class="folder-nav-item textover--ellopsis"
@@ -40,7 +41,7 @@
                                   @click="explorer.showFoldersDropdownMenu(i)"> &#xe614; </span>
                             <template #dropdown>
                                 <el-dropdown-menu>
-                                    <el-dropdown-item v-for="folderName in dropdownFolders"
+                                    <el-dropdown-item v-for=" folderName  in  dropdownFolders "
                                                       :key="folderName"
                                                       :title="folderName"
                                                       @click="explorer.go(i, folderName)"> {{ folderName }}
@@ -51,7 +52,7 @@
                     </li>
                 </ul>
                 <ul class="shadow">
-                    <li v-for="folder in shadowFolders"
+                    <li v-for=" folder  in  shadowFolders "
                         :key="folder"
                         class="v-center">
                         <span class="folder-nav-item textover--ellopsis"> {{ folder }} </span>
@@ -66,7 +67,7 @@
                    class="scrollbar-y-w8 margin-tb-10 flex-1">
             <div class="adaptive-grid folder-container"
                  v-viewer="{ transition: false }">
-                <FolderContentItem v-for="item in currDirContent"
+                <FolderContentItem v-for=" item  in  currDirContent "
                                    :key="item.name"
                                    :dirContentItem="item"
                                    @openDir="explorer.push"
@@ -75,21 +76,21 @@
             <context-menu v-model:show="isVisCtm"
                           :options="ctmOptions">
                 <context-menu-item v-show="focusDirContentItem!.type === 'file'"
-                                   :label="'默认程序打开'"
+                                   :label="$t('layout.openWithDefaultProgram')"
                                    @click="openFile(focusDirContentItem!.fullPath)" />
                 <context-menu-item v-show="focusDirContentItem!.type === 'folder'"
-                                   :label="'资源管理器中打开'"
+                                   :label="$t('layout.openInFileExplorer')"
                                    @click="openInExplorer(focusDirContentItem!.fullPath, 'openPath')" />
-                <context-menu-item :label="'资源管理器中显示'"
+                <context-menu-item :label="$t('layout.showInFileExplorer')"
                                    @click="openInExplorer(focusDirContentItem!.fullPath, 'showItemInFolder')" />
             </context-menu>
         </scrollbar>
         <empty v-else
-               :title="'当前文件夹为空'" />
+               :title="$t('layout.currentFolderIsEmpty')" />
     </div>
     <empty v-else
            class="file-explorer"
-           :title="'未设置资源路径'"
+           :title="$t('layout.noSourcePath')"
            bg-color="#fff" />
 </template>
 

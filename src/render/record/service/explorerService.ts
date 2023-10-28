@@ -1,4 +1,5 @@
 import { ref, nextTick, } from "vue"
+import { $t } from "@/locale"
 import { createRange, throttle } from "@/util/common"
 import Message from '@/util/Message'
 
@@ -129,7 +130,7 @@ const useExplorer = function () {
         reset()
 
         realFolders.value.push(rootPath)
-        shadowFolders.value.push('根目录')
+        shadowFolders.value.push($t('layout.rootDir'))
 
         updateCurrDirContent()
     }

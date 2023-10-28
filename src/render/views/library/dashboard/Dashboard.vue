@@ -12,7 +12,7 @@
 </template>
   
 <script lang="ts" setup>
-import { shallowReactive, ref, Ref, inject, watch, readonly } from 'vue'
+import { shallowReactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
@@ -37,12 +37,12 @@ watch(route, () => {
 
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
-    { id: 1, label: '记录' },
-    { id: 2, label: '作者' },
-    { id: 3, label: '标签' },
-    { id: 4, label: '目录' },
-    { id: 5, label: '回收站' },
-    { id: 6, label: '关于库' }
+    { id: 1, label: $t('layout.records') },
+    { id: 2, label: $t('layout.authors') },
+    { id: 3, label: $t('layout.tags') },
+    { id: 4, label: $t('layout.dirnames') },
+    { id: 5, label: $t('layout.recycleBin') },
+    { id: 6, label: $t('layout.aboutLibrary') }
 ])
 const components = [
     { component: Records, props: { type: 'common' } },

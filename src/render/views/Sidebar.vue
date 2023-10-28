@@ -7,11 +7,13 @@
              class="flex-1 scrollbar-y-w4">
             <div>
                 <div class="menu__title menu-row flex-row">
-                    <div> <span> {{ $t('siderBar.createdGroup') }} </span> </div>
+                    <div> <span> {{ $t('layout.createdGroup') }} </span> </div>
                     <div>
                         <span class="iconfont"
+                              :title="$t('layout.refresh')"
                               @click="getGroups"> &#xe61f; </span>
                         <span class="iconfont"
+                              :title="$t('layout.addGroup')"
                               @click="openAddGroup"> &#xe68c; </span>
                     </div>
                 </div>
@@ -103,58 +105,58 @@
                                  @handle-delete="handleDelete" />
         <context-menu v-model:show="isVisCtmGroup"
                       :options="ctmOptions">
-            <context-menu-item :label="$t('ctm.addLibrary')"
+            <context-menu-item :label="$t('layout.addLibrary')"
                                @click="openAddLibrary">
                 <template #icon> <span class="iconfont">&#xe68c;</span> </template>
             </context-menu-item>
-            <context-menu-item :label="$t('ctm.rename')"
+            <context-menu-item :label="$t('layout.rename')"
                                @click="openRename">
                 <template #icon> <span class="iconfont">&#xe7fb;</span> </template>
             </context-menu-item>
-            <context-menu-item label="删除"
+            <context-menu-item :label="$t('layout.delete')"
                                @click="openDelete">
                 <template #icon> <span class="iconfont">&#xe636;</span> </template>
             </context-menu-item>
-            <context-menu-item label="导入库"
+            <context-menu-item :label="$t('layout.importLibrary')"
                                @click="handleImportLibrary">
                 <template #icon> <span class="iconfont">&#xe655;</span> </template>
             </context-menu-item>
         </context-menu>
         <context-menu v-model:show="isVisCtmLibrary"
                       :options="ctmOptions">
-            <context-menu-item label="面板"
+            <context-menu-item :label="$t('layout.panel')"
                                @click="router.push(hrefGenerator.libraryBashboard(ctmCurLib().id))">
                 <template #icon> <span class="iconfont">&#xe69c;</span> </template>
             </context-menu-item>
-            <context-menu-item label="管理数据"
+            <context-menu-item :label="$t('layout.manageData')"
                                @click="router.push(hrefGenerator.libraryManage(ctmCurLib().id))">
                 <template #icon> <span class="iconfont">&#xe617;</span> </template>
             </context-menu-item>
-            <context-menu-item label="在新窗口中打开"
+            <context-menu-item :label="$t('layout.openInNewWindow')"
                                @click="openLibraryInNewWindow">
                 <template #icon><span class="iconfont">&#xe7e9;</span></template>
             </context-menu-item>
             <context-menu-sperator />
-            <context-menu-item label="重命名"
+            <context-menu-item :label="$t('layout.rename')"
                                @click="openRename">
                 <template #icon> <span class="iconfont">&#xe7fb;</span> </template>
             </context-menu-item>
-            <context-menu-group label="移动到">
+            <context-menu-group :label="$t('layout.moveTo')">
                 <context-menu-item v-for="(group, idxGroup) in groups"
                                    :key="group.id"
                                    :label="group.name"
                                    @click="moveLibrary(idxGroup)">
                 </context-menu-item>
             </context-menu-group>
-            <context-menu-item label="删除"
+            <context-menu-item :label="$t('layout.delete')"
                                @click="openDelete">
                 <template #icon> <span class="iconfont">&#xe636;</span> </template>
             </context-menu-item>
-            <context-menu-item label="打开数据保存位置"
+            <context-menu-item :label="$t('layout.openDataLocation')"
                                @click="openInExplorer(ctmCurLib().dataPath)">
                 <template #icon> <span class="iconfont">&#xe73e;</span> </template>
             </context-menu-item>
-            <context-menu-item label="导出"
+            <context-menu-item :label="$t('layout.export')"
                                @click="handleExportLibrary">
                 <template #icon> <span class="iconfont">&#xe654;</span> </template>
             </context-menu-item>
@@ -246,7 +248,7 @@ const openCtm = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
 const newName = ref<string>('')
 const isVisAddGroup = ref(false)
 const openAddGroup = throttle(() => {
-    newName.value = '新建组'
+    newName.value = $t('layout.newGroup')
     isVisAddGroup.value = true
 }, 500)
 const handleAddGroup = async () => {
@@ -259,7 +261,7 @@ const handleAddGroup = async () => {
 }
 const idxGroupOfAddLibrary = ref<number>(-1)
 const openAddLibrary = () => {
-    newName.value = '新建库'
+    newName.value = $t('layout.newLibrary')
     idxGroupOfAddLibrary.value = ctmOpIdx.cg
     isExpandGroup.value[idxGroupOfAddLibrary.value] = true
 }
@@ -411,7 +413,7 @@ const getPrimaryOpenLibrary = async (): Promise<number | undefined> => {
 
 const handleImportLibrary = () => {
     const groupId = ctmCurGrp().id
-    window.electronAPI.openDialog('file', true, '选择要导入的数据').then(paths => {
+    window.electronAPI.openDialog('file', true, $t('layout.selectImportData')).then(paths => {
         if (!paths.length) return
         window.electronAPI.importLibrary(groupId, paths)
     })
@@ -419,7 +421,7 @@ const handleImportLibrary = () => {
 
 const handleExportLibrary = () => {
     const libraryId = ctmCurLib().id
-    window.electronAPI.openDialog('dir', false, '选择导出的位置').then(paths => {
+    window.electronAPI.openDialog('dir', false, $t('layout.selectExportLocation')).then(paths => {
         if (!paths.length) return
         window.electronAPI.exportLibrary(libraryId, paths[0])
     })

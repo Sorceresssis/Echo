@@ -25,7 +25,7 @@
                 </div>
                 <div v-if="showSelectbtn"
                      class="select-btn flex-center">
-                    <span @click.stop="emit('btnSelect', toRaw(item))">选择</span>
+                    <span @click.stop="emit('btnSelect', toRaw(item))"> {{ $t('layout.select') }} </span>
                 </div>
             </div>
         </template>
@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, toRaw, watch, readonly, onActivated } from 'vue'
+import { ref, Ref, inject, toRaw, readonly } from 'vue'
 import LocalImage from '@/components/LocalImage.vue'
 
 const props = withDefaults(defineProps<{

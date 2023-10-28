@@ -7,7 +7,7 @@
                 <h1 :title="authorDetail.name"
                     class="name"> {{ authorDetail.name }} </h1>
                 <p class="meta">
-                    <span class="inline-list-title">作品数</span>
+                    <span class="inline-list-title"> {{ $t('layout.numberOfWorks') }} </span>
                     <a class="count">{{ authorDetail.recordCount }}</a>
                 </p>
                 <p class="caption"
@@ -15,10 +15,10 @@
             </div>
             <div class="operate">
                 <span class="iconfont"
-                      :title="'编辑'"
+                      :title="$t('layout.edit')"
                       @click="router.push(hrefGenerator.libraryEditAuthor(activeLibrary, authorDetail.id))">&#xe722;</span>
                 <span class="iconfont"
-                      :title="'删除'"
+                      :title="$t('layout.delete')"
                       @click="deleteAuthor">&#xe636;</span>
             </div>
         </div>
@@ -63,8 +63,8 @@ const authorDetail = reactive<VO.AuthorDetail>({
 const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
-    { id: 1, label: '记录' },
-    { id: 2, label: '详细信息' },
+    { id: 1, label: $t('layout.records') },
+    { id: 2, label: $t('layout.detailInfo') },
 ])
 const components = [
     { component: Records, props: { type: 'author' } },
@@ -75,7 +75,7 @@ const deleteAuthor = async () => {
     MessageBox.deleteConfirm().then(() => {
         viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
         window.electronAPI.deleteAuthor(activeLibrary.value, authorDetail.id).then((res) => {
-            res ? router.back() : Message.error('删除失败')
+            res ? router.back() : Message.error($t('msg.deleteFailed'))
         })
     })
 }

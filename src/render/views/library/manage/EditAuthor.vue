@@ -9,27 +9,27 @@
                  require-asterisk-position="right"
                  status-icon
                  @submit.native.prevent>
-            <el-form-item label="头像"
+            <el-form-item :label="$t('layout.avatar')"
                           prop="avatar">
                 <div class="avatar">
                     <local-image :src="formData.avatar"
                                  class="fit--cover" />
                     <div class="image-select-btn">
-                        <span @click="selectAvatar">选择图片</span>
+                        <span @click="selectAvatar"> {{ $t('layout.selectImage') }} </span>
                         <span :class="[formData.avatar === formData.originAvatar ? 'disabled' : '']"
-                              @click="resetAvatar">重置</span>
+                              @click="resetAvatar"> {{ $t('layout.reset') }} </span>
                     </div>
                 </div>
             </el-form-item>
-            <el-form-item label="名字"
+            <el-form-item :label="$t('layout.name')"
                           prop="name">
                 <echo-autocomplete v-model="formData.name"
                                    type="author"
                                    :show-word-limit="true"
-                                   placeholder="作者的名字"
+                                   :placeholder="$t('layout.authorName')"
                                    maxlength="255" />
             </el-form-item>
-            <el-form-item label="介绍"
+            <el-form-item :label="$t('layout.intro')"
                           prop="intro">
                 <el-input v-model="formData.intro"
                           type="textarea"
@@ -37,7 +37,7 @@
                           :autosize="inputAutoSize"
                           resize="none"
                           clearable
-                          placeholder="作者的介绍" />
+                          :placeholder="$t('layout.authorIntro')" />
             </el-form-item>
             <el-form-item>
                 <el-button type="primary"
@@ -52,6 +52,7 @@
 <script setup lang='ts'>
 import { ref, Ref, toRaw, reactive, inject, onMounted, watch, readonly } from 'vue'
 import { useRoute } from 'vue-router'
+import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
@@ -64,7 +65,7 @@ const inputAutoSize = {
     maxRows: 8,
 }
 const route = useRoute()
-const submitBtnText = ref('添加')
+const submitBtnText = ref<string>($t('layout.create'))
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
@@ -103,7 +104,7 @@ const resetAvatar = () => {
 const rules = reactive<FormRules>({
     name: [{
         validator: (rule, value: string, callback) => {
-            value.trim().length > 0 ? callback() : callback('姓名不能为空')
+            value.trim().length > 0 ? callback() : callback($t('tips.authorNameNotEmpty'))
         },
         trigger: 'blur'
     }],
@@ -124,10 +125,10 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
                 if (result) {
                     if (formData.id) {
-                        Message.success('编辑成功')
+                        Message.success($t('msg.editSuccess'))
                         queryAuthorDetail(formData.id)
                     } else {
-                        Message.success('添加成功')
+                        Message.success($t('msg.createSuccess'))
                         authorFormRef.value?.resetFields()
                     }
                 }
@@ -143,10 +144,10 @@ const init = () => {
 
     const id = route.query.author_id as string | undefined
     if (id) {
-        submitBtnText.value = '修改'
+        submitBtnText.value = $t('layout.modify')
         queryAuthorDetail(Number.parseInt(id))
     } else {
-        submitBtnText.value = '添加'
+        submitBtnText.value = $t('layout.create')
         // 清空表单
         formData.id = 0
         formData.name = ''

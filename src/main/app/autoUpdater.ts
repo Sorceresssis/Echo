@@ -29,16 +29,16 @@ export function updateHandle() {
     })
 
     autoUpdater.on('download-progress', (progressObj) => {
-        console.log(progressObj)
+        console.log('download-progress', progressObj)
     })
 
     autoUpdater.on('update-downloaded', (info) => {
-        console.log(info)
+        console.log('update-downloaded', info)
     })
 
     autoUpdater.checkForUpdatesAndNotify().then((result) => {
-        console.log(result)
+        console.log('checkForUpdatesAndNotify-success', result)
     }).catch((error) => {
-        console.log(error)
+        console.log('checkForUpdatesAndNotify-error', error)
     })
 } 
