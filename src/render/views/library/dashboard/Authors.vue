@@ -30,7 +30,7 @@
 							@click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))">
 							{{ recmd.name }}
 						</h1>
-						<p class="meta">
+						<p class="meta fz-12">
 							<span class="inline-list-title"> {{ $t('layout.numberOfWorks') }}</span>
 							<a class="count">{{ recmd.worksCount }}</a>
 						</p>

@@ -86,12 +86,20 @@ export default function ipcMainSystem() {
             // 检查是否是文件夹
             if (fs.statSync(dirPath).isDirectory()) {
                 // 是文件夹就返回文件夹下所有的文件和文件夹的信息数组 
-                return Result.success(fm.dirContentsWithType(dirPath))
+                return Result.success(
+                    fm.dirContentsWithType(dirPath).map(item => {
+                        return {
+                            ...item,
+                            fullPath: nodePath.join(dirPath, item.name)
+                        }
+                    })
+                )
             } else {
                 // 不是文件夹就返回只包含该文件的信息的数组
                 return Result.success([{
                     name: nodePath.basename(dirPath),
-                    type: 'file'
+                    type: 'file',
+                    fullPath: dirPath
                 }])
             }
         } catch (e: any) {

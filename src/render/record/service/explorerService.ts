@@ -71,16 +71,11 @@ const useExplorer = function () {
         window.electronAPI.readdir(dirname).then(res => {
             if (res.code === 1) {
 
-                currDirContent.value = (res.data as DirContentItem[]).sort((a, b) => {
+                currDirContent.value = (res.data as (DirContentItem & { fullPath: string })[]).sort((a, b) => {
                     if (a.type !== b.type) {
                         return a.type === 'folder' ? -1 : 1
                     } else {
                         return a < b ? -1 : 1
-                    }
-                }).map(item => {
-                    return {
-                        ...item,
-                        fullPath: dirname + '/' + item.name
                     }
                 })
 

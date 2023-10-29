@@ -6,7 +6,7 @@
             <div class="author-info">
                 <h1 :title="authorDetail.name"
                     class="name"> {{ authorDetail.name }} </h1>
-                <p class="meta">
+                <p class="meta fz-12">
                     <span class="inline-list-title"> {{ $t('layout.numberOfWorks') }} </span>
                     <a class="count">{{ authorDetail.recordCount }}</a>
                 </p>
