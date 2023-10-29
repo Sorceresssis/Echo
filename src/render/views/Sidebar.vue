@@ -2,7 +2,11 @@
     <!-- 不能用id="" 否则Transition无效 -->
     <div class="sidebar flex-col overflow-hidden">
         <div id="logo"
-             class="titlebar"> Echo </div>
+             class="titlebar">
+            <img src="/logo.png"
+                 class="icon">
+            <span>Echo</span>
+        </div>
         <div id="menu-wrap"
              class="flex-1 scrollbar-y-w4">
             <div>
@@ -466,6 +470,15 @@ onMounted(async () => {
 #logo {
     padding: 0 20px;
     font-size: 30px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+#logo .icon {
+    margin-right: 10px;
+    width: 40px;
+    height: 40px;
 }
 
 #menu-wrap {

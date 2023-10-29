@@ -41,7 +41,8 @@
                 </svg>
             </div>
         </div>
-        <div class="folder-content-item__name">
+        <div :title="dirContentItem.name"
+             class="folder-content-item__name">
             {{ dirContentItem.name }}
         </div>
     </div>

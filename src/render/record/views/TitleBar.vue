@@ -194,6 +194,7 @@ onMounted(() => {
         record.id = recordId
         queryLibraryDetail()
         queryRecordDetail()
+        document.title = `${record.title}`
     })
 })
 </script>

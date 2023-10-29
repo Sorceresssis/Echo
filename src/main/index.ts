@@ -1,6 +1,6 @@
 import { BrowserWindow, app, Menu } from "electron"
 import bootCheck from "./app/Bootcheck"
-import { updateHandle } from "./app/autoUpdater"
+// import { updateHandle } from "./app/autoUpdater"
 import { createWindow } from "./window/main.window"
 
 async function bootstrap() {
@@ -10,7 +10,7 @@ async function bootstrap() {
         bootCheck()
 
         // 检查更新
-        updateHandle()
+        // updateHandle()
 
         // 等待bootCheck完成后再引入，否则有些文件夹不存在
         const IPCMain = require('./ipcMain')

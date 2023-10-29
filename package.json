@@ -1,7 +1,7 @@
 {
   "name": "echo",
   "private": true,
-  "version": "0.0.1",
+  "version": "1.0.0",
   "main": "dist/main/index.js",
   "scripts": {
     "preview": "vite preview",
@@ -50,7 +50,7 @@
   },
   "author": {
     "email": "Sorceresssis@gmail.com",
-    "name": "何骏涛"
+    "name": "Sorceresssis"
   },
   "build": {
     "appId": "com.sorceresssis.echo",
@@ -64,7 +64,7 @@
     ],
     "asar": true,
     "win": {
-      "icon": null,
+      "icon": "build/icon.ico",
       "artifactName": "${productName}_${version}.${ext}",
       "target": [
         {
@@ -83,7 +83,7 @@
       "deleteAppDataOnUninstall": false
     },
     "mac": {
-      "icon": null,
+      "icon": "build/icon.ico",
       "target": "dmg",
       "category": "public.app-category.utilities"
     },
@@ -102,7 +102,7 @@
       ]
     },
     "linux": {
-      "icon": null,
+      "icon": "build/icon.ico",
       "target": "deb",
       "category": "Utility"
     },
