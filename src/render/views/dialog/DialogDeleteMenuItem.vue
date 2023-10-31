@@ -23,7 +23,8 @@
 </template>
 
 <script setup lang='ts'>
-const props = defineProps<{
+
+defineProps<{
     modelValue: {
         isVis: boolean,
         confirmName: string,
@@ -38,7 +39,6 @@ const emit = defineEmits<{
 <style scoped>
 .row {
     padding: 5px 0;
-    line-height: 25px;
 }
 
 .el-button {

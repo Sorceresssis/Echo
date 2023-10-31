@@ -317,8 +317,13 @@ const submitForm = async (formEl: FormInstance | undefined) => {
                     ? Message.success(isAdd.value ? $t('msg.createSuccess') : $t('msg.editSuccess'))
                     : Message.error(isAdd.value ? $t('msg.createFailed') : $t('msg.editFailed') + ', ' + result.msg, 2000)
             }).catch(() => { })
-            // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
-            if (!isAdd.value) { init() }
+
+            if (isAdd.value) {
+                formData.title = ''
+            } else {
+                // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
+                init()
+            }
             btnLoading.value = false
         }
 

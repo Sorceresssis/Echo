@@ -8,17 +8,6 @@
                 </div>
             </div>
             <div class="settings-item">
-                <h2 class="settings-item__title">{{ $t('settings.turorial') }}</h2>
-                <div class="settings-item__content">
-                    <div class="row">
-                        <a class="openExternal col"
-                           @click.prevent="openInBrowser(YoutubeTutorialUrl)"> Youtube </a>
-                        <a class="openExternal col"
-                           @click.prevent="openInBrowser(BilibiliTutorialUrl)"> Bilibili </a>
-                    </div>
-                </div>
-            </div>
-            <div class="settings-item">
                 <h2 class="settings-item__title">{{ $t('settings.version') }}</h2>
                 <div class="settings-item__content">
                     <div class="row">Echo: {{ version.app }}</div>
@@ -30,7 +19,7 @@
             <div class="settings-item">
                 <h2 class="settings-item__title">{{ $t('settings.license') }}</h2>
                 <div class="settings-item__content">
-                    <div class="row">Copyright © 2023-2023 何骏涛 All rights reserved</div>
+                    <div class="row">Copyright © 2023-2023 Sorceresssis All rights reserved</div>
                 </div>
             </div>
         </div>
@@ -40,10 +29,6 @@
 <script setup lang='ts'>
 import { onMounted, reactive } from 'vue'
 import { $t } from '@/locale'
-import { openInBrowser } from '@/util/systemUtil'
-
-const BilibiliTutorialUrl = "https://www.bilibili.com/"
-const YoutubeTutorialUrl = "https://www.youtube.com/"
 
 onMounted(async () => {
     version.app = await window.versionAPI.app();

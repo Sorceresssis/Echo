@@ -1,6 +1,6 @@
 <template>
     <img :src="src ? `file:///${src}` : noImg"
-         @error="($event.target as HTMLImageElement).src = noImg">
+         @error="($event.target as HTMLImageElement).src = noImg" />
 </template>
 
 <script setup lang='ts'>

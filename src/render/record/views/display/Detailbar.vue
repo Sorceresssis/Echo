@@ -6,8 +6,13 @@
                          class="cover" />
             <h1 class="title">{{ record.title }}</h1>
             <div class="meta">
-                <div class="inline-list-title"> {{ $t('layout.intro') }} </div>
-                <div class="meta-content"> {{ record.intro }} </div>
+                <div class="inline-list-title">{{ $t('layout.rate') }}</div>
+                <div class="meta-content">
+                    <el-rate v-model="record.rate"
+                             size="small"
+                             disabled
+                             :colors="rateColors" />
+                </div>
             </div>
             <div class="meta">
                 <div class="inline-list-title"> {{ $t('layout.authors') }} </div>
@@ -28,6 +33,10 @@
                           :key="tag.id"
                           class="tag">{{ tag.title }}</span>
                 </div>
+            </div>
+            <div class="meta">
+                <div class="inline-list-title"> {{ $t('layout.intro') }} </div>
+                <div class="meta-content"> {{ record.intro }} </div>
             </div>
             <div class="meta">
                 <div class="inline-list-title"> {{ $t('layout.info') }} </div>
@@ -97,6 +106,7 @@ import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 import Records from '@/views/library/dashboard/Records.vue'
 
+const rateColors = ['#b5adf7', '#887cf7', '#9e94f7'] // 评分颜色 
 const router = useRouter()
 
 const drawerVisible = ref(false)
