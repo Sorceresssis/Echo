@@ -36,8 +36,6 @@
     <img src="./screenshots/6.png" style="border: 1px solid #999;" />
 </div>
 
-
-
-
 #### 使用教程
 
+[普通用户](./docs/user-guide/index.md)
