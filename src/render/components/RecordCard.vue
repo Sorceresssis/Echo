@@ -8,7 +8,8 @@
                  @mousedown="startScroll"> {{ recmd.title }} </div>
             <div class="meta scrollbar-x-nodisplay"
                  @mousedown="startScroll">
-                <div class="inline-list-title"> {{ $t('layout.authors') }}</div>
+                <div v-if="recmd.authors.length"
+                     class="inline-list-title"> {{ $t('layout.authors') }}</div>
                 <div class="meta-content">
                     <span v-for="author in recmd.authors"
                           :key="author.id"
@@ -21,7 +22,8 @@
             </div>
             <div class="meta scrollbar-x-nodisplay"
                  @mousedown="startScroll">
-                <div class="inline-list-title">{{ $t('layout.tags') }}</div>
+                <div v-if="recmd.tags.length"
+                     class="inline-list-title">{{ $t('layout.tags') }}</div>
                 <div class="meta-content">
                     <span v-for="tag in recmd.tags"
                           :key="tag.id"

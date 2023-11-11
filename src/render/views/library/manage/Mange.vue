@@ -4,6 +4,7 @@
             {{ $t('layout.manageData') }}
         </div>
         <tabs v-model="activeLabelIdx"
+              :key="tabsKey"
               :tabs="tabs">
         </tabs>
         <keep-alive>
@@ -35,7 +36,7 @@ provide('managePathPattern', props.pathPattern)
 
 const route = useRoute()
 
-
+const tabsKey = ref<number>(0)
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
     { id: 1, label: $t('layout.addRecord'), disabled: false },
@@ -62,14 +63,15 @@ const init = () => {
         tabs[0].disabled = false
         tabs[2].label = $t('layout.addAuthor')
         activeLabelIdx.value = 0
+
+        if (route.query.record_id) {
+            tabs[0].label = $t('layout.editRecord')
+        } else {
+            tabs[0].label = $t('layout.addRecord')
+        }
     }
 
-    if (route.query.record_id) {
-        tabs[0].label = $t('layout.editRecord')
-    } else {
-        tabs[0].label = $t('layout.addRecord')
-    }
-
+    tabsKey.value = new Date().getTime()
 }
 
 watch(route, init)

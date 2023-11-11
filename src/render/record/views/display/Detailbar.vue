@@ -14,7 +14,8 @@
                              :colors="rateColors" />
                 </div>
             </div>
-            <div class="meta">
+            <div v-if="record.authors.length"
+                 class="meta">
                 <div class="inline-list-title"> {{ $t('layout.authors') }} </div>
                 <div class="meta-content">
                     <span v-for="author in record.authors"
@@ -26,7 +27,8 @@
                     </span>
                 </div>
             </div>
-            <div class="meta">
+            <div v-if="record.tags.length"
+                 class="meta">
                 <div class="inline-list-title"> {{ $t('layout.tags') }} </div>
                 <div class="meta-content">
                     <span v-for="tag in record.tags"
@@ -34,11 +36,13 @@
                           class="tag">{{ tag.title }}</span>
                 </div>
             </div>
-            <div class="meta">
+            <div v-if="record.intro.length"
+                 class="meta">
                 <div class="inline-list-title"> {{ $t('layout.intro') }} </div>
                 <div class="meta-content"> {{ record.intro }} </div>
             </div>
-            <div class="meta">
+            <div v-if="record.info.length"
+                 class="meta">
                 <div class="inline-list-title"> {{ $t('layout.info') }} </div>
                 <div class="meta-content"> {{ record.info }} </div>
             </div>

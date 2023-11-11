@@ -2,6 +2,10 @@
     <div class="flex-col">
         <div class="dashboard__content scrollbar-y-w8">
             <div class="detail-item">
+                <div class="detail-item__lable"> ID </div>
+                <div class="detail-item__content"> {{ info.id }} </div>
+            </div>
+            <div class="detail-item">
                 <label class="detail-item__lable"> {{ $t('layout.name') }} </label>
                 <div class="detail-item__content">
                     {{ info.name }}

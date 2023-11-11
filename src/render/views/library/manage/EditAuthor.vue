@@ -120,6 +120,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
                 // 编辑已经存在的author肯被records引用, 所以要刷新record相关的视图
                 viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
                 viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
+                viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
             }
 
             window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {

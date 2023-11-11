@@ -262,20 +262,6 @@ const {
 } = useEditRecordServic()
 
 const rules = reactive<FormRules>({
-    resourse: [
-        {
-            validator: (rule, value: string, callback) => {
-                const dirname = formData.dirname.trim()
-                const basename = formData.basename.trim()
-                // 不能单独填写basename
-                if ((!options.batch)
-                    && dirname.length === 0
-                    && basename.length !== 0
-                ) { callback($t('layout.basenameCannotBeAlone')) } else { callback() }
-            },
-            trigger: 'blur'
-        },
-    ],
     title: [
         {
             validator: (rule, value: string, callback) => {
