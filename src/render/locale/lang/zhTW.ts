@@ -37,6 +37,7 @@ export default {
         search: '搜索',
         deletePermanently: '徹底刪除',
         copyTitle: '複製標題',
+        copyTitleAndAuthors: '複製標題和作者',
         copyAllInfo: '複製全部信息',
         edit: '編輯',
         removeFromSeries: '從該系列中移除',

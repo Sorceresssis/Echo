@@ -49,6 +49,7 @@ export default {
         search: '検索',
         deletePermanently: '完全に削除',
         copyTitle: 'タイトルをコピー',
+        copyTitleAndAuthors: 'コピータイトルと著者',
         copyAllInfo: 'すべての情報をコピー',
         edit: '編集',
         removeFromSeries: 'このシリーズから削除',

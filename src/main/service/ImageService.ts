@@ -1,4 +1,5 @@
 import { nativeImage, type NativeImage } from 'electron'
+import * as sharp from 'sharp';
 import fs from 'fs'
 import path from 'path'
 import appConfig from '../app/config'
@@ -6,7 +7,7 @@ import generateUid from "../util/uid"
 import { mkdirsSync } from '../util/FileManager'
 
 class ImageService {
-    private static readonly MIN_SIZE = 300
+    private static readonly MIN_SIZE = 1000
     private image: NativeImage
     private libraryId: number
 
@@ -40,6 +41,11 @@ class ImageService {
     private compress() {
         const { width, height } = this.image.getSize()
         let newWidth, newHeight
+
+
+        // 如果width, height有一边不足 MIN_SIZE，则不压缩
+        if (width < ImageService.MIN_SIZE || height < ImageService.MIN_SIZE) return
+
         if (width < height) {
             newWidth = ImageService.MIN_SIZE
             newHeight = Math.round(height * newWidth / width)

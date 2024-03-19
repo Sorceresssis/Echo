@@ -51,6 +51,11 @@ namespace DTO {
         seriesName: string
     }
 
+    type AuthorIdAndRole = {
+        id: number,
+        role: string | null,
+    }
+
     /**
      * 添加和编辑record的表单数据
      */
@@ -66,7 +71,8 @@ namespace DTO {
         rate: number,
         addTags: string[],
         removeTags: number[],
-        addAuthors: number[],
+        addAuthors: AuthorIdAndRole[],
+        editAuthorsRole: AuthorIdAndRole[],
         removeAuthors: number[],
         addSeries: string[],
         removeSeries: number[],

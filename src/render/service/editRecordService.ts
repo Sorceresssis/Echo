@@ -9,6 +9,7 @@ const useEditRecordService = () => {
     /**
      * 添加属性, 注意：K,V 不能是复杂类型，如对象，数组等, 因为Set, Map都是===比较
      * display === origin + add - remove 等式左右完全相等，且add和remove不相交
+     * JS的map和set都是哈希表,他会保留插入的顺序
      * @param origin 原本的数据容器
      * @param display 实时展示给用户的数据容器
      * @param remove 提供给后台的删除数据容器
@@ -78,26 +79,38 @@ const useEditRecordService = () => {
         attributeRemover(originSeries, displaySeries, removeSeries, addSeries, value)
     }
 
-    const originAuthors = new Map<number, number>()         // 保存{id: 1, name: 'tag1'}这样的对象
-    const __displayAuthors = Array<number>()                // 保存int类型的id
-    const displayAuthors = reactive<Array<VO.AuthorProfile>>([])   // 保存作者详细信息的 
-    const addAuthors = new Set<number>()                    // 保存int类型的id
-    const removeAuthors = new Set<number>()                 // 保存int类型的id  
+    const originAuthors = new Map<number, DTO.AuthorIdAndRole['role']>()    // 保存{id: 1, name: 'tag1'}这样的对象
+    const addAuthors = new Map<number, DTO.AuthorIdAndRole['role']>()       // 保存int类型的id
+    const editAuthorsRole = new Map<number, DTO.AuthorIdAndRole['role']>()  // 保存int类型的id
+    const removeAuthors = new Set<number>()                                 // 保存int类型的id
+    const displayAuthors = reactive<Array<VO.RecordAuthorProfile>>([])      // 保存作者详细信息的
     const authorAdder = (obj: VO.AcSuggestion) => {
-        // 插入作者id
-        attributeAdder(originAuthors, __displayAuthors, removeAuthors, addAuthors, obj.id) ?
+        // 先判断是否已经存在 
+        if (displayAuthors.findIndex((v) => v.id === obj.id) === -1) {
             displayAuthors.push({
                 id: obj.id,
                 name: obj.value,
-                avatar: obj.image
+                avatar: obj.image,
+                role: null
             })
-            : Message.error($t('msg.thisAuthorAlreadyExists'))
+            originAuthors.has(obj.id) ? removeAuthors.delete(obj.id) : addAuthors.set(obj.id, null)
+        } else {
+            Message.error($t('msg.thisAuthorAlreadyExists'))
+        }
     }
     const authorRemover = (id: number) => {
-        if (attributeRemover(originAuthors, __displayAuthors, removeAuthors, addAuthors, id)) {
-            // 删除作者详细信息
-            displayAuthors.splice(displayAuthors.findIndex((v) => v.id === id), 1)
-        }
+        const idx = displayAuthors.findIndex((v) => v.id === id)
+        if (-1 === idx) return
+
+        displayAuthors.splice(idx, 1)
+        originAuthors.has(id) ? removeAuthors.add(id) : addAuthors.delete(id)
+
+        editAuthorsRole.delete(id)
+    }
+    const authorEditRole = (id: number, role: string | null) => {
+        if (removeAuthors.has(id)) return
+        // 可以editRole的只存在于addAuthors和originAuthors中
+        originAuthors.has(id) ? editAuthorsRole.set(id, role) : addAuthors.set(id, role)
     }
 
     const formData = reactive<DTO.EditRecordForm>({
@@ -113,6 +126,7 @@ const useEditRecordService = () => {
         addTags: [],
         removeTags: [],
         addAuthors: [],
+        editAuthorsRole: [],
         removeAuthors: [],
         addSeries: [],
         removeSeries: [],
@@ -202,8 +216,7 @@ const useEditRecordService = () => {
             displaySeries.push(item.name)
         })
         data.authors.forEach(item => {
-            originAuthors.set(item.id, item.id)
-            __displayAuthors.push(item.id)
+            originAuthors.set(item.id, item.role)
             displayAuthors.push(item)
         })
     }
@@ -212,7 +225,8 @@ const useEditRecordService = () => {
         // 处理数据
         formData.addTags = Array.from(addTags)
         formData.removeTags = Array.from(removeTags)
-        formData.addAuthors = Array.from(addAuthors)
+        formData.addAuthors = Array.from(addAuthors.entries()).map(([id, role]) => ({ id, role }))
+        formData.editAuthorsRole = Array.from(editAuthorsRole.entries()).map(([id, role]) => ({ id, role }))
         formData.removeAuthors = Array.from(removeAuthors)
         formData.addSeries = Array.from(addSeries)
         formData.removeSeries = Array.from(removeSeries)
@@ -242,9 +256,9 @@ const useEditRecordService = () => {
         displaySeries.splice(0)
         originAuthors.clear()
         addAuthors.clear()
+        editAuthorsRole.clear()
         removeAuthors.clear()
         displayAuthors.splice(0)
-        __displayAuthors.splice(0)
         dispalyFormData.authorInput = ''
         dispalyFormData.tagInput = ''
         dispalyFormData.seriesInput = ''
@@ -265,6 +279,7 @@ const useEditRecordService = () => {
         displayAuthors,
         authorAdder,
         authorRemover,
+        authorEditRole,
         // 表单数据 
         formData,
         dispalyFormData,

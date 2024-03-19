@@ -27,8 +27,6 @@ const { rebindLibrary, closeLibraryDB } = function () {
 
 function generateCatchFn(title: string, suggest?: string) {
     return function (e: any) {
-        // 修复数据库
-        DIContainer.get<DILibrary>(DI_TYPES.Library).dbConnection.checkAndRepair()
         // 弹出错误提示
         dialog.showErrorBox(title, suggest ? `${suggest}\n${e.message}` : e.message)
     }

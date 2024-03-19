@@ -56,7 +56,7 @@ namespace VO {
         dirname: string | null,
         basename: string | null,
         resourcePath: string | null,
-        authors: VO.AuthorProfile[]
+        authors: VO.RecordAuthorProfile[]
         tags: VO.Tag[]
         series: VO.Series[]
         intro: string
@@ -72,7 +72,7 @@ namespace VO {
         cover: string | null,
         hyperlink: string | null,
         resourcePath: string | null,
-        authors: VO.AuthorProfile[]
+        authors: VO.RecordAuthorProfile[]
         tags: VO.Tag[]
         createTime?: string,
         modifiedTime?: string,
@@ -81,10 +81,11 @@ namespace VO {
     /**
      * 作者的简单信息，用于列表展示
      */
-    type AuthorProfile = {
+    type RecordAuthorProfile = {
         id: number,
         name: string,
         avatar: string | null,
+        role: string | null,
     }
 
     type Author = {

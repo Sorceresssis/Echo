@@ -49,6 +49,7 @@ class GroupService {
 
         DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
             this.removeNode(curId)
+            // 一定是先把要移动的节点链接删除然后再去查询tarPrevId，因为可能要移动到原来的位置。这样会导致要移动的nextId指向自己
             // tarNextId可能为0，表示要移到最后
             const tarPrevId = this.groupDao.queryGroupIdByNextId(tarNextId) || 0
             this.insertNode(curId, tarPrevId, tarNextId)

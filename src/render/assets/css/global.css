@@ -301,7 +301,6 @@ img {
 
 .avatar-icon {
     display: inline-block;
-    margin-right: 2px;
     border: 1px solid #e1e1e1;
     background-color: #fff;
     border-radius: 50%;
@@ -355,7 +354,7 @@ img {
 .author-info {
     min-width: 0;
     flex: 1;
-    margin-left: 10px;
+    margin-left: 20px;
 }
 
 .author-info .name {
@@ -387,8 +386,9 @@ img {
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
     /* 允许单词内的换行 */
-    overflow-wrap: break-word;
+    /* overflow-wrap: break-word; */
     text-overflow: ellipsis;
+    white-space: pre-line;
 }
 
 /* dashboard */

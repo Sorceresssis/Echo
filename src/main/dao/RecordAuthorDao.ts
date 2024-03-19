@@ -30,9 +30,15 @@ class RecordAuthorDao {
         return this.lib.dbConnection.prepare(sql).pluck().all(recordId, recordId, rowCount) as number[]
     }
 
-    public insertRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
-        const stmt = this.lib.dbConnection.prepare("INSERT INTO record_author(record_id, author_id) VALUES(?,?);")
-        authorIds.forEach(authorId => stmt.run(recordId, authorId))
+    public updateRoleByRecordIdAuthorId(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {
+        const stmt = this.lib.dbConnection.prepare("UPDATE record_author SET role = ? WHERE record_id = ? AND author_id = ?;")
+        // 如果role为空，插入null，节省储存空间
+        authors.forEach(author => stmt.run(author.role === '' ? null : author.role, recordId, author.id))
+    }
+
+    public insertRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {
+        const stmt = this.lib.dbConnection.prepare("INSERT INTO record_author(record_id, author_id, role) VALUES(?, ?, ?);")
+        authors.forEach(author => stmt.run(recordId, author.id, author.role === '' ? null : author.role))
     }
 
     public deleteRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {

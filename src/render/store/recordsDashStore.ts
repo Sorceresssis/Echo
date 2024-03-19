@@ -4,7 +4,7 @@ import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
 import { isSameType } from '@/util/common'
 
 type RecordsDashState = {
-    view: 'compact' | 'thumbnail' | 'extended',
+    view: 'thumbnail' | 'extended',
     filter: DTO.QueryRecordRecommendationsOptions['filters'],
     sortField: DTO.QueryRecordRecommendationsOptions['sortField'],
     order: DTO.QueryRecordRecommendationsOptions['order'],

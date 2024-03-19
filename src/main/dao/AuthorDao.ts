@@ -48,8 +48,9 @@ class AuthorDao {
         }
     }
 
-    public queryAuthorsByRecordId(id: PrimaryKey): Domain.AuthorProfile[] {
-        return this.lib.dbConnection.all('SELECT a.id, a.name, a.avatar FROM author a JOIN record_author ra ON a.id = ra.author_id WHERE ra.record_id = ? ORDER BY ra.id;', id)
+    // TODO 改 role
+    public queryAuthorsAndRoleByRecordId(id: PrimaryKey): VO.RecordAuthorProfile[] {
+        return this.lib.dbConnection.all(`SELECT a.id, a.name, a.avatar, ra.role FROM author a JOIN record_author ra ON a.id = ra.author_id WHERE ra.record_id = ?`, id)
     }
 
     public updateAuthor(author: Entity.Author): number {

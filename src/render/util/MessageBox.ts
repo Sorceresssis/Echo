@@ -1,5 +1,5 @@
 import { $t } from '@/locale';
-import { ElMessageBox, type MessageBoxData } from 'element-plus'
+import { ElMessageBox, type MessageBoxInputValidator, type MessageBoxData } from 'element-plus'
 
 type MessageBoxType = 'error' | 'info' | 'success' | 'warning'
 
@@ -39,14 +39,23 @@ class MessageBox {
         return this.confirm($t('tips.dangerousOperation'), $t('tips.sureEdit'), 'warning', $t('layout.modify'))
     }
 
-    public static editPrompt(inputValue: string): Promise<MessageBoxData> {
+    // public static 
+    // 非空的inputValidator
+    public static notEmptyInputValidator(value: string): string | boolean {
+        const reg = /\S/
+        if (!reg.test(value)) {
+            return $t('tips.inputValueNotEmpty')
+        }
+        return true
+    }
+
+    public static editPrompt(inputValidator: MessageBoxInputValidator, inputValue?: string): Promise<MessageBoxData> {
         return ElMessageBox.prompt(
             $t('tips.pleaseInputNewValue'), $t('layout.edit'), {
             confirmButtonText: $t('layout.finish'),
             cancelButtonText: $t('layout.cancel'),
-            inputPattern: /\S/,
-            inputErrorMessage: $t('tips.inputValueNotEmpty'),
             inputValue: inputValue || '',
+            inputValidator: inputValidator
         })
     }
 }

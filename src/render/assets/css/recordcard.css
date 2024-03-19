@@ -7,11 +7,6 @@
 }
 
 /* grid */
-.compact-grid {
-    --record-recommendation-item-width: 400px;
-    grid-template-columns: repeat(auto-fill, 400px);
-}
-
 .thumbnail-grid {
     grid-template-columns: repeat(auto-fill, var(--record-recommendation-item-cover-width));
 }
@@ -47,20 +42,20 @@
     line-height: var(--record-recommendation-item-line-height);
 }
 
-.compact-records .record-recommendation-item .meta {
-    margin-bottom: 4px;
-}
-
 .thumbnail-records .record-recommendation-item .meta {
     margin-top: 4px;
     white-space: nowrap;
+}
+
+.thumbnail-records .record-recommendation-item .meta-content {
+    display: flex;
+    flex-wrap: nowrap;
 }
 
 .extended-records .record-recommendation-item .meta {
     margin-bottom: 4px;
 }
 
-.compact-records .record-recommendation-item .meta-content,
 .extended-records .record-recommendation-item .meta-content {
     display: flex;
     flex-wrap: wrap;
@@ -74,10 +69,6 @@
     margin-right: 16px;
     flex-shrink: 0;
     object-fit: contain;
-}
-
-.compact-records .record-recommendation-item .cover {
-    display: none;
 }
 
 /* operates */
@@ -117,11 +108,6 @@
     color: rgba(255, 255, 255, .7);
 }
 
-.compact-records .operates {
-    position: static;
-    margin-left: auto;
-}
-
 .thumbnail-records .record-recommendation-item .operates,
 .extended-records .record-recommendation-item .operates {
     top: calc(var(--record-recommendation-item-cover-height) - var(--operates-height));
@@ -131,18 +117,23 @@
 .record-recommendation-item .title {
     font-size: 14px;
     font-weight: 700;
+    user-select: all;
 }
 
 /* author */
 .record-recommendation-item .author {
     margin-right: 14px;
-    color: var(--echo-emphasis-color);
 }
 
-.record-recommendation-item .author img {
+.record-recommendation-item .author .avatar-icon {
     height: var(--record-recommendation-item-line-height);
     width: var(--record-recommendation-item-line-height);
     cursor: pointer;
+}
+
+.record-recommendation-item .author .author_name {
+    margin-left: 4px;
+    color: var(--echo-emphasis-color);
 }
 
 /* tag */

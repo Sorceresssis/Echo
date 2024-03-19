@@ -50,6 +50,7 @@ export default {
         search: '搜索',
         deletePermanently: '彻底删除',
         copyTitle: '复制标题',
+        copyTitleAndAuthors: '复制标题和作者',
         copyAllInfo: '复制全部信息',
         edit: '编辑',
         removeFromSeries: '从该系列中移除',
@@ -200,6 +201,7 @@ export default {
 
         pleaseInputNewValue: '请输入新值',
         inputValueNotEmpty: '输入值不能为空',
+        lengthLimitExceeded: '长度超过限制( {count} 个字符)',
 
         sureRecycle: '确定要回收吗?',
         surePutInRecycleBin: '确定要放入回收站吗？',

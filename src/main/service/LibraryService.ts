@@ -8,13 +8,13 @@ import { injectable, inject } from "inversify"
 import DIContainer from "../DI/DIContainer"
 import DI_TYPES from "../DI/DITypes"
 import Result from "../util/Result"
+import i18n from "../locale"
 import type { zipperOperation } from "./worker/zipper.worker"
 import type { unzipperOperation } from "./worker/unzipper.worker"
-import GroupDB from "../db/GroupDB"
-import GroupDao from "../dao/GroupDao"
-import LibraryDao from "../dao/LibraryDao"
-import LibraryExtraDao from "../dao/LibraryExtraDao"
-import i18n from "../locale"
+import type GroupDB from "../db/GroupDB"
+import type GroupDao from "../dao/GroupDao"
+import type LibraryDao from "../dao/LibraryDao"
+import type LibraryExtraDao from "../dao/LibraryExtraDao"
 
 @injectable()
 class LibraryService {

@@ -66,8 +66,8 @@ class AuthorService {
         return page
     }
 
-    public queryAuthorsByRecordId(recordId: number) {
-        const authors = this.authorDao.queryAuthorsByRecordId(recordId)
+    public queryAuthorsByRecordId(recordId: number): VO.RecordAuthorProfile[] {
+        const authors = this.authorDao.queryAuthorsAndRoleByRecordId(recordId)
         authors.forEach(author => author.avatar = this.getAvatarFullPath(author.avatar))
         return authors
     }

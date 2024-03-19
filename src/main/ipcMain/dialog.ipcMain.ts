@@ -22,7 +22,7 @@ export default function ipcMainDialog() {
                     option.filters!.push({ name: 'All Files', extensions: ['*'] })
                     break
                 case 'image':
-                    option.filters!.push({ name: 'Images', extensions: ['jpg', 'png', 'jpeg'] })
+                    option.filters!.push({ name: 'Images', extensions: ['jpg', 'jpeg', 'png', 'webp', 'avif'] })
                     break
                 case 'video':
                     option.filters!.push({ name: 'Videos', extensions: ['mkv', 'avi', 'mp4'] })

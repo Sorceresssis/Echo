@@ -48,6 +48,7 @@ export default {
         search: 'Search',
         deletePermanently: 'Delete Permanently',
         copyTitle: 'Copy Title',
+        copyTitleAndAuthors: 'Copy Title and Authors',
         copyAllInfo: 'Copy All Information',
         edit: 'Edit',
         removeFromSeries: 'Remove from this Series',

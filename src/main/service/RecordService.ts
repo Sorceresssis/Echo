@@ -299,21 +299,23 @@ class RecordService {
     }
 
     private getTagAuthorSum(id: PrimaryKey): string {
-        const authors = this.authorDao.queryAuthorsByRecordId(id)
+        const authors = this.authorDao.queryAuthorsAndRoleByRecordId(id)
         const tags = this.tagDao.queryTagsByRecordId(id)
         return authors.map(author => author.name).concat(tags.map(tag => tag.title)).join(' ')
     }
 
     private editRecordAttribute(
         recordId: PrimaryKey,
-        addAuthorIds: PrimaryKey[],
+        addAuthors: DTO.AuthorIdAndRole[],
+        editAuthorsRole: DTO.AuthorIdAndRole[],
         removeAuthorIds: PrimaryKey[],
         addTagIds: PrimaryKey[],
         removeTagIds: PrimaryKey[],
         addSeriesIds: PrimaryKey[],
         removeSeriesIds: PrimaryKey[],
     ) {
-        this.recordAuthorDao.insertRecordAuthorByRecordIdAuthorIds(recordId, addAuthorIds)
+        this.recordAuthorDao.insertRecordAuthorByRecordIdAuthorIds(recordId, addAuthors)
+        this.recordAuthorDao.updateRoleByRecordIdAuthorId(recordId, editAuthorsRole)
         this.recordAuthorDao.deleteRecordAuthorByRecordIdAuthorIds(recordId, removeAuthorIds)
 
         this.recordTagDao.insertRecordTagByRecordIdTagIds(recordId, addTagIds)
@@ -398,6 +400,7 @@ class RecordService {
             this.editRecordAttribute(
                 record.id,
                 formData.addAuthors,
+                formData.editAuthorsRole,
                 formData.removeAuthors,
                 addTagIds,
                 formData.removeTags,
@@ -459,6 +462,7 @@ class RecordService {
                 this.editRecordAttribute(
                     record.id,
                     formData.addAuthors,
+                    formData.editAuthorsRole,
                     formData.removeAuthors,
                     addTagIds,
                     formData.removeTags,

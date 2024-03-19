@@ -2,11 +2,10 @@
 
 ## 在处理数据库数据时要考虑结果的大小，如果数据量太大，应该会出错。
 
-
 ## better-sqlite3
 
-再查不到结果是返回的是undefined 不是 null
-
+1. 再查不到结果是返回的是undefined 不是 null
+2. select 字段不能用 `''`包裹,
 
 # node Path模块
 
