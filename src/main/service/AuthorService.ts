@@ -25,6 +25,15 @@ class AuthorService {
         // 获得完整的头像路径 
         author.avatar = this.getAvatarFullPath(author.avatar)
         author.recordCount = this.recordAuthorDao.queryCountOfRecordsByAuthorId(authorId)
+        // TODO 临时数据, sampleImages
+        author.sampleImages = [
+            'C:/Users/RachelGardner/OneDrive/图片/ACG/20220907_014050.jpg',
+            'C:/Users/RachelGardner/OneDrive/图片/ACG/81551541_p0.jpg',
+            'F:/Download/Browser/94132137-7d4fc100-fe7c-11ea-8512-69f90cb65e48.gif',
+            'F:/Desktop/TestEcho/年龄/1710018698719.png',
+            'F:/Desktop/TestEcho/年龄/102929154_p0_master1200.jpg'
+        ]
+
         return author
     }
 

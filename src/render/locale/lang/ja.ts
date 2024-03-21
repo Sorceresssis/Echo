@@ -156,6 +156,7 @@ export default {
 
         createdTime: '作成日時',
         lastModifiedTime: '最終更新日時',
+        sampleImages: 'サンプル画像',
         intro: '紹介',
         info: '情報',
 
@@ -195,6 +196,7 @@ export default {
 
         pleaseInputNewValue: '新しい値を入力してください',
         inputValueNotEmpty: '入力値は空にできません',
+        lengthLimitExceeded: '長さが制限を超えました（{count}文字）',
 
         sureRecycle: 'リサイクルしますか？',
         surePutInRecycleBin: 'リサイクルビンに入れますか？',
@@ -227,7 +229,8 @@ export default {
         replaceSuccess: '置換に成功しました',
         recycleSuccess: 'リサイクルに成功しました',
 
-        thisRecordAlreadyNotExists: 'このレコードはすでに存在しません',
+        recordNotExist: 'レコードが存在しません',
+        authorNotExist: '著者が存在しません',
         thisTagAlreadyExists: 'このタグはすでに存在します',
         thisAuthorAlreadyExists: 'この著者はすでに存在します',
         thisSeriesAlreadyExists: 'このシリーズはすでに存在します',

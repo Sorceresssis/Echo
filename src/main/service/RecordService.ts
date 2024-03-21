@@ -55,6 +55,14 @@ class RecordService {
         const extra = this.recordExtraDao.queryRecordExtraByRecordId(id)
         record.intro = extra?.intro || ''
         record.info = extra?.info || ''
+        // TODO 临时数据, sampleImages
+        record.sampleImages = [
+            'C:/Users/RachelGardner/OneDrive/图片/ACG/20220907_014050.jpg',
+            'C:/Users/RachelGardner/OneDrive/图片/ACG/81551541_p0.jpg',
+            'F:/Download/Browser/94132137-7d4fc100-fe7c-11ea-8512-69f90cb65e48.gif',
+            'F:/Desktop/TestEcho/年龄/1710018698719.png',
+            'F:/Desktop/TestEcho/年龄/102929154_p0_master1200.jpg',
+        ]
 
         return record
     }

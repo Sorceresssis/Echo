@@ -155,6 +155,7 @@ export default {
 
         createdTime: 'Created Time',
         lastModifiedTime: 'Last Modified Time',
+        sampleImages: 'Sample Images',
         intro: 'Introduction',
         info: 'Information',
 
@@ -194,6 +195,7 @@ export default {
 
         pleaseInputNewValue: 'Please input a new value',
         inputValueNotEmpty: 'Input value cannot be empty',
+        lengthLimitExceeded: 'Length exceeds limit ({count} characters)',
 
         sureRecycle: 'Are you sure you want to recycle?',
         surePutInRecycleBin: 'Are you sure you want to put in the recycle bin?',
@@ -226,7 +228,8 @@ export default {
         replaceSuccess: 'Replace Successful',
         recycleSuccess: 'Recycle Successful',
 
-        thisRecordAlreadyNotExists: 'This record no longer exists',
+        recordNotExist: 'Record does not exist',
+        authorNotExist: 'Author does not exist',
         thisTagAlreadyExists: 'This tag already exists',
         thisAuthorAlreadyExists: 'This author already exists',
         thisSeriesAlreadyExists: 'This series already exists',

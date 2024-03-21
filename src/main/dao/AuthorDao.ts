@@ -48,7 +48,6 @@ class AuthorDao {
         }
     }
 
-    // TODO 改 role
     public queryAuthorsAndRoleByRecordId(id: PrimaryKey): VO.RecordAuthorProfile[] {
         return this.lib.dbConnection.all(`SELECT a.id, a.name, a.avatar, ra.role FROM author a JOIN record_author ra ON a.id = ra.author_id WHERE ra.record_id = ?`, id)
     }

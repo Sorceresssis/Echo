@@ -159,6 +159,7 @@ export default {
         createdTime: '创建时间',
         lastModifiedTime: '最近修改时间',
         intro: '介绍',
+        sampleImages: '样例图片',
         info: '信息',
 
         switchLanguage: '切换语言',
@@ -234,7 +235,8 @@ export default {
         replaceSuccess: '替换成功',
         recycleSuccess: '回收成功',
 
-        thisRecordAlreadyNotExists: '该记录已经不存在',
+        recordNotExist: '记录不存在',
+        authorNotExist: '作者不存在',
         thisTagAlreadyExists: '该标签已存在',
         thisAuthorAlreadyExists: '该作者已存在',
         thisSeriesAlreadyExists: '该系列已存在',

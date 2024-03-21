@@ -96,25 +96,11 @@
                     <local-image :src="formData.cover"
                         class="fit--contain" />
                     <div class="image-select-btn">
-                        <span @click="selectCover"> {{ $t('layout.selectImage') }} </span>
+                        <span @click.stop="selectCover"> {{ $t('layout.selectImage') }} </span>
                         <span :class="[formData.cover === formData.originCover ? 'disabled' : '']"
-                            @click="resetCover"> {{ $t('layout.reset') }} </span>
+                            @click.stop="resetCover"> {{ $t('layout.reset') }} </span>
                     </div>
                 </div>
-            </el-form-item>
-            <!-- TODO Sample Image -->
-            <el-form-item :label="'样例图片'">
-                <ul>
-                    <li> <local-image style="height: 150px; object-fit: contain; object-position: center;"
-                            :src="'C:/Users/RachelGardner/OneDrive/图片/ACG/20220907_014050.jpg'">
-                        </local-image></li>
-                    <li> <local-image style="height: 150px; object-fit: contain; object-position: center;"
-                            :src="'C:/Users/RachelGardner/OneDrive/图片/ACG/81551541_p0.jpg'">
-                        </local-image></li>
-                    <local-image style="height: 150px; object-fit: contain; object-position: center;"
-                        :src="'F:/Download/Browser/94132137-7d4fc100-fe7c-11ea-8512-69f90cb65e48.gif'">
-                    </local-image>
-                </ul>
             </el-form-item>
             <el-form-item :label="$t('layout.rate')">
                 <el-rate v-model="formData.rate" />
@@ -130,7 +116,8 @@
                         class="flex-1"
                         @btn-select="authorAdder" />
                 </div>
-                <div class="attribute-container scrollbar-y-w4">
+                <div class="attribute-container scrollbar-y-w4"
+                    :data-enable="false">
                     <div v-if="displayAuthors.length === 0"
                         class="attribute-container__empty">
                         {{ $t('layout.noAuthors') }}
@@ -199,6 +186,11 @@
                     </div>
                 </div>
             </el-form-item>
+            <el-form-item :label="$t('layout.sampleImages')">
+                <manage-images :paths="displaySampleImages"
+                    @add-images="sampleImageAdder"
+                    @delete-image="sampleImageRemover" />
+            </el-form-item>
             <el-form-item :label="$t('layout.intro')">
                 <el-input v-model="formData.intro"
                     type="textarea"
@@ -234,7 +226,7 @@
     setup>
     import { onMounted, reactive, ref, Ref, watch, inject, readonly } from 'vue'
     import { useRoute } from 'vue-router'
-    import { ElMessageBox, type FormInstance, type FormRules } from 'element-plus'
+    import { type FormInstance, type FormRules } from 'element-plus'
     import { $t } from '@/locale'
     import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
     import Message from '@/util/Message'
@@ -243,10 +235,10 @@
     import Button2 from '@/components/Button2.vue'
     import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
     import LocalImage from '@/components/LocalImage.vue'
+    import ManageImages from '@/components/ManageImages.vue'
 
     const inputAutoSize = {
-        minRows: 6,
-        maxRows: 6,
+        minRows: 6
     }
     const isAdd = ref<boolean>(true)
     const btnLoading = ref<boolean>(false)
@@ -271,6 +263,9 @@
         authorAdder,
         authorEditRole,
         authorRemover,
+        displaySampleImages,
+        sampleImageAdder,
+        sampleImageRemover,
         formData,
         dispalyFormData,
         options,
@@ -344,7 +339,9 @@
                     formData.title = ''
                 } else {
                     // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
-                    init()
+                    const id = formData.id
+                    resetFormData()
+                    saveOriginData(activeLibrary.value, id)
                 }
                 btnLoading.value = false
             }

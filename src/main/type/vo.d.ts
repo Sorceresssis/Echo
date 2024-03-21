@@ -52,6 +52,7 @@ namespace VO {
         title: string
         rate: number,
         cover: string | null,
+        sampleImages: string[],
         hyperlink: string | null,
         dirname: string | null,
         basename: string | null,
@@ -101,6 +102,7 @@ namespace VO {
         id: number
         name: string
         avatar: string | null
+        sampleImages: string[],
         intro: string
         createTime: string,
         modifiedTime: string,

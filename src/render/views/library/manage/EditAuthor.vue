@@ -29,6 +29,11 @@
                     :placeholder="$t('layout.authorName')"
                     maxlength="255" />
             </el-form-item>
+            <el-form-item :label="$t('layout.sampleImages')">
+                <manage-images :paths="displaySampleImages"
+                    @add-images="sampleImageAdder"
+                    @delete-image="sampleImageRemover" />
+            </el-form-item>
             <el-form-item :label="$t('layout.intro')"
                 prop="intro">
                 <el-input v-model="formData.intro"
@@ -38,10 +43,6 @@
                     resize="none"
                     clearable
                     :placeholder="$t('layout.authorIntro')" />
-            </el-form-item>
-            <!-- TODO  -->
-            <el-form-item :label="'其他图片'">
-                <div></div>
             </el-form-item>
             <el-form-item>
                 <el-button type="primary"
@@ -64,10 +65,10 @@
     import { type FormInstance, type FormRules } from 'element-plus'
     import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
     import LocalImage from '@/components/LocalImage.vue'
+    import ManageImages from '@/components/ManageImages.vue'
 
     const inputAutoSize = {
-        minRows: 8,
-        maxRows: 8,
+        minRows: 6,
     }
     const route = useRoute()
     const submitBtnText = ref<string>($t('layout.create'))
@@ -83,19 +84,45 @@
         avatar: '',
         originAvatar: '',
         intro: '',
+        addSampleImages: [],
+        removeSampleImages: []
     })
-    const queryAuthorDetail = async (id: number) => {
+    const originSampleImages = new Set<string>()
+    const displaySampleImages = reactive<Array<string>>([])
+    const addSampleImages = new Set<string>()
+    const removeSampleImages = new Set<string>()
+    const sampleImageAdder = (paths: string[]) => {
+        paths.forEach(path => {
+            if (displaySampleImages.indexOf(path) !== -1) return
+            displaySampleImages.push(path)
+            originSampleImages.has(path) ? removeSampleImages.delete(path) : addSampleImages.add(path)
+        })
+    }
+    const sampleImageRemover = (path: string) => {
+        const idx = displaySampleImages.indexOf(path)
+        if (-1 === idx) return
+        displaySampleImages.splice(idx, 1)
+        originSampleImages.has(path) ? removeSampleImages.add(path) : addSampleImages.delete(path)
+    }
+    const saveOriginData = async (id: number) => {
         const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, id)
-        if (author) {
-            formData.id = author.id
-            formData.name = author.name
-            formData.intro = author.intro
-            if (author.avatar) {
-                formData.avatar = formData.originAvatar = author.avatar
-            } else {
-                formData.avatar = formData.originAvatar = ''
-            }
+        if (!author) {
+            Message.error($t('msg.authorNotExist'))
+            return
         }
+        formData.id = author.id
+        formData.name = author.name
+        formData.intro = author.intro
+        author.sampleImages.forEach(item => {
+            originSampleImages.add(item)
+            displaySampleImages.push(item)
+        })
+        if (author.avatar) {
+            formData.avatar = formData.originAvatar = author.avatar
+        } else {
+            formData.avatar = formData.originAvatar = ''
+        }
+
     }
     const selectAvatar = async () => {
         const imgPath = (await window.electronAPI.openDialog('image', false))[0]
@@ -121,9 +148,10 @@
 
             function cb() {
                 viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
+                viewsTaskAfterRoutingStore.setBashboardAuthors('refresh') // 作者列表刷新
+
+                // 编辑已经存在的author肯被records引用, 所以要刷新record相关的视图
                 if (formData.id) {
-                    // 编辑已经存在的author肯被records引用, 所以要刷新record相关的视图
-                    viewsTaskAfterRoutingStore.setBashboardAuthors('refresh') // 作者列表刷新
                     viewsTaskAfterRoutingStore.setBashboardRecords('refresh') // 记录列表刷新
                     viewsTaskAfterRoutingStore.setAuthorRecords('refresh') // 作者页面刷新
                 }
@@ -132,7 +160,10 @@
                     if (result) {
                         if (formData.id) {
                             Message.success($t('msg.editSuccess'))
-                            queryAuthorDetail(formData.id)
+                            // resetFormData 会清空formData.id, 所以要先保存
+                            const id = formData.id
+                            resetFormData()
+                            saveOriginData(id)
                         } else {
                             Message.success($t('msg.createSuccess'))
                             authorFormRef.value?.resetFields()
@@ -144,22 +175,31 @@
             formData.id ? MessageBox.editConfirm().then(cb) : MessageBox.addConfirm().then(cb)
         })
     }
+    const resetFormData = function () {
+        formData.id = 0
+        formData.name = ''
+        formData.avatar = ''
+        formData.originAvatar = ''
+        formData.intro = ''
+
+        displaySampleImages.splice(0)
+        originSampleImages.clear()
+        addSampleImages.clear()
+        removeSampleImages.clear()
+    }
 
     const init = () => {
         if (!managePathPattern.test(route.fullPath)) return
 
         const id = route.query.author_id as string | undefined
+
+        // 清空表单
+        resetFormData()
         if (id) {
             submitBtnText.value = $t('layout.modify')
-            queryAuthorDetail(Number.parseInt(id))
+            saveOriginData(Number.parseInt(id))
         } else {
             submitBtnText.value = $t('layout.create')
-            // 清空表单
-            formData.id = 0
-            formData.name = ''
-            formData.avatar = ''
-            formData.originAvatar = ''
-            formData.intro = ''
         }
     }
     watch(route, init)

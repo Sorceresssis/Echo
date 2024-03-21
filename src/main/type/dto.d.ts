@@ -40,6 +40,8 @@ namespace DTO {
         avatar: string,
         originAvatar: string,
         intro: string,
+        addSampleImages: string[],
+        removeSampleImages: string[]
     }
 
     /**
@@ -78,6 +80,8 @@ namespace DTO {
         removeSeries: number[],
         intro: string,
         info: string
+        addSampleImages: string[],
+        removeSampleImages: string[]
     }
 
     /**

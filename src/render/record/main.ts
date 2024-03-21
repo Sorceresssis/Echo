@@ -8,8 +8,8 @@ import '@/assets/css/elementplus.css'
 import '@/assets/font/iconfont.css'
 
 import i18n from '@/locale'
-import { createPinia } from 'pinia'
 import router from '@/record/router'
+import { createPinia } from 'pinia'
 
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'

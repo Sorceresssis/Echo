@@ -51,6 +51,7 @@ namespace VO {
         title: string
         rate: number,
         cover: string | null,
+        sampleImages: string[],
         hyperlink: string | null,
         resourcePath: string | null,
         authors: VO.RecordAuthorProfile[]
@@ -98,7 +99,8 @@ namespace VO {
         id: number
         name: string
         avatar: string | null
-        intro: string
+        sampleImages: string[],
+        intro: string,
         createTime: string,
         modifiedTime: string,
         recordCount: number,

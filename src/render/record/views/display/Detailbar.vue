@@ -1,78 +1,62 @@
 <template>
-    <div class="record-detail-sideBar">
+    <div class="record-detail-sidebar">
         <scrollbar class="record-info scrollbar-y-w4"
             :show-back-top="false">
-            <local-image v-viewer="{ transition: false }"
-                :src="record.cover"
-                class="cover" />
-            <!-- TODO poster sipleout -->
-            <div class="meta">
-                <el-carousel :interval="3000"
-                    height="100px"
-                    type="card"
-                    autoplay>
-                    <!-- <el-carousel-item v-for="item in 6"
-                        :key="item">
-                        <h3 text="2xl"
-                            justify="center">{{ item }}</h3>
-                    </el-carousel-item> -->
-                    <el-carousel-item v-for="item in 6"
-                        :key="item">
-                        <h3 text="2xl"
-                            style="margin: 0;"
-                            justify="center">{{ item }}</h3>
-                    </el-carousel-item>
-                </el-carousel>
-            </div>
-            <h1 class="title">{{ record.title }}</h1>
-            <div class="meta">
-                <div class="inline-list-title">{{ $t('layout.rate') }}</div>
-                <div class="meta-content">
-                    <el-rate v-model="record.rate"
-                        size="small"
-                        disabled />
+            <div class="record-info__warp">
+                <!-- TODO poster sipleout -->
+                <div class="meta">
+                    <image-slider :images="slickCarouselImages" />
                 </div>
-            </div>
-            <div v-if="record.authors.length"
-                class="meta">
-                <div class="inline-list-title"> {{ $t('layout.authors') }} </div>
-                <ul class="meta-content">
-                    <li v-for="author in record.authors"
-                        :key="author.id"
-                        class="author">
-                        <local-image :src="author.avatar"
-                            class="avatar-icon" />
-                        <span class="author_name"> {{ author.name }} </span>
-                        <span v-if="author.role">({{ author.role }})</span>
-                    </li>
-                </ul>
-            </div>
-            <div v-if="record.tags.length"
-                class="meta">
-                <div class="inline-list-title"> {{ $t('layout.tags') }} </div>
-                <div class="meta-content">
-                    <span v-for="tag in record.tags"
-                        :key="tag.id"
-                        class="tag">{{ tag.title }}</span>
+                <h1 class="title">{{ record.title }}</h1>
+                <div class="meta">
+                    <div class="inline-list-title">{{ $t('layout.rate') }}</div>
+                    <div class="meta-content">
+                        <el-rate v-model="record.rate"
+                            size="small"
+                            disabled />
+                    </div>
                 </div>
-            </div>
-            <div v-if="record.intro.length"
-                class="meta">
-                <div class="inline-list-title"> {{ $t('layout.intro') }} </div>
-                <div class="meta-content"> {{ record.intro }} </div>
-            </div>
-            <div v-if="record.info.length"
-                class="meta">
-                <div class="inline-list-title"> {{ $t('layout.info') }} </div>
-                <div class="meta-content"> {{ record.info }} </div>
-            </div>
-            <div class="meta">
-                <div class="inline-list-title"> {{ $t('layout.createdTime') }} </div>
-                <div class="meta-comtent"> {{ record.createTime }} </div>
-            </div>
-            <div class="meta">
-                <div class="inline-list-title"> {{ $t('layout.lastModifiedTime') }} </div>
-                <div class="meta-comtent"> {{ record.modifiedTime }} </div>
+                <div v-if="record.authors.length"
+                    class="meta">
+                    <div class="inline-list-title"> {{ $t('layout.authors') }} </div>
+                    <ul class="meta-content">
+                        <li v-for="author in record.authors"
+                            :key="author.id"
+                            class="author">
+                            <local-image :src="author.avatar"
+                                class="avatar-icon" />
+                            <span class="author_name"> {{ author.name }} </span>
+                            <span v-if="author.role">({{ author.role }})</span>
+                        </li>
+                    </ul>
+                </div>
+                <div v-if="record.tags.length"
+                    class="meta">
+                    <div class="inline-list-title"> {{ $t('layout.tags') }} </div>
+                    <div class="meta-content">
+                        <span v-for="tag in record.tags"
+                            :key="tag.id"
+                            class="tag">{{ tag.title }}</span>
+                    </div>
+                </div>
+                <div v-if="record.intro.length"
+                    class="meta">
+                    <div class="inline-list-title"> {{ $t('layout.intro') }} </div>
+                    <div class="meta-content"> {{ record.intro }} </div>
+                </div>
+                <div v-if="record.info.length"
+                    class="meta">
+                    <div class="inline-list-title"> {{ $t('layout.info') }} </div>
+                    <div class="meta-content"> {{ record.info }} </div>
+                </div>
+                <div class="meta">
+                    <div class="inline-list-title"> {{ $t('layout.createdTime') }} </div>
+                    <div class="meta-comtent"> {{ record.createTime }} </div>
+                </div>
+                <div class="meta">
+                    <div class="inline-list-title"> {{ $t('layout.lastModifiedTime') }} </div>
+                    <div class="meta-comtent"> {{ record.modifiedTime }} </div>
+                </div>
             </div>
         </scrollbar>
         <div class="divider" />
@@ -82,7 +66,7 @@
                 :title="$t('layout.noSeries')" />
             <ul v-else
                 class="adaptive-grid">
-                <li v-for=" series  in   record.series  "
+                <li v-for="series in record.series"
                     :key="series.id"
                     class="dashboard-text-card"
                     @click="openSeries(series.id)">
@@ -128,6 +112,7 @@
     import { writeClibboard, } from '@/util/systemUtil'
     import MessageBox from '@/util/MessageBox'
     import LocalImage from '@/components/LocalImage.vue'
+    import ImageSlider from '@/components/ImageSlider.vue';
     import Scrollbar from '@/components/Scrollbar.vue'
     import Empty from '@/components/Empty.vue'
     import Records from '@/views/library/dashboard/Records.vue'
@@ -139,6 +124,7 @@
     const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
     const record = inject<VO.RecordDetail>('record')!
     const activeSeriesId = ref<number>(0)
+    const slickCarouselImages = record.cover ? [record.cover, ...record.sampleImages] : record.sampleImages
 
     const deleteSeries = (id: number) => {
         MessageBox.deleteConfirm().then(async () => {
@@ -193,26 +179,9 @@
 </script>
 
 <style scoped>
-
-    /* TODO carousel css */
-    .el-carousel__item h3 {
-        color: #475669;
-        opacity: 0.75;
-        /* line-height: 200px; */
-        margin: 0;
-        text-align: center;
-    }
-
-    .el-carousel__item:nth-child(2n) {
-        background-color: #99a9bf;
-    }
-
-    .el-carousel__item:nth-child(2n + 1) {
-        background-color: #d3dce6;
-    }
-
-    .record-detail-sideBar {
-        width: 360px;
+    .record-detail-sidebar {
+        --record-detail-sidebar-width: 500px;
+        width: var(--record-detail-sidebar-width);
         display: flex;
         flex-direction: column;
         justify-content: center;
@@ -234,15 +203,15 @@
         user-select: text;
     }
 
-    .record-info .cover {
-        height: 220px;
-        display: block;
-        flex-shrink: 0;
-        object-fit: contain;
+    .record-info__warp {
+        /* left padding(10px) + scrollbar width(4px) + right padding(6px) */
+        width: calc(var(--record-detail-sidebar-width) - 20px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .record-info .title {
-        margin: 8px 0;
         line-height: 24px;
         font-size: 16px;
         font-weight: 700;
@@ -250,7 +219,6 @@
 
     .record-info .meta {
         display: flex;
-        margin-bottom: 8px;
         line-height: var(--record-info-line-height);
         font-size: 13px;
     }
@@ -287,7 +255,7 @@
     }
 
     .series-list {
-        height: 150px;
+        height: 100px;
         display: flex;
         flex-direction: column;
         padding: 5px 6px 5px 0;
@@ -296,6 +264,6 @@
     .series-list .adaptive-grid {
         row-gap: 8px;
         column-gap: 8px;
-        grid-template-columns: repeat(auto-fill, 330px);
+        grid-template-columns: repeat(auto-fill, calc(var(--record-detail-sidebar-width) - 50px));
     }
 </style>

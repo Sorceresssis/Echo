@@ -1,4 +1,4 @@
-import { reactive, toRaw } from "vue"
+import { ref, reactive, toRaw } from "vue"
 import Message from "@/util/Message"
 import { $t } from "@/locale"
 
@@ -113,6 +113,25 @@ const useEditRecordService = () => {
         originAuthors.has(id) ? editAuthorsRole.set(id, role) : addAuthors.set(id, role)
     }
 
+    // ANCHOR Sample Images
+    const originSampleImages = new Set<string>()
+    const displaySampleImages = reactive<Array<string>>([])
+    const addSampleImages = new Set<string>()
+    const removeSampleImages = new Set<string>()
+    const sampleImageAdder = (paths: string[]) => {
+        paths.forEach(path => {
+            if (displaySampleImages.indexOf(path) !== -1) return
+            displaySampleImages.push(path)
+            originSampleImages.has(path) ? removeSampleImages.delete(path) : addSampleImages.add(path)
+        })
+    }
+    const sampleImageRemover = (path: string) => {
+        const idx = displaySampleImages.indexOf(path)
+        if (-1 === idx) return
+        displaySampleImages.splice(idx, 1)
+        originSampleImages.has(path) ? removeSampleImages.add(path) : addSampleImages.delete(path)
+    }
+
     const formData = reactive<DTO.EditRecordForm>({
         id: 0,
         dirname: '',
@@ -131,7 +150,9 @@ const useEditRecordService = () => {
         addSeries: [],
         removeSeries: [],
         intro: '',
-        info: ''
+        info: '',
+        addSampleImages: [],
+        removeSampleImages: []
     })
 
     const dispalyFormData = reactive({
@@ -190,7 +211,7 @@ const useEditRecordService = () => {
         // 保存数据时注意有些值是null, 有些值是undefined, 所以要替换成默认值 
         const data = await window.electronAPI.queryRecordDetail(libraryId, recordId)
         if (!data) {
-            Message.error($t('msg.thisRecordAlreadyNotExists'))
+            Message.error($t('msg.recordNotExist'))
             return
         }
         formData.id = data.id
@@ -199,6 +220,7 @@ const useEditRecordService = () => {
         if (data.cover) {
             formData.cover = formData.originCover = data.cover
         }
+
         if (data.hyperlink) {
             formData.hyperlink = data.hyperlink
         }
@@ -219,6 +241,10 @@ const useEditRecordService = () => {
             originAuthors.set(item.id, item.role)
             displayAuthors.push(item)
         })
+        data.sampleImages.forEach(item => {
+            originSampleImages.add(item)
+            displaySampleImages.push(item)
+        })
     }
 
     const submit = (libraryId: number) => {
@@ -230,6 +256,8 @@ const useEditRecordService = () => {
         formData.removeAuthors = Array.from(removeAuthors)
         formData.addSeries = Array.from(addSeries)
         formData.removeSeries = Array.from(removeSeries)
+        formData.addSampleImages = Array.from(addSampleImages)
+        formData.removeSampleImages = Array.from(removeSampleImages)
         // 提交数据 
         return window.electronAPI.editRecord(libraryId, toRaw(formData), toRaw(options))
     }
@@ -246,19 +274,28 @@ const useEditRecordService = () => {
         formData.rate = 0
         formData.intro = ''
         formData.info = ''
+        // 标签
+        displayTags.splice(0)
         originTags.clear()
         addTags.clear()
         removeTags.clear()
-        displayTags.splice(0)
+        // 系列
+        displaySeries.splice(0)
         originSeries.clear()
         addSeries.clear()
         removeSeries.clear()
-        displaySeries.splice(0)
+        // 作者
+        displayAuthors.splice(0)
         originAuthors.clear()
         addAuthors.clear()
         editAuthorsRole.clear()
         removeAuthors.clear()
-        displayAuthors.splice(0)
+        // 样例图片
+        displaySampleImages.splice(0)
+        originSampleImages.clear()
+        addSampleImages.clear()
+        removeSampleImages.clear()
+        // 重置输入框
         dispalyFormData.authorInput = ''
         dispalyFormData.tagInput = ''
         dispalyFormData.seriesInput = ''
@@ -280,6 +317,10 @@ const useEditRecordService = () => {
         authorAdder,
         authorRemover,
         authorEditRole,
+        // 样例图片
+        displaySampleImages,
+        sampleImageAdder,
+        sampleImageRemover,
         // 表单数据 
         formData,
         dispalyFormData,
