@@ -3,8 +3,8 @@
         <scrollbar class="record-info scrollbar-y-w4"
             :show-back-top="false">
             <div class="record-info__warp">
-                <!-- TODO poster sipleout -->
-                <div class="meta">
+                <div v-if="slickCarouselImages.length"
+                    class="meta">
                     <image-slider :images="slickCarouselImages" />
                 </div>
                 <h1 class="title">{{ record.title }}</h1>
@@ -50,12 +50,21 @@
                     <div class="meta-content"> {{ record.info }} </div>
                 </div>
                 <div class="meta">
+                    <div class="inline-list-title">ID</div>
+                    <div class="meta-comtent">{{ record.id }}</div>
+                </div>
+                <div class="meta">
                     <div class="inline-list-title"> {{ $t('layout.createdTime') }} </div>
                     <div class="meta-comtent"> {{ record.createTime }} </div>
                 </div>
                 <div class="meta">
                     <div class="inline-list-title"> {{ $t('layout.lastModifiedTime') }} </div>
                     <div class="meta-comtent"> {{ record.modifiedTime }} </div>
+                </div>
+                <div v-if="slickCarouselImages.length"
+                    class="meta">
+                    <!-- TODO disable 未设置封面 打开slickCarouselImages[0] -->
+                    <button> 打开图片文件夹</button>
                 </div>
             </div>
         </scrollbar>
@@ -190,7 +199,7 @@
     }
 
     .divider {
-        padding-bottom: 5px;
+        margin-top: 5px;
         margin-bottom: 5px;
     }
 
@@ -212,7 +221,7 @@
     }
 
     .record-info .title {
-        line-height: 24px;
+        line-height: 26px;
         font-size: 16px;
         font-weight: 700;
     }

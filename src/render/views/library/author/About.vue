@@ -7,21 +7,24 @@
                     {{ info.name }}
                 </div>
             </div>
-            <div class="detail-item">
-                <label class="detail-item__lable"> {{ $t('layout.avatarUrl') }} </label>
+            <div v-if="authorFistImage"
+                class="detail-item">
+                <label class="detail-item__lable"> {{ $t('layout.imageUrl') }} </label>
                 <div class="detail-item__content">
-                    <el-input v-model="info.avatar"
+                    <el-input v-model="authorFistImage"
                         readonly />
                     <button2 @click="openInExplorer(info.avatar)"> {{ $t('layout.showInFileExplorer') }} </button2>
                 </div>
             </div>
-            <div class="detail-item">
+            <div v-if="info.sampleImages.length > 0"
+                class="detail-item">
                 <label class="detail-item__lable"> {{ $t('layout.sampleImages') }} </label>
                 <manage-images :paths="info.sampleImages"
-                    :showManageBtn="false"
+                    :manage="false"
                     imageHeight="200px" />
             </div>
-            <div class="detail-item">
+            <div v-if="info.intro"
+                class="detail-item">
                 <label class="detail-item__lable"> {{ $t('layout.intro') }} </label>
                 <div class="detail-item__content">
                     {{ info.intro }}
@@ -51,12 +54,13 @@
     lang='ts'>
     import { openInExplorer } from '@/util/systemUtil'
     import Button2 from '@/components/Button2.vue'
-    import LocalImage from '@/components/LocalImage.vue';
     import ManageImages from '@/components/ManageImages.vue';
 
-    defineProps<{
+    const props = defineProps<{
         info: VO.AuthorDetail
     }>()
+
+    const authorFistImage = props.info.avatar || props.info.sampleImages[0] || ''
 </script>
 
 <style scoped>

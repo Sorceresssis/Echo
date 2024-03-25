@@ -319,6 +319,8 @@
 
     const queryRecords = debounce(async () => {
         loading.value = true
+
+
         const page = await window.electronAPI.queryRecordRecmds(
             activeLibrary.value,
             {
@@ -356,6 +358,7 @@
     }
     // 2. 请求参数改变，要跳到第一页
     watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order], handleQueryParamsChange, { deep: true })
+    // authorId改变，libraryId改变，seriesId改变，要跳到第一页
     watch(route, () => {
         if (props.type === 'common') {
             switch (viewsTaskAfterRoutingStore.bashboardRecords) {
@@ -391,6 +394,7 @@
             init()
         }
     })
+    // 同路由下刷新需求：回收站跳转需要刷新， 
     onActivated(() => {
         if (props.type === 'common') {
             if (viewsTaskAfterRoutingStore.bashboardRecords === 'refresh') {
@@ -402,6 +406,10 @@
                 queryRecords()
                 viewsTaskAfterRoutingStore.setAuthorRecords('none')
             }
+            else if (viewsTaskAfterRoutingStore.authorRecords === 'init') {
+                init()
+            }
+            viewsTaskAfterRoutingStore.setAuthorRecords('none')
         } else if (props.type === 'recycled') {
             if (viewsTaskAfterRoutingStore.bashboardRecycled === 'refresh') {
                 queryRecords()
@@ -409,7 +417,7 @@
             }
         }
     })
-    onMounted(init) 
+    onMounted(init)
 </script>
 
 <style scoped>

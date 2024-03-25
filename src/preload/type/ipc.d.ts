@@ -173,8 +173,8 @@ export interface IElectronAPI {
     //ANCHOR Author
 
     queryAuthorDetail: (
-        libraryId: number,
-        authorId: number
+        libraryId: number | bigint,
+        authorId: number | bigint
     ) => Promise<VO.AuthorDetail | undefined>
 
     queryAuthorRecmds: (

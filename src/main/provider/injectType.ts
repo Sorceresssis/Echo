@@ -1,6 +1,6 @@
-import LibraryDB from "../db/LibraryDB"
+const InjectType = {
+    userDataDirPathConstructor: Symbol('userDataDirPathConstructor'),
 
-const DI_TYPES = {
     GroupDB: Symbol('GroupDB'),
     GroupDao: Symbol('GroupDao'),
     LibraryDao: Symbol('LibraryDao'),
@@ -8,7 +8,7 @@ const DI_TYPES = {
     GroupService: Symbol('GroupService'),
     LibraryService: Symbol('LibraryService'),
 
-    Library: Symbol('Library'),
+    LibraryEnv: Symbol('LibraryEnv'),
     AuthorDao: Symbol('AuthorDao'),
     DirnameDao: Symbol('DirnameDao'),
     RecordDao: Symbol('RecordDao'),
@@ -26,9 +26,4 @@ const DI_TYPES = {
     TagService: Symbol('TagService'),
 }
 
-export type DILibrary = {
-    id: number,
-    dbConnection: LibraryDB,
-}
-
-export default DI_TYPES
+export default InjectType

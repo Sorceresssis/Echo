@@ -1,5 +1,6 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import { type LibraryEnv } from "../provider/container"
 import DynamicSqlBuilder, { SortRule } from "../util/DynamicSqlBuilder"
 
 export type QueryTagsSortRule = {
@@ -9,18 +10,18 @@ export type QueryTagsSortRule = {
 
 @injectable()
 class TagDao {
-    private lib: DILibrary
+    private libEnv: LibraryEnv
 
-    public constructor(@inject(DI_TYPES.Library) lib: DILibrary) {
-        this.lib = lib
+    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
+        this.libEnv = libEnv
     }
 
     public queryTagIdByTitle(title: string): number | undefined {
-        return this.lib.dbConnection.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as number | undefined
+        return this.libEnv.db.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as number | undefined
     }
 
     public queryTagsByRecordId(recordId: PrimaryKey): Domain.Tag[] {
-        return this.lib.dbConnection.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ? ORDER BY rt.id;', recordId)
+        return this.libEnv.db.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ? ORDER BY rt.id;', recordId)
     }
 
     public queryTagsByKeyword(
@@ -34,14 +35,14 @@ class TagDao {
 
         sql.append('SELECT COUNT(id) OVER () AS total_count, id, title FROM tag')
         if (keyword !== '') {
-            this.lib.dbConnection.registerSQLFnRegexp(keyword)
+            this.libEnv.db.registerSQLFnRegexp(keyword)
             sql.append('WHERE REGEXP(title) > 0')
             sortRule.push({ field: 'REGEXP(title)', order: 'DESC' })
         }
         sortRule.push(...sort)
         sql.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
 
-        const rows = this.lib.dbConnection.all(sql.getSql(), ...sql.getParams())
+        const rows = this.libEnv.db.all(sql.getSql(), ...sql.getParams())
         const total = rows.length > 0 ? rows[0].total_count : 0
         rows.forEach(row => { delete row.total_count })
 
@@ -52,15 +53,15 @@ class TagDao {
     }
 
     public updateTagTitle(id: PrimaryKey, title: string): number {
-        return this.lib.dbConnection.run("UPDATE tag SET title = ? WHERE id = ?;", title, id).changes
+        return this.libEnv.db.run("UPDATE tag SET title = ? WHERE id = ?;", title, id).changes
     }
 
     public insertTag(title: string): PrimaryKey {
-        return this.lib.dbConnection.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
+        return this.libEnv.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
     }
 
     public deleteTagById(id: PrimaryKey): number {
-        return this.lib.dbConnection.run("DELETE FROM tag WHERE id = ?;", id).changes
+        return this.libEnv.db.run("DELETE FROM tag WHERE id = ?;", id).changes
     }
 }
 

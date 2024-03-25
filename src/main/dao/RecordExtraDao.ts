@@ -1,30 +1,31 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES, {type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import { type LibraryEnv } from "../provider/container"
 
 @injectable()
 class RecordExtraDao {
-    private lib: DILibrary
+    private libEnv: LibraryEnv
 
-    public constructor(@inject(DI_TYPES.Library) lib: DILibrary) {
-        this.lib = lib
+    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
+        this.libEnv = libEnv
     }
 
     public queryRecordExtraByRecordId(recordId: number): Domain.RecordExtra | undefined {
-        return this.lib.dbConnection.get('SELECT id, intro, info FROM record_extra WHERE id = ?;', recordId)
+        return this.libEnv.db.get('SELECT id, intro, info FROM record_extra WHERE id = ?;', recordId)
     }
 
     public updateRecordExtra(recordExtra: Entity.RecordExtra): number {
-        return this.lib.dbConnection.run('UPDATE record_extra SET intro=?, info=? WHERE id = ?;',
+        return this.libEnv.db.run('UPDATE record_extra SET intro=?, info=? WHERE id = ?;',
             recordExtra.intro, recordExtra.info, recordExtra.id).changes
     }
 
     public insetRecordExtra(recordExtra: Entity.RecordExtra): PrimaryKey {
-        return this.lib.dbConnection.run('INSERT INTO record_extra(id, intro, info) VALUES(?,?,?);',
+        return this.libEnv.db.run('INSERT INTO record_extra(id, intro, info) VALUES(?,?,?);',
             recordExtra.id, recordExtra.intro, recordExtra.info).lastInsertRowid
     }
 
     public deleteRecordExtraById(id: PrimaryKey): number {
-        return this.lib.dbConnection.run('DELETE FROM record_extra WHERE id = ?;', id).changes
+        return this.libEnv.db.run('DELETE FROM record_extra WHERE id = ?;', id).changes
     }
 }
 

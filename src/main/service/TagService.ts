@@ -1,16 +1,16 @@
 import { injectable, inject } from "inversify"
-import DIContainer from "../DI/DIContainer"
-import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import DIContainer, { LibraryEnv } from "../provider/container"
 import TagDao, { QueryTagsSortRule } from "../dao/TagDao"
-import RecordTagDao from "../dao/RecordTagDao"
-import RecordService from "./RecordService"
+import type RecordTagDao from "../dao/RecordTagDao"
+import type RecordService from "./RecordService"
 
 @injectable()
 class TagService {
     public constructor(
-        @inject(DI_TYPES.Library) private library: DILibrary,
-        @inject(DI_TYPES.TagDao) private tagDao: TagDao,
-        @inject(DI_TYPES.RecordTagDao) private recordTagDao: RecordTagDao,
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
+        @inject(InjectType.TagDao) private tagDao: TagDao,
+        @inject(InjectType.RecordTagDao) private recordTagDao: RecordTagDao,
     ) {
     }
 
@@ -58,7 +58,7 @@ class TagService {
         // 查询是否已经存在
         const existId = this.tagDao.queryTagIdByTitle(title)
 
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             // id !== existId 的判断是为了防止修改的值和原值一样，导致被删除
             if (existId && id !== existId) {
                 // 如果已经存在，就把record_tag中的tag_id重定向到existId
@@ -73,7 +73,7 @@ class TagService {
     }
 
     public deleteTag(id: number): void {
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             this.tagDao.deleteTagById(id)
             this.updateRecordTagAuthorSumOfTag(id)
             this.recordTagDao.deleteRecordTagByTagId(id)
@@ -86,7 +86,7 @@ class TagService {
         let recordIds: number[]
         do {
             recordIds = this.recordTagDao.queryRecordIdsByTagId(tagId, pn++ * rowCount, rowCount)
-            recordIds.forEach(id => DIContainer.get<RecordService>(DI_TYPES.RecordService).updateRecordTagAuthorSum(id))
+            recordIds.forEach(id => DIContainer.get<RecordService>(InjectType.RecordService).updateRecordTagAuthorSum(id))
         } while (recordIds.length === rowCount)
     }
 }

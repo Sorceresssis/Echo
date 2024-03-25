@@ -86,19 +86,10 @@ namespace VO {
         role: string | null,
     }
 
-    type Author = {
-        id: number
-        name: string
-        avatar: string | null
-        intro: string
-        createTime?: string,
-        modifiedTime?: string,
-    }
-
     type AuthorDetail = {
         id: number
         name: string
-        avatar: string | null
+        avatar: string | undefined
         sampleImages: string[],
         intro: string,
         createTime: string,

@@ -1,16 +1,17 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import { type LibraryEnv } from "../provider/container"
 
 @injectable()
 class RecordSeriesDao {
-    private lib: DILibrary
+    private libEnv: LibraryEnv
 
-    public constructor(@inject(DI_TYPES.Library) lib: DILibrary) {
-        this.lib = lib
+    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
+        this.libEnv = libEnv
     }
 
     public queryRecordIdsBySeriesId(seriesId: PrimaryKey, offset: number, rowCount: number): number[] {
-        return this.lib.dbConnection.prepare('SELECT record_id FROM record_series WHERE series_id = ? LIMIT ?,?;').pluck().all(seriesId, offset, rowCount) as number[]
+        return this.libEnv.db.prepare('SELECT record_id FROM record_series WHERE series_id = ? LIMIT ?,?;').pluck().all(seriesId, offset, rowCount) as number[]
     }
 
     public queryRandomRecordIdsOfSameSeriesByRecordId(recordId: PrimaryKey, rowCount: number = 10): number[] {
@@ -21,31 +22,31 @@ class RecordSeriesDao {
         GROUP BY rs2.record_id
         ORDER BY RANDOM() LIMIT 0, ?;`
 
-        return this.lib.dbConnection.prepare(sql).pluck().all(recordId, recordId, rowCount) as number[]
+        return this.libEnv.db.prepare(sql).pluck().all(recordId, recordId, rowCount) as number[]
     }
 
     public updateSeriesIdBySeriesId(seriesId: PrimaryKey, newSeriesId: PrimaryKey): void {
-        this.lib.dbConnection.run('DELETE FROM record_series WHERE series_id = ? AND record_id IN (SELECT record_id FROM record_series WHERE series_id = ? INTERSECT SELECT record_id FROM record_series WHERE series_id = ?);',
+        this.libEnv.db.run('DELETE FROM record_series WHERE series_id = ? AND record_id IN (SELECT record_id FROM record_series WHERE series_id = ? INTERSECT SELECT record_id FROM record_series WHERE series_id = ?);',
             seriesId, seriesId, newSeriesId)
-        this.lib.dbConnection.run('UPDATE record_series SET series_id = ? WHERE series_id = ?;', newSeriesId, seriesId)
+        this.libEnv.db.run('UPDATE record_series SET series_id = ? WHERE series_id = ?;', newSeriesId, seriesId)
     }
 
     public insertRecordSeriesByRecordIdSeriesIds(recordId: PrimaryKey, seriesIds: PrimaryKey[]): void {
-        const stmt = this.lib.dbConnection.prepare("INSERT INTO record_series(record_id, series_id) VALUES(?,?);")
+        const stmt = this.libEnv.db.prepare("INSERT INTO record_series(record_id, series_id) VALUES(?,?);")
         seriesIds.forEach(id => stmt.run(recordId, id))
     }
 
     public deleteRecordSeriesByRecordIdSeriesIds(recordId: PrimaryKey, seriesIds: PrimaryKey[]): void {
-        const stmt = this.lib.dbConnection.prepare("DELETE FROM record_series WHERE record_id = ? AND series_id = ?;")
+        const stmt = this.libEnv.db.prepare("DELETE FROM record_series WHERE record_id = ? AND series_id = ?;")
         seriesIds.forEach(id => stmt.run(recordId, id))
     }
 
     public deleteRecordSeriesBySeriesId(id: PrimaryKey) {
-        return this.lib.dbConnection.run('DELETE FROM record_series WHERE series_id = ?;', id).changes
+        return this.libEnv.db.run('DELETE FROM record_series WHERE series_id = ?;', id).changes
     }
 
     public deleteRecordSeriesByRecordId(id: PrimaryKey): number {
-        return this.lib.dbConnection.run('DELETE FROM record_series WHERE record_id = ?;', id).changes
+        return this.libEnv.db.run('DELETE FROM record_series WHERE record_id = ?;', id).changes
     }
 }
 

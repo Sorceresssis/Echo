@@ -84,7 +84,7 @@ export default {
         // author
         detailInfo: '详细信息',
         numberOfWorks: '作品数',
-        avatarUrl: '头像地址',
+        imageUrl: '图片地址',
 
         // about
         useSearchAuxiliaryText: '使用搜索辅助文本',

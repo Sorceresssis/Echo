@@ -1,12 +1,11 @@
 import { app, dialog } from "electron"
 import fs from "fs"
-import appConfig from "../app/config"
-import fm from "../util/FileManager"
+import appPaths from "../app/appPaths"
 import DB from "./DB"
 import { oncePerObject } from '../decorator/method.decorator'
 import tokenizer from "../util/tokenizer"
 
-export default class LibraryDB extends DB {
+class LibraryDB extends DB {
     private readonly DB_VERSION = 1.1;
     private readonly DB_INFO_SQL = `
 		DROP TABLE IF EXISTS 'db_info';
@@ -15,8 +14,8 @@ export default class LibraryDB extends DB {
 
 
     public constructor(libraryId: PrimaryKey) {
-        fm.mkdirsSync(appConfig.getLibraryDirPath(libraryId))
-        const path = appConfig.getLibraryDBFilePath(libraryId)
+        fs.mkdirSync(appPaths.getLibraryDirPath(libraryId), { recursive: true })
+        const path = appPaths.getLibraryDBFilePath(libraryId)
 
         if (fs.existsSync(path)) {
             super(path)
@@ -62,6 +61,7 @@ export default class LibraryDB extends DB {
                     this.run('ALTER TABLE record_author ADD COLUMN role VARCHAR(50) DEFAULT NULL;')
                 case 1.1:
                 default:
+                    this.run('VACUUM;')
                     this.exec(this.DB_INFO_SQL)// 更新db_info表
             }
         })
@@ -79,3 +79,5 @@ export default class LibraryDB extends DB {
         })
     }
 }
+
+export default LibraryDB

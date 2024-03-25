@@ -51,7 +51,7 @@ namespace VO {
         id: number
         title: string
         rate: number,
-        cover: string | null,
+        cover: string | undefined,
         sampleImages: string[],
         hyperlink: string | null,
         dirname: string | null,
@@ -85,23 +85,14 @@ namespace VO {
     type RecordAuthorProfile = {
         id: number,
         name: string,
-        avatar: string | null,
+        avatar: string | undefined,
         role: string | null,
-    }
-
-    type Author = {
-        id: number
-        name: string
-        avatar: string | null
-        intro: string
-        createTime?: string,
-        modifiedTime?: string,
     }
 
     type AuthorDetail = {
         id: number
         name: string
-        avatar: string | null
+        avatar: string | undefined
         sampleImages: string[],
         intro: string
         createTime: string,
@@ -115,12 +106,12 @@ namespace VO {
     type AuthorRecommendation = {
         id: number,
         name: string,
-        avatar: string | null,
+        avatar: string | undefined,
         worksCount: number,
         intro: string,
         masterpieces: {
             id: number,
-            cover: string | null,
+            cover: string | undefined,
             title: string,
         }[]
     }
@@ -162,9 +153,9 @@ namespace VO {
      * 自动补齐的返回值
      */
     type AcSuggestion = {
-        type: string,
+        type: 'record' | 'author' | 'tag' | 'series' | 'dirname',
         id: number,
         value: string,
-        image: string | null
+        image: string | undefined,
     }
 }

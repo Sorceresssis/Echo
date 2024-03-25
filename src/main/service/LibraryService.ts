@@ -2,11 +2,12 @@ import { Notification, shell } from "electron"
 import { Worker } from "worker_threads"
 import fs from "fs"
 import path from "path"
-import appConfig from "../app/config"
+// import appConfig from "../app/config"
+import appPaths from "../app/appPaths"
 import { formatCurrentTime } from "../util/common"
 import { injectable, inject } from "inversify"
-import DIContainer from "../DI/DIContainer"
-import DI_TYPES from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import DIContainer from "../provider/container"
 import Result from "../util/Result"
 import i18n from "../locale"
 import type { zipperOperation } from "./worker/zipper.worker"
@@ -19,11 +20,10 @@ import type LibraryExtraDao from "../dao/LibraryExtraDao"
 @injectable()
 class LibraryService {
     public constructor(
-        @inject(DI_TYPES.GroupDao) private groupDao: GroupDao,
-        @inject(DI_TYPES.LibraryDao) private libraryDao: LibraryDao,
-        @inject(DI_TYPES.LibraryExtraDao) private libraryExtraDao: LibraryExtraDao,
-    ) {
-    }
+        @inject(InjectType.GroupDao) private groupDao: GroupDao,
+        @inject(InjectType.LibraryDao) private libraryDao: LibraryDao,
+        @inject(InjectType.LibraryExtraDao) private libraryExtraDao: LibraryExtraDao,
+    ) { }
 
     public queryLibraryDetail(id: number): VO.LibraryDetail | undefined {
         const lib = this.libraryDao.queryLibraryById(id) as VO.LibraryDetail | undefined
@@ -38,7 +38,7 @@ class LibraryService {
 
     public querySortedLibrarysByGroupId(groupId: number): VO.LibraryProfile[] {
         const librarys = this.libraryDao.querySortedLibrarysByGroupId(groupId) as VO.LibraryProfile[]
-        librarys.forEach(l => l.dataPath = appConfig.getLibraryDirPath(l.id))
+        librarys.forEach(l => l.dataPath = appPaths.getLibraryDirPath(l.id))
         return librarys
     }
 
@@ -52,7 +52,7 @@ class LibraryService {
 
     public create(name: string, groupId: number): PrimaryKey {
         let newId: PrimaryKey = 0
-        DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(InjectType.GroupDB).transaction(() => {
             const headId = this.libraryDao.queryLibraryIdByGroupIdPrevId(groupId, 0)
             const id = newId = this.libraryDao.insertLibrary(name, groupId)
             if (headId !== void 0) { this.insertNode(id, 0, headId) }
@@ -68,7 +68,7 @@ class LibraryService {
     }
 
     public delete(id: number): void {
-        DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(InjectType.GroupDB).transaction(() => {
             this.removeNode(id) // 断开链接
             this.libraryDao.deleteLibraryById(id) // 删除library记录
             this.libraryExtraDao.deleteLibraryExtraById(id) // 删除library_extra记录
@@ -77,7 +77,7 @@ class LibraryService {
     }
 
     public deleteByGroupId(groupId: number): void {
-        DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(InjectType.GroupDB).transaction(() => {
             this.libraryDao.queryLibraryIdsByGroupId(groupId).forEach(LibId => {
                 // 由于是全部删除，所以不需要断开链接
                 this.libraryDao.deleteLibraryById(LibId) // 删除library记录
@@ -89,7 +89,7 @@ class LibraryService {
 
     /* 注意tarNextId可能为0, 所以groupId是为了再tarNextId为0的情况下找到要插入位置 */
     public sort(curId: number, tarNextId: number, moveToGroupId: number): void {
-        DIContainer.get<GroupDB>(DI_TYPES.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(InjectType.GroupDB).transaction(() => {
             const curGroupId = this.libraryDao.queryLibraryGroupIdById(curId)
             const tarGroupId = tarNextId === 0 ? moveToGroupId : this.libraryDao.queryLibraryGroupIdById(tarNextId)
             if (curGroupId === void 0 || tarGroupId === void 0) return // 如果curId或tarNextId不存在, 直接返回
@@ -122,7 +122,7 @@ class LibraryService {
     }
 
     private deleteFileData(id: number): void {
-        const dataPath = appConfig.getLibraryDirPath(id)
+        const dataPath = appPaths.getLibraryDirPath(id)
         if (fs.existsSync(dataPath)) {
             fs.rmSync(dataPath, { recursive: true })
         }
@@ -147,7 +147,7 @@ class LibraryService {
             },
             {
                 type: "Dir",
-                dirpath: appConfig.getLibraryDirPath(libraryId),
+                dirpath: appPaths.getLibraryDirPath(libraryId),
                 destpath: false,
             }
         ]
@@ -175,7 +175,7 @@ class LibraryService {
         const worker = new Worker(path.join(__dirname, "worker/unzipper.worker"))
 
         // 用于保存解压后的文件
-        const tmpPath = path.join(appConfig.get('userDataPath'), 'tmp')
+        const tmpPath = appPaths.getImportLibraryTmpDirPath()
         const ops: unzipperOperation[] = [
             { type: 'read', entryName: 'desc.json' },
             { type: 'extract', entryName: 'library.db', tragetPath: tmpPath },
@@ -213,7 +213,7 @@ class LibraryService {
                 })
 
                 // 修改数据库文件名
-                fs.renameSync(tmpPath, appConfig.getLibraryDirPath(id))
+                fs.renameSync(tmpPath, appPaths.getLibraryDirPath(id))
 
                 new Notification({
                     title: `${i18n.global.t('importSuccess')}  (${importFileIdx + 1}/${importFiles.length})`,

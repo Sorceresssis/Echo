@@ -1,15 +1,16 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES, { type DILibrary } from "../DI/DITypes"
-import SeriesDao from "../dao/SeriesDao"
-import RecordSeriesDao from "../dao/RecordSeriesDao"
+import InjectType from "../provider/injectType"
+import { type LibraryEnv } from "../provider/container"
+import type SeriesDao from "../dao/SeriesDao"
+import type RecordSeriesDao from "../dao/RecordSeriesDao"
 
 @injectable()
 class SeriesService {
 
     public constructor(
-        @inject(DI_TYPES.Library) private library: DILibrary,
-        @inject(DI_TYPES.SeriesDao) private seriesDao: SeriesDao,
-        @inject(DI_TYPES.RecordSeriesDao) private recordSeriesDao: RecordSeriesDao,
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
+        @inject(InjectType.SeriesDao) private seriesDao: SeriesDao,
+        @inject(InjectType.RecordSeriesDao) private recordSeriesDao: RecordSeriesDao,
     ) {
     }
 
@@ -23,7 +24,7 @@ class SeriesService {
 
         const existId = this.seriesDao.querySeriesIdByName(name)
 
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             if (existId !== undefined && existId !== id) {
                 // 如果已经存在，就把原来的记录移到新的标签下
                 this.recordSeriesDao.updateSeriesIdBySeriesId(existId, id)
@@ -35,7 +36,7 @@ class SeriesService {
     }
 
     public deleteSeries(id: number): void {
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             this.seriesDao.deleteSeries(id)
             this.recordSeriesDao.deleteRecordSeriesBySeriesId(id)
         })

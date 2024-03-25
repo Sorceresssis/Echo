@@ -76,6 +76,7 @@
     const deleteAuthor = async () => {
         MessageBox.deleteConfirm().then(() => {
             viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
+            viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
             window.electronAPI.deleteAuthor(activeLibrary.value, authorDetail.id).then((res) => {
                 res ? router.back() : Message.error($t('msg.deleteFailed'))
             })
@@ -109,6 +110,7 @@
 <style scoped>
     .avatar-icon {
         width: 100px;
+        height: 100px;
     }
 
     .operate span {

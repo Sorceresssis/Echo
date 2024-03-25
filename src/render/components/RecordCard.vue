@@ -14,10 +14,10 @@
                         disabled />
                 </div>
             </div>
-            <div class="meta scrollbar-x-nodisplay"
+            <div v-if="recmd.authors.length"
+                class="meta scrollbar-x-nodisplay"
                 @mousedown="startScroll">
-                <div v-if="recmd.authors.length"
-                    class="inline-list-title"> {{ $t('layout.authors') }}</div>
+                <div class="inline-list-title"> {{ $t('layout.authors') }}</div>
                 <ul class="meta-content">
                     <li v-for="author in recmd.authors"
                         :key="author.id"
@@ -30,10 +30,10 @@
                     </li>
                 </ul>
             </div>
-            <div class="meta scrollbar-x-nodisplay"
+            <div v-if="recmd.tags.length"
+                class="meta scrollbar-x-nodisplay"
                 @mousedown="startScroll">
-                <div v-if="recmd.tags.length"
-                    class="inline-list-title">{{ $t('layout.tags') }}</div>
+                <div class="inline-list-title">{{ $t('layout.tags') }}</div>
                 <ul class="meta-content">
                     <li v-for="tag in recmd.tags"
                         :key="tag.id"

@@ -12,11 +12,11 @@
             <el-form-item :label="$t('layout.avatar')"
                 prop="avatar">
                 <div class="avatar">
-                    <local-image :src="formData.avatar"
+                    <local-image :src="displayAvatar"
                         class="fit--cover" />
                     <div class="image-select-btn">
                         <span @click="selectAvatar"> {{ $t('layout.selectImage') }} </span>
-                        <span :class="[formData.avatar === formData.originAvatar ? 'disabled' : '']"
+                        <span :class="[displayAvatar === originAvatar ? 'disabled' : '']"
                             @click="resetAvatar"> {{ $t('layout.reset') }} </span>
                     </div>
                 </div>
@@ -81,30 +81,32 @@
     const formData = reactive<DTO.EditAuthorForm>({
         id: 0,
         name: '',
-        avatar: '',
-        originAvatar: '',
+        newAvatar: '',
         intro: '',
-        addSampleImages: [],
+        editSampleImages: [],
         removeSampleImages: []
     })
+    const displayAvatar = ref<string>('')
+    let originAvatar = ''
+
     const originSampleImages = new Set<string>()
     const displaySampleImages = reactive<Array<string>>([])
-    const addSampleImages = new Set<string>()
     const removeSampleImages = new Set<string>()
     const sampleImageAdder = (paths: string[]) => {
         paths.forEach(path => {
             if (displaySampleImages.indexOf(path) !== -1) return
             displaySampleImages.push(path)
-            originSampleImages.has(path) ? removeSampleImages.delete(path) : addSampleImages.add(path)
+            originSampleImages.has(path) && removeSampleImages.delete(path)
         })
     }
     const sampleImageRemover = (path: string) => {
         const idx = displaySampleImages.indexOf(path)
         if (-1 === idx) return
         displaySampleImages.splice(idx, 1)
-        originSampleImages.has(path) ? removeSampleImages.add(path) : addSampleImages.delete(path)
+        originSampleImages.has(path) && removeSampleImages.add(path)
     }
-    const saveOriginData = async (id: number) => {
+
+    const saveOriginData = async (id: number | bigint) => {
         const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, id)
         if (!author) {
             Message.error($t('msg.authorNotExist'))
@@ -113,25 +115,18 @@
         formData.id = author.id
         formData.name = author.name
         formData.intro = author.intro
-        author.sampleImages.forEach(item => {
-            originSampleImages.add(item)
-            displaySampleImages.push(item)
-        })
-        if (author.avatar) {
-            formData.avatar = formData.originAvatar = author.avatar
-        } else {
-            formData.avatar = formData.originAvatar = ''
-        }
-
+        author.sampleImages.forEach(item => originSampleImages.add(item))
+        displaySampleImages.push(...author.sampleImages)
+        if (author.avatar) displayAvatar.value = originAvatar = author.avatar
     }
     const selectAvatar = async () => {
         const imgPath = (await window.electronAPI.openDialog('image', false))[0]
         if (imgPath) {
-            formData.avatar = imgPath
+            displayAvatar.value = imgPath
         }
     }
     const resetAvatar = () => {
-        formData.avatar = formData.originAvatar
+        displayAvatar.value = originAvatar
     }
     const rules = reactive<FormRules>({
         name: [{
@@ -156,6 +151,24 @@
                     viewsTaskAfterRoutingStore.setAuthorRecords('refresh') // 作者页面刷新
                 }
 
+                if (displayAvatar.value !== originAvatar) {
+                    formData.newAvatar = displayAvatar.value
+                }
+
+                const originSampleImagesArray = Array.from(originSampleImages)
+                displaySampleImages.forEach((path, index) => {
+                    if (!originSampleImages.has(path)) {
+                        // 不存在就在此位置添加一个图片
+                        formData.editSampleImages.push({ type: 'add', idx: index + 1, path })
+                    } else if (path !== originSampleImagesArray[index]) {
+                        // 存在, 但是位置不对, 就移动到此位置
+                        formData.editSampleImages.push({ type: 'move', idx: index + 1, path })
+                    }
+                    // 存在, 位置也对, 就不做任何操作
+                })
+
+                formData.removeSampleImages = Array.from(removeSampleImages)
+
                 window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
                     if (result) {
                         if (formData.id) {
@@ -178,13 +191,16 @@
     const resetFormData = function () {
         formData.id = 0
         formData.name = ''
-        formData.avatar = ''
-        formData.originAvatar = ''
+        formData.newAvatar = ''
         formData.intro = ''
+        formData.editSampleImages.splice(0)
+        formData.removeSampleImages.splice(0)
+
+        displayAvatar.value = ''
+        originAvatar = ''
 
         displaySampleImages.splice(0)
         originSampleImages.clear()
-        addSampleImages.clear()
         removeSampleImages.clear()
     }
 

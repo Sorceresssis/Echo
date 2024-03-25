@@ -1,6 +1,7 @@
 import os from 'os'
 import fs from 'fs'
-import nodePath from 'path'
+import node_path from 'path'
+import { rimraf } from 'rimraf'
 
 /**
  * 通过路径递归的创建多层文件夹
@@ -10,9 +11,15 @@ export function mkdirsSync(path: string): void {
     if (fs.existsSync(path)) {
         return
     } else {
-        mkdirsSync(nodePath.dirname(path))
+        mkdirsSync(node_path.dirname(path))
         fs.mkdirSync(path)
     }
+}
+
+export function rmdirRecursive(dirPath: string) {
+    return rimraf(dirPath, {
+        preserveRoot: false
+    })
 }
 
 export function unlinkIfExistsSync(path: string): void {
@@ -43,7 +50,7 @@ export function isLegalAbsolutePath(path: string): boolean {
     path.isAbsolute('C:\\foo')  true
     path.isAbsolute('C:\\foo\\')  true
     */
-    if (!nodePath.isAbsolute(path)) {
+    if (!node_path.isAbsolute(path)) {
         return false
     }
     // 字符
@@ -88,7 +95,7 @@ function dirContentsWithType(dirPath: string): DirContentItem[] {
     // 使用 fs.readdirSync 方法来读取文件夹内容
     const contents = fs.readdirSync(dirPath)
     return contents.map(item => {
-        const stat = fs.statSync(nodePath.join(dirPath, item))
+        const stat = fs.statSync(node_path.join(dirPath, item))
         return {
             name: item,
             type: stat.isDirectory() ? 'folder' : 'file'
@@ -98,6 +105,7 @@ function dirContentsWithType(dirPath: string): DirContentItem[] {
 
 export default {
     mkdirsSync,
+    rmdirRecursive,
     unlinkIfExistsSync,
     isLegalAbsolutePath,
     isLegalFileName,

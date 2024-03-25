@@ -1,19 +1,19 @@
 import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
-import fm from '../util/FileManager'
+import { isSameType } from '../util/common'
 
-export type Config = {
+export interface Config {
     userDataPath: string,
     locale: string,
     searchEngine: string,
 }
 
 class AppConfig {
-    private static readonly APP_DIR: string = path.dirname(app.getPath('exe'))
-    private static readonly CONFIG_FILE_PATH: string = path.join(AppConfig.APP_DIR, 'config.json')
-    private static readonly DEFAULT_CONFIG: Config = {
-        userDataPath: path.join(AppConfig.APP_DIR, 'userData'),
+    private static readonly appDir: string = path.dirname(app.getPath('exe'))
+    private static readonly configFilePath: string = path.join(AppConfig.appDir, 'config.json')
+    private static readonly defaultConfig: Config = {
+        userDataPath: path.join(this.appDir, 'userData'),
         locale: 'zhCN',
         searchEngine: 'google',
     }
@@ -22,53 +22,41 @@ class AppConfig {
 
     constructor() {
         try {
-            this.config = JSON.parse(fs.readFileSync(AppConfig.CONFIG_FILE_PATH, 'utf8'))
-            if (!this.config) {
-                throw new Error('config is null')
+            const config = JSON.parse(fs.readFileSync(AppConfig.configFilePath, 'utf8'))
+
+            if (config && isSameType(config, AppConfig.defaultConfig)) {
+                this.config = config
+            } else {
+                throw new Error('Config file is invalid')
             }
         } catch {
             this.reset()
         }
     }
 
+    public reset(): void {
+        const stringifiedConfig = JSON.stringify(AppConfig.defaultConfig, null, 4)
+        fs.writeFileSync(AppConfig.configFilePath, stringifiedConfig, 'utf8')
+        this.config = JSON.parse(stringifiedConfig)
+    }
+
     public get(key: keyof Config): string {
-        if (!this.config[key]) {
-            this.reset()
-        }
         return this.config[key]
+    }
+
+    public set(key: keyof Config, value: string): void {
+        this.config[key] = value
+        fs.writeFileSync(AppConfig.configFilePath, JSON.stringify(this.config, null, 4), 'utf8')
     }
 
     public all(): Config {
         return this.config
     }
 
-    public set(key: keyof Config, value: string): void {
-        this.config[key] = value
-        fs.writeFileSync(AppConfig.CONFIG_FILE_PATH, JSON.stringify(this.config), 'utf8')
-    }
-
-    public reset(): void {
-        const stringifiedConfig = JSON.stringify(AppConfig.DEFAULT_CONFIG)
-        fs.writeFileSync(AppConfig.CONFIG_FILE_PATH, stringifiedConfig, 'utf8')
-        this.config = JSON.parse(stringifiedConfig)
-    }
-
-    public getGroupDBFilePath(): string {
-        return path.join(this.get('userDataPath'), 'group.db')
-    }
-
-    public getLibraryDirPath(id: PrimaryKey): string {
-        return path.join(this.get('userDataPath'), id.toString())
-    }
-
-    public getLibraryDBFilePath(id: PrimaryKey): string {
-        // [userDataPath]/1/1.db
-        return path.join(this.getLibraryDirPath(id), 'library.db')
-    }
-
+    // TODO Path Constructor 
     public getLibraryImagesDirPath(id: PrimaryKey): string {
         // [userDataPath]/1/images
-        return path.join(this.getLibraryDirPath(id), 'images')
+        return path.join(this.get('userDataPath'), id.toString(), 'images')
     }
 }
 

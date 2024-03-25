@@ -66,6 +66,8 @@ export default {
         detailInfo: '詳細信息',
         numberOfWorks: '作品數',
         avatarUrl: '頭像地址',
+        imageUrl: '圖片地址',
+
         useSearchAuxiliaryText: '使用搜索輔助文本',
         searchAuxiliaryText: '搜索輔助文本',
         addRecord: '添加記錄',

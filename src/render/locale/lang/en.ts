@@ -82,7 +82,7 @@ export default {
         // author
         detailInfo: 'Detailed Information',
         numberOfWorks: 'Number of Works',
-        avatarUrl: 'Avatar URL',
+        imageUrl: 'Image URL',
 
         // about
         useSearchAuxiliaryText: 'Use Search Auxiliary Text',

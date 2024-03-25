@@ -20,6 +20,7 @@
                     :class="[item.type]" />
                 <span v-else
                     :class="[item.type]"></span>
+
                 <div class="flex-1 echo-ac-suggestion_text">
                     {{ item.value }}
                 </div>
@@ -87,6 +88,7 @@
         width: 80px;
         height: 80px;
         border-radius: 50%;
+        object-fit: cover;
     }
 
     .echo-ac-suggestion .record {

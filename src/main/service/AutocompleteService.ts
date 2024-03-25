@@ -1,23 +1,24 @@
 import path from "path"
 import appConfig from "../app/config"
 import { injectable, inject } from "inversify"
-import DI_TYPES, {type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import { type LibraryEnv } from "../provider/container"
 import DynamicSqlBuilder from "../util/DynamicSqlBuilder"
 
 @injectable()
 class AutocompleteService {
     public constructor(
-        @inject(DI_TYPES.Library) private library: DILibrary,
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
     ) {
     }
 
     public query(type: AcType, queryWord: string, ps: number): VO.AcSuggestion[] {
         const table = [
-            "SELECT 'record' AS type, id, title AS value, cover AS image, REGEXP(title) AS sore FROM record WHERE sore > 0",
-            "SELECT 'author' AS type, id, name AS value, avatar AS image, REGEXP(name) AS sore FROM author WHERE sore > 0",
-            "SELECT 'tag' AS type, id, title AS value, NULL AS image, REGEXP(title) AS sore FROM tag WHERE sore > 0",
-            "SELECT 'series' AS type, id, name AS value, NULL AS image, REGEXP(name) AS sore FROM  series WHERE sore > 0",
-            "SELECT 'dirname' AS type, id, path AS value, NULL AS image, REGEXP(path) AS sore FROM dirname WHERE sore > 0",
+            "SELECT 'record' AS type, id, title AS value, REGEXP(title) AS sore FROM record WHERE sore > 0",
+            "SELECT 'author' AS type, id, name AS value, REGEXP(name) AS sore FROM author WHERE sore > 0",
+            "SELECT 'tag' AS type, id, title AS value, REGEXP(title) AS sore FROM tag WHERE sore > 0",
+            "SELECT 'series' AS type, id, name AS value, REGEXP(name) AS sore FROM  series WHERE sore > 0",
+            "SELECT 'dirname' AS type, id, path AS value, REGEXP(path) AS sore FROM dirname WHERE sore > 0",
         ]
         const tableIdxs = {
             search: [0, 1, 2],
@@ -29,10 +30,10 @@ class AutocompleteService {
         }
 
         // 生成REGEXP函数
-        this.library.dbConnection.registerSQLFnRegexp(queryWord)
+        this.libEnv.db.registerSQLFnRegexp(queryWord)
         const sqlBuilder = new DynamicSqlBuilder()
 
-        sqlBuilder.append("SELECT type, id, value, image FROM (")
+        sqlBuilder.append("SELECT type, id, value FROM (")
         // 把所有需要查询的表放入sql
         tableIdxs[type].forEach((v, i) => {
             if (i > 0) { sqlBuilder.append('UNION ALL') }
@@ -40,11 +41,11 @@ class AutocompleteService {
         })
         sqlBuilder.append(') ORDER BY sore DESC LIMIT 0, ?;', ps)
 
-        const rows: VO.AcSuggestion[] = this.library.dbConnection.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
+        const rows: VO.AcSuggestion[] = this.libEnv.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
 
-        const imageDirPath = appConfig.getLibraryImagesDirPath(this.library.id)
         rows.forEach(row => {
-            if (row.image) row.image = path.join(imageDirPath, row.image)
+            if (row.type === 'record') row.image = this.libEnv.genRecordImagesDirPathConstructor(row.id).findMainImageFilePath()
+            if (row.type === 'author') row.image = this.libEnv.genAuthorImagesDirPathConstructor(row.id).findAvatarImageFilePath()
         })
         return rows
     }

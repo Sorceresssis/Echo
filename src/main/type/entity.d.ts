@@ -21,7 +21,6 @@ namespace Entity {
     type Author = {
         id: PrimaryKey
         name: string
-        avatar: string | null
         intro: string
     }
 

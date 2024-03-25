@@ -26,7 +26,7 @@ namespace Domain {
     type RecordProfile = {
         id: number;
         title: string;
-        cover: string | null;
+        cover: string | undefined;
     }
 
     type Record = {

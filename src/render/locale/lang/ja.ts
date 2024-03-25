@@ -83,7 +83,7 @@ export default {
         // author
         detailInfo: '詳細情報',
         numberOfWorks: '作品数',
-        avatarUrl: 'アバターのURL',
+        imageUrl: '画像URL',
 
         // about
         useSearchAuxiliaryText: '検索補助テキストを使用',

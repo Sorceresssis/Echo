@@ -2,21 +2,21 @@ import path from "path"
 import appConfig from "../app/config"
 import fm from "../util/FileManager"
 import { injectable, inject } from "inversify"
-import DIContainer from "../DI/DIContainer"
-import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import DIContainer, { type LibraryEnv } from "../provider/container"
 import i18n from "../locale"
 import Result from "../util/Result"
 import ImageService from "../service/ImageService"
-import RecordDao, { QueryRecordsSortRule } from "../dao/RecordDao"
-import RecordExtraDao from "../dao/RecordExtraDao"
-import DirnameDao from "../dao/DirnameDao"
-import AuthorDao from "../dao/AuthorDao"
-import RecordAuthorDao from "../dao/RecordAuthorDao"
-import TagDao from "../dao/TagDao"
-import RecordTagDao from "../dao/RecordTagDao"
-import SeriesDao from "../dao/SeriesDao"
-import RecordSeriesDao from "../dao/RecordSeriesDao"
-import AuthorService from "./AuthorService"
+import RecordDao, { type QueryRecordsSortRule } from "../dao/RecordDao"
+import type RecordExtraDao from "../dao/RecordExtraDao"
+import type DirnameDao from "../dao/DirnameDao"
+import type AuthorDao from "../dao/AuthorDao"
+import type RecordAuthorDao from "../dao/RecordAuthorDao"
+import type TagDao from "../dao/TagDao"
+import type RecordTagDao from "../dao/RecordTagDao"
+import type SeriesDao from "../dao/SeriesDao"
+import type RecordSeriesDao from "../dao/RecordSeriesDao"
+import type AuthorService from "./AuthorService"
 
 
 @injectable()
@@ -24,45 +24,40 @@ class RecordService {
     private infoStatusFilterMap: Map<string, string[]>
 
     public constructor(
-        @inject(DI_TYPES.Library) private library: DILibrary,
-        @inject(DI_TYPES.RecordDao) private recordDao: RecordDao,
-        @inject(DI_TYPES.RecordExtraDao) private recordExtraDao: RecordExtraDao,
-        @inject(DI_TYPES.DirnameDao) private dirnameDao: DirnameDao,
-        @inject(DI_TYPES.AuthorDao) private authorDao: AuthorDao,
-        @inject(DI_TYPES.RecordTagDao) private recordTagDao: RecordTagDao,
-        @inject(DI_TYPES.TagDao) private tagDao: TagDao,
-        @inject(DI_TYPES.RecordSeriesDao) private recordSeriesDao: RecordSeriesDao,
-        @inject(DI_TYPES.SeriesDao) private seriesDao: SeriesDao,
-        @inject(DI_TYPES.RecordAuthorDao) private recordAuthorDao: RecordAuthorDao,
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
+        @inject(InjectType.RecordDao) private recordDao: RecordDao,
+        @inject(InjectType.RecordExtraDao) private recordExtraDao: RecordExtraDao,
+        @inject(InjectType.DirnameDao) private dirnameDao: DirnameDao,
+        @inject(InjectType.AuthorDao) private authorDao: AuthorDao,
+        @inject(InjectType.RecordTagDao) private recordTagDao: RecordTagDao,
+        @inject(InjectType.TagDao) private tagDao: TagDao,
+        @inject(InjectType.RecordSeriesDao) private recordSeriesDao: RecordSeriesDao,
+        @inject(InjectType.SeriesDao) private seriesDao: SeriesDao,
+        @inject(InjectType.RecordAuthorDao) private recordAuthorDao: RecordAuthorDao,
     ) {
         this.infoStatusFilterMap = new Map<string, string[]>()
-    }
-
-    private getCoverFullPath(cover: string | null): string | null {
-        return cover ? path.join(appConfig.getLibraryImagesDirPath(this.library.id), cover) : null
     }
 
     public queryRecordDetail(id: number): VO.RecordDetail | undefined {
         const record = this.recordDao.queryRecordById(id) as VO.RecordDetail | undefined
         if (record === void 0) return record
 
-        record.cover = this.getCoverFullPath(record.cover)
         record.resourcePath = record.dirname && record.basename ? path.join(record.dirname, record.basename) : null
-        record.authors = DIContainer.get<AuthorService>(DI_TYPES.AuthorService).queryAuthorsByRecordId(id)
+        record.authors = DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorsByRecordId(id)
         record.tags = this.tagDao.queryTagsByRecordId(id)
         record.series = this.seriesDao.querySeriesByRecordId(id)
 
         const extra = this.recordExtraDao.queryRecordExtraByRecordId(id)
         record.intro = extra?.intro || ''
         record.info = extra?.info || ''
-        // TODO 临时数据, sampleImages
-        record.sampleImages = [
-            'C:/Users/RachelGardner/OneDrive/图片/ACG/20220907_014050.jpg',
-            'C:/Users/RachelGardner/OneDrive/图片/ACG/81551541_p0.jpg',
-            'F:/Download/Browser/94132137-7d4fc100-fe7c-11ea-8512-69f90cb65e48.gif',
-            'F:/Desktop/TestEcho/年龄/1710018698719.png',
-            'F:/Desktop/TestEcho/年龄/102929154_p0_master1200.jpg',
-        ]
+
+        const {
+            main,
+            sampleImages
+        } = this.libEnv.genRecordImagesDirPathConstructor(record.id).findMainAndSampleImageFilePaths()
+
+        record.cover = main
+        record.sampleImages = sampleImages
 
         return record
     }
@@ -106,11 +101,11 @@ class RecordService {
 
         // 添加作者和标签
         page.rows.forEach(row => {
-            row.cover = this.getCoverFullPath(row.cover)
+            row.cover = this.libEnv.genRecordImagesDirPathConstructor(row.id).findMainImageFilePath()
             row.resourcePath = row.dirname && row.basename ? path.join(row.dirname, row.basename) : null
             delete row.dirname
             delete row.basename
-            row.authors = DIContainer.get<AuthorService>(DI_TYPES.AuthorService).queryAuthorsByRecordId(row.id)
+            row.authors = DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorsByRecordId(row.id)
             row.tags = this.tagDao.queryTagsByRecordId(row.id)
         })
 
@@ -150,11 +145,11 @@ class RecordService {
             .filter(record => record)
 
         similar.forEach(record => {
-            record.cover = this.getCoverFullPath(record.cover)
+            record.cover = this.libEnv.genRecordImagesDirPathConstructor(record.id).findMainImageFilePath()
             record.resourcePath = record.dirname && record.basename ? path.join(record.dirname, record.basename) : null
             delete record.dirname
             delete record.basename
-            record.authors = DIContainer.get<AuthorService>(DI_TYPES.AuthorService).queryAuthorsByRecordId(record.id)
+            record.authors = DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorsByRecordId(record.id)
             record.tags = this.tagDao.queryTagsByRecordId(record.id)
         })
 
@@ -194,15 +189,15 @@ class RecordService {
     }
 
     // 查询作者的作品
-    public queryAuthorMasterpieces(authorId: number): { id: number, title: string, cover: string | null }[] {
+    public queryAuthorMasterpieces(authorId: number): { id: number, title: string, cover: string | undefined }[] {
         const records = this.recordDao.queryRecordProfilesOfOrderRateByAuthor(authorId, 3)
-        records.forEach(record => record.cover = this.getCoverFullPath(record.cover))
+        records.forEach(record => record.cover = this.libEnv.genRecordImagesDirPathConstructor(record.id).findMainImageFilePath())
         return records
     }
 
     // 根据属性回收
     public recycleRecordByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             const dirnamePath = formData.dirnamePath.trim()
             const tagTitle = formData.tagTitle.trim()
             const seriesName = formData.seriesName.trim()
@@ -274,7 +269,7 @@ class RecordService {
     }
 
     public deleteRecycledRecord(recordIds: number[]): void {
-        recordIds.forEach(id => this.library.dbConnection.transaction(() => {
+        recordIds.forEach(id => this.libEnv.db.transaction(() => {
             const record = this.recordDao.queryRecordById(id)
             if (record && this.recordDao.deleteRecordOfRecycledById(id) > 0) {
                 // 如果删除record不成功，说明不存在或者没有被回收
@@ -283,11 +278,7 @@ class RecordService {
                 this.recordTagDao.deleteRecordTagByRecordId(id) // tag链接
                 this.recordSeriesDao.deleteRecordSeriesByRecordId(id) // series链接
 
-                //  删除图片
-                try {
-                    const p = this.getCoverFullPath(record.cover)
-                    if (p) { fm.unlinkIfExistsSync(p) }
-                } catch { }
+                fm.rmdirRecursive(this.libEnv.genRecordImagesDirPathConstructor(id).getImagesDirPath())
             }
         }))
     }
@@ -349,7 +340,7 @@ class RecordService {
         }
         // 保存新的图片, 返回新的图片名, 如果失败直接提醒用户原因，让用户解决问题
         if (newImg.length) {
-            const imageService = new ImageService(this.library.id, newImg)
+            const imageService = new ImageService(this.libEnv.id, newImg)
             return imageService.handleRecordCover() || null
         }
 
@@ -380,7 +371,7 @@ class RecordService {
             intro: formData.intro
         }
 
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             // 如果dirname存在返回id，不存在插入dirname表返回id
             if (formData.dirname === '') {
                 record.dirnameId = 0
@@ -443,7 +434,7 @@ class RecordService {
             intro: formData.intro
         }
 
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             // 插入tag, series, author
             const addTagIds = formData.addTags.map(
                 title => this.tagDao.queryTagIdByTitle(title) || this.tagDao.insertTag(title)

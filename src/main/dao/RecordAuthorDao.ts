@@ -1,22 +1,23 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import { type LibraryEnv } from "../provider/container"
 
 @injectable()
 class RecordAuthorDao {
-    private lib: DILibrary
+    private libEnv: LibraryEnv
 
-    public constructor(@inject(DI_TYPES.Library) lib: DILibrary) {
-        this.lib = lib
+    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
+        this.libEnv = libEnv
     }
 
     public queryCountOfRecordsByAuthorId(authorId: number): number {
         const sql = "SELECT COUNT(record_id) FROM record_author WHERE author_id = ?;"
-        return this.lib.dbConnection.prepare(sql).pluck().get(authorId) as number
+        return this.libEnv.db.prepare(sql).pluck().get(authorId) as number
     }
 
     public queryRecordIdsByAuthorId(authorId: PrimaryKey, offset: number, rowCount: number): number[] {
         const sql = "SELECT record_id FROM record_author WHERE author_id = ? LIMIT ?,?;"
-        return this.lib.dbConnection.prepare(sql).pluck().all(authorId, offset, rowCount) as number[]
+        return this.libEnv.db.prepare(sql).pluck().all(authorId, offset, rowCount) as number[]
     }
 
     public queryRandomRecordIdsOfSameAuthorByRecordId(recordId: PrimaryKey, rowCount: number = 10): number[] {
@@ -27,31 +28,31 @@ class RecordAuthorDao {
         GROUP BY ra2.record_id
         ORDER BY RANDOM() LIMIT 0, ?`
 
-        return this.lib.dbConnection.prepare(sql).pluck().all(recordId, recordId, rowCount) as number[]
+        return this.libEnv.db.prepare(sql).pluck().all(recordId, recordId, rowCount) as number[]
     }
 
     public updateRoleByRecordIdAuthorId(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {
-        const stmt = this.lib.dbConnection.prepare("UPDATE record_author SET role = ? WHERE record_id = ? AND author_id = ?;")
+        const stmt = this.libEnv.db.prepare("UPDATE record_author SET role = ? WHERE record_id = ? AND author_id = ?;")
         // 如果role为空，插入null，节省储存空间
         authors.forEach(author => stmt.run(author.role === '' ? null : author.role, recordId, author.id))
     }
 
     public insertRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {
-        const stmt = this.lib.dbConnection.prepare("INSERT INTO record_author(record_id, author_id, role) VALUES(?, ?, ?);")
+        const stmt = this.libEnv.db.prepare("INSERT INTO record_author(record_id, author_id, role) VALUES(?, ?, ?);")
         authors.forEach(author => stmt.run(recordId, author.id, author.role === '' ? null : author.role))
     }
 
     public deleteRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
-        const stmt = this.lib.dbConnection.prepare("DELETE FROM record_author WHERE record_id = ? AND author_id = ?;")
+        const stmt = this.libEnv.db.prepare("DELETE FROM record_author WHERE record_id = ? AND author_id = ?;")
         authorIds.forEach(authorId => stmt.run(recordId, authorId))
     }
 
     public deleteRecordAuthorByAuthorId(authorId: PrimaryKey): number {
-        return this.lib.dbConnection.run("DELETE FROM record_author WHERE author_id = ?;", authorId).changes
+        return this.libEnv.db.run("DELETE FROM record_author WHERE author_id = ?;", authorId).changes
     }
 
     public deleteRecordAuthorByRecordId(recordId: PrimaryKey): number {
-        return this.lib.dbConnection.run("DELETE FROM record_author WHERE record_id = ?;", recordId).changes
+        return this.libEnv.db.run("DELETE FROM record_author WHERE record_id = ?;", recordId).changes
     }
 }
 

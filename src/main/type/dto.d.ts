@@ -31,16 +31,21 @@ namespace DTO {
         ps: number
     }
 
+    type EditSampleImage = {
+        type: 'add' | 'move',
+        idx: number, // 从1开始
+        path: string
+    }
+
     /**
      * 编辑作者的表单
      */
     type EditAuthorForm = {
-        id: number,
+        id: number | bigint,
         name: string,
-        avatar: string,
-        originAvatar: string,
+        newAvatar: string | undefined,
         intro: string,
-        addSampleImages: string[],
+        editSampleImages: EditSampleImage[],
         removeSampleImages: string[]
     }
 

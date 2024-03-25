@@ -1,5 +1,6 @@
 import { injectable, inject } from "inversify"
-import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import { type LibraryEnv } from "../provider/container"
 import DynamicSqlBuilder, { SortRule } from "../util/DynamicSqlBuilder"
 
 export type QueryRecordsSortRule = {
@@ -9,26 +10,26 @@ export type QueryRecordsSortRule = {
 
 @injectable()
 class RecordDao {
-    private lib: DILibrary
+    private libEnv: LibraryEnv
 
-    public constructor(@inject(DI_TYPES.Library) lib: DILibrary) {
-        this.lib = lib
+    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
+        this.libEnv = libEnv
     }
 
     public queryCountOfRecords(): number {
-        return this.lib.dbConnection.prepare('SELECT COUNT(id) FROM record;').pluck().get() as number
+        return this.libEnv.db.prepare('SELECT COUNT(id) FROM record;').pluck().get() as number
     }
 
     public queryCountOfRecordsByDirnameId(dirnameId: PrimaryKey): number {
-        return this.lib.dbConnection.prepare('SELECT COUNT(id) FROM record WHERE dirname_id = ?;').pluck().get(dirnameId) as number
+        return this.libEnv.db.prepare('SELECT COUNT(id) FROM record WHERE dirname_id = ?;').pluck().get(dirnameId) as number
     }
 
     public queryRecordIdByTitle(title: string): PrimaryKey | undefined {
-        return this.lib.dbConnection.prepare('SELECT id FROM record WHERE title = ?;').pluck().get(title) as PrimaryKey | undefined
+        return this.libEnv.db.prepare('SELECT id FROM record WHERE title = ?;').pluck().get(title) as PrimaryKey | undefined
     }
 
     public queryRecordById(id: number): Domain.Record | undefined {
-        return this.lib.dbConnection.get(`
+        return this.libEnv.db.get(`
             SELECT r.id, r.title, r.rate, r.cover, r.hyperlink, d.path AS dirname, r.basename,
                    DATETIME(gmt_create, 'localtime') AS createTime,
                    DATETIME(gmt_modified, 'localtime') AS modifiedTime
@@ -56,7 +57,7 @@ class RecordDao {
             DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime
 			FROM (SELECT COUNT(r.id) OVER () AS total_count, r.id`)
         if (keyword !== '') {
-            this.lib.dbConnection.registerSQLFnRegexp(keyword)
+            this.libEnv.db.registerSQLFnRegexp(keyword)
             rowsSQL.append(', REGEXP(r.title) + CASE WHEN r.tag_author_sum IS NULL THEN 0 ELSE REGEXP(r.tag_author_sum) END AS sore')
             sortRule.push({ field: 'sore', order: 'DESC' })
             whereSubSQL.push('sore > 0')
@@ -93,7 +94,7 @@ class RecordDao {
             .appendLimitSQL(offset, rowCount)
             .append(') f JOIN record r ON f.id = r.id LEFT JOIN dirname d ON r.dirname_id = d.id;')
 
-        const rows = this.lib.dbConnection.all(rowsSQL.getSql(), ...rowsSQL.getParams())
+        const rows = this.libEnv.db.all(rowsSQL.getSql(), ...rowsSQL.getParams())
         const total = rows[0]?.total_count || 0 // 如果rows为空，total_count为null，这里要转换为0
         rows.forEach(row => {
             delete row.total_count
@@ -106,45 +107,45 @@ class RecordDao {
     }
 
     public queryRecordProfilesOfOrderRateByAuthor(authorId: number, rowCount: number): Domain.RecordProfile[] {
-        return this.lib.dbConnection.all('SELECT r.id, r.title, r.cover FROM record r JOIN record_author ra ON r.id = ra.record_id WHERE ra.author_id = ? ORDER BY rate DESC LIMIT ?;',
+        return this.libEnv.db.all('SELECT r.id, r.title, r.cover FROM record r JOIN record_author ra ON r.id = ra.record_id WHERE ra.author_id = ? ORDER BY rate DESC LIMIT ?;',
             authorId, rowCount)
     }
 
     public queryRecordIdsByRecycled(recycled: 0 | 1, offset: number, rowCount: number): number[] {
-        return this.lib.dbConnection.prepare('SELECT id FROM record WHERE recycled = ? LIMIT ?,?;').pluck().all(recycled, offset, rowCount) as number[]
+        return this.libEnv.db.prepare('SELECT id FROM record WHERE recycled = ? LIMIT ?,?;').pluck().all(recycled, offset, rowCount) as number[]
     }
 
     public queryRecordIdsByDirnameId(dirnameId: PrimaryKey, offset: number, rowCount: number): number[] {
-        return this.lib.dbConnection.prepare('SELECT id FROM record WHERE dirname_id = ? LIMIT ?,?;').pluck().all(dirnameId, offset, rowCount) as number[]
+        return this.libEnv.db.prepare('SELECT id FROM record WHERE dirname_id = ? LIMIT ?,?;').pluck().all(dirnameId, offset, rowCount) as number[]
     }
 
     public updateRecordDirnameIdByDirnameId(dirnameId: PrimaryKey, newDirnameId: PrimaryKey): number {
-        return this.lib.dbConnection.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', newDirnameId, dirnameId).changes
+        return this.libEnv.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', newDirnameId, dirnameId).changes
     }
 
     public updateRecordRecycledByIds(ids: PrimaryKey[], recycled: 0 | 1): void {
-        const stmt = this.lib.dbConnection.prepare('UPDATE record SET recycled=? WHERE id = ?;')
+        const stmt = this.libEnv.db.prepare('UPDATE record SET recycled=? WHERE id = ?;')
         ids.forEach(id => stmt.run(recycled, id))
     }
 
     public updateRecordTagAuthorSumById(recordId: PrimaryKey, tagAuthorSum: string): number {
-        return this.lib.dbConnection.run('UPDATE record SET tag_author_sum=? WHERE id = ?;', tagAuthorSum, recordId).changes
+        return this.libEnv.db.run('UPDATE record SET tag_author_sum=? WHERE id = ?;', tagAuthorSum, recordId).changes
     }
 
     public updateRecord(record: Entity.Record): number {
-        return this.lib.dbConnection.run('UPDATE record SET title=?, rate=?, cover=?, hyperlink=?, basename=?, info_status=?, dirname_id=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;',
+        return this.libEnv.db.run('UPDATE record SET title=?, rate=?, cover=?, hyperlink=?, basename=?, info_status=?, dirname_id=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;',
             record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.dirnameId, record.id
         ).changes
     }
 
     public insertRecord(record: Entity.Record): PrimaryKey {
-        return this.lib.dbConnection.run('INSERT INTO record(title, rate, cover, hyperlink, basename, info_status, tag_author_sum, dirname_id) VALUES(?,?,?,?,?,?,?,?);',
+        return this.libEnv.db.run('INSERT INTO record(title, rate, cover, hyperlink, basename, info_status, tag_author_sum, dirname_id) VALUES(?,?,?,?,?,?,?,?);',
             record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.tagAuthorSum, record.dirnameId
         ).lastInsertRowid
     }
 
     public deleteRecordOfRecycledById(id: PrimaryKey): number {
-        return this.lib.dbConnection.run('DELETE FROM record WHERE recycled = 1 AND id = ?;', id).changes
+        return this.libEnv.db.run('DELETE FROM record WHERE recycled = 1 AND id = ?;', id).changes
     }
 }
 

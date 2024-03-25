@@ -4,7 +4,8 @@
             v-viewer="{ transition: false }"
             class="slider_body"
             :items-to-show="1"
-            :mouseDrag="false">
+            :mouseDrag="false"
+            wrap-around>
             <Slide v-for="image in images"
                 :key="image">
                 <div class="carousel__item">

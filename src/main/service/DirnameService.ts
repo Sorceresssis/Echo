@@ -1,6 +1,7 @@
 import nodePath from "path"
 import { injectable, inject } from "inversify"
-import DI_TYPES, { type DILibrary } from "../DI/DITypes"
+import InjectType from "../provider/injectType"
+import { type LibraryEnv } from "../provider/container"
 import fm, { isLegalAbsolutePath } from "../util/FileManager"
 import i18n from "../locale"
 import DirnameDao, { QueryDirnamesSortRule } from "../dao/DirnameDao"
@@ -10,9 +11,9 @@ import Result from "../util/Result"
 @injectable()
 class DirnameService {
     public constructor(
-        @inject(DI_TYPES.Library) private library: DILibrary,
-        @inject(DI_TYPES.DirnameDao) private dirnameDao: DirnameDao,
-        @inject(DI_TYPES.RecordDao) private recordDao: RecordDao
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
+        @inject(InjectType.DirnameDao) private dirnameDao: DirnameDao,
+        @inject(InjectType.RecordDao) private recordDao: RecordDao
     ) { }
 
     public queryDirnameDetails(options: DTO.QueryDirnameDetailsOptions): DTO.Page<VO.DirnameDetail> {
@@ -59,7 +60,7 @@ class DirnameService {
         path = nodePath.resolve(path)
         const existId = this.dirnameDao.queryDirnameIdByPath(path) // 查询是否已经存在
 
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             if (existId && id !== existId) {
                 this.recordDao.updateRecordDirnameIdByDirnameId(id, existId)
                 this.dirnameDao.deleteDirnameById(id)
@@ -71,7 +72,7 @@ class DirnameService {
     }
 
     public deleteDirname(id: number): void {
-        this.library.dbConnection.transaction(() => {
+        this.libEnv.db.transaction(() => {
             this.dirnameDao.deleteDirnameById(id)
             this.recordDao.updateRecordDirnameIdByDirnameId(id, 0) // 将dirname_id置为0
         })
@@ -97,18 +98,18 @@ class DirnameService {
         const normalizeReplace = nodePath.normalize(replace)
 
         // 注册数据库函数NEED_REPLACE_DP用于判断是否需要替换
-        this.library.dbConnection.function('NEED_REPLACE_DP', (source: string) => {
+        this.libEnv.db.function('NEED_REPLACE_DP', (source: string) => {
             // F:\foo\与F:\foo\a和F:\foo都匹配
             const normalizeSource = nodePath.normalize(source + nodePath.sep)
             return normalizeSource.startsWith(normalizeTarget) ? 1 : 0
         })
 
-        this.library.dbConnection.function('REPLACE_DP', (source: string) => {
+        this.libEnv.db.function('REPLACE_DP', (source: string) => {
             // 都是经过标准化的路径，用substring直接截取不会出现问题
             return nodePath.resolve(normalizeReplace, nodePath.normalize(source).substring(normalizeTarget.length))
         })
 
-        this.library.dbConnection.run('UPDATE dirname SET path = REPLACE_DP(path) WHERE NEED_REPLACE_DP(path);')
+        this.libEnv.db.run('UPDATE dirname SET path = REPLACE_DP(path) WHERE NEED_REPLACE_DP(path);')
 
         return Result.success()
     }

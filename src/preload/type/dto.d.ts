@@ -41,6 +41,7 @@ namespace DTO {
         originAvatar: string,
         intro: string,
         addSampleImages: string[],
+        editSampleImages: string | number,
         removeSampleImages: string[]
     }
 

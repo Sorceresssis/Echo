@@ -16,7 +16,7 @@ export function openInBrowser(hyperlink: string | null) {
  * @param path 
  */
 export async function openInExplorer(
-    path: string | null,
+    path: string | null | undefined,
     method?: 'showItemInFolder' | 'openPath'
 ) {
     if (!path) return
