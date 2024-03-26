@@ -67,6 +67,7 @@ class GroupDB extends DB {
 		this.transaction(() => {
 			switch (loadingDBVersion) {
 				default:
+					this.run('VACUUM;')
 					this.exec(this.DB_INFO_SQL)// 更新db_info表
 			}
 		})

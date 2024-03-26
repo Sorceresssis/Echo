@@ -74,6 +74,13 @@
     const submitBtnText = ref<string>($t('layout.create'))
 
     const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+    const winowLoading = inject<Ref<boolean>>('winowLoading')
+    const openLoading = function () {
+        if (winowLoading) winowLoading.value = true
+    }
+    const closeLoading = function () {
+        if (winowLoading) winowLoading.value = false
+    }
     const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
     const managePathPattern = inject<RegExp>('managePathPattern')!
 
@@ -136,9 +143,9 @@
             trigger: 'blur'
         }],
     })
-    const submitForm = async (formEl: FormInstance | undefined) => {
+    const submitForm = (formEl: FormInstance | undefined) => {
         if (!formEl) return
-        await formEl.validate((valid) => {
+        formEl.validate((valid) => {
             if (!valid) return
 
             function cb() {
@@ -171,6 +178,7 @@
                 formData.editSampleImages = editSampleImages
                 formData.removeSampleImages = Array.from(removeSampleImages)
 
+                openLoading()
                 window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
                     if (result) {
                         if (formData.id) {
@@ -181,10 +189,11 @@
                             saveOriginData(id)
                         } else {
                             Message.success($t('msg.createSuccess'))
+                            resetFormData()
                             authorFormRef.value?.resetFields()
                         }
                     }
-                })
+                }).finally(closeLoading)
             }
 
             formData.id ? MessageBox.editConfirm().then(cb) : MessageBox.addConfirm().then(cb)

@@ -116,7 +116,7 @@
 
 <script setup
     lang='ts'>
-    import { ref, Ref, readonly, inject } from 'vue'
+    import { ref, Ref, readonly, inject, watch, onMounted } from 'vue'
     import { useRouter } from 'vue-router'
     import { $t } from '@/locale';
     import { writeClibboard, openInExplorer } from '@/util/systemUtil'
@@ -135,7 +135,11 @@
     const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
     const record = inject<VO.RecordDetail>('record')!
     const activeSeriesId = ref<number>(0)
-    const slickCarouselImages = record.cover ? [record.cover, ...record.sampleImages] : record.sampleImages
+    const slickCarouselImages = ref<string[]>([])
+    const genSlickCarouselImages = function () {
+        slickCarouselImages.value = record.cover ? [record.cover, ...record.sampleImages] : record.sampleImages
+    }
+    watch(record, genSlickCarouselImages)
 
     const deleteSeries = (id: number) => {
         MessageBox.deleteConfirm().then(async () => {
@@ -187,6 +191,8 @@
         }
     }
 
+    onMounted(genSlickCarouselImages)
+
 </script>
 
 <style scoped>
@@ -215,11 +221,11 @@
     }
 
     .record-info__warp {
-        /* left padding(10px) + scrollbar width(4px) + right padding(6px) */
-        width: calc(var(--record-detail-sidebar-width) - 20px);
+        width: 100%;
         display: flex;
         flex-direction: column;
         gap: 10px;
+        box-sizing: border-box;
     }
 
     .record-info .title {

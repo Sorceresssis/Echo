@@ -82,12 +82,14 @@ function ipcMainLibrary() {
     }, generateCatchFn('record:querySimilarRecmds'), [], closeLibraryDB))
 
 
-    ipcMain.handle('record:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Promise<Result> => {
+    ipcMain.handle('record:edit', exceptionalHandler(async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Promise<Result> => {
         rebindLibrary(libraryId)
         const recordService = DIContainer.get<RecordService>(InjectType.RecordService)
-        return options.batch
-            ? recordService.addBatchRecord(formData, options.distinct)
-            : recordService.editRecord(formData)
+
+        const r: Result = options.batch
+            ? await recordService.addBatchRecord(formData, options.distinct)
+            : await recordService.editRecord(formData)
+        return r
     }, generateCatchFn('record:edit'), new Promise((resolve) => { resolve(Result.error('runtime error')) }), closeLibraryDB))
 
 

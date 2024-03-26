@@ -174,6 +174,10 @@
     }
 
     watch(route, () => {
+        if (viewsTaskAfterRoutingStore.bashboardRecords !== 'none') {
+            queryRecordDetail()
+            viewsTaskAfterRoutingStore.setBashboardRecords('none')
+        }
         document.title = record.title
     })
 

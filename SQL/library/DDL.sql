@@ -91,7 +91,8 @@ CREATE TABLE 'record_author'
 (
     'id'        INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
     'record_id' INTEGER NOT NULL,                  -- 记录的id
-    'author_id' INTEGER NOT NULL                   -- 作者的id
+    'author_id' INTEGER NOT NULL,                  -- 作者的id
+	'role'			VARCHAR(50) DEFAULT NULL					 -- 角色
 );
 CREATE UNIQUE INDEX 'uk_record_author(record_id,author_id)' ON record_author (record_id, author_id);
 CREATE INDEX 'idx_record_author(record_id)' ON record_author (record_id);

@@ -106,7 +106,7 @@ class AuthorService {
         })
 
         // 处理图片
-        const authorImagesDirPathConstructor = this.libEnv.genAuthorImagesDirPathConstructor(formData.id)
+        const authorImagesDirPathConstructor = this.libEnv.genAuthorImagesDirPathConstructor(author.id)
 
         if (formData.newAvatar && isNotEmptyString(formData.newAvatar)) {
             if (opType === 'edit') {
@@ -122,13 +122,23 @@ class AuthorService {
         // 由于每个图片都有时间戳，所以不需要考虑下面的问题
         // 1: 添加新图片到一个位置，但是这个位置原本有一个图片，这样会覆盖原来的图片，
         // 2: 后面拖动的图片可能和刚添加的图片重名
-        formData.editSampleImages.forEach(async item => {
-            if (item.type === 'add') {
-                await ImageService.handleNormalImage(item.path, authorImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
-            } else if (item.type === 'move') {
-                fs.renameSync(item.path, authorImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
+        const editSampleImages = formData.editSampleImages
+        for (let i = 0; i < editSampleImages.length; i++) {
+            const { type, path, idx } = editSampleImages[i]
+            if (type === 'add') {
+                await ImageService.handleNormalImage(path, authorImagesDirPathConstructor.getNewSampleImageFilePath(idx))
+            } else if (type === 'move') {
+                fs.renameSync(path, authorImagesDirPathConstructor.getNewSampleImageFilePath(idx))
             }
-        })
+        }
+
+        // formData.editSampleImages.forEach(item => {
+        //     if (item.type === 'add') {
+        //         ImageService.handleNormalImage(item.path, authorImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
+        //     } else if (item.type === 'move') {
+        //         fs.renameSync(item.path, authorImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
+        //     }
+        // })
     }
 
     public deleteAuthor(authorId: number): void {

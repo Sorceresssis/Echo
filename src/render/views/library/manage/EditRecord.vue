@@ -211,7 +211,6 @@
             </el-form-item>
             <el-form-item>
                 <el-button type="primary"
-                    :loading="btnLoading"
                     @click="submitForm(formRef)">
                     {{ submitBtnText }}
                 </el-button>
@@ -243,12 +242,18 @@
         minRows: 6
     }
     const isAdd = ref<boolean>(true)
-    const btnLoading = ref<boolean>(false)
     const autocompleteKey = ref<number>(0)
     const submitBtnText = ref<string>($t('layout.create'))
 
     const route = useRoute()
     const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+    const winowLoading = inject<Ref<boolean>>('winowLoading')
+    const openLoading = function () {
+        if (winowLoading) winowLoading.value = true
+    }
+    const closeLoading = function () {
+        if (winowLoading) winowLoading.value = false
+    }
     const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
     const managePathPattern = inject<RegExp>('managePathPattern')!
 
@@ -316,11 +321,11 @@
         ]
     })
 
-    const submitForm = async (formEl: FormInstance | undefined) => {
+    const submitForm = (formEl: FormInstance | undefined) => {
         if (!formEl) return
-        await formEl.validate((valid, fields) => {
+        formEl.validate((valid, fields) => {
             if (!valid) return
-            function cb() {
+            async function cb() {
                 viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
                 viewsTaskAfterRoutingStore.setBashboardRecycled('refresh')
                 viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
@@ -328,8 +333,9 @@
                 viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
                 viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
 
-                btnLoading.value = true
-                submit(activeLibrary.value).then((result) => {
+                openLoading()
+                // 等待后台处理完毕后才重新加载新的数据
+                await submit(activeLibrary.value).then((result) => {
                     // 如果result是undefined，表示后台出错，有弹框警告 
                     if (!result) return
                     result.code
@@ -338,14 +344,14 @@
                 }).catch(() => { })
 
                 if (isAdd.value) {
-                    formData.title = ''
+                    resetFormData()
                 } else {
                     // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
                     const id = formData.id
                     resetFormData()
                     saveOriginData(activeLibrary.value, id)
                 }
-                btnLoading.value = false
+                closeLoading()
             }
 
             isAdd.value ? MessageBox.addConfirm().then(cb) : MessageBox.editConfirm().then(cb)

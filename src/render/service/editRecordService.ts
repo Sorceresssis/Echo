@@ -211,6 +211,7 @@ const useEditRecordService = () => {
             Message.error($t('msg.recordNotExist'))
             return
         }
+
         formData.id = data.id
         formData.title = data.title
         formData.rate = data.rate

@@ -393,8 +393,8 @@ class RecordService {
             this.updateRecordTagAuthorSum(record.id)
         })
         const recordImagesDirPathConstructor = this.libEnv.genRecordImagesDirPathConstructor(record.id)
-
-        if (formData.cover && isNotEmptyString(formData.cover)) {
+        // cover != originCover 说明cover有变化
+        if (formData.cover && isNotEmptyString(formData.cover) && formData.cover !== formData.originCover) {
             if (opType === 'edit') {
                 const oldMain = recordImagesDirPathConstructor.findMainImageFilePath()
                 if (oldMain) fm.unlinkIfExistsSync(oldMain)
@@ -405,13 +405,22 @@ class RecordService {
 
         formData.removeSampleImages.forEach(image => fm.unlinkIfExistsSync(image))
 
-        formData.editSampleImages.forEach(async item => {
-            if (item.type === 'add') {
-                await ImageService.handleNormalImage(item.path, recordImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
-            } else if (item.type === 'move') {
-                fs.renameSync(item.path, recordImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
+        const editSampleImages = formData.editSampleImages
+        for (let i = 0; i < editSampleImages.length; i++) {
+            const { type, path, idx } = editSampleImages[i]
+            if (type === 'add') {
+                await ImageService.handleNormalImage(path, recordImagesDirPathConstructor.getNewSampleImageFilePath(idx))
+            } else if (type === 'move') {
+                fs.renameSync(path, recordImagesDirPathConstructor.getNewSampleImageFilePath(idx))
             }
-        })
+        }
+        // formData.editSampleImages.forEach(item => {
+        //     if (item.type === 'add') {
+        //         ImageService.handleNormalImage(item.path, recordImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
+        //     } else if (item.type === 'move') {
+        //         fs.renameSync(item.path, recordImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
+        //     }
+        // })
 
         return Result.success()
     }

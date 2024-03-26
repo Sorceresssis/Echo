@@ -1,5 +1,6 @@
 <template>
-    <div class="flex-1 flex-row overflow-hidden">
+    <div v-loading="winowLoading"
+        class="flex-1 flex-row overflow-hidden">
         <Transition name="collapse">
             <sidebar v-show="isOpenSideBar" />
         </Transition>
@@ -27,6 +28,9 @@
     import { provide, reactive, ref } from 'vue'
     import Sidebar from './Sidebar.vue'
     import Titlebar from './Titlebar.vue'
+
+    const winowLoading = ref<boolean>(false)
+    provide('winowLoading', winowLoading)
 
     // 侧边是否展开
     const isOpenSideBar = ref<boolean>(true)

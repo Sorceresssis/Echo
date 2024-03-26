@@ -3,6 +3,7 @@
     --el-color-primary: var(--echo-theme-color) !important;
     --el-overlay-color-lighter: rgba(17, 8, 8, 0.1) !important;
     --el-text-color-regular: #000 !important;
+    --el-mask-color: rgba(255, 255, 255, .6) !important;
 }
 
 /* dropdown */
