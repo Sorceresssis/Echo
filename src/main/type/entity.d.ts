@@ -10,7 +10,6 @@ namespace Entity {
         id: PrimaryKey
         title: string
         rate: number
-        cover: string | null
         hyperlink: string | null
         basename: string | null
         infoStatus: string

@@ -77,6 +77,7 @@ export default {
         copyToClipboard: '复制到剪贴板',
         openInFileExplorer: '资源管理器中打开',
         showInFileExplorer: '资源管理器中显示',
+        showImagesInExplorer: '在资源管理器中显示图片',
         searchTitle: '搜索标题',
         openLinkInBrowser: '浏览器中打开链接',
         openWithDefaultProgram: '默认程序打开',

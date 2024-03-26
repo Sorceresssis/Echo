@@ -60,6 +60,7 @@ export default {
         copyToClipboard: '複製到剪貼板',
         openInFileExplorer: '資源管理器中打開',
         showInFileExplorer: '資源管理器中顯示',
+        showCoverInExplorer: '在資源管理器中顯示封面',
         searchTitle: '搜索標題',
         openLinkInBrowser: '瀏覽器中打開鏈接',
         openWithDefaultProgram: '默認程序打開',

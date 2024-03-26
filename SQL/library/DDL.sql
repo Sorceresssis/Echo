@@ -1,4 +1,16 @@
 -- ----------------------------
+--          db_info
+-- ----------------------------
+DROP TABLE IF EXISTS 'db_info';
+CREATE TABLE 'db_info'
+( 
+    'name'  TEXT PRIMARY KEY,
+    'value' TEXT NOT NULL
+);
+INSERT INTO 'db_info' VALUES('version','1') ;
+
+
+-- ----------------------------
 --          record
 -- ----------------------------
 DROP TABLE IF EXISTS 'record';
@@ -7,7 +19,6 @@ CREATE TABLE 'record'
     'id'             INTEGER PRIMARY KEY AUTOINCREMENT,              -- 主键
     'title'          VARCHAR(255)                          NOT NULL, -- 记录标题
     'rate'           TINYINT     DEFAULT 0                 NOT NULL, -- 等级评分，1~5
-    'cover'          VARCHAR(32) DEFAULT NULL              NULL,     -- 记录封面时间戳
     'hyperlink'      TEXT        DEFAULT NULL              NULL,     -- 在浏览器打开的url，长度控制在2000个字符以内
     'basename'       TEXT        DEFAULT NULL              NULL,     -- 文件名
     'info_status'    VARCHAR(3)  DEFAULT '000'             NOT NULL, -- 表示hyperlink、basename、cover三个字段是否为空，0 空 1 不为空
@@ -66,7 +77,6 @@ CREATE TABLE 'author'
 (
     'id'           INTEGER PRIMARY KEY AUTOINCREMENT,           -- 主键
     'name'         VARCHAR(255)                       NOT NULL, -- 作者的名字
-    'avatar'       VARCHAR(32),                                 -- 作者的头像
     'intro'        TEXT     DEFAULT ''                NOT NULL, -- 作者的介绍
     'gmt_create'   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
     'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间

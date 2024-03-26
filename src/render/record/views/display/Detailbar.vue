@@ -63,8 +63,9 @@
                 </div>
                 <div v-if="slickCarouselImages.length"
                     class="meta">
-                    <!-- TODO disable 未设置封面 打开slickCarouselImages[0] -->
-                    <button> 打开图片文件夹</button>
+                    <button2 @click="openInExplorer(slickCarouselImages[0])">
+                        {{ $t('layout.showImagesInExplorer') }}
+                    </button2>
                 </div>
             </div>
         </scrollbar>
@@ -118,13 +119,14 @@
     import { ref, Ref, readonly, inject } from 'vue'
     import { useRouter } from 'vue-router'
     import { $t } from '@/locale';
-    import { writeClibboard, } from '@/util/systemUtil'
+    import { writeClibboard, openInExplorer } from '@/util/systemUtil'
     import MessageBox from '@/util/MessageBox'
     import LocalImage from '@/components/LocalImage.vue'
-    import ImageSlider from '@/components/ImageSlider.vue';
+    import ImageSlider from '@/components/ImageSlider.vue'
     import Scrollbar from '@/components/Scrollbar.vue'
     import Empty from '@/components/Empty.vue'
     import Records from '@/views/library/dashboard/Records.vue'
+    import Button2 from '@/components/Button2.vue'
 
     const router = useRouter()
 

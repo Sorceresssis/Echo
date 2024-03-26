@@ -4,7 +4,8 @@ import appPaths from "../app/appPaths"
 import DB from "./DB"
 import { oncePerObject } from '../decorator/method.decorator'
 import tokenizer from "../util/tokenizer"
-
+// TODO 删除cover字段, avatar字段，
+//  删除 Dao层cover字段，avatar字段，
 class LibraryDB extends DB {
     private readonly DB_VERSION = 1.1;
     private readonly DB_INFO_SQL = `

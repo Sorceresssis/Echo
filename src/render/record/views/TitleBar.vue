@@ -174,11 +174,6 @@
     }
 
     watch(route, () => {
-        // TODO 之前写的代码，现在看不懂有什么用
-        // if (viewsTaskAfterRoutingStore.bashboardRecycled !== 'none') {
-        //     queryRecordDetail()
-        //     viewsTaskAfterRoutingStore.setBashboardRecycled('none')
-        // }
         document.title = record.title
     })
 

@@ -3,10 +3,11 @@ import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import DIContainer, { type LibraryEnv } from "../provider/container"
 import fm from "../util/FileManager"
-import ImageService from "./new-ImageService"
+import ImageService from "./ImageService"
 import AuthorDao, { QueryAuthorsSortRule } from "../dao/AuthorDao"
 import RecordAuthorDao from "../dao/RecordAuthorDao"
 import RecordService from "./RecordService"
+import { isNotEmptyString } from "../util/common"
 
 @injectable()
 class AuthorService {
@@ -81,6 +82,9 @@ class AuthorService {
     }
 
     public async editAuthor(formData: DTO.EditAuthorForm): Promise<void> {
+        // 处理类型
+        const opType = formData.id === 0 ? 'add' : 'edit'
+
         const author: Entity.Author = {
             id: formData.id,
             name: formData.name.trim(),
@@ -88,8 +92,8 @@ class AuthorService {
         }
 
         this.libEnv.db.transaction(() => {
-            if (formData.id === 0) {
-                formData.id = this.authorDao.insertAuthor(author)
+            if (opType === 'add') {
+                author.id = this.authorDao.insertAuthor(author)
             } else {
                 const oldAuthor = this.authorDao.queryAuthorById(author.id)
                 this.authorDao.updateAuthor(author)
@@ -101,12 +105,15 @@ class AuthorService {
             }
         })
 
-        // 处理图片 
+        // 处理图片
         const authorImagesDirPathConstructor = this.libEnv.genAuthorImagesDirPathConstructor(formData.id)
-        const oldImages = authorImagesDirPathConstructor.findAvatarAndSampleImageFilePaths()
 
-        if (formData.newAvatar) {
-            if (oldImages.avatar) fm.unlinkIfExistsSync(oldImages.avatar)
+        if (formData.newAvatar && isNotEmptyString(formData.newAvatar)) {
+            if (opType === 'edit') {
+                const oldAvatar = authorImagesDirPathConstructor.findAvatarImageFilePath()
+                if (oldAvatar) fm.unlinkIfExistsSync(oldAvatar)
+            }
+
             await ImageService.handleAuthorAvatar(formData.newAvatar, authorImagesDirPathConstructor.getNewAvatarImageFilePath())
         }
         formData.removeSampleImages.forEach(image => fm.unlinkIfExistsSync(image))

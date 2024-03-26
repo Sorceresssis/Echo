@@ -73,8 +73,8 @@ namespace DTO {
         batchDir: string,
         title: string,
         hyperlink: string,
-        cover: string,
-        originCover: string,
+        cover: string | undefined,
+        originCover: string | undefined,
         rate: number,
         addTags: string[],
         removeTags: number[],
@@ -85,7 +85,7 @@ namespace DTO {
         removeSeries: number[],
         intro: string,
         info: string
-        addSampleImages: string[],
+        editSampleImages: EditSampleImage[],
         removeSampleImages: string[]
     }
 

@@ -116,20 +116,19 @@ const useEditRecordService = () => {
     // ANCHOR Sample Images
     const originSampleImages = new Set<string>()
     const displaySampleImages = reactive<Array<string>>([])
-    const addSampleImages = new Set<string>()
     const removeSampleImages = new Set<string>()
     const sampleImageAdder = (paths: string[]) => {
         paths.forEach(path => {
             if (displaySampleImages.indexOf(path) !== -1) return
             displaySampleImages.push(path)
-            originSampleImages.has(path) ? removeSampleImages.delete(path) : addSampleImages.add(path)
+            originSampleImages.has(path) && removeSampleImages.delete(path)
         })
     }
     const sampleImageRemover = (path: string) => {
         const idx = displaySampleImages.indexOf(path)
         if (-1 === idx) return
         displaySampleImages.splice(idx, 1)
-        originSampleImages.has(path) ? removeSampleImages.add(path) : addSampleImages.delete(path)
+        originSampleImages.has(path) && removeSampleImages.add(path)
     }
 
     const formData = reactive<DTO.EditRecordForm>({
@@ -151,7 +150,7 @@ const useEditRecordService = () => {
         removeSeries: [],
         intro: '',
         info: '',
-        addSampleImages: [],
+        editSampleImages: [],
         removeSampleImages: []
     })
 
@@ -198,9 +197,7 @@ const useEditRecordService = () => {
 
     const selectCover = async () => {
         const imgPath = (await window.electronAPI.openDialog('image', false))[0]
-        if (imgPath) {
-            formData.cover = imgPath
-        }
+        if (imgPath) formData.cover = imgPath
     }
 
     const resetCover = () => {
@@ -217,10 +214,6 @@ const useEditRecordService = () => {
         formData.id = data.id
         formData.title = data.title
         formData.rate = data.rate
-        if (data.cover) {
-            formData.cover = formData.originCover = data.cover
-        }
-
         if (data.hyperlink) {
             formData.hyperlink = data.hyperlink
         }
@@ -241,14 +234,16 @@ const useEditRecordService = () => {
             originAuthors.set(item.id, item.role)
             displayAuthors.push(item)
         })
-        data.sampleImages.forEach(item => {
-            originSampleImages.add(item)
-            displaySampleImages.push(item)
-        })
+
+        if (data.cover) {
+            formData.cover = formData.originCover = data.cover
+        }
+        data.sampleImages.forEach(item => originSampleImages.add(item))
+        displaySampleImages.push(...data.sampleImages)
     }
 
     const submit = (libraryId: number) => {
-        // 处理数据
+        // tag 
         formData.addTags = Array.from(addTags)
         formData.removeTags = Array.from(removeTags)
         formData.addAuthors = Array.from(addAuthors.entries()).map(([id, role]) => ({ id, role }))
@@ -256,8 +251,19 @@ const useEditRecordService = () => {
         formData.removeAuthors = Array.from(removeAuthors)
         formData.addSeries = Array.from(addSeries)
         formData.removeSeries = Array.from(removeSeries)
-        formData.addSampleImages = Array.from(addSampleImages)
+        // sampleImages
+        const originSampleImagesArray = Array.from(originSampleImages)
+        const editSampleImages: DTO.EditSampleImage[] = []
+        displaySampleImages.forEach((path, index) => {
+            if (!originSampleImages.has(path)) {
+                editSampleImages.push({ type: 'add', idx: index + 1, path })
+            } else if (path !== originSampleImagesArray[index]) {
+                editSampleImages.push({ type: 'move', idx: index + 1, path })
+            }
+        })
         formData.removeSampleImages = Array.from(removeSampleImages)
+        formData.editSampleImages = editSampleImages
+
         // 提交数据 
         return window.electronAPI.editRecord(libraryId, toRaw(formData), toRaw(options))
     }
@@ -274,6 +280,17 @@ const useEditRecordService = () => {
         formData.rate = 0
         formData.intro = ''
         formData.info = ''
+        // 提交前会重新赋值的不需要清空
+        // formData.addTags
+        // formData.removeTags
+        // formData.addAuthors
+        // formData.removeAuthors
+        // formData.editAuthorsRole
+        // formData.removeSeries
+        // formData.addSeries
+        // formData.editSampleImages
+        // formData.removeSampleImages
+
         // 标签
         displayTags.splice(0)
         originTags.clear()
@@ -293,7 +310,6 @@ const useEditRecordService = () => {
         // 样例图片
         displaySampleImages.splice(0)
         originSampleImages.clear()
-        addSampleImages.clear()
         removeSampleImages.clear()
         // 重置输入框
         dispalyFormData.authorInput = ''

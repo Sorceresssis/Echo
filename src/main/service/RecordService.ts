@@ -1,12 +1,12 @@
 import path from "path"
-import appConfig from "../app/config"
+import fs from "fs"
 import fm from "../util/FileManager"
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import DIContainer, { type LibraryEnv } from "../provider/container"
 import i18n from "../locale"
 import Result from "../util/Result"
-import ImageService from "../service/ImageService"
+import ImageService from "./ImageService"
 import RecordDao, { type QueryRecordsSortRule } from "../dao/RecordDao"
 import type RecordExtraDao from "../dao/RecordExtraDao"
 import type DirnameDao from "../dao/DirnameDao"
@@ -17,6 +17,7 @@ import type RecordTagDao from "../dao/RecordTagDao"
 import type SeriesDao from "../dao/SeriesDao"
 import type RecordSeriesDao from "../dao/RecordSeriesDao"
 import type AuthorService from "./AuthorService"
+import { isNotEmptyString } from "../util/common"
 
 
 @injectable()
@@ -324,45 +325,30 @@ class RecordService {
         this.recordSeriesDao.deleteRecordSeriesByRecordIdSeriesIds(recordId, removeSeriesIds)
     }
 
-    private generateInfoStatus(cover: string | null, hyperlink: string | null, basename: string | null) {
+    private generateInfoStatus<T extends string | null | undefined>(cover: T, hyperlink: T, basename: T) {
         return (cover ? '1' : '0') + (hyperlink ? '1' : '0') + (basename ? '1' : '0');
     }
 
-    private handleCover(newImg: string, originImg: string): string | null {
-        // 图片没有改变，返回原来的图片名
-        if (newImg === originImg) return path.basename(newImg) || null
-
-        // 图片改变了
-        // 删除旧的图片
-        if (originImg.length) {
-            // 删除的过程中可能会出错(没有权限,文件被占用等)
-            try { fm.unlinkIfExistsSync(originImg) } catch { }
-        }
-        // 保存新的图片, 返回新的图片名, 如果失败直接提醒用户原因，让用户解决问题
-        if (newImg.length) {
-            const imageService = new ImageService(this.libEnv.id, newImg)
-            return imageService.handleRecordCover() || null
-        }
-
-        return null
-    }
-
-    public editRecord(formData: DTO.EditRecordForm): Result {
+    public async editRecord(formData: DTO.EditRecordForm): Promise<Result> {
         formData.dirname = formData.dirname.trim()
         formData.basename = formData.basename.trim()
+        // 检查路径是否合法
         if ((formData.dirname !== '' && !fm.isLegalAbsolutePath(formData.dirname))
             || (formData.basename !== '' && !fm.isLegalFileName(formData.basename))) {
             return Result.error(i18n.global.t('resourcePathIllegal'))
         }
 
+        const opType = formData.id === 0 ? 'add' : 'edit'
+
         const record = {} as Entity.Record
         record.id = formData.id
         record.title = formData.title.trim()
         record.rate = formData.rate
-        record.cover = this.handleCover(formData.cover, formData.originCover)
         record.hyperlink = formData.hyperlink.trim() || null
         record.basename = formData.basename || null
-        record.infoStatus = this.generateInfoStatus(record.cover, record.hyperlink, record.basename)
+        record.infoStatus = this.generateInfoStatus(
+            opType === 'add' ? formData.cover : formData.originCover, // add => cover, edit => originCover
+            record.hyperlink, record.basename)
         record.tagAuthorSum = null
 
         const recordExtra: Entity.RecordExtra = {
@@ -381,7 +367,7 @@ class RecordService {
             }
 
             // record 和 recordExtra 表
-            if (record.id === 0) {
+            if (opType === 'add') {
                 recordExtra.id = record.id = this.recordDao.insertRecord(record)
                 this.recordExtraDao.insetRecordExtra(recordExtra)
             } else {
@@ -390,12 +376,8 @@ class RecordService {
             }
 
             // tag, author, series 表
-            const addTagIds = formData.addTags.map(
-                title => this.tagDao.queryTagIdByTitle(title) || this.tagDao.insertTag(title)
-            )
-            const addSeriesIds = formData.addSeries.map(
-                name => this.seriesDao.querySeriesIdByName(name) || this.seriesDao.insertSeries(name)
-            )
+            const addTagIds = formData.addTags.map(title => this.tagDao.queryTagIdByTitle(title) || this.tagDao.insertTag(title))
+            const addSeriesIds = formData.addSeries.map(name => this.seriesDao.querySeriesIdByName(name) || this.seriesDao.insertSeries(name))
             this.editRecordAttribute(
                 record.id,
                 formData.addAuthors,
@@ -410,11 +392,31 @@ class RecordService {
             // 等待record的属性都设置完毕,开始更新冗余字段tagAuthorSum
             this.updateRecordTagAuthorSum(record.id)
         })
+        const recordImagesDirPathConstructor = this.libEnv.genRecordImagesDirPathConstructor(record.id)
+
+        if (formData.cover && isNotEmptyString(formData.cover)) {
+            if (opType === 'edit') {
+                const oldMain = recordImagesDirPathConstructor.findMainImageFilePath()
+                if (oldMain) fm.unlinkIfExistsSync(oldMain)
+            }
+
+            await ImageService.handleNormalImage(formData.cover, recordImagesDirPathConstructor.getNewMainImageFilePath())
+        }
+
+        formData.removeSampleImages.forEach(image => fm.unlinkIfExistsSync(image))
+
+        formData.editSampleImages.forEach(async item => {
+            if (item.type === 'add') {
+                await ImageService.handleNormalImage(item.path, recordImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
+            } else if (item.type === 'move') {
+                fs.renameSync(item.path, recordImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
+            }
+        })
 
         return Result.success()
     }
 
-    public addBatchRecord(formData: DTO.EditRecordForm, distinct: boolean): Result {
+    public async addBatchRecord(formData: DTO.EditRecordForm, distinct: boolean): Promise<Result> {
         if (!fm.isFolderExists(formData.batchDir)) {
             return Result.error(i18n.global.t('folderNotExists')) // 文件夹不存在, 直接返回
         }
@@ -424,8 +426,7 @@ class RecordService {
         record.id = formData.id
         record.rate = formData.rate
         record.hyperlink = formData.hyperlink.trim() || null
-        record.cover = this.handleCover(formData.cover, formData.originCover)
-        record.infoStatus = this.generateInfoStatus(record.cover, record.hyperlink, 'batch')
+        record.infoStatus = this.generateInfoStatus(void 0, record.hyperlink, 'batch')
         record.tagAuthorSum = null
 
         const recordExtra: Entity.RecordExtra = {
@@ -476,6 +477,7 @@ class RecordService {
                 }
             })
         })
+
         return Result.success()
     }
 }

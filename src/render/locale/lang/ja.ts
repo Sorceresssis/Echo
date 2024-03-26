@@ -76,6 +76,7 @@ export default {
         copyToClipboard: 'クリップボードにコピー',
         openInFileExplorer: 'ファイルエクスプローラで開く',
         showInFileExplorer: 'ファイルエクスプローラで表示',
+        showImagesInExplorer: '画像をファイルエクスプローラで表示',
         searchTitle: 'タイトルを検索',
         openLinkInBrowser: 'ブラウザでリンクを開く',
         openWithDefaultProgram: 'デフォルトプログラムで開く',

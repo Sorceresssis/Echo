@@ -13,7 +13,7 @@
                 <div class="detail-item__content">
                     <el-input v-model="authorFistImage"
                         readonly />
-                    <button2 @click="openInExplorer(info.avatar)"> {{ $t('layout.showInFileExplorer') }} </button2>
+                    <button2 @click="openInExplorer(authorFistImage)"> {{ $t('layout.showInFileExplorer') }} </button2>
                 </div>
             </div>
             <div v-if="info.sampleImages.length > 0"

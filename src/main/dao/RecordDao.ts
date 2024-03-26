@@ -30,7 +30,7 @@ class RecordDao {
 
     public queryRecordById(id: number): Domain.Record | undefined {
         return this.libEnv.db.get(`
-            SELECT r.id, r.title, r.rate, r.cover, r.hyperlink, d.path AS dirname, r.basename,
+            SELECT r.id, r.title, r.rate, r.hyperlink, d.path AS dirname, r.basename,
                    DATETIME(gmt_create, 'localtime') AS createTime,
                    DATETIME(gmt_modified, 'localtime') AS modifiedTime
             FROM record r LEFT JOIN dirname d ON r.dirname_id = d.id
@@ -53,7 +53,7 @@ class RecordDao {
         const sortRule: SortRule[] = []
         const whereSubSQL = []
         rowsSQL.append(`
-            SELECT f.total_count, r.id, r.title, r.rate, r.cover, r.hyperlink, d.path AS dirname, r.basename,
+            SELECT f.total_count, r.id, r.title, r.rate, r.hyperlink, d.path AS dirname, r.basename,
             DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime
 			FROM (SELECT COUNT(r.id) OVER () AS total_count, r.id`)
         if (keyword !== '') {
@@ -107,7 +107,7 @@ class RecordDao {
     }
 
     public queryRecordProfilesOfOrderRateByAuthor(authorId: number, rowCount: number): Domain.RecordProfile[] {
-        return this.libEnv.db.all('SELECT r.id, r.title, r.cover FROM record r JOIN record_author ra ON r.id = ra.record_id WHERE ra.author_id = ? ORDER BY rate DESC LIMIT ?;',
+        return this.libEnv.db.all('SELECT r.id, r.title FROM record r JOIN record_author ra ON r.id = ra.record_id WHERE ra.author_id = ? ORDER BY rate DESC LIMIT ?;',
             authorId, rowCount)
     }
 
@@ -133,14 +133,14 @@ class RecordDao {
     }
 
     public updateRecord(record: Entity.Record): number {
-        return this.libEnv.db.run('UPDATE record SET title=?, rate=?, cover=?, hyperlink=?, basename=?, info_status=?, dirname_id=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;',
-            record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.dirnameId, record.id
+        return this.libEnv.db.run('UPDATE record SET title=?, rate=?, hyperlink=?, basename=?, info_status=?, dirname_id=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;',
+            record.title, record.rate, record.hyperlink, record.basename, record.infoStatus, record.dirnameId, record.id
         ).changes
     }
 
     public insertRecord(record: Entity.Record): PrimaryKey {
-        return this.libEnv.db.run('INSERT INTO record(title, rate, cover, hyperlink, basename, info_status, tag_author_sum, dirname_id) VALUES(?,?,?,?,?,?,?,?);',
-            record.title, record.rate, record.cover, record.hyperlink, record.basename, record.infoStatus, record.tagAuthorSum, record.dirnameId
+        return this.libEnv.db.run('INSERT INTO record(title, rate, hyperlink, basename, info_status, tag_author_sum, dirname_id) VALUES(?,?,?,?,?,?,?);',
+            record.title, record.rate, record.hyperlink, record.basename, record.infoStatus, record.tagAuthorSum, record.dirnameId
         ).lastInsertRowid
     }
 

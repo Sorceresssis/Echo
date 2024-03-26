@@ -75,6 +75,7 @@ export default {
         copyToClipboard: 'Copy to Clipboard',
         openInFileExplorer: 'Open in File Explorer',
         showInFileExplorer: 'Show in File Explorer',
+        showImagesInExplorer: 'Show Images in Explorer',
         searchTitle: 'Search Title',
         openLinkInBrowser: 'Open Link in Browser',
         openWithDefaultProgram: 'Open with Default Program',

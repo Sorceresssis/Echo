@@ -37,7 +37,7 @@ namespace VO {
         id: number,
         title: string,
         rate: number,
-        cover: string,
+        cover: string | undefined,
         hyperlink: string,
         resourcePath: string,
         createTime?: string,
@@ -70,7 +70,7 @@ namespace VO {
         id: number
         title: string
         rate: number,
-        cover: string | null,
+        cover: string | undefined,
         hyperlink: string | null,
         resourcePath: string | null,
         authors: VO.RecordAuthorProfile[]

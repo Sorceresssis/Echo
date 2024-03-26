@@ -151,22 +151,24 @@
                     viewsTaskAfterRoutingStore.setAuthorRecords('refresh') // 作者页面刷新
                 }
 
+
                 if (displayAvatar.value !== originAvatar) {
                     formData.newAvatar = displayAvatar.value
                 }
-
+                // sampleImages
                 const originSampleImagesArray = Array.from(originSampleImages)
+                const editSampleImages: DTO.EditSampleImage[] = []
                 displaySampleImages.forEach((path, index) => {
                     if (!originSampleImages.has(path)) {
                         // 不存在就在此位置添加一个图片
-                        formData.editSampleImages.push({ type: 'add', idx: index + 1, path })
+                        editSampleImages.push({ type: 'add', idx: index + 1, path })
                     } else if (path !== originSampleImagesArray[index]) {
                         // 存在, 但是位置不对, 就移动到此位置
-                        formData.editSampleImages.push({ type: 'move', idx: index + 1, path })
+                        editSampleImages.push({ type: 'move', idx: index + 1, path })
                     }
                     // 存在, 位置也对, 就不做任何操作
                 })
-
+                formData.editSampleImages = editSampleImages
                 formData.removeSampleImages = Array.from(removeSampleImages)
 
                 window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
@@ -193,8 +195,6 @@
         formData.name = ''
         formData.newAvatar = ''
         formData.intro = ''
-        formData.editSampleImages.splice(0)
-        formData.removeSampleImages.splice(0)
 
         displayAvatar.value = ''
         originAvatar = ''

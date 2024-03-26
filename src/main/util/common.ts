@@ -50,4 +50,8 @@ export function isSameType(a: any, b: any) {
     return true
 }
 
-export default { exceptionalHandler, formatCurrentTime, isSameType }
+export function isNotEmptyString(str: string) {
+    return str.trim().length > 0
+}
+
+export default { exceptionalHandler, formatCurrentTime, isSameType, isNotEmptyString }

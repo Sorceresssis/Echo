@@ -52,12 +52,6 @@ class AppConfig {
     public all(): Config {
         return this.config
     }
-
-    // TODO Path Constructor 
-    public getLibraryImagesDirPath(id: PrimaryKey): string {
-        // [userDataPath]/1/images
-        return path.join(this.get('userDataPath'), id.toString(), 'images')
-    }
 }
 
 const appConfig = new AppConfig()

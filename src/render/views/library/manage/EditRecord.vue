@@ -91,7 +91,8 @@
                     spellcheck="false"
                     clearable />
             </el-form-item>
-            <el-form-item :label="$t('layout.cover')">
+            <el-form-item v-if="!options.batch"
+                :label="$t('layout.cover')">
                 <div class="cover">
                     <local-image :src="formData.cover"
                         class="fit--contain" />
@@ -186,7 +187,8 @@
                     </div>
                 </div>
             </el-form-item>
-            <el-form-item :label="$t('layout.sampleImages')">
+            <el-form-item v-if="!options.batch"
+                :label="$t('layout.sampleImages')">
                 <manage-images :paths="displaySampleImages"
                     @add-images="sampleImageAdder"
                     @delete-image="sampleImageRemover" />
