@@ -1,7 +1,7 @@
 {
   "name": "echo",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "main": "dist/main/index.js",
   "scripts": {
     "preview": "vite preview",
