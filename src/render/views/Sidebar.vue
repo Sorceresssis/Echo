@@ -105,7 +105,7 @@
                 </ul>
             </div>
         </div>
-        <dialog-delete-menu-item v-model="deleteDialogInfo"
+        <dialog-delete-menu-item :delete-info="deleteDialogInfo"
             @handle-delete="handleDelete" />
         <context-menu v-model:show="isVisCtmGroup"
             :options="ctmOptions">

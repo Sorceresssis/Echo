@@ -1,19 +1,19 @@
 <template>
-    <el-dialog v-model="modelValue.isVis"
-        align-center
+    <el-dialog v-model="deleteInfo.isVis"
+        class="dialog-confirm"
         :title="$t('tips.dangerousOperation')"
         width="420px"
-        class="dialog-confirm">
+        align-center>
         <p class="row fw-700">{{ $t('tips.deleteLibraryP1') }} </p>
         <p class="row"> {{ $t('tips.deleteLibraryP2') }} </p>
-        <p class="row"> {{ $t('tips.deleteLibraryP3', { name: modelValue.confirmName }) }}</p>
+        <p class="row"> {{ $t('tips.deleteLibraryP3', { name: deleteInfo.confirmName }) }}</p>
         <div class="row">
-            <el-input v-model="modelValue.confirmInput"
+            <el-input v-model="deleteInfo.confirmInput"
                 spellcheck="false" />
         </div>
         <div class="row">
-            <el-button :class="[modelValue.confirmName === modelValue.confirmInput ? 'confirmed' : 'no-confirm']"
-                :disabled="modelValue.confirmName !== modelValue.confirmInput"
+            <el-button :class="[deleteInfo.confirmName === deleteInfo.confirmInput ? 'confirmed' : 'no-confirm']"
+                :disabled="deleteInfo.confirmName !== deleteInfo.confirmInput"
                 @click="emit('handle-delete')">
                 {{ $t('layout.iKnowTheConsequences') }}
             </el-button>
@@ -25,7 +25,7 @@
     lang='ts'>
 
     defineProps<{
-        modelValue: {
+        deleteInfo: {
             isVis: boolean,
             confirmName: string,
             confirmInput: string
