@@ -177,10 +177,9 @@ export default {
         dangerousOperation: 'Dangerous Operation',
         confirmOperation: 'Confirm Operation',
 
-        // Delete Library
-        deleteLibraryP1: 'This operation cannot be undone! Data will be <span class="fw-700">permanently deleted</span>.',
-        deleteLibraryP2: 'If you delete a group, all libraries <span class="fw-700">under that group will be deleted</span>.',
-        deleteLibraryP3: 'Please enter <span class="fw-700 select-text">{name}</span> to confirm.',
+        deleteLibraryP1: 'This operation cannot be undone! Data will be permanently deleted.',
+        deleteLibraryP2: 'If you delete a group, all libraries under that group will be deleted.',
+        deleteLibraryP3: 'Please enter [ {name} ] to confirm deletion.',
 
         replaceDirnameFunctionIntroP1: 'Compare all existing paths from the beginning based on the input search value and replace the matching part of the path with the input replace value as the basic unit for folders.',
         replaceDirnameFunctionIntroP2: 'If you want to change C:\\foo\\a to C:\\bar\\a, and C:\\foo\\b to C:\\bar\\b,',

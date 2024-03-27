@@ -179,10 +179,9 @@ export default {
         dangerousOperation: '危険な操作',
         confirmOperation: '操作を確認',
 
-        // ライブラリの削除
-        deleteLibraryP1: 'この操作は元に戻せません！データは <span class="fw-700"> 永久に削除 </span> されます。',
-        deleteLibraryP2: 'グループを削除する場合、グループ内のすべてのライブラリも <span class="fw-700"> 削除されます </span>。',
-        deleteLibraryP3: '確認するために <span class="fw-700 select-text">{name}</span> を入力してください。',
+        deleteLibraryP1: 'この操作は元に戻せません！データは永久に削除されます。',
+        deleteLibraryP2: 'グループを削除する場合、グループ内のすべてのライブラリも削除されます。',
+        deleteLibraryP3: '確認するために [ {name} ] を入力してください。',
 
         replaceDirnameFunctionIntroP1: '入力した検索値に基づいて、ディレクトリパス全体を比較し、一致するパスの一部を入力した置換値に置き換えます。',
         replaceDirnameFunctionIntroP2: 'C:\\foo\\a を C:bar\\a に変更したい場合、C:\\foo が検索値になり、C:\\bar が置換値になります。',

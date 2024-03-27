@@ -80,14 +80,16 @@
             if (activeLibrary.value !== libraryId) {
                 viewsTaskAfterRoutingStore.setAllViews('init')
                 activeLibrary.value = libraryId
+                // 很重要，否则切换库后，作者页会显示上一个库的作者
+                lastAuthorId = 0
             }
 
             // 在同一个lib下切换作者，刷新页面
             const authorId = route.params.authorId ? Number.parseInt(route.params.authorId as string) : void 0
             if ((authorId && authorId !== lastAuthorId)) {
                 viewsTaskAfterRoutingStore.setAuthorRecords('init')
+                lastAuthorId = authorId
             }
-            lastAuthorId = authorId || lastAuthorId
 
             window.electronAPI.queryLibraryDetail(libraryId).then(libDetail => {
                 if (libDetail !== void 0) {
