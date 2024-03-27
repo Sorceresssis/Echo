@@ -52,6 +52,7 @@
 
 <script setup
     lang='ts'>
+    import { watch, ref } from 'vue';
     import { openInExplorer } from '@/util/systemUtil'
     import Button2 from '@/components/Button2.vue'
     import ManageImages from '@/components/ManageImages.vue';
@@ -60,7 +61,10 @@
         info: VO.AuthorDetail
     }>()
 
-    const authorFistImage = props.info.avatar || props.info.sampleImages[0] || ''
+    const authorFistImage = ref<string>('')
+    watch(props.info, (newValue) => {
+        authorFistImage.value = newValue.avatar || newValue.sampleImages[0] || ''
+    })
 </script>
 
 <style scoped>
