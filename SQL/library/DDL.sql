@@ -20,11 +20,12 @@ CREATE TABLE 'record'
     'title'          VARCHAR(255)                          NOT NULL, -- 记录标题
     'rate'           TINYINT     DEFAULT 0                 NOT NULL, -- 等级评分，1~5
     'hyperlink'      TEXT        DEFAULT NULL              NULL,     -- 在浏览器打开的url，长度控制在2000个字符以内
+	'release_date'   DATE        DEFAULT NULL              NULL,     -- 发布日期
+    'dirname_id'     INTEGER     DEFAULT 0                 NOT NULL, -- 所在目录的id
     'basename'       TEXT        DEFAULT NULL              NULL,     -- 文件名
     'info_status'    VARCHAR(3)  DEFAULT '000'             NOT NULL, -- 表示hyperlink、basename、cover三个字段是否为空，0 空 1 不为空
     'tag_author_sum' TEXT        DEFAULT NULL              NULL,     -- 用于快速查询的冗余字段
     'recycled'       BOOLEAN     DEFAULT 0                 NOT NULL, -- 是否放入回收站,0 false,1 true
-    'dirname_id'     INTEGER     DEFAULT 0                 NOT NULL, -- 所在目录的id
     'gmt_create'     DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
     'gmt_modified'   DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
 );
@@ -32,6 +33,7 @@ CREATE INDEX 'idx_record(rate)' ON record (rate);
 CREATE INDEX 'idx_record(info_status)' ON record (info_status);
 CREATE INDEX 'idx_record(recycled)' ON record (recycled);
 CREATE INDEX 'idx_record(dirname_id)' ON record (dirname_id);
+CREATE INDEX 'idx_record(release_date)' ON record(release_date);
 -- 1. 为什么要添加info_status字段？
 -- 业务有筛选cover，hyperlink，basename是否为空的功能，如果给这三个字段直接添加索引，让‘’表示为空，但是sqlite3没有前缀索引。
 -- 这使得索引的离散度很高，占用的空间也大，所以不适合直接添加索引。

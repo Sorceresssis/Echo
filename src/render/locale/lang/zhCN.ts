@@ -35,6 +35,7 @@ export default {
         // ANCHOR home page Dash
 
         records: '记录',
+        releaseDate: '发布日期',
         authors: '作者',
         tags: '标签',
         dirnames: '文件夹目录',
@@ -185,7 +186,8 @@ export default {
         // 删除库 
         deleteLibraryP1: '此操作无法撤销! 数据会被永久删除。',
         deleteLibraryP2: '如果删除的是组, 那么该组下的所有库都会被删除。',
-        deleteLibraryP3: '请输入 [ {name} ] 确认删除.',
+        deleteLibraryP3: '请输入',
+
 
 
         replaceDirnameFunctionIntroP1: '根据输入的搜索值去从头开始, 以文件夹为基本单位对比所有已有的路径. 把匹配的部分路径替换成输入的替换值',

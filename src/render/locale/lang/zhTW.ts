@@ -23,6 +23,7 @@ export default {
         selectImportData: '請選擇要匯入的資料',
         selectExportLocation: '請選擇要匯出的位置',
         records: '記錄',
+        releaseDate: '發布日期',
         authors: '作者',
         tags: '標籤',
         dirnames: '文件夾目錄',
@@ -148,7 +149,7 @@ export default {
 
         deleteLibraryP1: '此操作無法撤銷! 數據會被永久刪除。',
         deleteLibraryP2: '如果刪除的是組, 那麼該組下的所有庫都會被刪除。',
-        deleteLibraryP3: '請輸入 [ {name} ] 確認刪除.',
+        deleteLibraryP3: '請輸入',
 
         replaceDirnameFunctionIntroP1: '根據輸入的搜索值去從頭開始, 以文件夾為基本單位對比所有已有的路徑. 把匹配的部分路徑替換成輸入的替換值',
         replaceDirnameFunctionIntroP2: '如果你想把 C:\\foo\\a 變成 C:bar\\a, C:\\foo\\b 變成 C:\\bar\\b',

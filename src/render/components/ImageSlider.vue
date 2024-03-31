@@ -20,7 +20,7 @@
             class="slider_controller"
             :items-to-show="4"
             :itemsToScroll="4"
-            snapAlign="start"
+            snapAlign="center"
             wrap-around>
             <Slide v-for="(image, index) in images"
                 :key="image">

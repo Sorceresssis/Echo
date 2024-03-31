@@ -73,6 +73,7 @@ namespace DTO {
         batchDir: string,
         title: string,
         hyperlink: string,
+        releaseDate: string,
         cover: string | undefined,
         originCover: string | undefined,
         rate: number,
@@ -105,8 +106,8 @@ namespace DTO {
         seriesId?: number,
         filters: [boolean, boolean, boolean],
         keyword: string,
-        sortField: 'time' | 'title' | 'rate',
-        order: 'ASC' | 'DESC'
+        sortField: 'time' | 'title' | 'rate' | 'release_date',
+        order: 'ASC' | 'DESC',
         pn: number,
         ps: number,
     }

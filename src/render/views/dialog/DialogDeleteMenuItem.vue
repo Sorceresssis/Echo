@@ -4,9 +4,10 @@
         :title="$t('tips.dangerousOperation')"
         width="420px"
         align-center>
-        <p class="row fw-700">{{ $t('tips.deleteLibraryP1') }} </p>
+        <p class="row fw-700"> {{ $t('tips.deleteLibraryP1') }} </p>
         <p class="row"> {{ $t('tips.deleteLibraryP2') }} </p>
-        <p class="row"> {{ $t('tips.deleteLibraryP3', { name: deleteInfo.confirmName }) }}</p>
+        <p class="row"> {{ $t('tips.deleteLibraryP3') }} [ <span class="fw-700">{{ deleteInfo.confirmName }}</span> ]
+        </p>
         <div class="row">
             <el-input v-model="deleteInfo.confirmInput"
                 spellcheck="false" />
@@ -31,6 +32,7 @@
             confirmInput: string
         }
     }>()
+
     const emit = defineEmits<{
         (e: 'handle-delete'): void
     }>() 

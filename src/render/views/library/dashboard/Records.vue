@@ -181,6 +181,10 @@
                     click: () => recordsDashStore.handleSortField('rate'), dot: () => recordsDashStore.sortField === 'rate'
                 },
                 {
+                    title: $t('layout.releaseDate'), divided: false,
+                    click: () => recordsDashStore.handleSortField('release_date'), dot: () => recordsDashStore.sortField === 'release_date'
+                },
+                {
                     title: $t('layout.ascending'), divided: true,
                     click: () => recordsDashStore.handleOrder('ASC'), dot: () => recordsDashStore.order === 'ASC'
                 },

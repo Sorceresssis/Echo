@@ -39,6 +39,11 @@
                             class="tag">{{ tag.title }}</span>
                     </div>
                 </div>
+                <div v-if="record.releaseDate"
+                    class="meta">
+                    <div class="inline-list-title">{{ $t('layout.releaseDate') }}</div>
+                    <div class="meta-content"> {{ record.releaseDate }} </div>
+                </div>
                 <div v-if="record.intro.length"
                     class="meta">
                     <div class="inline-list-title"> {{ $t('layout.intro') }} </div>

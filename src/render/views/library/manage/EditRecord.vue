@@ -106,6 +106,14 @@
             <el-form-item :label="$t('layout.rate')">
                 <el-rate v-model="formData.rate" />
             </el-form-item>
+            <el-form-item :label="$t('layout.releaseDate')">
+                <el-date-picker v-model="formData.releaseDate"
+                    type="date"
+                    placeholder="YYYY/M/D"
+                    format="YYYY/M/D"
+                    value-format="YYYY-MM-DD">
+                </el-date-picker>
+            </el-form-item>
             <el-form-item :label="$t('layout.authors')">
                 <div class="flex-row">
                     <echo-autocomplete v-model="dispalyFormData.authorInput"
@@ -237,6 +245,8 @@
     import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
     import LocalImage from '@/components/LocalImage.vue'
     import ManageImages from '@/components/ManageImages.vue'
+
+    const value = ref('2021-10-29')
 
     const inputAutoSize = {
         minRows: 6

@@ -34,6 +34,7 @@ export default {
         // ANCHOR home page Dash
 
         records: 'レコード',
+        releaseDate: '発売日',
         authors: '著者',
         tags: 'タグ',
         dirnames: 'フォルダディレクトリ',
@@ -181,7 +182,8 @@ export default {
 
         deleteLibraryP1: 'この操作は元に戻せません！データは永久に削除されます。',
         deleteLibraryP2: 'グループを削除する場合、グループ内のすべてのライブラリも削除されます。',
-        deleteLibraryP3: '確認するために [ {name} ] を入力してください。',
+        deleteLibraryP3: '入ってください',
+
 
         replaceDirnameFunctionIntroP1: '入力した検索値に基づいて、ディレクトリパス全体を比較し、一致するパスの一部を入力した置換値に置き換えます。',
         replaceDirnameFunctionIntroP2: 'C:\\foo\\a を C:bar\\a に変更したい場合、C:\\foo が検索値になり、C:\\bar が置換値になります。',

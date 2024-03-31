@@ -16,7 +16,7 @@ export function createWindow(libraryId: number, recordId: number): BrowserWindow
         webPreferences: {
             preload: resolve(__dirname, "../../preload/index.js"),
             sandbox: true, // 开启沙箱模式
-            webSecurity: isPackaged, // TODO 为了开发方便，关闭安全策略，打包时打开
+            webSecurity: isPackaged,
         }
     })
 

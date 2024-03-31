@@ -51,9 +51,10 @@ namespace VO {
         id: number
         title: string
         rate: number,
+        hyperlink: string | null,
+        releaseDate: string | null,
         cover: string | undefined,
         sampleImages: string[],
-        hyperlink: string | null,
         dirname: string | null,
         basename: string | null,
         resourcePath: string | null,

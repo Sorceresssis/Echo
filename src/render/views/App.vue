@@ -1,26 +1,28 @@
 <template>
-    <div v-loading="winowLoading"
-        class="flex-1 flex-row overflow-hidden">
-        <Transition name="collapse">
-            <sidebar v-show="isOpenSideBar" />
-        </Transition>
-        <div class="flex-col">
-            <div class="titlebar" />
-            <div class="collapse-thumb-track">
-                <span @click="isOpenSideBar = !isOpenSideBar"
-                    class="collapse-thumb iconfont"> &#xe653; </span>
+    <el-config-provider :locale="getElLang()">
+        <div v-loading="winowLoading"
+            class="flex-1 flex-row overflow-hidden">
+            <Transition name="collapse">
+                <sidebar v-show="isOpenSideBar" />
+            </Transition>
+            <div class="flex-col">
+                <div class="titlebar" />
+                <div class="collapse-thumb-track">
+                    <span @click="isOpenSideBar = !isOpenSideBar"
+                        class="collapse-thumb iconfont"> &#xe653; </span>
+                </div>
+            </div>
+            <div class="flex-1 flex-col overflow-hidden">
+                <titlebar />
+                <router-view v-slot="{ Component }"
+                    class="main-container flex-1 flex-col overflow-hidden">
+                    <keep-alive>
+                        <component :is="Component" />
+                    </keep-alive>
+                </router-view>
             </div>
         </div>
-        <div class="flex-1 flex-col overflow-hidden">
-            <titlebar />
-            <router-view v-slot="{ Component }"
-                class="main-container flex-1 flex-col overflow-hidden">
-                <keep-alive>
-                    <component :is="Component" />
-                </keep-alive>
-            </router-view>
-        </div>
-    </div>
+    </el-config-provider>
 </template>
 
 <script setup
@@ -28,6 +30,7 @@
     import { provide, reactive, ref } from 'vue'
     import Sidebar from './Sidebar.vue'
     import Titlebar from './Titlebar.vue'
+    import { getElLang } from '@/locale';
 
     const winowLoading = ref<boolean>(false)
     provide('winowLoading', winowLoading)

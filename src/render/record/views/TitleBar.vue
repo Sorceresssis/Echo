@@ -141,6 +141,8 @@
     const queryRecordDetail = function () {
         window.electronAPI.queryRecordDetail(activeLibrary.value, record.id).then(recordDetail => {
             Object.assign(record, recordDetail)
+            // 每一次查询recordDetail 更新document.title
+            document.title = record.title
         })
     }
     const queryLibraryDetail = function () {
@@ -178,7 +180,6 @@
             queryRecordDetail()
             viewsTaskAfterRoutingStore.setBashboardRecords('none')
         }
-        document.title = record.title
     })
 
     const bc = new BroadcastChannel('updateLibraryDetail')
@@ -195,7 +196,6 @@
             record.id = recordId
             queryLibraryDetail()
             queryRecordDetail()
-            document.title = record.title
         })
     })
 </script>

@@ -12,6 +12,7 @@ namespace Entity {
         rate: number
         hyperlink: string | null
         basename: string | null
+        releaseDate: string | null
         infoStatus: string
         tagAuthorSum: string | null
         dirnameId: PrimaryKey

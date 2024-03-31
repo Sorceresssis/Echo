@@ -67,7 +67,9 @@ class RecordService {
         const defaultSortRule: QueryRecordsSortRule[] = [
             { field: 'id', order: 'ASC' },
             { field: 'title', order: 'ASC' },
-            { field: 'rate', order: 'DESC' },]
+            { field: 'rate', order: 'DESC' },
+            { field: 'release_date', order: 'DESC' }
+        ]
         const sortRule: QueryRecordsSortRule[] = []
         switch (options.sortField) {
             case 'time':
@@ -78,6 +80,9 @@ class RecordService {
                 break
             case 'rate':
                 sortRule.push({ field: 'rate', order: options.order })
+                break
+            case 'release_date':
+                sortRule.push({ field: 'release_date', order: options.order })
                 break
             default:
                 throw Error('invalid sort field')
@@ -345,6 +350,7 @@ class RecordService {
         record.title = formData.title.trim()
         record.rate = formData.rate
         record.hyperlink = formData.hyperlink.trim() || null
+        record.releaseDate = isNotEmptyString(formData.releaseDate) ? formData.releaseDate : null
         record.basename = formData.basename || null
         record.infoStatus = this.generateInfoStatus(
             opType === 'add' ? formData.cover : formData.originCover, // add => cover, edit => originCover
@@ -435,6 +441,7 @@ class RecordService {
         record.id = formData.id
         record.rate = formData.rate
         record.hyperlink = formData.hyperlink.trim() || null
+        record.releaseDate = isNotEmptyString(formData.releaseDate) ? formData.releaseDate : null
         record.infoStatus = this.generateInfoStatus(void 0, record.hyperlink, 'batch')
         record.tagAuthorSum = null
 

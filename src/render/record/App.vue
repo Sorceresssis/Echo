@@ -39,6 +39,7 @@
         rate: 0,
         cover: undefined,
         hyperlink: null,
+        releaseDate: null,
         dirname: null,
         basename: null,
         resourcePath: null,

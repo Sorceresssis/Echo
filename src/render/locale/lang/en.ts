@@ -33,6 +33,7 @@ export default {
 
         // ANCHOR home page Dash
         records: 'Records',
+        releaseDate: 'Release Date',
         authors: 'Authors',
         tags: 'Tags',
         dirnames: 'Folder Directories',
@@ -179,7 +180,7 @@ export default {
 
         deleteLibraryP1: 'This operation cannot be undone! Data will be permanently deleted.',
         deleteLibraryP2: 'If you delete a group, all libraries under that group will be deleted.',
-        deleteLibraryP3: 'Please enter [ {name} ] to confirm deletion.',
+        deleteLibraryP3: 'Please enter',
 
         replaceDirnameFunctionIntroP1: 'Compare all existing paths from the beginning based on the input search value and replace the matching part of the path with the input replace value as the basic unit for folders.',
         replaceDirnameFunctionIntroP2: 'If you want to change C:\\foo\\a to C:\\bar\\a, and C:\\foo\\b to C:\\bar\\b,',

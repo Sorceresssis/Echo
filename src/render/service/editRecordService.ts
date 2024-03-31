@@ -138,6 +138,7 @@ const useEditRecordService = () => {
         batchDir: '',
         title: '',
         hyperlink: '',
+        releaseDate: '',
         cover: '',
         originCover: '',
         rate: 0,
@@ -218,6 +219,9 @@ const useEditRecordService = () => {
         if (data.hyperlink) {
             formData.hyperlink = data.hyperlink
         }
+        if (data.releaseDate) {
+            formData.releaseDate = data.releaseDate
+        }
         formData.dirname = data.dirname || ''
         formData.basename = data.basename || ''
         formData.intro = data.intro
@@ -276,6 +280,7 @@ const useEditRecordService = () => {
         formData.batchDir = ''
         formData.title = ''
         formData.hyperlink = ''
+        formData.releaseDate = ''
         formData.cover = ''
         formData.originCover = ''
         formData.rate = 0

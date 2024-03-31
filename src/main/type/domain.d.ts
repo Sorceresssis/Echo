@@ -35,6 +35,7 @@ namespace Domain {
         rate: number;
         cover: string | null;
         hyperlink: string | null;
+        releaseDate: string | null;
         dirname: string | null;
         basename: string | null;
         createTime?: string | undefined;
