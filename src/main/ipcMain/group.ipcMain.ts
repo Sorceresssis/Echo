@@ -4,11 +4,13 @@ import DIContainer from '../provider/container'
 import { exceptionalHandler } from '../util/common'
 import GroupService from '../service/GroupService'
 import LibraryService from '../service/LibraryService'
+import appConfig from '../app/config'
 
 function generateCatchFn(title: string, suggest?: string) {
     return function (e: any) {
         // 弹出错误提示
         dialog.showErrorBox(title, suggest ? `${suggest}\n${e.message}` : e.message)
+        appConfig.reset('dataPath')
     }
 }
 

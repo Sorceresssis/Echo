@@ -1,5 +1,5 @@
 type Config = {
-    userDataPath: string,
+    dataPath: string,
     locale: string,
     searchEngine: string,
 }

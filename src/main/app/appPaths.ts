@@ -1,6 +1,7 @@
 import path from 'path'
 import fs from 'fs'
 import appConfig from './config'
+import { app } from 'electron'
 
 // 用户数据目录
 // userDataPath
@@ -31,11 +32,7 @@ class AppPaths {
     public static readonly imageFileExt = 'avif'
     public static readonly imageFileExtDot = `.${AppPaths.imageFileExt}`
 
-    private readonly userDataPath = appConfig.get('userDataPath')
-
-    constructor() {
-        fs.mkdirSync(this.userDataPath, { recursive: true })
-    }
+    private userDataPath = appConfig.get('dataPath')
 
     public getImportLibraryTmpDirPath(): string {
         return path.join(this.userDataPath, 'tmp', 'import-library')

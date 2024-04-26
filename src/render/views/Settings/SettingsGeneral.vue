@@ -6,11 +6,11 @@
                 <div class="settings-item__content">
                     <div class="row">
                         <el-select v-model="curLang"
-                                   @change="handleLangChange">
+                            @change="handleLangChange">
                             <el-option v-for="lang in langOptions"
-                                       :key="lang.value"
-                                       :label="lang.label"
-                                       :value="lang.value" />
+                                :key="lang.value"
+                                :label="lang.label"
+                                :value="lang.value" />
                         </el-select>
                     </div>
                 </div>
@@ -19,10 +19,10 @@
                 <h2 class="settings-item__title">{{ $t('settings.dataLocation') }}</h2>
                 <div class="settings-item__content">
                     <div class="row">
-                        <el-input v-model="curUserDataPath"
-                                  readonly />
-                        <button2 @click="selectUserDataPath">{{ $t('settings.changeDir') }}</button2>
-                        <button2 @click="openInExplorer(curUserDataPath)">{{ $t('settings.openDir') }}</button2>
+                        <el-input v-model="curDataPath"
+                            readonly />
+                        <button2 @click="selectDataPath">{{ $t('settings.changeDir') }}</button2>
+                        <button2 @click="openInExplorer(curDataPath)">{{ $t('settings.openDir') }}</button2>
                     </div>
                 </div>
             </div>
@@ -31,11 +31,11 @@
                 <div class="settings-item__content">
                     <div class="row">
                         <el-select v-model="searchEngine"
-                                   @change="setConfig('searchEngine', searchEngine)">
+                            @change="setConfig('searchEngine', searchEngine)">
                             <el-option v-for="engine in engineOptions"
-                                       :key="engine.id"
-                                       :label="engine.label"
-                                       :value="engine.value" />
+                                :key="engine.id"
+                                :label="engine.label"
+                                :value="engine.value" />
                         </el-select>
                     </div>
                 </div>
@@ -77,16 +77,16 @@ const handleLangChange = (value: Lang) => {
 }
 
 
-// ANCHOR userDataPath
-const curUserDataPath = ref<string>('')
-const selectUserDataPath = () => {
+// ANCHOR DataPath
+const curDataPath = ref<string>('')
+const selectDataPath = () => {
     window.electronAPI.openDialog('dir', false).then(p => {
         const path = p[0]
         // 如果没有选择路径或者选择的路径和当前路径相同, 直接返回
-        if (path === undefined || path === curUserDataPath.value) return Promise.reject()
+        if (path === undefined || path === curDataPath.value) return Promise.reject()
 
-        curUserDataPath.value = path
-        return setConfig('userDataPath', p[0])
+        curDataPath.value = path
+        return setConfig('dataPath', p[0])
     }).then(() => {
         // 建议您重启应用程序以使更改生效
         return MessageBox.confirm(
@@ -118,9 +118,9 @@ const engineOptions = ref<any[]>([
 const init = async function () {
     const config = await getAllConfig()
 
-    curUserDataPath.value = config.userDataPath
+    curDataPath.value = config.dataPath
     searchEngine.value = config.searchEngine
     curLang.value = config.locale as Lang
 }
 onMounted(init)
-</script> 
+</script>

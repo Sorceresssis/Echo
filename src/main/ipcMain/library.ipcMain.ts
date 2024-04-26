@@ -11,6 +11,7 @@ import TagService from "../service/TagService"
 import DirnameService from "../service/DirnameService"
 import SeriesService from "../service/SeriesService"
 import appPaths from "../app/appPaths"
+import appConfig from "../app/config"
 
 
 const { rebindLibrary, closeLibraryDB } = function () {
@@ -54,6 +55,7 @@ function generateCatchFn(title: string, suggest?: string) {
     return function (e: any) {
         // 弹出错误提示
         dialog.showErrorBox(title, suggest ? `${suggest}\n${e.message}` : e.message)
+        appConfig.reset('dataPath')
     }
 }
 

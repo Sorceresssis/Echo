@@ -4,11 +4,11 @@
             {{ $t('settings.settings') }}
         </div>
         <tabs v-model="activeLabelIdx"
-              :tabs="tabs">
+            :tabs="tabs">
         </tabs>
         <keep-alive>
             <component class="flex-1 overflow-hidden"
-                       :is="components[activeLabelIdx] ">
+                :is="components[activeLabelIdx]">
             </component>
         </keep-alive>
     </div>

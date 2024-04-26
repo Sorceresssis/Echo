@@ -3,17 +3,11 @@ import path from 'path'
 import fs from 'fs'
 import { isSameType } from '../util/common'
 
-export interface Config {
-    userDataPath: string,
-    locale: string,
-    searchEngine: string,
-}
-
 class AppConfig {
-    private static readonly appDir: string = path.dirname(app.getPath('exe'))
-    private static readonly configFilePath: string = path.join(AppConfig.appDir, 'config.json')
+    private static readonly userDataPath: string = path.join(app.getPath('userData'))
+    private static readonly configFilePath: string = path.join(AppConfig.userDataPath, 'config.json')
     private static readonly defaultConfig: Config = {
-        userDataPath: path.join(this.appDir, 'userData'),
+        dataPath: path.join(AppConfig.userDataPath, 'data'),
         locale: 'zhCN',
         searchEngine: 'google',
     }
@@ -22,6 +16,7 @@ class AppConfig {
 
     constructor() {
         try {
+            // 检查加载的是正确的Config文件
             const config = JSON.parse(fs.readFileSync(AppConfig.configFilePath, 'utf8'))
 
             if (config && isSameType(config, AppConfig.defaultConfig)) {
@@ -29,15 +24,22 @@ class AppConfig {
             } else {
                 throw new Error('Config file is invalid')
             }
+
+            // 检查Config中值是否可以使用。
+            this.__checkConfig_value()
         } catch {
             this.reset()
         }
     }
 
-    public reset(): void {
-        const stringifiedConfig = JSON.stringify(AppConfig.defaultConfig, null, 4)
-        fs.writeFileSync(AppConfig.configFilePath, stringifiedConfig, 'utf8')
-        this.config = JSON.parse(stringifiedConfig)
+    public reset(key?: keyof Config): void {
+        if (key) {
+            this.config[key] = AppConfig.defaultConfig[key]
+        } else {
+            const stringifiedConfig = JSON.stringify(AppConfig.defaultConfig, null, 4)
+            fs.writeFileSync(AppConfig.configFilePath, stringifiedConfig, 'utf8')
+            this.config = JSON.parse(stringifiedConfig)
+        }
     }
 
     public get(key: keyof Config): string {
@@ -51,6 +53,14 @@ class AppConfig {
 
     public all(): Config {
         return this.config
+    }
+
+    private __checkConfig_value() {
+        const path = this.get('dataPath')
+        if (!fs.existsSync(path)) {
+            this.set('dataPath', AppConfig.defaultConfig.dataPath)
+            fs.mkdirSync(AppConfig.defaultConfig.dataPath, { recursive: true })
+        }
     }
 }
 

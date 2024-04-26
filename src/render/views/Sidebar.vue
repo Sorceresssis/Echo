@@ -168,297 +168,296 @@
     </div>
 </template>
 
-<script setup
-    lang='ts'>
-    import { ref, Ref, watch, inject, onMounted, reactive } from 'vue'
-    import { useRouter } from 'vue-router'
-    import hrefGenerator from '@/router/hrefGenerator'
-    import { $t } from '@/locale'
-    import { debounce, throttle } from '@/util/common'
-    import { vFocus } from '@/util/directive'
-    import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
-    import { openInExplorer } from '@/util/systemUtil'
-    import { sendCrosTabMsg, listenCrosTabMsg } from "@/util/CrosTabMsg"
-    import CollapseTransition from '@/components/CollapseTransition.vue'
-    import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
+<script setup lang='ts'>
+import { ref, Ref, watch, inject, onMounted, reactive } from 'vue'
+import { useRouter } from 'vue-router'
+import hrefGenerator from '@/router/hrefGenerator'
+import { $t } from '@/locale'
+import { debounce, throttle } from '@/util/common'
+import { vFocus } from '@/util/directive'
+import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
+import { openInExplorer } from '@/util/systemUtil'
+import { sendCrosTabMsg, listenCrosTabMsg } from "@/util/CrosTabMsg"
+import CollapseTransition from '@/components/CollapseTransition.vue'
+import DialogDeleteMenuItem from './dialog/DialogDeleteMenuItem.vue'
 
-    const router = useRouter()
-    const bc = new BroadcastChannel('sideBar')
-    const bcMsg = 'getGroups'
+const router = useRouter()
+const bc = new BroadcastChannel('sideBar')
+const bcMsg = 'getGroups'
 
-    const activeLibrary = inject<Ref<number>>('activeLibrary')!
-    const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
+const activeLibrary = inject<Ref<number>>('activeLibrary')!
+const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
 
-    /******************** 页面数据 ********************/
-    const groups = ref<VO.Group[]>([])
-    const isExpandGroup = ref<boolean[]>([]) // Group的展开情况
+/******************** 页面数据 ********************/
+const groups = ref<VO.Group[]>([])
+const isExpandGroup = ref<boolean[]>([]) // Group的展开情况
 
-    // 请求groups
-    const getGroups = debounce(async () => {
-        groups.value = await window.electronAPI.getGroups()
-    }, 300)
+// 请求groups
+const getGroups = debounce(async () => {
+    groups.value = await window.electronAPI.getGroups()
+}, 300)
 
-    // 在本窗口打开library
-    const openLibrary = (id: number) => {
-        if (id !== activeLibrary.value) {
-            router.push(hrefGenerator.libraryBashboard(id))
-        }
+// 在本窗口打开library
+const openLibrary = (id: number) => {
+    if (id !== activeLibrary.value) {
+        router.push(hrefGenerator.libraryBashboard(id))
     }
+}
 
-    // 在新窗口中打开library
-    const openLibraryInNewWindow = () => {
-        window.electronAPI.createMainWindow(ctmCurLib().id)
-    }
+// 在新窗口中打开library
+const openLibraryInNewWindow = () => {
+    window.electronAPI.createMainWindow(ctmCurLib().id)
+}
 
-    // 监听groups和isExpandGroup的变化，保存到localStorage
-    watch(isExpandGroup, debounce(n => setLocalStorage('isExpandGroup', n), 500), { deep: true })
-    watch(activeLibrary, debounce(n => setLocalStorage('lastActiveLibrary', n), 500))
+// 监听groups和isExpandGroup的变化，保存到localStorage
+watch(isExpandGroup, debounce(n => setLocalStorage('isExpandGroup', n), 500), { deep: true })
+watch(activeLibrary, debounce(n => setLocalStorage('lastActiveLibrary', n), 500))
 
 
-    /******************** 右键菜单Ctm ********************/
+/******************** 右键菜单Ctm ********************/
 
-    // 操作的菜单项索引 Operation Index of Menu Item
-    const ctmOpIdx = {
-        cg: -1, // current group
-        cl: -1, // current library
-        tg: -1, // target group
-        tl: -1, // target library
-    }
-    const ctmCurGrp = (idxG?: number): VO.Group => {
-        return groups.value[idxG || ctmOpIdx.cg]
-    }
-    const ctmCurLib = (idxG?: number, idxL?: number): VO.LibraryProfile => {
-        return groups.value[idxG || ctmOpIdx.cg].librarys[idxL || ctmOpIdx.cl]
-    }
-    const ctmOptions = {
-        zIndex: 3000,
-        minWidth: 230,
-        x: 500,
-        y: 200
-    }
-    const isVisCtmGroup = ref(false)
-    const isVisCtmLibrary = ref(false)
-    const openCtm = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
-        ctmOptions.x = e.x
-        ctmOptions.y = e.y
-        if (idxLibrary == -1)
-            isVisCtmGroup.value = true
-        else
-            isVisCtmLibrary.value = true
-        ctmOpIdx.cg = idxGroup
-        ctmOpIdx.cl = idxLibrary
-    }
+// 操作的菜单项索引 Operation Index of Menu Item
+const ctmOpIdx = {
+    cg: -1, // current group
+    cl: -1, // current library
+    tg: -1, // target group
+    tl: -1, // target library
+}
+const ctmCurGrp = (idxG?: number): VO.Group => {
+    return groups.value[idxG || ctmOpIdx.cg]
+}
+const ctmCurLib = (idxG?: number, idxL?: number): VO.LibraryProfile => {
+    return groups.value[idxG || ctmOpIdx.cg].librarys[idxL || ctmOpIdx.cl]
+}
+const ctmOptions = {
+    zIndex: 3000,
+    minWidth: 230,
+    x: 500,
+    y: 200
+}
+const isVisCtmGroup = ref(false)
+const isVisCtmLibrary = ref(false)
+const openCtm = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
+    ctmOptions.x = e.x
+    ctmOptions.y = e.y
+    if (idxLibrary == -1)
+        isVisCtmGroup.value = true
+    else
+        isVisCtmLibrary.value = true
+    ctmOpIdx.cg = idxGroup
+    ctmOpIdx.cl = idxLibrary
+}
 
-    /******************** 添加 & 重命名 ********************/
-    const newName = ref<string>('')
-    const isVisAddGroup = ref(false)
-    const openAddGroup = throttle(() => {
-        newName.value = $t('layout.newGroup')
-        isVisAddGroup.value = true
-    }, 500)
-    const handleAddGroup = async () => {
-        isVisAddGroup.value = false
-        if (newName.value.trim() === '') return
-        await window.electronAPI.addGroup(newName.value.trim())
-        isExpandGroup.value.unshift(true)
-        getGroups()
-        sendCrosTabMsg(bc, bcMsg)
+/******************** 添加 & 重命名 ********************/
+const newName = ref<string>('')
+const isVisAddGroup = ref(false)
+const openAddGroup = throttle(() => {
+    newName.value = $t('layout.newGroup')
+    isVisAddGroup.value = true
+}, 500)
+const handleAddGroup = async () => {
+    isVisAddGroup.value = false
+    if (newName.value.trim() === '') return
+    await window.electronAPI.addGroup(newName.value.trim())
+    isExpandGroup.value.unshift(true)
+    getGroups()
+    sendCrosTabMsg(bc, bcMsg)
+}
+const idxGroupOfAddLibrary = ref<number>(-1)
+const openAddLibrary = () => {
+    newName.value = $t('layout.newLibrary')
+    idxGroupOfAddLibrary.value = ctmOpIdx.cg
+    isExpandGroup.value[idxGroupOfAddLibrary.value] = true
+}
+const handleAddLibrary = async () => {
+    const gId = groups.value[idxGroupOfAddLibrary.value].id
+    idxGroupOfAddLibrary.value = -1
+    if (newName.value.trim() === '') return
+    await window.electronAPI.addLibrary(gId, newName.value.trim())
+    getGroups()
+    sendCrosTabMsg(bc, bcMsg)
+}
+const groupIdOfRename = ref<number>(0)
+const libraryIdOfRename = ref<number>(0)
+// 开启重命名
+const openRename = () => {
+    // 重命名的对象是group还是library
+    if (ctmOpIdx.cl == -1) {
+        groupIdOfRename.value = ctmCurGrp().id
+        newName.value = ctmCurGrp().name
+    } else {
+        libraryIdOfRename.value = ctmCurLib().id
+        newName.value = ctmCurLib().name
     }
-    const idxGroupOfAddLibrary = ref<number>(-1)
-    const openAddLibrary = () => {
-        newName.value = $t('layout.newLibrary')
-        idxGroupOfAddLibrary.value = ctmOpIdx.cg
-        isExpandGroup.value[idxGroupOfAddLibrary.value] = true
+}
+const handleRename = async () => {
+    if (newName.value.trim() === '') {
+        groupIdOfRename.value = 0
+        libraryIdOfRename.value = 0
+        return
     }
-    const handleAddLibrary = async () => {
-        const gId = groups.value[idxGroupOfAddLibrary.value].id
-        idxGroupOfAddLibrary.value = -1
-        if (newName.value.trim() === '') return
-        await window.electronAPI.addLibrary(gId, newName.value.trim())
-        getGroups()
-        sendCrosTabMsg(bc, bcMsg)
+    // 异步方法，保存operation的索引，防止在异步过程中，用户又进行了操作
+    const cg = ctmOpIdx.cg
+    const cl = ctmOpIdx.cl
+    if (groupIdOfRename.value) {
+        const result: boolean = await window.electronAPI.renameGroup(groupIdOfRename.value, newName.value)
+        if (result) groups.value[cg].name = newName.value // 重命名成功，更新group的名字
+        groupIdOfRename.value = 0 // 重置
+    } else if (libraryIdOfRename.value) {
+        activeLibraryDetail.name = newName.value
+        const result: boolean = await window.electronAPI.renameLibrary(libraryIdOfRename.value, newName.value)
+        if (result) groups.value[cg].librarys[cl].name = newName.value
+        libraryIdOfRename.value = 0
     }
-    const groupIdOfRename = ref<number>(0)
-    const libraryIdOfRename = ref<number>(0)
-    // 开启重命名
-    const openRename = () => {
-        // 重命名的对象是group还是library
-        if (ctmOpIdx.cl == -1) {
-            groupIdOfRename.value = ctmCurGrp().id
-            newName.value = ctmCurGrp().name
-        } else {
-            libraryIdOfRename.value = ctmCurLib().id
-            newName.value = ctmCurLib().name
-        }
-    }
-    const handleRename = async () => {
-        if (newName.value.trim() === '') {
-            groupIdOfRename.value = 0
-            libraryIdOfRename.value = 0
-            return
-        }
-        // 异步方法，保存operation的索引，防止在异步过程中，用户又进行了操作
-        const cg = ctmOpIdx.cg
-        const cl = ctmOpIdx.cl
-        if (groupIdOfRename.value) {
-            const result: boolean = await window.electronAPI.renameGroup(groupIdOfRename.value, newName.value)
-            if (result) groups.value[cg].name = newName.value // 重命名成功，更新group的名字
-            groupIdOfRename.value = 0 // 重置
-        } else if (libraryIdOfRename.value) {
-            activeLibraryDetail.name = newName.value
-            const result: boolean = await window.electronAPI.renameLibrary(libraryIdOfRename.value, newName.value)
-            if (result) groups.value[cg].librarys[cl].name = newName.value
-            libraryIdOfRename.value = 0
-        }
-        sendCrosTabMsg(bc, bcMsg)
-    }
+    sendCrosTabMsg(bc, bcMsg)
+}
 
-    /******************** 删除 ********************/
-    const deleteDialogInfo = reactive({
-        isVis: false,
-        confirmName: '',
-        confirmInput: ''
-    })
-    const openDelete = () => {
-        // 显示删除对话框，重置信息
-        deleteDialogInfo.confirmInput = ''
-        deleteDialogInfo.confirmName = ctmOpIdx.cl === -1
-            ? ctmCurGrp().name : ctmCurLib().name
-        deleteDialogInfo.isVis = true
-    }
-    const handleDelete = async () => {
-        if (deleteDialogInfo.confirmInput !== deleteDialogInfo.confirmName) return
-        const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
-        if (cl === -1) {
-            // 如果正在打开的library在删除的group中，关闭
-            ctmCurGrp(cg).librarys.forEach(l => {
-                if (l.id === activeLibrary.value) {
-                    router.push(hrefGenerator.welcome())
-                }
-            })
-            await window.electronAPI.deleteGroup(ctmCurGrp(cg).id)
-
-            // 处理展开的问题
-            isExpandGroup.value.splice(cg, 1)
-        } else {
-            if (ctmCurLib(cg, cl).id === activeLibrary.value) {
+/******************** 删除 ********************/
+const deleteDialogInfo = reactive({
+    isVis: false,
+    confirmName: '',
+    confirmInput: ''
+})
+const openDelete = () => {
+    // 显示删除对话框，重置信息
+    deleteDialogInfo.confirmInput = ''
+    deleteDialogInfo.confirmName = ctmOpIdx.cl === -1
+        ? ctmCurGrp().name : ctmCurLib().name
+    deleteDialogInfo.isVis = true
+}
+const handleDelete = async () => {
+    if (deleteDialogInfo.confirmInput !== deleteDialogInfo.confirmName) return
+    const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
+    if (cl === -1) {
+        // 如果正在打开的library在删除的group中，关闭
+        ctmCurGrp(cg).librarys.forEach(l => {
+            if (l.id === activeLibrary.value) {
                 router.push(hrefGenerator.welcome())
             }
-            await window.electronAPI.deleteLibrary(ctmCurLib(cg, cl).id)
+        })
+        await window.electronAPI.deleteGroup(ctmCurGrp(cg).id)
+
+        // 处理展开的问题
+        isExpandGroup.value.splice(cg, 1)
+    } else {
+        if (ctmCurLib(cg, cl).id === activeLibrary.value) {
+            router.push(hrefGenerator.welcome())
         }
-
-        deleteDialogInfo.isVis = false
-        getGroups()
-        sendCrosTabMsg(bc, bcMsg)
+        await window.electronAPI.deleteLibrary(ctmCurLib(cg, cl).id)
     }
 
-    /******************** 移动和拖动 ********************/
-    const handleDragstart = (idxGroup: number, idxLibrary: number = -1) => {
-        ctmOpIdx.cg = idxGroup
-        ctmOpIdx.cl = idxLibrary
-    }
-    /**
-     * 把current向上拖动到target,current代替target的位置，target的位置后移  
-     * 把current向下拖动到target,current代替target的位置，target的位置前移
-     */
-    const handleDragend = async () => {
-        const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl,
-            tg = ctmOpIdx.tg, tl = ctmOpIdx.tl
-        if (cl === -1) { // 拖动的是group
-            if (tl !== -1 || tg === cg) return // 如果进入的是library或者是自己，不进行操作
-            const sourceGroup = groups.value.splice(cg, 1)[0] // 提出拖动的Group 
-            isExpandGroup.value.splice(tg, 0, ...isExpandGroup.value.splice(cg, 1)) // 展开情况
-            await window.electronAPI.sortGroup(sourceGroup.id, groups.value[tg]?.id || 0)
-        } else { // 拖动的是library
-            if ((tg === cg && tl === cl) || tl === -1 && cg === tg) return // 拖入自己的位置或者拖入当前的group, 不操作
-            const sourceLibrary = groups.value[cg].librarys.splice(cl, 1)[0]
-            tl === -1   // 拖入的是group : 拖入的是library
-                ? await window.electronAPI.sortLibrary(sourceLibrary.id,
-                    groups.value[tg].librarys[0]?.id || 0, groups.value[tg].id)   // 默认插入到组的第一个位置
-                : await window.electronAPI.sortLibrary(sourceLibrary.id,
-                    groups.value[tg].librarys[tl]?.id || 0, groups.value[tg].id)
-        }
-        getGroups()
-        sendCrosTabMsg(bc, bcMsg)
-    }
-    const handleDragenter = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
-        ctmOpIdx.tg = idxGroup
-        ctmOpIdx.tl = idxLibrary
-        // 把组拖入库，不改变样式
-        if (ctmOpIdx.cl === -1 && idxLibrary !== -1) return
-        // 拖入组#409eff，拖入库#f77c7c
-        (e.currentTarget as HTMLElement).style.borderBottom = `2px solid ${idxLibrary === -1 ? '#409eff' : '#f77c7c'}`
-    }
-    const handleDragleave = (e: MouseEvent) => {
-        (e.currentTarget as HTMLElement).style.borderBottom = 'none';
-    }
+    deleteDialogInfo.isVis = false
+    getGroups()
+    sendCrosTabMsg(bc, bcMsg)
+}
 
-    /******************** 移动 ********************/
-    const moveLibrary = async (idxGroup: number) => {
-        const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
-        // 如果是移动到自己的组，不进行操作
-        if (cg === idxGroup) return
-        // 把library移动到groupId组的第一个位置
-        await window.electronAPI.sortLibrary(
-            groups.value[cg].librarys[cl].id,
-            groups.value[idxGroup].librarys[0]?.id || 0,
-            groups.value[idxGroup].id);
-        getGroups()
-        sendCrosTabMsg(bc, bcMsg)
+/******************** 移动和拖动 ********************/
+const handleDragstart = (idxGroup: number, idxLibrary: number = -1) => {
+    ctmOpIdx.cg = idxGroup
+    ctmOpIdx.cl = idxLibrary
+}
+/**
+ * 把current向上拖动到target,current代替target的位置，target的位置后移  
+ * 把current向下拖动到target,current代替target的位置，target的位置前移
+ */
+const handleDragend = async () => {
+    const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl,
+        tg = ctmOpIdx.tg, tl = ctmOpIdx.tl
+    if (cl === -1) { // 拖动的是group
+        if (tl !== -1 || tg === cg) return // 如果进入的是library或者是自己，不进行操作
+        const sourceGroup = groups.value.splice(cg, 1)[0] // 提出拖动的Group 
+        isExpandGroup.value.splice(tg, 0, ...isExpandGroup.value.splice(cg, 1)) // 展开情况
+        await window.electronAPI.sortGroup(sourceGroup.id, groups.value[tg]?.id || 0)
+    } else { // 拖动的是library
+        if ((tg === cg && tl === cl) || tl === -1 && cg === tg) return // 拖入自己的位置或者拖入当前的group, 不操作
+        const sourceLibrary = groups.value[cg].librarys.splice(cl, 1)[0]
+        tl === -1   // 拖入的是group : 拖入的是library
+            ? await window.electronAPI.sortLibrary(sourceLibrary.id,
+                groups.value[tg].librarys[0]?.id || 0, groups.value[tg].id)   // 默认插入到组的第一个位置
+            : await window.electronAPI.sortLibrary(sourceLibrary.id,
+                groups.value[tg].librarys[tl]?.id || 0, groups.value[tg].id)
     }
+    getGroups()
+    sendCrosTabMsg(bc, bcMsg)
+}
+const handleDragenter = (e: MouseEvent, idxGroup: number, idxLibrary: number = -1) => {
+    ctmOpIdx.tg = idxGroup
+    ctmOpIdx.tl = idxLibrary
+    // 把组拖入库，不改变样式
+    if (ctmOpIdx.cl === -1 && idxLibrary !== -1) return
+    // 拖入组#409eff，拖入库#f77c7c
+    (e.currentTarget as HTMLElement).style.borderBottom = `2px solid ${idxLibrary === -1 ? '#409eff' : '#f77c7c'}`
+}
+const handleDragleave = (e: MouseEvent) => {
+    (e.currentTarget as HTMLElement).style.borderBottom = 'none';
+}
 
-    // 获取优先打开的library
-    const getPrimaryOpenLibrary = async (): Promise<number | undefined> => {
-        return new Promise<number | undefined>(resolve => {
-            window.electronAPI.getPrimaryOpenLibrary((e: any, libraryId: number) => {
-                resolve(libraryId)
-            })
+/******************** 移动 ********************/
+const moveLibrary = async (idxGroup: number) => {
+    const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl
+    // 如果是移动到自己的组，不进行操作
+    if (cg === idxGroup) return
+    // 把library移动到groupId组的第一个位置
+    await window.electronAPI.sortLibrary(
+        groups.value[cg].librarys[cl].id,
+        groups.value[idxGroup].librarys[0]?.id || 0,
+        groups.value[idxGroup].id);
+    getGroups()
+    sendCrosTabMsg(bc, bcMsg)
+}
+
+// 获取优先打开的library
+const getPrimaryOpenLibrary = async (): Promise<number | undefined> => {
+    return new Promise<number | undefined>(resolve => {
+        window.electronAPI.getPrimaryOpenLibrary((e: any, libraryId: number) => {
+            resolve(libraryId)
         })
-    }
+    })
+}
 
-    const handleImportLibrary = () => {
-        const groupId = ctmCurGrp().id
-        window.electronAPI.openDialog('file', true, $t('layout.selectImportData')).then(paths => {
-            if (!paths.length) return
-            window.electronAPI.importLibrary(groupId, paths)
-        })
-    }
+const handleImportLibrary = () => {
+    const groupId = ctmCurGrp().id
+    window.electronAPI.openDialog('file', true, $t('layout.selectImportData')).then(paths => {
+        if (!paths.length) return
+        window.electronAPI.importLibrary(groupId, paths)
+    })
+}
 
-    const handleExportLibrary = () => {
-        const libraryId = ctmCurLib().id
-        window.electronAPI.openDialog('dir', false, $t('layout.selectExportLocation')).then(paths => {
-            if (!paths.length) return
-            window.electronAPI.exportLibrary(libraryId, paths[0])
-        })
-    }
+const handleExportLibrary = () => {
+    const libraryId = ctmCurLib().id
+    window.electronAPI.openDialog('dir', false, $t('layout.selectExportLocation')).then(paths => {
+        if (!paths.length) return
+        window.electronAPI.exportLibrary(libraryId, paths[0])
+    })
+}
 
-    onMounted(async () => {
-        // 监听background发来的消息
-        listenCrosTabMsg(bc, (e: MessageEvent) => {
-            switch (e.data) {
-                case 'getGroups':
-                    getGroups()
-                    break
-            }
-        })
-
-        // 获取groups, 首要打开的library
-        const firstOpenLibrary: number = (await Promise.all([getGroups(), getPrimaryOpenLibrary()]))[1]
-            || getLocalStorage('lastActiveLibrary') || 0
-
-        // 为0到欢迎页，否则打开library页 
-        if (firstOpenLibrary !== 0) {
-            openLibrary(firstOpenLibrary)
-        }
-
-        // 获取group的展开信息，
-        isExpandGroup.value = getLocalStorage('isExpandGroup') || []
-
-        // 检查isExpandGroup和groups的对应情况,少就补上false,
-        if (isExpandGroup.value.length < groups.value.length) {
-            isExpandGroup.value.concat(Array(groups.value.length - isExpandGroup.value.length).fill(false))
+onMounted(async () => {
+    // 监听background发来的消息
+    listenCrosTabMsg(bc, (e: MessageEvent) => {
+        switch (e.data) {
+            case 'getGroups':
+                getGroups()
+                break
         }
     })
+
+    // 获取groups, 首要打开的library
+    const firstOpenLibrary: number = (await Promise.all([getGroups(), getPrimaryOpenLibrary()]))[1]
+        || getLocalStorage('lastActiveLibrary') || 0
+
+    // 为0到欢迎页，否则打开library页 
+    if (firstOpenLibrary !== 0) {
+        openLibrary(firstOpenLibrary)
+    }
+
+    // 获取group的展开信息，
+    isExpandGroup.value = getLocalStorage('isExpandGroup') || []
+
+    // 检查isExpandGroup和groups的对应情况,少就补上false,
+    if (isExpandGroup.value.length < groups.value.length) {
+        isExpandGroup.value.concat(Array(groups.value.length - isExpandGroup.value.length).fill(false))
+    }
+})
 </script>
 
 <style scoped>
