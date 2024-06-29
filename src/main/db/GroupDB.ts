@@ -11,9 +11,11 @@ class GroupDB extends DB {
 
 
 	public constructor(path: string) {
-		if (fs.existsSync(path)) {
-			super(path)
+		const isExists = fs.existsSync(path)
 
+		super(path)
+
+		if (isExists) {
 			// 读取数据库信息
 			const db_info: any = {};
 			this.all(`SELECT name, value FROM 'db_info'`).forEach((row) => {
@@ -35,7 +37,6 @@ class GroupDB extends DB {
 
 			// this.run('VACUUM;')  // 优化数据库 
 		} else {
-			super(path)
 			this.defineData()
 		}
 	}

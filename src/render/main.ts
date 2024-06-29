@@ -3,7 +3,7 @@ import App from './views/App.vue'
 /* css */
 import '@/assets/css/reset.css'
 import '@/assets/css/global.css'
-import '@/assets/css/elementplus.css'
+import '@/assets/css/element-plus.css'
 import '@/assets/css/recordcard.css'
 import '@/assets/font/iconfont.css'
 

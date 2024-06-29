@@ -19,7 +19,7 @@
             <div class="settings-item">
                 <h2 class="settings-item__title">{{ $t('settings.license') }}</h2>
                 <div class="settings-item__content">
-                    <div class="row">Copyright © 2023-2023 Sorceresssis All rights reserved</div>
+                    <div class="row">Copyright © 2024 Sorceress. All rights reserved</div>
                 </div>
             </div>
         </div>

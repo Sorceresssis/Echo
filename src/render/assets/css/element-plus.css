@@ -26,6 +26,11 @@
     min-width: 100px;
 }
 
+
+.el-select__wrapper {
+    border-radius: 0 !important;
+}
+
 /* poper  */
 .el-popper__arrow {
     display: none;
@@ -56,19 +61,29 @@
     border-radius: 0 !important;
 }
 
-/* el-dialog */
-.el-dialog__headerbtn {
-    top: 0 !important;
+.el-dialog,
+.el-message-box {
+    padding: 0 0 10px 0 !important;
 }
 
 .el-message-box__header,
 .el-dialog__header {
-    border-top-left-radius: var(--el-border-radius-small);
-    border-top-right-radius: var(--el-border-radius-small);
     padding: 15px 20px !important;
     background-color: #f6f6f8 !important;
-    margin: 0 !important;
     border-bottom: 2px solid #ededed;
+}
+
+.el-message-box__headerbtn {
+    width: 57px !important;
+    height: 57px !important;
+}
+
+.el-message-box__content {
+    padding: 10px 15px;
+}
+
+.el-message-box__btns {
+    padding: 5px 15px;
 }
 
 .el-message-box .el-button {

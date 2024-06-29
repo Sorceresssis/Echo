@@ -6,9 +6,11 @@
         "forceConsistentCasingInFileNames": true,
         "isolatedModules": true,
         "jsx": "preserve",
+        "target": "ES2020",
         "lib": [
-            "dom",
-            "es2017"
+            "ES2020",
+            "DOM",
+            "DOM.Iterable"
         ],
         "module": "commonjs",
         "moduleResolution": "node",
@@ -19,7 +21,6 @@
         "resolveJsonModule": true,
         "skipLibCheck": true,
         "strict": true,
-        "target": "esnext",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "outDir": "../../dist/main",
@@ -31,6 +32,5 @@
         "**/*.ts",
         "**/*.tsx",
         "**/*.js",
-        "decorator/method.decorator.ts"
     ]
 }

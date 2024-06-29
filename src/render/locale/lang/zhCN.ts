@@ -159,7 +159,7 @@ export default {
 
 
         createdTime: '创建时间',
-        lastModifiedTime: '最近修改时间',
+        lastModifiedTime: '修改时间',
         intro: '介绍',
         sampleImages: '样例图片',
         info: '信息',

@@ -1,7 +1,6 @@
 import path from 'path'
 import fs from 'fs'
 import appConfig from './config'
-import { app } from 'electron'
 
 // 用户数据目录
 // userDataPath

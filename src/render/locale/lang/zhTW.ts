@@ -128,7 +128,7 @@ export default {
         dirname: '文件夾目錄',
         dirnamePath: '文件夾目錄路徑',
         createdTime: '創建時間',
-        lastModifiedTime: '最近修改時間',
+        lastModifiedTime: '修改時間',
         sampleImages: '示例圖片',
         intro: '介紹',
         info: '信息',

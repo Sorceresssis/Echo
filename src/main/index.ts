@@ -3,7 +3,7 @@ import { BrowserWindow, app, Menu } from "electron"
 import { createWindow } from "./window/main.window"
 
 async function bootstrap() {
-    Menu.setApplicationMenu(null) // 加快启动速度 
+    Menu.setApplicationMenu(null)
     app.on("ready", () => {
         // 检查更新
         // updateHandle()

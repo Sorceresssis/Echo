@@ -50,30 +50,30 @@ namespace VO {
     type RecordDetail = {
         id: number
         title: string
-        rate: number,
-        hyperlink: string | null,
-        releaseDate: string | null,
-        cover: string | undefined,
-        sampleImages: string[],
-        dirname: string | null,
-        basename: string | null,
-        resourcePath: string | null,
+        rate: number
+        hyperlink: string | null
+        releaseDate: string | null
+        cover: string | undefined
+        sampleImages: string[]
+        dirname: string | null
+        basename: string | null
+        resourcePath: string | null
         authors: VO.RecordAuthorProfile[]
         tags: VO.Tag[]
         series: VO.Series[]
         intro: string
         info: string
-        createTime: string,
-        modifiedTime: string,
+        createTime: string
+        modifiedTime: string
     }
 
     type RecordRecommendation = {
         id: number
         title: string
-        rate: number,
-        cover: string | undefined,
-        hyperlink: string | null,
-        resourcePath: string | null,
+        rate: number
+        cover: string | undefined
+        hyperlink: string | null
+        resourcePath: string | null
         authors: VO.RecordAuthorProfile[]
         tags: VO.Tag[]
         createTime?: string,

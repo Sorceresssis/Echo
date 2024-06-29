@@ -156,7 +156,7 @@ export default {
         dirnamePath: 'Folder Directory Path',
 
         createdTime: 'Created Time',
-        lastModifiedTime: 'Last Modified Time',
+        lastModifiedTime: 'Modified Time',
         sampleImages: 'Sample Images',
         intro: 'Introduction',
         info: 'Information',

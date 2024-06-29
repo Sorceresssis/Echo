@@ -157,7 +157,7 @@ export default {
         dirnamePath: 'フォルダディレクトリのパス',
 
         createdTime: '作成日時',
-        lastModifiedTime: '最終更新日時',
+        lastModifiedTime: '更新日時',
         sampleImages: 'サンプル画像',
         intro: '紹介',
         info: '情報',

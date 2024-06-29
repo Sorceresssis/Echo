@@ -3,11 +3,12 @@
 -- ----------------------------
 DROP TABLE IF EXISTS 'db_info';
 CREATE TABLE 'db_info'
-( 
+(
     'name'  TEXT PRIMARY KEY,
     'value' TEXT NOT NULL
 );
-INSERT INTO 'db_info' VALUES('version','1') ;
+INSERT INTO 'db_info'
+VALUES ('version', '1');
 
 
 -- ----------------------------
@@ -16,24 +17,24 @@ INSERT INTO 'db_info' VALUES('version','1') ;
 DROP TABLE IF EXISTS 'record';
 CREATE TABLE 'record'
 (
-    'id'             INTEGER PRIMARY KEY AUTOINCREMENT,              -- 主键
-    'title'          VARCHAR(255)                          NOT NULL, -- 记录标题
-    'rate'           TINYINT     DEFAULT 0                 NOT NULL, -- 等级评分，1~5
-    'hyperlink'      TEXT        DEFAULT NULL              NULL,     -- 在浏览器打开的url，长度控制在2000个字符以内
-	'release_date'   DATE        DEFAULT NULL              NULL,     -- 发布日期
-    'dirname_id'     INTEGER     DEFAULT 0                 NOT NULL, -- 所在目录的id
-    'basename'       TEXT        DEFAULT NULL              NULL,     -- 文件名
-    'info_status'    VARCHAR(3)  DEFAULT '000'             NOT NULL, -- 表示hyperlink、basename、cover三个字段是否为空，0 空 1 不为空
-    'tag_author_sum' TEXT        DEFAULT NULL              NULL,     -- 用于快速查询的冗余字段
-    'recycled'       BOOLEAN     DEFAULT 0                 NOT NULL, -- 是否放入回收站,0 false,1 true
-    'gmt_create'     DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
-    'gmt_modified'   DATETIME    DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
+    'id'               INTEGER PRIMARY KEY AUTOINCREMENT,               -- 主键
+    'title'            VARCHAR(255)                           NOT NULL, -- 标题
+    'rate'             TINYINT      DEFAULT 0                 NOT NULL, -- 等级评分，1~5
+    'hyperlink'        TEXT         DEFAULT NULL              NULL,     -- 在浏览器打开的url，长度控制在2000个字符以内
+    'release_date'     DATE         DEFAULT NULL              NULL,     -- 发布日期
+    'dirname_id'       INTEGER      DEFAULT 0                 NOT NULL, -- 所在目录的id
+    'basename'         TEXT         DEFAULT NULL              NULL,     -- 文件名
+    'info_status'      VARCHAR(3)   DEFAULT '000'             NOT NULL, -- 表示hyperlink、basename、cover三个字段是否为空，0 空 1 不为空
+    'tag_author_sum'   TEXT         DEFAULT NULL              NULL,     -- 用于快速查询的冗余字段
+    'recycled'         BOOLEAN      DEFAULT 0                 NOT NULL, -- 是否放入回收站,0 false,1 true
+    'gmt_create'       DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
+    'gmt_modified'     DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
 );
 CREATE INDEX 'idx_record(rate)' ON record (rate);
 CREATE INDEX 'idx_record(info_status)' ON record (info_status);
 CREATE INDEX 'idx_record(recycled)' ON record (recycled);
 CREATE INDEX 'idx_record(dirname_id)' ON record (dirname_id);
-CREATE INDEX 'idx_record(release_date)' ON record(release_date);
+CREATE INDEX 'idx_record(release_date)' ON record (release_date);
 -- 1. 为什么要添加info_status字段？
 -- 业务有筛选cover，hyperlink，basename是否为空的功能，如果给这三个字段直接添加索引，让‘’表示为空，但是sqlite3没有前缀索引。
 -- 这使得索引的离散度很高，占用的空间也大，所以不适合直接添加索引。
@@ -41,8 +42,6 @@ CREATE INDEX 'idx_record(release_date)' ON record(release_date);
 -- 给info_status添加索引，值只有2^3=8种可能，离散度很低，占用的空间也小，适合添加索引。
 -- 渲染进程发送也是由0和1组成的字符串，只是0代表不筛选，1代表筛选，0表示可以是空(0)也可以是非空(1)，1表示必须是非空(1)。
 -- 比如，001表示必须要有basename,其他随意，符合的info_status值有001，011，101，111，这四种情况。
--- 2. cover 32位？
--- js 时间戳最大16位，加上分隔符，扩展名4~5位，以及为了避免重复设置的递增值，32位足够了。
 
 
 -- ----------------------------
@@ -94,7 +93,7 @@ CREATE TABLE 'record_author'
     'id'        INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
     'record_id' INTEGER NOT NULL,                  -- 记录的id
     'author_id' INTEGER NOT NULL,                  -- 作者的id
-	'role'			VARCHAR(50) DEFAULT NULL					 -- 角色
+    'role'      VARCHAR(50) DEFAULT NULL           -- 角色
 );
 CREATE UNIQUE INDEX 'uk_record_author(record_id,author_id)' ON record_author (record_id, author_id);
 CREATE INDEX 'idx_record_author(record_id)' ON record_author (record_id);

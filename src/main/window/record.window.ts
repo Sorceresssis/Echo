@@ -14,7 +14,7 @@ export function createWindow(libraryId: number, recordId: number): BrowserWindow
         frame: false,
         backgroundColor: "#ffffff",
         webPreferences: {
-            preload: resolve(__dirname, "../../preload/index.js"),
+            preload: resolve(__dirname, "../preload/index.js"),
             sandbox: true, // 开启沙箱模式
             webSecurity: isPackaged,
         }

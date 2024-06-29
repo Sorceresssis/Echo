@@ -52,7 +52,7 @@
 		<el-pagination v-model:current-page="currentPage"
 					   class="dashboard__footer"
 					   background
-					   small
+					   size="small"
 					   :page-size="pageSize"
 					   layout="prev, pager, next, jumper, total"
 					   :total="total"
@@ -68,6 +68,7 @@ import { $t } from '@/locale'
 import { debounce } from '@/util/common'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useAuthorsDashStore from '@/store/authorsDashStore'
+import { ElPagination } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Scrollbar from '@/components/Scrollbar.vue'

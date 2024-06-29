@@ -17,9 +17,14 @@ class LibraryDB extends DB {
         fs.mkdirSync(appPaths.getLibraryDirPath(libraryId), { recursive: true })
         const path = appPaths.getLibraryDBFilePath(libraryId)
 
-        if (fs.existsSync(path)) {
-            super(path)
 
+
+        const isExists = fs.existsSync(path)
+
+        super(path)
+
+
+        if (isExists) {
             const db_info: any = {};
             this.all(`SELECT name, value FROM 'db_info'`).forEach((row) => {
                 db_info[row.name] = row.value
@@ -37,7 +42,6 @@ class LibraryDB extends DB {
                 this.upgrade(loadingDBVersion)
             }
         } else {
-            super(path)
             this.defineData()
         }
     }
