@@ -15,38 +15,21 @@ import appConfig from "../app/config"
 
 
 const { rebindLibrary, closeLibraryDB } = function () {
-    // TODO 把LibraryEnv保存在一个Map里，用时取出来， 删除library时要删除对应的LibraryEnv
-    const libEnvMap = new Map<number, Omit<LibraryEnv, 'id'>>()
     const boundLibEnv = DIContainer.get<LibraryEnv>(InjectType.LibraryEnv)
     return {
         rebindLibrary: function (libraryId: number) {
-            // TODO 目前数据库有preObject的问题，暂时不开放此代码
-            // if(boundLibEnv.id === libraryId) return
-            // if (libEnvMap.has(libraryId)) {
-            //     const obtainedLibEnv = libEnvMap.get(libraryId)!
-            //     boundLibEnv.id = obtainedLibEnv.id
-            //     boundLibEnv.db = obtainedLibEnv.db 
-            // } else {
-            //     boundLibEnv.id = libraryId
-            //     boundLibEnv.db = new LibraryDB(libraryId) 
-
-            //     libEnvMap.set(boundLibEnv.id, {
-            //         id: boundLibEnv.id,
-            //         db: boundLibEnv.db, 
-            //     })
-            // }
-            boundLibEnv.id = libraryId
-
             const {
                 genRecordImagesDirPathConstructor,
-                genAuthorImagesDirPathConstructor
+                genAuthorImagesDirPathConstructor,
             } = appPaths.genLibraryImagesDirPathConstructor(libraryId)
+
+            boundLibEnv.id = libraryId
             boundLibEnv.genRecordImagesDirPathConstructor = genRecordImagesDirPathConstructor
             boundLibEnv.genAuthorImagesDirPathConstructor = genAuthorImagesDirPathConstructor
             boundLibEnv.db = new LibraryDB(libraryId)
         },
         closeLibraryDB: function () {
-            boundLibEnv.db?.close()
+            boundLibEnv.db.close()
         }
     }
 }()

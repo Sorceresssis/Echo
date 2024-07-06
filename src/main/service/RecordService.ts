@@ -690,8 +690,6 @@ class RecordService {
             )
         })
 
-        //TODO tag为空，author为空， series为空
-
         if (images.length) {
             const recordImagesDirPathConstructor = this.libEnv.genRecordImagesDirPathConstructor(record.id)
             await fm.deleteAllFilesInDir(recordImagesDirPathConstructor.getImagesDirPath())

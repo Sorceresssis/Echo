@@ -17,6 +17,32 @@ class InitialValue {
 
         return InitialValue.deepCopy(defaultValue)
     }
+
+    public static getRecordDetail(): VO.RecordDetail {
+        const defaultValue: VO.RecordDetail = {
+            id: 0,
+            title: '',
+            rate: 0,
+            hyperlink: null,
+            releaseDate: null,
+            cover: undefined,
+            sampleImages: [],
+            dirname: null,
+            basename: null,
+            resourcePath: null,
+            authors: [],
+            tags: [],
+            series: [],
+            search_text: '',
+            plot: '',
+            reviews: '',
+            info: '',
+            createTime: '',
+            modifiedTime: '',
+        }
+
+        return InitialValue.deepCopy(defaultValue)
+    }
 }
 
 
