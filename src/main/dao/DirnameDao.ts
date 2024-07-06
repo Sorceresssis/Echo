@@ -25,7 +25,7 @@ class DirnameDao {
         sort: QueryDirnamesSortRule[],
         offset: number,
         rowCount: number
-    ): Dao.Page<Domain.Dirname> {
+    ): DAO.AllQueryResult<Domain.Dirname> {
         const sql = new DynamicSqlBuilder()
         const sortRule: SortRule[] = []
 

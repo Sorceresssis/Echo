@@ -29,7 +29,7 @@ class TagDao {
         sort: QueryTagsSortRule[],
         offset: number,
         rowCount: number
-    ): Dao.Page<Domain.Tag> {
+    ): DAO.AllQueryResult<Domain.Tag> {
         const sql = new DynamicSqlBuilder()
         const sortRule: SortRule[] = []
 

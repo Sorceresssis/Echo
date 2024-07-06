@@ -10,18 +10,22 @@ class RecordExtraDao {
         this.libEnv = libEnv
     }
 
+    public recordExtraFactory(id: PrimaryKey, plot: string, reviews: string, info: string): Entity.RecordExtra {
+        return { id, plot, reviews, info }
+    }
+
     public queryRecordExtraByRecordId(recordId: number): Domain.RecordExtra | undefined {
-        return this.libEnv.db.get('SELECT id, intro, info FROM record_extra WHERE id = ?;', recordId)
+        return this.libEnv.db.get('SELECT id, plot, reviews, info FROM record_extra WHERE id = ?;', recordId)
     }
 
     public updateRecordExtra(recordExtra: Entity.RecordExtra): number {
-        return this.libEnv.db.run('UPDATE record_extra SET intro=?, info=? WHERE id = ?;',
-            recordExtra.intro, recordExtra.info, recordExtra.id).changes
+        return this.libEnv.db.run('UPDATE record_extra SET plot=?, reviews=?, info=? WHERE id = ?;',
+            recordExtra.plot, recordExtra.reviews, recordExtra.info, recordExtra.id).changes
     }
 
     public insetRecordExtra(recordExtra: Entity.RecordExtra): PrimaryKey {
-        return this.libEnv.db.run('INSERT INTO record_extra(id, intro, info) VALUES(?,?,?);',
-            recordExtra.id, recordExtra.intro, recordExtra.info).lastInsertRowid
+        return this.libEnv.db.run('INSERT INTO record_extra(id, plot, reviews, info) VALUES(?,?,?,?);',
+            recordExtra.id, recordExtra.plot, recordExtra.reviews, recordExtra.info).lastInsertRowid
     }
 
     public deleteRecordExtraById(id: PrimaryKey): number {

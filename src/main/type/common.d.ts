@@ -7,13 +7,6 @@ type Config = {
 // 数据库主键类型
 type PrimaryKey = number | bigint
 
-namespace Dao {
-    type Page<T> = {
-        total: number;
-        rows: T[];
-    }
-}
-
 // autocomplete的类型
 type AcType = 'search' | 'record' | 'author' | 'tag' | 'series' | 'dirname'
 

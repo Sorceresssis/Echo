@@ -58,7 +58,7 @@ class TagService {
         // 查询是否已经存在
         const existId = this.tagDao.queryTagIdByTitle(title)
 
-        this.libEnv.db.transaction(() => {
+        this.libEnv.db.transactionExec(() => {
             // id !== existId 的判断是为了防止修改的值和原值一样，导致被删除
             if (existId && id !== existId) {
                 // 如果已经存在，就把record_tag中的tag_id重定向到existId
@@ -73,7 +73,7 @@ class TagService {
     }
 
     public deleteTag(id: number): void {
-        this.libEnv.db.transaction(() => {
+        this.libEnv.db.transactionExec(() => {
             this.tagDao.deleteTagById(id)
             this.updateRecordTagAuthorSumOfTag(id)
             this.recordTagDao.deleteRecordTagByTagId(id)

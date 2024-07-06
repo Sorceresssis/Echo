@@ -4,9 +4,10 @@ import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
 import fm, { isLegalAbsolutePath } from "../util/FileManager"
 import i18n from "../locale"
-import DirnameDao, { QueryDirnamesSortRule } from "../dao/DirnameDao"
-import RecordDao from "../dao/RecordDao"
+import { QueryDirnamesSortRule } from "../dao/DirnameDao"
 import Result from "../util/Result"
+import type DirnameDao from "../dao/DirnameDao"
+import type RecordDao from "../dao/RecordDao"
 
 @injectable()
 class DirnameService {
@@ -60,7 +61,7 @@ class DirnameService {
         path = nodePath.resolve(path)
         const existId = this.dirnameDao.queryDirnameIdByPath(path) // 查询是否已经存在
 
-        this.libEnv.db.transaction(() => {
+        this.libEnv.db.transactionExec(() => {
             if (existId && id !== existId) {
                 this.recordDao.updateRecordDirnameIdByDirnameId(id, existId)
                 this.dirnameDao.deleteDirnameById(id)
@@ -72,7 +73,7 @@ class DirnameService {
     }
 
     public deleteDirname(id: number): void {
-        this.libEnv.db.transaction(() => {
+        this.libEnv.db.transactionExec(() => {
             this.dirnameDao.deleteDirnameById(id)
             this.recordDao.updateRecordDirnameIdByDirnameId(id, 0) // 将dirname_id置为0
         })

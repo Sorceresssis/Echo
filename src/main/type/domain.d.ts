@@ -24,28 +24,29 @@ namespace Domain {
     }
 
     type RecordProfile = {
-        id: number;
-        title: string;
-        cover: string | undefined;
+        id: number
+        title: string
+        cover: string | undefined
     }
 
     type Record = {
-        id: number;
-        title: string;
-        rate: number;
-        cover: string | null;
-        hyperlink: string | null;
-        releaseDate: string | null;
-        dirname: string | null;
-        basename: string | null;
-        createTime?: string | undefined;
-        modifiedTime?: string | undefined;
+        id: number
+        title: string
+        rate: number
+        hyperlink: string | null
+        releaseDate: string | null
+        dirname: string | null
+        basename: string | null
+        search_text: string
+        createTime: string
+        modifiedTime: string
     }
 
     type RecordExtra = {
         id: number;
-        intro: string;
-        info: string;
+        plot: string
+        reviews: string
+        info: string
     }
 
 

@@ -16,9 +16,21 @@ class AuthorDao {
         this.libEnv = libEnv
     }
 
+    public authorEntityFactory(name: string, id?: PrimaryKey, intro?: string): Entity.Author {
+        return {
+            id: id ?? 0,
+            name,
+            intro: intro ?? '',
+        }
+    }
+
     public queryAuthorById(id: PrimaryKey): Domain.Author | undefined {
         return this.libEnv.db.get(`SELECT id, name, intro, DATETIME(gmt_create, 'localtime') AS createTime,
         DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM author WHERE id = ?;` , id)
+    }
+
+    public queryAuthorByName(name: string): Entity.Author | undefined {
+        return this.libEnv.db.get(`SELECT id, name, intro FROM author WHERE name = ?;`, name)
     }
 
     public queryAuthorsByKeyword(
@@ -26,7 +38,7 @@ class AuthorDao {
         sort: QueryAuthorsSortRule[],
         offset: number,
         rowCount: number,
-    ): Dao.Page<Domain.Author> {
+    ): DAO.AllQueryResult<Domain.Author> {
         const sql = new DynamicSqlBuilder()
         const sortRule: SortRule[] = []
 

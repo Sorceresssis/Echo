@@ -144,7 +144,7 @@ export interface IElectronAPI {
 
     deleteRecordByAttribute: (
         libraryId: number,
-        formData: DTO.DeleteRecordByAttributeForm
+        formData: DTO.DeleteRecordByAttributeForm,
     ) => Promise<void>
 
     /**
@@ -152,7 +152,7 @@ export interface IElectronAPI {
      */
     queryRecordDetail: (
         libraryId: number,
-        recordId: number
+        recordId: number,
     ) => Promise<VO.RecordDetail>
 
     /**
@@ -161,8 +161,12 @@ export interface IElectronAPI {
     editRecord: (
         libraryId: number,
         formData: DTO.EditRecordForm,
-        options: DTO.EditRecordOptions
     ) => Promise<Result>
+
+    addRecordFromMetadata: (
+        libraryId: number,
+        param: RP.AddRecordFromMetadataParam
+    ) => Promise<Result<void>>
 
     batchProcessingRecord: (
         libraryId: number,

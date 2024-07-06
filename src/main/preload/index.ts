@@ -109,8 +109,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     editRecord: (
         libraryId: number,
         formData: DTO.EditRecordForm,
-        options: DTO.EditRecordOptions
-    ) => ipcRenderer.invoke('record:edit', libraryId, formData, options),
+    ) => ipcRenderer.invoke('record:edit', libraryId, formData),
+
+    addRecordFromMetadata: (
+        libraryId: number,
+        param: RP.AddRecordFromMetadataParam
+    ) => ipcRenderer.invoke('record:addRecordFromMetadata', libraryId, param),
 
     batchProcessingRecord: (
         libraryId: number,

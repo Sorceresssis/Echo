@@ -1,6 +1,6 @@
 namespace PO {
     type AuthorIdAndRole = {
-        id: number,
+        id: PrimaryKey,
         role: string | null,
     }
 }

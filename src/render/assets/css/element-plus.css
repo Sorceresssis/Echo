@@ -94,7 +94,6 @@
     padding: var(--el-dialog-padding-primary) !important
 }
 
-/* button */
 body .el-button {
     padding: 0 25px !important;
     line-height: 32px !important;

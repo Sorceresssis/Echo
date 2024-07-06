@@ -14,7 +14,7 @@ class AutocompleteService {
 
     public query(type: AcType, queryWord: string, ps: number): VO.AcSuggestion[] {
         const table = [
-            "SELECT 'record' AS type, id, title AS value, REGEXP(title) AS sore FROM record WHERE sore > 0",
+            "SELECT 'record' AS type, id, title AS value, REGEXP(title) + REGEXP(search_text) AS sore FROM record WHERE sore > 0",
             "SELECT 'author' AS type, id, name AS value, REGEXP(name) AS sore FROM author WHERE sore > 0",
             "SELECT 'tag' AS type, id, title AS value, REGEXP(title) AS sore FROM tag WHERE sore > 0",
             "SELECT 'series' AS type, id, name AS value, REGEXP(name) AS sore FROM  series WHERE sore > 0",

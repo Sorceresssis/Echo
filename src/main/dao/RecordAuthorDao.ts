@@ -37,6 +37,11 @@ class RecordAuthorDao {
         authors.forEach(author => stmt.run(author.role === '' ? null : author.role, recordId, author.id))
     }
 
+    public insert(recordId: PrimaryKey, authorId: PrimaryKey, role: string): PrimaryKey {
+        const stmt = this.libEnv.db.prepare("INSERT INTO record_author(record_id, author_id, role) VALUES(?, ?, ?);")
+        return stmt.run(recordId, authorId, role).lastInsertRowid
+    }
+
     public insertRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {
         const stmt = this.libEnv.db.prepare("INSERT INTO record_author(record_id, author_id, role) VALUES(?, ?, ?);")
         authors.forEach(author => stmt.run(recordId, author.id, author.role === '' ? null : author.role))

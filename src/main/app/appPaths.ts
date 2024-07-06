@@ -1,6 +1,8 @@
-import path from 'path'
-import fs from 'fs'
+import { app } from "electron"
+import n_path from 'path'
+import n_fs from 'fs'
 import appConfig from './config'
+import generateUid from "../util/uid"
 
 // 用户数据目录
 // userDataPath
@@ -34,19 +36,19 @@ class AppPaths {
     private userDataPath = appConfig.get('dataPath')
 
     public getImportLibraryTmpDirPath(): string {
-        return path.join(this.userDataPath, 'tmp', 'import-library')
+        return n_path.join(this.userDataPath, 'tmp', 'import-library')
     }
 
     public getGroupDBFilePath(): string {
-        return path.join(this.userDataPath, 'group.db')
+        return n_path.join(this.userDataPath, 'group.db')
     }
 
     public getLibraryDirPath(libId: PrimaryKey): string {
-        return path.join(this.userDataPath, 'library', `${libId}`)
+        return n_path.join(this.userDataPath, 'library', `${libId}`)
     }
 
     public getLibraryDBFilePath(libId: PrimaryKey): string {
-        return path.join(this.userDataPath, 'library', `${libId}`, 'library.db')
+        return n_path.join(this.userDataPath, 'library', `${libId}`, 'library.db')
     }
 
     // 生成image构造器
@@ -55,8 +57,8 @@ class AppPaths {
 
 
         const genRecordImagesDirPathConstructor = function (id: number | bigint) {
-            const recordImagesDirPath = path.join(libraryDirPath, 'images', 'record', `${id}`)
-            fs.mkdirSync(recordImagesDirPath, { recursive: true })
+            const recordImagesDirPath = n_path.join(libraryDirPath, 'images', 'record', `${id}`)
+            n_fs.mkdirSync(recordImagesDirPath, { recursive: true })
 
             const __mainImageFileNameTpl = `r${id}_main`
             const __sampleFileNameTpl = `r${id}_smp`
@@ -65,16 +67,16 @@ class AppPaths {
             // 图片目录
             const getImagesDirPath = () => recordImagesDirPath
             // 主图 r1_main_1711284231896.avif
-            const getNewMainImageFilePath = () => path.join(recordImagesDirPath, `${__mainImageFileNameTpl}_${Date.now()}${AppPaths.imageFileExtDot}`)
+            const getNewMainImageFilePath = () => n_path.join(recordImagesDirPath, `${__mainImageFileNameTpl}_${Date.now()}${AppPaths.imageFileExtDot}`)
             // 样图 r1_smp1_1711284231896.avif
-            const getNewSampleImageFilePath = (index: number) => path.join(recordImagesDirPath, `${__sampleFileNameTpl}${index}_${Date.now()}${AppPaths.imageFileExtDot}`)
+            const getNewSampleImageFilePath = (index: number) => n_path.join(recordImagesDirPath, `${__sampleFileNameTpl}${index}_${Date.now()}${AppPaths.imageFileExtDot}`)
 
             const findMainImageFilePath = () => {
-                const list = fs.readdirSync(recordImagesDirPath)
+                const list = n_fs.readdirSync(recordImagesDirPath)
                 let filePath
                 for (const file of list) {
                     if (file.startsWith(__mainImageFileNameTpl)) {
-                        filePath = path.join(recordImagesDirPath, file)
+                        filePath = n_path.join(recordImagesDirPath, file)
                         break
                     }
                 }
@@ -85,15 +87,15 @@ class AppPaths {
                 let main: string | undefined
 
                 let notFoundAvatar = true
-                fs.readdirSync(recordImagesDirPath).forEach(item => {
+                n_fs.readdirSync(recordImagesDirPath).forEach(item => {
                     if (notFoundAvatar && item.startsWith(__mainImageFileNameTpl)) {
-                        main = path.join(recordImagesDirPath, item)
+                        main = n_path.join(recordImagesDirPath, item)
                         notFoundAvatar = false
                     }
                     if (item.startsWith(__sampleFileNameTpl)) {
                         sampleImagesWithIdx.push({
                             idx: parseInt(item.match(sampleIdxPattern)![1], 10),
-                            path: path.join(recordImagesDirPath, item)
+                            path: n_path.join(recordImagesDirPath, item)
                         })
                     }
                 })
@@ -115,8 +117,8 @@ class AppPaths {
         }
 
         const genAuthorImagesDirPathConstructor = function (id: number | bigint) {
-            const authorImagesDirPath = path.join(libraryDirPath, 'images', 'author', `${id}`)
-            fs.mkdirSync(authorImagesDirPath, { recursive: true })
+            const authorImagesDirPath = n_path.join(libraryDirPath, 'images', 'author', `${id}`)
+            n_fs.mkdirSync(authorImagesDirPath, { recursive: true })
 
             const __avatarFileNameTpl = `a${id}_avatar`
             const __sampleFileNameTpl = `a${id}_smp`
@@ -125,16 +127,16 @@ class AppPaths {
             // 作者图片目录
             const getImagesDirPath = () => authorImagesDirPath
             // 头像 a1_avatar_1711284231896.avif
-            const getNewAvatarImageFilePath = () => path.join(authorImagesDirPath, `${__avatarFileNameTpl}_${Date.now()}${AppPaths.imageFileExtDot}`)
+            const getNewAvatarImageFilePath = () => n_path.join(authorImagesDirPath, `${__avatarFileNameTpl}_${Date.now()}${AppPaths.imageFileExtDot}`)
             // 样图 a1_smp1_1711284231896.avif
-            const getNewSampleImageFilePath = (index: number) => path.join(authorImagesDirPath, `${__sampleFileNameTpl}${index}_${Date.now()}${AppPaths.imageFileExtDot}`)
+            const getNewSampleImageFilePath = (index: number) => n_path.join(authorImagesDirPath, `${__sampleFileNameTpl}${index}_${Date.now()}${AppPaths.imageFileExtDot}`)
 
             const findAvatarImageFilePath = () => {
-                const list = fs.readdirSync(authorImagesDirPath)
+                const list = n_fs.readdirSync(authorImagesDirPath)
                 let filePath
                 for (const file of list) {
                     if (file.startsWith(__avatarFileNameTpl)) {
-                        filePath = path.join(authorImagesDirPath, file)
+                        filePath = n_path.join(authorImagesDirPath, file)
                         break
                     }
                 }
@@ -145,15 +147,15 @@ class AppPaths {
                 let avatar: string | undefined
 
                 let notFoundAvatar = true
-                fs.readdirSync(authorImagesDirPath).forEach(item => {
+                n_fs.readdirSync(authorImagesDirPath).forEach(item => {
                     if (notFoundAvatar && item.startsWith(__avatarFileNameTpl)) {
-                        avatar = path.join(authorImagesDirPath, item)
+                        avatar = n_path.join(authorImagesDirPath, item)
                         notFoundAvatar = false
                     }
                     if (item.startsWith(__sampleFileNameTpl)) {
                         sampleImagesWithIdx.push({
                             idx: parseInt(item.match(sampleIdxPattern)![1], 10),
-                            path: path.join(authorImagesDirPath, item)
+                            path: n_path.join(authorImagesDirPath, item)
                         })
                     }
                 })
@@ -177,6 +179,22 @@ class AppPaths {
             genRecordImagesDirPathConstructor,
             genAuthorImagesDirPathConstructor,
         }
+    }
+
+    public getMetadataDir(dir: string) {
+        return n_path.join(dir, '.metadata')
+    }
+
+    public getEchoMetadataPath(dir: string) {
+        return n_path.join(dir, '.metadata', 'echo_metadata.json')
+    }
+
+    public getEchoMetadataImagesDirPath(dir: string) {
+        return n_path.join(dir, '.metadata', 'images')
+    }
+
+    public getMultipleMetadataImportErrorLogPath() {
+        return n_path.join(app.getPath('desktop'), `Echo_ImportMetadataError_${generateUid()}.txt`)
     }
 }
 

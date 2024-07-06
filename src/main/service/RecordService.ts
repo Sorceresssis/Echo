@@ -1,9 +1,14 @@
-import path from "path"
-import fs from "fs"
-import fm from "../util/FileManager"
+import n_path from "path"
+import n_fs, { promises as n_fsp } from "fs"
 import { injectable, inject } from "inversify"
-import InjectType from "../provider/injectType"
+import Ajv from "ajv"
+import { type OutputInfo } from "sharp"
+import ECHO_METADATA_SCHEMA from "../constant/echo_metadata_schema"
 import DIContainer, { type LibraryEnv } from "../provider/container"
+import InjectType from "../provider/injectType"
+import fm from "../util/FileManager"
+import appPaths from "../app/appPaths"
+import { isNotEmptyString, diffArray } from "../util/common"
 import i18n from "../locale"
 import Result from "../util/Result"
 import ImageService from "./ImageService"
@@ -17,13 +22,10 @@ import type RecordTagDao from "../dao/RecordTagDao"
 import type SeriesDao from "../dao/SeriesDao"
 import type RecordSeriesDao from "../dao/RecordSeriesDao"
 import type AuthorService from "./AuthorService"
-import { isNotEmptyString } from "../util/common"
 
 
 @injectable()
 class RecordService {
-    private infoStatusFilterMap: Map<string, string[]>
-
     public constructor(
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
         @inject(InjectType.RecordDao) private recordDao: RecordDao,
@@ -35,22 +37,26 @@ class RecordService {
         @inject(InjectType.RecordSeriesDao) private recordSeriesDao: RecordSeriesDao,
         @inject(InjectType.SeriesDao) private seriesDao: SeriesDao,
         @inject(InjectType.RecordAuthorDao) private recordAuthorDao: RecordAuthorDao,
+        private infoStatusFilterMap = new Map<string, string[]>(),
+        private echoMetadataValidator = new Ajv().compile(ECHO_METADATA_SCHEMA)
     ) {
-        this.infoStatusFilterMap = new Map<string, string[]>()
     }
 
     public queryRecordDetail(id: number): VO.RecordDetail | undefined {
         const record = this.recordDao.queryRecordById(id) as VO.RecordDetail | undefined
-        if (record === void 0) return record
+        if (!record) return
 
-        record.resourcePath = record.dirname && record.basename ? path.join(record.dirname, record.basename) : null
+        record.resourcePath = record.dirname && record.basename ? n_path.join(record.dirname, record.basename) : null
         record.authors = DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorsByRecordId(id)
         record.tags = this.tagDao.queryTagsByRecordId(id)
         record.series = this.seriesDao.querySeriesByRecordId(id)
 
         const extra = this.recordExtraDao.queryRecordExtraByRecordId(id)
-        record.intro = extra?.intro || ''
-        record.info = extra?.info || ''
+
+        if (!extra) return
+        record.plot = extra.plot
+        record.reviews = extra.reviews
+        record.info = extra.info
 
         const {
             main,
@@ -108,7 +114,7 @@ class RecordService {
         // 添加作者和标签
         page.rows.forEach(row => {
             row.cover = this.libEnv.genRecordImagesDirPathConstructor(row.id).findMainImageFilePath()
-            row.resourcePath = row.dirname && row.basename ? path.join(row.dirname, row.basename) : null
+            row.resourcePath = row.dirname && row.basename ? n_path.join(row.dirname, row.basename) : null
             delete row.dirname
             delete row.basename
             row.authors = DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorsByRecordId(row.id)
@@ -152,7 +158,7 @@ class RecordService {
 
         similar.forEach(record => {
             record.cover = this.libEnv.genRecordImagesDirPathConstructor(record.id).findMainImageFilePath()
-            record.resourcePath = record.dirname && record.basename ? path.join(record.dirname, record.basename) : null
+            record.resourcePath = record.dirname && record.basename ? n_path.join(record.dirname, record.basename) : null
             delete record.dirname
             delete record.basename
             record.authors = DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorsByRecordId(record.id)
@@ -203,7 +209,7 @@ class RecordService {
 
     // 根据属性回收
     public recycleRecordByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
-        this.libEnv.db.transaction(() => {
+        this.libEnv.db.transactionExec(() => {
             const dirnamePath = formData.dirnamePath.trim()
             const tagTitle = formData.tagTitle.trim()
             const seriesName = formData.seriesName.trim()
@@ -275,7 +281,7 @@ class RecordService {
     }
 
     public deleteRecycledRecord(recordIds: number[]): void {
-        recordIds.forEach(id => this.libEnv.db.transaction(() => {
+        recordIds.forEach(id => this.libEnv.db.transactionExec(() => {
             const record = this.recordDao.queryRecordById(id)
             if (record && this.recordDao.deleteRecordOfRecycledById(id) > 0) {
                 // 如果删除record不成功，说明不存在或者没有被回收
@@ -330,14 +336,16 @@ class RecordService {
         this.recordSeriesDao.deleteRecordSeriesByRecordIdSeriesIds(recordId, removeSeriesIds)
     }
 
-    private generateInfoStatus<T extends string | null | undefined>(cover: T, hyperlink: T, basename: T) {
+    private generateInfoStatus(cover: any, hyperlink: any, basename: any) {
         return (cover ? '1' : '0') + (hyperlink ? '1' : '0') + (basename ? '1' : '0');
     }
 
+    // NOTE 涉及路径的保存，保存前用 path.resolve 处理一下。把`C:bar\foo\`转化成`C:bar\foo`。
     public async editRecord(formData: DTO.EditRecordForm): Promise<Result> {
         formData.dirname = formData.dirname.trim()
         formData.basename = formData.basename.trim()
-        // 检查路径是否合法
+
+        // 检查路径是否合法, 不检查是否存在
         if ((formData.dirname !== '' && !fm.isLegalAbsolutePath(formData.dirname))
             || (formData.basename !== '' && !fm.isLegalFileName(formData.basename))) {
             return Result.error(i18n.global.t('resourcePathIllegal'))
@@ -345,35 +353,46 @@ class RecordService {
 
         const opType = formData.id === 0 ? 'add' : 'edit'
 
-        const record = {} as Entity.Record
-        record.id = formData.id
-        record.title = formData.title.trim()
-        record.rate = formData.rate
-        record.hyperlink = formData.hyperlink.trim() || null
-        record.releaseDate = isNotEmptyString(formData.releaseDate) ? formData.releaseDate : null
-        record.basename = formData.basename || null
-        record.infoStatus = this.generateInfoStatus(
-            opType === 'add' ? formData.cover : formData.originCover, // add => cover, edit => originCover
-            record.hyperlink, record.basename)
-        record.tagAuthorSum = null
+        formData.hyperlink = formData.hyperlink.trim()
+        formData.title = formData.title.trim()
+        formData.searchText = formData.searchText.trim()
+        const record = this.recordDao.recordEntityFactory(
+            formData.title.trim(),
+            formData.rate,
+            formData.hyperlink,
+            formData.basename,
+            formData.releaseDate,
+            this.generateInfoStatus(opType === 'add' ? formData.cover : formData.originCover, formData.hyperlink, formData.basename),
+            null,
+            formData.searchText.trim(),
+            0,
+            formData.id,
+        )
+        const recordExtra = this.recordExtraDao.recordExtraFactory(
+            formData.id,
+            formData.plot,
+            formData.reviews,
+            formData.info,
+        )
 
-        const recordExtra: Entity.RecordExtra = {
-            id: formData.id,
-            info: formData.info,
-            intro: formData.intro
-        }
-
-        this.libEnv.db.transaction(() => {
-            // 如果dirname存在返回id，不存在插入dirname表返回id
-            if (formData.dirname === '') {
-                record.dirnameId = 0
-            } else {
-                formData.dirname = path.resolve(formData.dirname)
+        let srcFileIsBound = false
+        const updatedAuthors: VO.RecordAuthorProfile[] = []
+        const updatedTags: Domain.Tag[] = []
+        const updatedSeries: Domain.Series[] = []
+        this.libEnv.db.transactionExec(() => {
+            if (formData.dirname) {
+                formData.dirname = n_path.resolve(formData.dirname)
                 record.dirnameId = this.dirnameDao.queryDirnameIdByPath(formData.dirname) || this.dirnameDao.insertDirname(formData.dirname)
             }
 
-            // record 和 recordExtra 表
             if (opType === 'add') {
+                if (record.dirnameId
+                    && record.basename
+                    && this.recordDao.queryRecordIdByDirnameIdAndBasename(record.dirnameId, record.basename)
+                ) {
+                    srcFileIsBound = true
+                    return
+                }
                 recordExtra.id = record.id = this.recordDao.insertRecord(record)
                 this.recordExtraDao.insetRecordExtra(recordExtra)
             } else {
@@ -382,8 +401,14 @@ class RecordService {
             }
 
             // tag, author, series 表
-            const addTagIds = formData.addTags.map(title => this.tagDao.queryTagIdByTitle(title) || this.tagDao.insertTag(title))
-            const addSeriesIds = formData.addSeries.map(name => this.seriesDao.querySeriesIdByName(name) || this.seriesDao.insertSeries(name))
+            const addTagIds = formData.addTags
+                .map(tag => tag.trim())
+                .filter(tag => tag.length > 0)
+                .map(tag => this.tagDao.queryTagIdByTitle(tag) || this.tagDao.insertTag(tag))
+            const addSeriesIds = formData.addSeries
+                .map(serie => serie.trim())
+                .filter(serie => serie.length > 0)
+                .map(serie => this.seriesDao.querySeriesIdByName(serie) || this.seriesDao.insertSeries(serie))
             this.editRecordAttribute(
                 record.id,
                 formData.addAuthors,
@@ -396,8 +421,20 @@ class RecordService {
             )
 
             // 等待record的属性都设置完毕,开始更新冗余字段tagAuthorSum
-            this.updateRecordTagAuthorSum(record.id)
+            updatedAuthors.push(...this.authorDao.queryAuthorsAndRoleByRecordId(record.id))
+            updatedTags.push(... this.tagDao.queryTagsByRecordId(record.id))
+            updatedSeries.push(...this.seriesDao.querySeriesByRecordId(record.id))
+
+            const tagAuthorSum = updatedAuthors.map(author => author.name).concat(updatedTags.map(tag => tag.title)).join(' ')
+            this.recordDao.updateRecordTagAuthorSumById(record.id, tagAuthorSum || null)
         })
+
+        // 直接退出
+        if (srcFileIsBound) {
+            return Result.error('添加的源文件已经被其他记录绑定')
+        }
+
+        // 图片处理
         const recordImagesDirPathConstructor = this.libEnv.genRecordImagesDirPathConstructor(record.id)
         // cover != originCover 说明cover有变化
         if (formData.cover && isNotEmptyString(formData.cover) && formData.cover !== formData.originCover) {
@@ -405,10 +442,8 @@ class RecordService {
                 const oldMain = recordImagesDirPathConstructor.findMainImageFilePath()
                 if (oldMain) fm.unlinkIfExistsSync(oldMain)
             }
-
             await ImageService.handleNormalImage(formData.cover, recordImagesDirPathConstructor.getNewMainImageFilePath())
         }
-
         formData.removeSampleImages.forEach(image => fm.unlinkIfExistsSync(image))
 
         const editSampleImages = formData.editSampleImages
@@ -417,84 +452,312 @@ class RecordService {
             if (type === 'add') {
                 await ImageService.handleNormalImage(path, recordImagesDirPathConstructor.getNewSampleImageFilePath(idx))
             } else if (type === 'move') {
-                fs.renameSync(path, recordImagesDirPathConstructor.getNewSampleImageFilePath(idx))
+                n_fs.renameSync(path, recordImagesDirPathConstructor.getNewSampleImageFilePath(idx))
             }
         }
-        // formData.editSampleImages.forEach(item => {
-        //     if (item.type === 'add') {
-        //         ImageService.handleNormalImage(item.path, recordImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
-        //     } else if (item.type === 'move') {
-        //         fs.renameSync(item.path, recordImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
-        //     }
-        // })
+
+        // 把数据写回 metadata
+        if (record.dirnameId && record.basename) {
+            const srcPath = n_path.join(formData.dirname, record.basename)
+            try {
+                const stats = await n_fsp.stat(srcPath)
+                if (stats.isDirectory()) {
+                    const metaFilePath = appPaths.getEchoMetadataPath(srcPath)
+                    let oldMetadata: Object = {}
+                    try {
+                        const parsedData = JSON.parse(await n_fsp.readFile(metaFilePath, 'utf-8'))
+                        oldMetadata = typeof parsedData === 'object' ? parsedData : {}
+                    } catch { }
+                    const newMetadata: Entity.EchoMetadata = {
+                        ...oldMetadata,
+                        ...{
+                            title: record.title,
+                            plot: recordExtra.plot,
+                            release_date: record.releaseDate ?? '',
+                            authors: updatedAuthors.map(author => ({ name: author.name, role: author.role ?? '' })),
+                            series: updatedSeries.map(series => series.name),
+                            tags: updatedTags.map(tag => tag.title),
+                            rate: record.rate,
+                            reviews: recordExtra.reviews,
+                            info: recordExtra.info,
+                            hyperlink: record.hyperlink ?? '',
+                            search_text: record.search_text
+                        }
+                    }
+                    await n_fsp.mkdir(appPaths.getMetadataDir(srcPath), { recursive: true })
+                    await n_fsp.writeFile(metaFilePath, JSON.stringify(newMetadata, null, 4))
+                }
+            } catch { }
+        }
 
         return Result.success()
     }
 
-    public async addBatchRecord(formData: DTO.EditRecordForm, distinct: boolean): Promise<Result> {
-        if (!fm.isFolderExists(formData.batchDir)) {
-            return Result.error(i18n.global.t('folderNotExists')) // 文件夹不存在, 直接返回
+    private async getMetadata(srcPath: string) {
+        const metaFilePath = appPaths.getEchoMetadataPath(srcPath)
+        let rawData: string
+        try {
+            rawData = await n_fsp.readFile(metaFilePath, 'utf-8')
+        } catch (error: any) {
+            if (error.code === 'ENOENT') {
+                throw Error('Error: metadata file not found')
+            } else if (error.code === 'EACCES') {
+                throw Error('Error: No permission to read the metadata file')
+            } else {
+                throw Error('Error: Unknown error, ' + error.message)
+            }
         }
 
-        // 准备数据
-        const record = {} as Entity.Record
-        record.id = formData.id
-        record.rate = formData.rate
-        record.hyperlink = formData.hyperlink.trim() || null
-        record.releaseDate = isNotEmptyString(formData.releaseDate) ? formData.releaseDate : null
-        record.infoStatus = this.generateInfoStatus(void 0, record.hyperlink, 'batch')
-        record.tagAuthorSum = null
+        let metadata: Entity.EchoMetadata
+        try {
+            metadata = JSON.parse(rawData)
+            // NOTE 过滤掉空值字符串
+            metadata.authors = metadata.authors
+                .map(author => ({ name: author.name.trim(), role: author.role.trim() }))
+                .filter(author => author.name !== '')
+            metadata.tags = metadata.tags
+                .map(tag => tag.trim())
+                .filter(tag => tag !== '')
+            metadata.series = metadata.series
+                .map(series => series.trim())
+                .filter(series => series !== '')
 
-        const recordExtra: Entity.RecordExtra = {
-            id: formData.id,
-            info: formData.info,
-            intro: formData.intro
+            if (!this.echoMetadataValidator(metadata)) throw Error()
+        } catch (error: any) {
+            throw Error('Error: metadata 格式不合法')
         }
 
-        this.libEnv.db.transaction(() => {
-            // 插入tag, series, author
-            const addTagIds = formData.addTags.map(
-                title => this.tagDao.queryTagIdByTitle(title) || this.tagDao.insertTag(title)
+        const imagesDir = appPaths.getEchoMetadataImagesDirPath(srcPath)
+        const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+        let images: string[] = []
+        try {
+            // 使用Intl.Collator进行自然排序
+            images = (await n_fsp.readdir(imagesDir, { withFileTypes: true }))
+                .filter(dirent => dirent.isFile())
+                .sort((a, b) => collator.compare(a.name, b.name))
+                .map(dirent => n_path.join(imagesDir, dirent.name))
+        } catch { }
+
+        return { metadata, images }
+    }
+
+    // NOTE 涉及路径的保存
+    public async addRecordFromMetadata(srcPath: string, dirnameId?: PrimaryKey): Promise<void> {
+        if (!n_fs.existsSync(srcPath)) throw Error('文件夹不存在')
+
+        const dirname = n_path.dirname(srcPath)
+        const basename = n_path.basename(srcPath)
+
+        // 没有传入dirnameId, 代表是直接调用的addRecordFromMetadata, 没有做是否可执行检查。
+        // 传入了dirnameId, 代表是被importRecordFromMetadata调用的, 已经做了可执行检查。所以跳过这一步。
+        if (!dirnameId) {
+            dirnameId = this.dirnameDao.queryDirnameIdByPath(dirname)
+            if (dirnameId && this.recordDao.queryRecordIdByDirnameIdAndBasename(dirnameId, basename)) {
+                throw Error('Error: 选择的源已经绑定了Record')
+            }
+        }
+
+        const { metadata, images } = await this.getMetadata(srcPath)
+
+        let recordId: PrimaryKey = 0
+        this.libEnv.db.transactionExec(() => {
+            if (!dirnameId) dirnameId = this.dirnameDao.insertDirname(dirname)
+
+            const record = this.recordDao.recordEntityFactory(
+                metadata.title.trim(),
+                metadata.rate,
+                metadata.hyperlink,
+                basename,
+                metadata.release_date,
+                this.generateInfoStatus(images.length > 0, metadata.hyperlink, basename),
+                [...metadata.tags, ...metadata.authors].join(' '),
+                metadata.search_text,
+                dirnameId
             )
-            const addSeriesIds = formData.addSeries.map(
-                name => this.seriesDao.querySeriesIdByName(name) || this.seriesDao.insertSeries(name)
-            )
+            recordId = record.id = this.recordDao.insertRecord(record)
 
-            formData.batchDir = path.resolve(formData.batchDir)
-            record.dirnameId = this.dirnameDao.queryDirnameIdByPath(formData.batchDir) || this.dirnameDao.insertDirname(formData.batchDir)
+            const recordExtra = {} as Entity.RecordExtra
+            recordExtra.id = record.id
+            recordExtra.plot = metadata.plot
+            recordExtra.reviews = metadata.reviews
+            recordExtra.info = metadata.info
 
-            const dirContents = fm.dirContentsWithType(formData.batchDir)
-            dirContents.forEach((item, index) => {
-                // 如果是文件，去掉后缀
-                record.title = item.type === 'file' ? path.parse(item.name).name : item.name
-                // 如果存在，跳过
-                if (distinct && this.recordDao.queryRecordIdByTitle(record.title)) return
-                record.basename = item.name
-                // 向record和recordExtra表插入数据
-                recordExtra.id = record.id = this.recordDao.insertRecord(record)
-                this.recordExtraDao.insetRecordExtra(recordExtra)
+            this.recordExtraDao.insetRecordExtra(recordExtra)
 
-                // 得到了record的id，开始插入把关系链接起来
-                this.editRecordAttribute(
-                    record.id,
-                    formData.addAuthors,
-                    formData.editAuthorsRole,
-                    formData.removeAuthors,
-                    addTagIds,
-                    formData.removeTags,
-                    addSeriesIds,
-                    formData.removeSeries
-                )
-
-                // 因为是批量添加，所有的record的tagAuthorSum都是一样的，所以只需要在第一个record的时候更新一次
-                if (index === 0) {
-                    record.tagAuthorSum = this.getTagAuthorSum(record.id)
-                    this.updateRecordTagAuthorSum(record.id, record.tagAuthorSum)
-                }
+            const addTagIds = metadata.tags.map(title => this.tagDao.queryTagIdByTitle(title) || this.tagDao.insertTag(title))
+            const addSeriesIds = metadata.series.map(name => this.seriesDao.querySeriesIdByName(name) || this.seriesDao.insertSeries(name))
+            const authorIdAndRoles: DTO.AuthorIdAndRole[] = metadata.authors.map(author => {
+                const id = this.authorDao.queryAuthorByName(author.name)?.id
+                    || this.authorDao.insertAuthor(this.authorDao.authorEntityFactory(author.name))
+                const role = author.role.trim() || null
+                return { id, role }
             })
+            this.recordTagDao.insertRecordTagByRecordIdTagIds(record.id, addTagIds)
+            this.recordSeriesDao.insertRecordSeriesByRecordIdSeriesIds(record.id, addSeriesIds)
+            this.recordAuthorDao.insertRecordAuthorByRecordIdAuthorIds(record.id, authorIdAndRoles)
         })
 
-        return Result.success()
+        // 图片操作
+        if (recordId && images.length) {  // 在事务回调中如果出错依然会到这里, 此时recordId为0, 直接返回。
+            const recordImagesDirPathConstructor = this.libEnv.genRecordImagesDirPathConstructor(recordId)
+            const handleImagePromises: Promise<OutputInfo>[] = []
+            handleImagePromises.push(ImageService.handleNormalImage(images[0], recordImagesDirPathConstructor.getNewMainImageFilePath()))
+            for (let i = 1; i < images.length; i++) {
+                handleImagePromises.push(ImageService.handleNormalImage(images[i], recordImagesDirPathConstructor.getNewSampleImageFilePath(i)))
+            }
+            await Promise.all(handleImagePromises);
+        }
+    }
+
+    // NOTE 涉及路径的保存
+    public async updateRecordFromMetadata(srcPath: string, dirnameId?: PrimaryKey, recordId?: PrimaryKey): Promise<void> {
+        if (!n_fs.existsSync(srcPath)) throw Error('文件夹不存在')
+
+        const dirname = n_path.dirname(srcPath)
+        const basename = n_path.basename(srcPath)
+
+        if (!dirnameId) dirnameId = this.dirnameDao.queryDirnameIdByPath(dirname)
+        if (!dirnameId) throw Error('Error: 选择的源未绑定Record, 无法更新。')
+
+        if (!recordId) recordId = this.recordDao.queryRecordIdByDirnameIdAndBasename(dirnameId, basename)
+        if (!recordId) throw Error('Error: 选择的源未绑定Record, 无法更新。')
+
+        const { metadata, images } = await this.getMetadata(srcPath)
+
+        const record = this.recordDao.recordEntityFactory(
+            metadata.title.trim(),
+            metadata.rate,
+            metadata.hyperlink,
+            basename,
+            metadata.release_date,
+            this.generateInfoStatus(images.length > 0, metadata.hyperlink, basename),
+            [...metadata.tags, ...metadata.authors].join(' '),
+            metadata.search_text,
+            dirnameId,
+            recordId,
+        )
+
+        this.libEnv.db.transactionExec(() => {
+            this.recordDao.updateRecord(record)
+
+            const recordExtra = this.recordExtraDao.recordExtraFactory(
+                recordId,
+                metadata.plot,
+                metadata.reviews,
+                metadata.info
+            )
+
+            this.recordExtraDao.updateRecordExtra(recordExtra)
+
+            const newTags = metadata.tags.map(title => this.tagDao.queryTagIdByTitle(title) ?? this.tagDao.insertTag(title))
+            const newSeries = metadata.series.map(name => this.seriesDao.querySeriesIdByName(name) ?? this.seriesDao.insertSeries(name))
+            const newAuthors: DTO.AuthorIdAndRole[] = metadata.authors.map(author => {
+                const id = this.authorDao.queryAuthorByName(author.name)?.id
+                    || this.authorDao.insertAuthor(this.authorDao.authorEntityFactory(author.name))
+                const role = author.role.trim() || null
+                return { id, role }
+            })
+
+            const oldTags = this.tagDao.queryTagsByRecordId(record.id)
+            const oldAuthors = this.authorDao.queryAuthorsAndRoleByRecordId(record.id)
+            const oldSeries = this.seriesDao.querySeriesByRecordId(record.id)
+
+            const tagsDiff = diffArray(oldTags, newTags,
+                'id', void 0,
+                void 0,
+                (item) => item.id,
+            )
+            const authorsDiff = diffArray(oldAuthors, newAuthors,
+                'id', 'id',
+                (item) => item,
+                (item) => item.id,
+                (oldAuthor, newAuthor) => oldAuthor.role === newAuthor.role,
+            )
+            const seriesDiff = diffArray(oldSeries, newSeries,
+                'id', void 0,
+                void 0, (item) => item.id,
+            )
+
+            this.editRecordAttribute(
+                record.id,
+                authorsDiff.added,
+                authorsDiff.updated,
+                authorsDiff.removed,
+                tagsDiff.added,
+                tagsDiff.removed,
+                seriesDiff.added,
+                seriesDiff.removed
+            )
+        })
+
+        //TODO tag为空，author为空， series为空
+
+        if (images.length) {
+            const recordImagesDirPathConstructor = this.libEnv.genRecordImagesDirPathConstructor(record.id)
+            await fm.deleteAllFilesInDir(recordImagesDirPathConstructor.getImagesDirPath())
+            const handleImagePromises: Promise<OutputInfo>[] = []
+            handleImagePromises.push(ImageService.handleNormalImage(images[0], recordImagesDirPathConstructor.getNewMainImageFilePath()))
+            for (let i = 1; i < images.length; i++) {
+                handleImagePromises.push(ImageService.handleNormalImage(images[i], recordImagesDirPathConstructor.getNewSampleImageFilePath(i)))
+            }
+
+            await Promise.all(handleImagePromises);
+        }
+    }
+
+    /**
+     * @param type 0: 添加未添加的, 1: 更新已经添加的, 2: 添加和跟新
+     * @returns 
+     */
+    // NOTE 涉及路径的保存
+    public async importRecordFromMultipleMetadata(dirPath: string, op: RP.AddRecordFromMetadataParam['operate']) {
+        if (!n_fs.existsSync(dirPath)) throw Error('文件夹不存在')
+        // 检查文件是否存在
+        dirPath = n_path.resolve(dirPath)
+        let dirnameId: PrimaryKey | undefined = this.dirnameDao.queryDirnameIdByPath(dirPath)
+
+        // 更新操作，但是绑定的是传入dirname的record一个都没有，就可以直接退出了
+        if (op === 1) {
+            if (!dirnameId) return
+            if (!this.recordDao.queryCountOfRecordsByDirnameId(dirnameId)) return
+        }
+
+        const srcBasenames = (await n_fsp.readdir(dirPath, { withFileTypes: true }))
+            .filter(dirent => dirent.isDirectory())
+            .map(dirent => dirent.name)
+
+        if (!dirnameId) dirnameId = this.dirnameDao.insertDirname(dirPath)
+
+        const errorSrcs: string[] = []
+        for (const basename of srcBasenames) {
+            try {
+                const srcPath = n_path.join(dirPath, basename)
+                const recordId = this.recordDao.queryRecordIdByDirnameIdAndBasename(dirnameId, basename)
+                switch (op) {
+                    case 0:
+                        if (recordId) continue
+                        await this.addRecordFromMetadata(srcPath, dirnameId)
+                        break
+                    case 1:
+                        if (!recordId) continue
+                        await this.updateRecordFromMetadata(srcPath, dirnameId, recordId)
+                        break
+                    case 2:
+                        recordId ?
+                            await this.updateRecordFromMetadata(srcPath, dirnameId, recordId) :
+                            await this.addRecordFromMetadata(srcPath, dirnameId)
+                        break
+                    default:
+                        throw new Error('unknown operate')
+                }
+            } catch {
+                errorSrcs.push(basename)
+            }
+        }
+        if (errorSrcs.length) {
+            const errorLog = `导入目录: ${dirPath}\n\n` + errorSrcs.join('\n')
+            await n_fsp.writeFile(appPaths.getMultipleMetadataImportErrorLogPath(), errorLog)
+        }
     }
 }
 

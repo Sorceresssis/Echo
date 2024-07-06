@@ -30,28 +30,129 @@ export function formatCurrentTime() {
     return formattedTime
 }
 
-
-/**
- * 判断两个对象类型是否相同, 通过递归，深度检查key和value的类型是否相同
- */
-export function isSameType(a: any, b: any) {
-    if (typeof a !== typeof b) return false
-
-    if (typeof a === "object") {
-        const aKeys = Object.keys(a)
-        const bKeys = Object.keys(b)
-        if (aKeys.length !== bKeys.length) return false
-
-        for (let key of aKeys) {
-            if (!bKeys.includes(key)) return false
-            if (!isSameType(a[key], b[key])) return false
-        }
-    }
-    return true
-}
-
 export function isNotEmptyString(str: string) {
     return str.trim().length > 0
 }
 
-export default { exceptionalHandler, formatCurrentTime, isSameType, isNotEmptyString }
+
+type ArrayDiffResult<K, V> = {
+    added: K[];
+    updated: K[];
+    removed: V[];
+};
+
+export function diffArray<
+    T extends unknown,
+    U extends unknown,
+    K extends unknown = U,
+    V extends unknown = T
+>(
+    a: T[],
+    b: U[],
+    keyA?: keyof T,
+    keyB?: keyof U,
+    addedUpdatedObjectFactory?: (a: U) => K,
+    removedObjectFactory?: (a: T) => V,
+    compare?: (a: T, b: U) => boolean,
+): ArrayDiffResult<K, V> {
+    const added: (U | K)[] = [];
+    const updated: (U | K)[] = [];
+    const removed: (T | V)[] = [];
+
+    const aMap = new Map<any, T>();
+    const bMap = new Map<any, U>();
+
+    if (keyA && keyB) {
+        if (!(addedUpdatedObjectFactory && removedObjectFactory && compare)) {
+            throw new Error('compare, addedUpdatedObjectFactory, and removedObjectFactory are required');
+        }
+        a.forEach(item => aMap.set(item[keyA], item));
+        b.forEach(item => {
+            bMap.set(item[keyB], item);
+
+            const aItem = aMap.get(item[keyB]);
+            if (aItem) {
+                if (!compare(aItem, item)) {
+                    updated.push(addedUpdatedObjectFactory(item));
+                }
+            } else {
+                added.push(addedUpdatedObjectFactory(item));
+            }
+        });
+        a.forEach(item => {
+            if (!bMap.has(item[keyA])) {
+                removed.push(removedObjectFactory(item));
+            }
+        });
+    } else if (keyA && !keyB) {
+        if (!removedObjectFactory) {
+            throw new Error('removedObjectFactory is required');
+        }
+
+        a.forEach(item => aMap.set(item[keyA], item));
+        b.forEach(item => {
+            bMap.set(item, item);
+
+            if (!aMap.has(item)) {
+                added.push(item);
+            }
+        });
+        a.forEach(item => {
+            if (!bMap.has(item[keyA])) {
+                removed.push(removedObjectFactory(item));
+            }
+        });
+    } else if (!keyA && keyB) {
+        if (!addedUpdatedObjectFactory) {
+            throw new Error('addedUpdatedObjectFactory is required');
+        }
+        a.forEach(item => aMap.set(item, item));
+        b.forEach(item => {
+            bMap.set(item[keyB], item);
+
+            const aItem = aMap.get(item);
+            if (aItem) {
+                if (aItem !== item) {
+                    updated.push(addedUpdatedObjectFactory(item));
+                }
+            } else {
+                added.push(addedUpdatedObjectFactory(item));
+            }
+        });
+        a.forEach(item => {
+            if (!bMap.has(item)) {
+                removed.push(item);
+            }
+        });
+    } else {
+        a.forEach(item => aMap.set(item, item));
+        b.forEach(item => {
+            bMap.set(item, item);
+
+            if (!aMap.has(item)) {
+                added.push(item);
+            }
+        });
+
+        a.forEach(item => {
+            if (!bMap.has(item)) {
+                removed.push(item);
+            }
+        });
+    }
+
+    return {
+        added: added as K[],
+        updated: updated as K[],
+        removed: removed as V[],
+    };
+}
+
+
+
+export default {
+    exceptionalHandler,
+    formatCurrentTime,
+    isNotEmptyString,
+    diffArray,
+}

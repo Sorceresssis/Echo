@@ -1,7 +1,8 @@
 import { app } from 'electron'
 import path from 'path'
 import fs from 'fs'
-import { isSameType } from '../util/common'
+import Ajv from 'ajv'
+import APP_CONFIG_SCHEMA from '../constant/app_config_schema'
 
 class AppConfig {
     private static readonly userDataPath: string = path.join(app.getPath('userData'))
@@ -18,8 +19,8 @@ class AppConfig {
         try {
             // 检查加载的是正确的Config文件
             const config = JSON.parse(fs.readFileSync(AppConfig.configFilePath, 'utf8'))
-
-            if (config && isSameType(config, AppConfig.defaultConfig)) {
+            const validator = new Ajv().compile(APP_CONFIG_SCHEMA)
+            if (config && validator(config)) {
                 this.config = config
             } else {
                 throw new Error('Config file is invalid')

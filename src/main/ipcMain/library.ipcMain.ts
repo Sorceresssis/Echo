@@ -84,16 +84,35 @@ function ipcMainLibrary() {
     }, generateCatchFn('record:querySimilarRecmds'), [], closeLibraryDB))
 
 
-    ipcMain.handle('record:edit', exceptionalHandler(async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm, options: DTO.EditRecordOptions): Promise<Result> => {
+    ipcMain.handle('record:edit', exceptionalHandler(async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm): Promise<Result> => {
         rebindLibrary(libraryId)
         const recordService = DIContainer.get<RecordService>(InjectType.RecordService)
-
-        const r: Result = options.batch
-            ? await recordService.addBatchRecord(formData, options.distinct)
-            : await recordService.editRecord(formData)
-        return r
+        return await recordService.editRecord(formData)
     }, generateCatchFn('record:edit'), new Promise((resolve) => { resolve(Result.error('runtime error')) }), closeLibraryDB))
 
+    ipcMain.handle('record:addRecordFromMetadata', async (
+        e: IpcMainInvokeEvent,
+        libraryId: number,
+        param: RP.AddRecordFromMetadataParam
+    ): Promise<Result> => {
+        try {
+            rebindLibrary(libraryId)
+            const recordService = DIContainer.get<RecordService>(InjectType.RecordService)
+            if (param.type === 0) {
+                if (param.operate === 0) await recordService.addRecordFromMetadata(param.dir)
+                else await recordService.updateRecordFromMetadata(param.dir)
+            } else if (param.type === 1) {
+                await recordService.importRecordFromMultipleMetadata(param.dir, param.operate)
+            } else {
+                throw new Error('参数 type 错误')
+            }
+            return Result.success()
+        } catch (e: any) {
+            return Result.error(e.message)
+        } finally {
+            closeLibraryDB()
+        }
+    })
 
     ipcMain.handle('record:batchProcessing', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, type: DTO.RecordBatchProcessingType, recordIds: number[]): void => {
         rebindLibrary(libraryId)
@@ -125,7 +144,7 @@ function ipcMainLibrary() {
         rebindLibrary(libraryId)
         await DIContainer.get<AuthorService>(InjectType.AuthorService).editAuthor(formData)
         return true
-    }, generateCatchFn('author:edit'), new Promise(() => { }), closeLibraryDB))
+    }, generateCatchFn('author:edit'), new Promise((resolve => resolve(false))), closeLibraryDB))
 
 
     ipcMain.handle('author:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, authorId: number): boolean => {

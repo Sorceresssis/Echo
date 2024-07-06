@@ -59,7 +59,7 @@ namespace DTO {
     }
 
     type AuthorIdAndRole = {
-        id: number,
+        id: PrimaryKey,
         role: string | null,
     }
 
@@ -68,36 +68,27 @@ namespace DTO {
      */
     type EditRecordForm = {
         id: number,
-        dirname: string,
-        basename: string,
-        batchDir: string,
+        dirname: string
+        basename: string
         title: string,
         hyperlink: string,
-        releaseDate: string,
-        cover: string | undefined,
-        originCover: string | undefined,
+        releaseDate: string
+        cover: string | undefined
+        originCover: string | undefined
         rate: number,
-        addTags: string[],
-        removeTags: number[],
-        addAuthors: AuthorIdAndRole[],
-        editAuthorsRole: AuthorIdAndRole[],
-        removeAuthors: number[],
-        addSeries: string[],
-        removeSeries: number[],
-        intro: string,
+        addTags: string[]
+        removeTags: number[]
+        addAuthors: AuthorIdAndRole[]
+        editAuthorsRole: AuthorIdAndRole[]
+        removeAuthors: number[]
+        addSeries: string[]
+        removeSeries: number[]
+        plot: string
+        searchText: string
+        reviews: string
         info: string
-        editSampleImages: EditSampleImage[],
+        editSampleImages: EditSampleImage[]
         removeSampleImages: string[]
-    }
-
-    /**
-     * 添加和编辑record时的建议数据
-     * @param batch 是否是批量添加
-     * @param distinct 是否去重 
-     */
-    type EditRecordOptions = {
-        batch: boolean,
-        distinct: boolean,
     }
 
     type QueryRecordRecommendationsOptions = {

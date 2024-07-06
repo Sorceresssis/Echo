@@ -44,10 +44,15 @@
                     <div class="inline-list-title">{{ $t('layout.releaseDate') }}</div>
                     <div class="meta-content"> {{ record.releaseDate }} </div>
                 </div>
-                <div v-if="record.intro.length"
+                <div v-if="record.plot"
                      class="meta">
-                    <div class="inline-list-title"> {{ $t('layout.intro') }} </div>
-                    <div class="meta-content"> {{ record.intro }} </div>
+                    <div class="inline-list-title"> {{ $t('layout.plot') }} </div>
+                    <div class="meta-content"> {{ record.plot }} </div>
+                </div>
+                <div v-if="record.reviews"
+                     class="meta">
+                    <div class="inline-list-title"> {{ $t('layout.reviews') }} </div>
+                    <div class="meta-content"> {{ record.reviews }} </div>
                 </div>
                 <div v-if="record.info.length"
                      class="meta">
@@ -68,9 +73,9 @@
                 </div>
                 <div v-if="slickCarouselImages.length"
                      class="meta">
-                    <button2 @click="openInExplorer(slickCarouselImages[0])">
-                        {{ $t('layout.showImagesInExplorer') }}
-                    </button2>
+                    <span class="link"
+                          @click="openInExplorer(slickCarouselImages[0])"> {{ $t('layout.showImagesInExplorer') }}
+                    </span>
                 </div>
             </div>
         </scrollbar>
@@ -130,8 +135,6 @@ import ImageSlider from '@/components/ImageSlider.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 import Records from '@/views/library/dashboard/Records.vue'
-import Button2 from '@/components/Button2.vue'
-
 const router = useRouter()
 
 const drawerVisible = ref(false)

@@ -42,7 +42,7 @@ class GroupDB extends DB {
 	}
 
 	private defineData(): void {
-		this.transaction(() => {
+		this.transactionExec(() => {
 			// 创建db_info表
 			this.exec(this.DB_INFO_SQL)
 
@@ -65,7 +65,7 @@ class GroupDB extends DB {
 
 	// 升级数据库
 	private upgrade(loadingDBVersion: number): void {
-		this.transaction(() => {
+		this.transactionExec(() => {
 			switch (loadingDBVersion) {
 				default:
 					this.run('VACUUM;')

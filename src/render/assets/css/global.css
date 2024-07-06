@@ -144,6 +144,20 @@ img {
     background-color: #cfcfcf;
 }
 
+.link {
+    display: inline-block;
+    line-height: 24px;
+    vertical-align: middle;
+    color: rgb(25, 103, 210);
+    font-size: 13px;
+    cursor: pointer;
+    text-underline-position: under;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
 /* fit */
 .fit--cover {
     width: 100%;
@@ -522,6 +536,16 @@ img {
 
 .settings-item__content .col {
     width: 180px;
+}
+
+.float-right {
+    float: right;
+}
+
+.float-right::after {
+    content: "";
+    display: table;
+    clear: both;
 }
 
 /* tips */

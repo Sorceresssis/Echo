@@ -9,21 +9,22 @@
         </tabs>
         <keep-alive>
             <component class="flex-1 overflow-hidden"
-                       :is="components[activeLabelIdx] ">
+                       :is="components[activeLabelIdx]">
             </component>
         </keep-alive>
     </div>
 </template>
- 
+
 <script lang="ts" setup>
 import { ref, shallowReactive, onMounted, watch, provide } from 'vue'
 import { useRoute, } from 'vue-router'
+import { $t } from '@/locale'
 import Tabs from '@/components/Tabs.vue'
 import EditRecord from './EditRecord.vue'
+import AddRecordFromMetadata from './AddRecordFromMetadata.vue'
 import RecycleRecordByAttribute from './RecycleRecordByAttribute.vue'
 import EditAuthor from './EditAuthor.vue'
 import EditDirname from './EditDirname.vue'
-import { $t } from '@/locale'
 
 const props = defineProps({
     pathPattern: {
@@ -40,12 +41,14 @@ const tabsKey = ref<number>(0)
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
     { id: 1, label: $t('layout.addRecord'), disabled: false },
-    { id: 2, label: $t('layout.batchRecycleRecord'), disabled: false },
-    { id: 3, label: $t('layout.addAuthor'), disabled: false },
-    { id: 4, label: $t('layout.editDir'), disabled: false },
+    { id: 2, label: $t('layout.addRecordFromMetadata'), disabled: false },
+    { id: 3, label: $t('layout.batchRecycleRecord'), disabled: false },
+    { id: 4, label: $t('layout.addAuthor'), disabled: false },
+    { id: 5, label: $t('layout.editDir'), disabled: false },
 ])
 const components = [
     EditRecord,
+    AddRecordFromMetadata,
     RecycleRecordByAttribute,
     EditAuthor,
     EditDirname,
@@ -54,21 +57,18 @@ const components = [
 const init = () => {
     if (!props.pathPattern.test(route.fullPath)) return
 
-    // 如果是编辑作者，禁用管理记录, 批量删除, 编辑目录; 并且把activeLabelIdx设置为编辑作者 
     if (route.query.author_id) {
-        tabs[0].disabled = true
-        tabs[2].label = $t('layout.editAuthor')
-        activeLabelIdx.value = 2
-    } else {
-        tabs[0].disabled = false
-        tabs[2].label = $t('layout.addAuthor')
-        activeLabelIdx.value = 0
+        // 编辑作者操作: 把activeLabelIdx设置为编辑作者页; 禁用管理记录, 批量删除, 编辑目录; 并且
+        activeLabelIdx.value = 3
 
-        if (route.query.record_id) {
-            tabs[0].label = $t('layout.editRecord')
-        } else {
-            tabs[0].label = $t('layout.addRecord')
-        }
+        tabs[0].disabled = tabs[1].disabled = true
+        tabs[3].label = $t('layout.editAuthor')
+    } else {
+        activeLabelIdx.value = 0
+        tabs[0].disabled = tabs[1].disabled = false
+
+        tabs[0].label = route.query.record_id ? $t('layout.editRecord') : $t('layout.addRecord')
+        tabs[3].label = $t('layout.addAuthor')
     }
 
     tabsKey.value = new Date().getTime()

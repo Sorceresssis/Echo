@@ -27,9 +27,10 @@
 
 <script setup lang='ts'>
 import { provide, reactive, ref } from 'vue'
+import { getElLang } from '@/locale';
+import InitialValue from '@/constant/Initial_value';
 import Sidebar from './Sidebar.vue'
 import Titlebar from './Titlebar.vue'
-import { getElLang } from '@/locale';
 
 const winowLoading = ref<boolean>(false)
 provide('winowLoading', winowLoading)
@@ -42,15 +43,7 @@ const activeLibrary = ref<number>(0)
 provide('activeLibrary', activeLibrary)
 
 // 正在使用的库详情
-const activeLibraryDetail = reactive<VO.LibraryDetail>({
-    id: 0,
-    name: '',
-    auxiliarySt: '',
-    useAuxiliarySt: false,
-    intro: '',
-    createTime: '',
-    modifiedTime: '',
-})
+const activeLibraryDetail = reactive<VO.LibraryDetail>(InitialValue.getLibraryDetail())
 provide('activeLibraryDetail', activeLibraryDetail)
 </script>
 

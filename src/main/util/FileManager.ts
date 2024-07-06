@@ -1,5 +1,5 @@
 import os from 'os'
-import fs from 'fs'
+import fs, { promises as n_fsp } from 'fs'
 import node_path from 'path'
 import { rimraf } from 'rimraf'
 
@@ -103,6 +103,15 @@ function dirContentsWithType(dirPath: string): DirContentItem[] {
     })
 }
 
+export async function deleteAllFilesInDir(dirPath: string) {
+    try {
+        const files = await n_fsp.readdir(dirPath);
+        const deletePromises = files.map(file => n_fsp.unlink(node_path.join(dirPath, file)));
+        await Promise.all(deletePromises);
+    } catch (error) {
+    }
+}
+
 export default {
     mkdirsSync,
     rmdirRecursive,
@@ -111,5 +120,6 @@ export default {
     isLegalFileName,
     isFileExists,
     isFolderExists,
-    dirContentsWithType
+    dirContentsWithType,
+    deleteAllFilesInDir,
 }

@@ -93,10 +93,11 @@ export default {
         // manage data
         addRecord: 'Add Record',
         editRecord: 'Edit Record',
+        addRecordFromMetadata: 'Meta Add Record',
         batchRecycleRecord: 'Batch Recycle Record',
         addAuthor: 'Add Author',
         editAuthor: 'Edit Author',
-        editDir: 'Edit Directory',
+        editDir: 'Edit Dir',
 
         selectImage: 'Select Image',
         reset: 'Reset',
@@ -124,22 +125,18 @@ export default {
 
         localSourcePath: 'Local Source Path',
 
-        batchAdd: 'Batch Add',
-        importDir: 'Import Directory',
-        editRecordBatchAddPlaceholder: 'Absolute path of the resource directory, note that the Windows drive letter should be written as C:\\',
         editRecordDirnamePlaceholder: "The directory where the resource is located is an absolute path (dirname), note that the root directory should be written as 'C:\\' or '/'",
         editRecordBasenamePlaceholder: 'Basename, can be a file or a folder',
         editRecordTitlePlaceholder: 'Title of the record',
         editRecordAuthorsPlaceholder: 'Can only add existing authors',
         editRecordTagsPlaceholder: 'Will be added automatically if not in the library',
-        editRecordIntroPlaceholder: 'Introduction of the record, related to its content',
+        editRecordPlotPlaceholder: 'The plot or general content of the record',
+        editRecordSearchTextPlaceholder: "The text that you want to hit during search but don't want to be exposed in the title or tag",
+        editRecordReviewsPlaceholder: 'The personal comments and feelings of the record',
         editRecordInfoPlaceholder: 'Additional information of the record, such as the location of file backups.',
         basenameCannotBeAlone: 'Basename cannot be filled in alone',
         titleNotEmpty: 'Title cannot be empty',
-        importDirNotEmpty: 'Import directory cannot be empty',
 
-        filterExisting: 'Filter existing ones',
-        filterExistingP1: 'Skip when there are records with the same title as the basename',
         selectFile: 'Select File',
         selectDir: 'Select Directory',
         hyperlink: 'Hyperlink',
@@ -160,6 +157,9 @@ export default {
         sampleImages: 'Sample Images',
         intro: 'Introduction',
         info: 'Information',
+        plot: 'content',
+        searchText: 'search text',
+        reviews: 'reviews',
 
         switchLanguage: 'Switch Language',
         changeDataLocation: 'Change Data Location',
@@ -212,11 +212,6 @@ export default {
         pathInputSuggestionP2: `It is best to use the path separator of the current platform (\\' | /'), as the backend will forcibly convert the separator to the separator of the current platform.`,
         pathInputSuggestionP3: `The path separator for Windows platform is \\, for other platforms, it is /. For example, C:\\foo or /root.`,
 
-        // What is Batch Add
-        whatIsBatchAdd: 'What is Batch Add',
-        whatIsBatchAddP1: 'By reading the given directory, the software will traverse all files and folders in that directory, and then use the basename as the title of the record (the file extension will be removed) to add them to the database.',
-        whatIsBatchAddP2: 'The attributes under the form will be added to all records imported in batch.',
-
         restartToMakeEffect: 'The changes will take effect after restarting. Do you want to restart now?',
         restartToMakeEffect2: 'Since the data location has been changed, it is recommended to restart the application to load the correct data. Do you want to restart now?',
     },
@@ -234,6 +229,7 @@ export default {
         thisTagAlreadyExists: 'This tag already exists',
         thisAuthorAlreadyExists: 'This author already exists',
         thisSeriesAlreadyExists: 'This series already exists',
+        duplicateAuthorName: 'Author name is repeated, please re-enter',
 
         notExistsInFileExplorer: 'Does not exist in File Explorer',
         copiedToClipboard: 'Copied to clipboard',

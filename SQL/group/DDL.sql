@@ -1,10 +1,11 @@
 DROP TABLE IF EXISTS 'db_info';
 CREATE TABLE 'db_info'
-( 
+(
     'name'  TEXT PRIMARY KEY,
     'value' TEXT NOT NULL
 );
-INSERT INTO 'db_info' VALUES('version','1') ;
+INSERT INTO 'db_info'
+VALUES ('version', '1');
 
 DROP TABLE IF EXISTS 'group';
 CREATE TABLE 'group'

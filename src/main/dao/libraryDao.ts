@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
-import GroupDB from "../db/GroupDB"
+import type GroupDB from "../db/GroupDB"
 
 
 @injectable()
@@ -60,19 +60,19 @@ class LibraryDao {
 	}
 
 	public updateLibraryGroupId(id: PrimaryKey, groupId: PrimaryKey): number {
-		return this.db.run(`UPDATE library SET group_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, groupId, id).changes
+		return this.db.run(`UPDATE library SET group_id = ? WHERE id = ?;`, groupId, id).changes
 	}
 
 	public updateLibraryNextId(id: PrimaryKey, nextId: PrimaryKey): number {
-		return this.db.run(`UPDATE library SET next_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, nextId, id).changes
+		return this.db.run(`UPDATE library SET next_id = ? WHERE id = ?;`, nextId, id).changes
 	}
 
 	public updateLibraryPrevId(id: PrimaryKey, prevId: PrimaryKey): number {
-		return this.db.run(`UPDATE library SET prev_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, prevId, id).changes
+		return this.db.run(`UPDATE library SET prev_id = ? WHERE id = ?;`, prevId, id).changes
 	}
 
 	public updateLibraryPrevIdNextId(id: PrimaryKey, prevId: PrimaryKey, nextId: PrimaryKey): number {
-		return this.db.run(`UPDATE library SET prev_id = ?, next_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, prevId, nextId, id).changes
+		return this.db.run(`UPDATE library SET prev_id = ?, next_id = ? WHERE id = ?;`, prevId, nextId, id).changes
 	}
 
 	public insertLibrary(name: string, groupId: number): PrimaryKey {

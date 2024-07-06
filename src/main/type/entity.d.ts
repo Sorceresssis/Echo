@@ -15,6 +15,7 @@ namespace Entity {
         releaseDate: string | null
         infoStatus: string
         tagAuthorSum: string | null
+        search_text: string
         dirnameId: PrimaryKey
     }
 
@@ -26,7 +27,8 @@ namespace Entity {
 
     type RecordExtra = {
         id: PrimaryKey
-        intro: string
+        plot: string
+        reviews: string
         info: string
     }
 
@@ -43,5 +45,29 @@ namespace Entity {
     type Dirname = {
         id: PrimaryKey
         path: string
+    }
+
+    interface EchoMetadataAuthor {
+        name: string
+        role: string // ='' 时 赋值 null
+    }
+
+    interface EchoMetadataReference {
+        name: string
+        id: string
+    }
+    interface EchoMetadata {
+        title: string
+        plot: string
+        release_date: string // ='' 时 赋值 null
+        authors: Entity.EchoMetadataAuthor[]
+        series: string[]
+        tags: string[]
+        rate: number // 0 ~ 5
+        reviews: string
+        info: string
+        hyperlink: string // ='' 时 赋值 null
+        search_text: string
+        references?: EchoMetadataReference[]
     }
 }

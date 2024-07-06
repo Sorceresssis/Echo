@@ -95,6 +95,7 @@ export default {
         // manage data
         addRecord: '添加记录',
         editRecord: '编辑记录',
+        addRecordFromMetadata: '从元数据添加记录',
         batchRecycleRecord: '批量回收记录',
         addAuthor: '添加作者',
         editAuthor: '编辑作者',
@@ -126,22 +127,19 @@ export default {
 
         localSourcePath: '本地资源路径',
 
-        batchAdd: '批量添加',
-        importDir: '导入文件夹',
-        editRecordBatchAddPlaceholder: '资源所在目录的绝对路径, 注意window盘符要写成C: \\',
         editRecordDirnamePlaceholder: `资源所在的目录，是一个绝对路径(dirname), 注意根目录要写成'C:\\'或'/'`,
         editRecordBasenamePlaceholder: `basename,可以是文件也可以是文件夹`,
         editRecordTitlePlaceholder: '记录的标题',
         editRecordAuthorsPlaceholder: '只能添加已经存在的作者',
         editRecordTagsPlaceholder: '库中没有则会自动添加',
-        editRecordIntroPlaceholder: '记录的介绍, 和内容有关',
+        editRecordPlotPlaceholder: '记录的情节或者大致的内容',
+        editRecordSearchTextPlaceholder: '希望搜索时命中但是又不想暴露在标题或者tag中的文本',
+        editRecordReviewsPlaceholder: '记录的个人点评, 感受',
         editRecordInfoPlaceholder: '记录的额外信息, 比如文件备份的保存位置.',
+
         basenameCannotBeAlone: '不能单独填写basename',
         titleNotEmpty: '标题不能为空',
-        importDirNotEmpty: '导入文件夹不能为空',
 
-        filterExisting: '过滤已经存在的',
-        filterExistingP1: '当存在和basename相同标题的记录时跳过',
         selectFile: '选择文件',
         selectDir: '选择文件夹',
         hyperlink: '链接',
@@ -161,6 +159,9 @@ export default {
         createdTime: '创建时间',
         lastModifiedTime: '修改时间',
         intro: '介绍',
+        plot: '内容',
+        searchText: '搜索文本',
+        reviews: '点评',
         sampleImages: '样例图片',
         info: '信息',
 
@@ -221,11 +222,6 @@ export default {
         pathInputSuggestionP2: `最好使用当前平台的分隔符('\\' | '/')，因为后台会强制把分隔符转化成当前平台的分隔符.`,
         pathInputSuggestionP3: `windows平台路径分隔符是'\\', 输入类似于C:\\foo。其他平台的路径分隔符是'/'。输入类似于/root`,
 
-        // 什么是批量添加
-        whatIsBatchAdd: '什么是批量添加',
-        whatIsBatchAddP1: '通过读取给定的目录, 软件会遍历该目录下所有的文件和文件夹, 以然后以basename当作记录(文件的扩展名会被去掉)的标题将其添加到数据库中.',
-        whatIsBatchAddP2: '表单下面的属性，会给批量导入的所有记录都添加上',
-
         restartToMakeEffect: '重启后才能生效, 是否立即重启?',
         restartToMakeEffect2: '由于数据保存位置被改变，建议您重启应用程序以加载正确的数据, 是否立即重启?',
     },
@@ -243,6 +239,7 @@ export default {
         thisTagAlreadyExists: '该标签已存在',
         thisAuthorAlreadyExists: '该作者已存在',
         thisSeriesAlreadyExists: '该系列已存在',
+        duplicateAuthorName: '作者名重复, 请重新输入',
 
         notExistsInFileExplorer: '资源管理器中不存在',
         copiedToClipboard: '已复制到剪贴板',

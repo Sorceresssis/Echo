@@ -61,7 +61,9 @@ namespace VO {
         authors: VO.RecordAuthorProfile[]
         tags: VO.Tag[]
         series: VO.Series[]
-        intro: string
+        search_text: string
+        plot: string
+        reviews: string
         info: string
         createTime: string
         modifiedTime: string

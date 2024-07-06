@@ -91,7 +91,7 @@ class AuthorService {
             intro: formData.intro.trim(),
         }
 
-        this.libEnv.db.transaction(() => {
+        this.libEnv.db.transactionExec(() => {
             if (opType === 'add') {
                 author.id = this.authorDao.insertAuthor(author)
             } else {
@@ -145,7 +145,7 @@ class AuthorService {
         const author = this.authorDao.queryAuthorById(authorId)
         if (author === void 0) return
 
-        this.libEnv.db.transaction(() => {
+        this.libEnv.db.transactionExec(() => {
             this.authorDao.deleteAuthorById(authorId) // 删除作者
             this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新冗余字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
             this.recordAuthorDao.deleteRecordAuthorByAuthorId(authorId) // 删除关联

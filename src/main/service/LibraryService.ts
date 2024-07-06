@@ -2,7 +2,6 @@ import { Notification, shell } from "electron"
 import { Worker } from "worker_threads"
 import fs from "fs"
 import path from "path"
-// import appConfig from "../app/config"
 import appPaths from "../app/appPaths"
 import { formatCurrentTime } from "../util/common"
 import { injectable, inject } from "inversify"
@@ -52,7 +51,7 @@ class LibraryService {
 
     public create(name: string, groupId: number): PrimaryKey {
         let newId: PrimaryKey = 0
-        DIContainer.get<GroupDB>(InjectType.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
             const headId = this.libraryDao.queryLibraryIdByGroupIdPrevId(groupId, 0)
             const id = newId = this.libraryDao.insertLibrary(name, groupId)
             if (headId !== void 0) { this.insertNode(id, 0, headId) }
@@ -68,7 +67,7 @@ class LibraryService {
     }
 
     public delete(id: number): void {
-        DIContainer.get<GroupDB>(InjectType.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
             this.removeNode(id) // 断开链接
             this.libraryDao.deleteLibraryById(id) // 删除library记录
             this.libraryExtraDao.deleteLibraryExtraById(id) // 删除library_extra记录
@@ -77,7 +76,7 @@ class LibraryService {
     }
 
     public deleteByGroupId(groupId: number): void {
-        DIContainer.get<GroupDB>(InjectType.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
             this.libraryDao.queryLibraryIdsByGroupId(groupId).forEach(LibId => {
                 // 由于是全部删除，所以不需要断开链接
                 this.libraryDao.deleteLibraryById(LibId) // 删除library记录
@@ -89,7 +88,7 @@ class LibraryService {
 
     /* 注意tarNextId可能为0, 所以groupId是为了再tarNextId为0的情况下找到要插入位置 */
     public sort(curId: number, tarNextId: number, moveToGroupId: number): void {
-        DIContainer.get<GroupDB>(InjectType.GroupDB).transaction(() => {
+        DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
             const curGroupId = this.libraryDao.queryLibraryGroupIdById(curId)
             const tarGroupId = tarNextId === 0 ? moveToGroupId : this.libraryDao.queryLibraryGroupIdById(tarNextId)
             if (curGroupId === void 0 || tarGroupId === void 0) return // 如果curId或tarNextId不存在, 直接返回

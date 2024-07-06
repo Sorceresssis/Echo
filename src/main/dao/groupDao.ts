@@ -1,6 +1,6 @@
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
-import GroupDB from "../db/GroupDB"
+import type GroupDB from "../db/GroupDB"
 
 @injectable()
 class GroupDao {
@@ -55,19 +55,19 @@ class GroupDao {
     }
 
     public updateGroupName(id: PrimaryKey, name: string): number {
-        return this.db.run(`UPDATE 'group' SET name = ? WHERE id = ?;`, name, id).changes
+        return this.db.run(`UPDATE 'group' SET name = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, name, id).changes
     }
 
     public updateGroupNextId(id: PrimaryKey, nextId: PrimaryKey): number {
-        return this.db.run(`UPDATE 'group' SET next_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, nextId, id).changes
+        return this.db.run(`UPDATE 'group' SET next_id = ? WHERE id = ?;`, nextId, id).changes
     }
 
     public updateGroupPrevId(id: PrimaryKey, prevId: PrimaryKey): number {
-        return this.db.run(`UPDATE 'group' SET prev_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, prevId, id).changes
+        return this.db.run(`UPDATE 'group' SET prev_id = ? WHERE id = ?;`, prevId, id).changes
     }
 
     public updateGroupPrevIdNextId(id: PrimaryKey, prevId: PrimaryKey, nextId: PrimaryKey): number {
-        return this.db.run(`UPDATE 'group' SET prev_id = ?, next_id = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, prevId, nextId, id).changes
+        return this.db.run(`UPDATE 'group' SET prev_id = ?, next_id = ? WHERE id = ?;`, prevId, nextId, id).changes
     }
 
     public insertGroup(name: string): PrimaryKey {

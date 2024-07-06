@@ -1,3 +1,5 @@
+import AddRecordFromMetadata from "@/views/library/manage/AddRecordFromMetadata.vue";
+
 export default {
     layout: {
         // ANCHOR components empty
@@ -92,9 +94,10 @@ export default {
         searchAuxiliaryText: '検索補助テキスト',
 
         // manage data
-        addRecord: 'レコードを追加',
-        editRecord: 'レコードを編集',
-        batchRecycleRecord: 'バッチでレコードをリサイクル',
+        addRecord: '添加記録',
+        editRecord: '編集記録',
+        addRecordFromMetadata: 'Meta 添加記録',
+        batchRecycleRecord: 'Batch Recycle Record',
         addAuthor: '著者を追加',
         editAuthor: '著者を編集',
         editDir: 'ディレクトリを編集',
@@ -125,22 +128,18 @@ export default {
 
         localSourcePath: 'ローカルソースパス',
 
-        batchAdd: '一括追加',
-        importDir: 'ディレクトリをインポート',
-        editRecordBatchAddPlaceholder: 'リソースの絶対パスを入力, Windowsの場合はドライブレターをC:\\のように記入してください',
         editRecordDirnamePlaceholder: 'リソースが存在するディレクトリの絶対パス（dirname）, ルートディレクトリはC:\\または/で記入してください',
         editRecordBasenamePlaceholder: 'ベースネーム、ファイルまたはフォルダのどちらか',
         editRecordTitlePlaceholder: 'レコードのタイトル',
         editRecordAuthorsPlaceholder: '既存の著者のみ追加できます',
         editRecordTagsPlaceholder: 'ライブラリに存在しない場合、自動的に追加されます',
-        editRecordIntroPlaceholder: 'レコードの紹介、コンテンツに関連',
+        editRecordPlotPlaceholder: 'レコードのプロットまたは一般的な内容',
+        editRecordSearchTextPlaceholder: '検索時にヒットさせたいが、タイトルやタグには公開したくないテキスト',
+        editRecordReviewsPlaceholder: '記録された個人的なコメント、感情',
         editRecordInfoPlaceholder: '追加の情報、ファイルバックアップの保存場所など',
         basenameCannotBeAlone: 'ベースネームのみの記入は許可されていません',
         titleNotEmpty: 'タイトルは必須です',
-        importDirNotEmpty: 'インポートディレクトリは必須です',
 
-        filterExisting: '既存のものをフィルタ',
-        filterExistingP1: 'ベースネームが同じタイトルのレコードが存在する場合、スキップ',
         selectFile: 'ファイルを選択',
         selectDir: 'ディレクトリを選択',
         hyperlink: 'ハイパーリンク',
@@ -160,8 +159,10 @@ export default {
         lastModifiedTime: '更新日時',
         sampleImages: 'サンプル画像',
         intro: '紹介',
+        plot: 'コンテンツ',
+        searchText: '検索テキスト',
+        reviews: 'レビュー',
         info: '情報',
-
         switchLanguage: '言語切り替え',
         changeDataLocation: 'データ保存場所の変更',
         restartNow: '今すぐ再起動',
@@ -214,11 +215,6 @@ export default {
         pathInputSuggestionP2: '可能であれば、現在のプラットフォームの区切り文字（\'\\\'または\'/\'）を使用することをお勧めします。プログラムは自動的に区切り文字を現在のプラットフォームに合わせて変換します。',
         pathInputSuggestionP3: 'Windowsプラットフォームのパス区切り文字は\'\\\'です。例：C:\\foo。他のプラットフォームのパス区切り文字は\'/\'です。例：/root',
 
-        // バッチ追加とは
-        whatIsBatchAdd: 'バッチ追加とは',
-        whatIsBatchAddP1: '指定されたディレクトリを読み込み、ディレクトリ内のすべてのファイルとフォルダをベースネームをレコードのタイトルとしてデータベースに追加します。',
-        whatIsBatchAddP2: 'フォームの下にあるプロパティは、一括インポートされたすべてのレコードに追加されます',
-
         restartToMakeEffect: '効果を実現するには再起動が必要です。すぐに再起動しますか？',
         restartToMakeEffect2: 'データ保存場所が変更されたため、正しいデータを読み込むためにアプリケーションを再起動することをお勧めします。すぐに再起動しますか？',
     },
@@ -236,6 +232,7 @@ export default {
         thisTagAlreadyExists: 'このタグはすでに存在します',
         thisAuthorAlreadyExists: 'この著者はすでに存在します',
         thisSeriesAlreadyExists: 'このシリーズはすでに存在します',
+        duplicateAuthorName: '著者名が重複しています。再入力してください',
 
         notExistsInFileExplorer: 'ファイルエクスプローラに存在しません',
         copiedToClipboard: 'クリップボードにコピーされました',

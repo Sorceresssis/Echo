@@ -16,6 +16,35 @@ class RecordDao {
         this.libEnv = libEnv
     }
 
+    /**
+     * 请提前进行 trim 操作
+     */
+    public recordEntityFactory(
+        title: string,
+        rate: number,
+        hyperlink: string | null,
+        basename: string | null,
+        releaseDate: string | null,
+        infoStatus: string,
+        tagAuthorSum: string | null,
+        search_text: string,
+        dirnameId: PrimaryKey,
+        id: PrimaryKey = 0,
+    ): Entity.Record {
+        return {
+            id,
+            title,
+            rate,
+            hyperlink: hyperlink || null,
+            basename: basename || null,
+            releaseDate: releaseDate || null,
+            infoStatus,
+            tagAuthorSum: tagAuthorSum || null,
+            search_text,
+            dirnameId,
+        }
+    }
+
     public queryCountOfRecords(): number {
         return this.libEnv.db.prepare('SELECT COUNT(id) FROM record;').pluck().get() as number
     }
@@ -30,7 +59,7 @@ class RecordDao {
 
     public queryRecordById(id: number): Domain.Record | undefined {
         return this.libEnv.db.get(`
-            SELECT r.id, r.title, r.rate, r.hyperlink, r.release_date AS releaseDate, d.path AS dirname, r.basename,
+            SELECT r.id, r.title, r.rate, r.hyperlink, r.release_date AS releaseDate, d.path AS dirname, r.basename, r.search_text,
                    DATETIME(gmt_create, 'localtime') AS createTime,
                    DATETIME(gmt_modified, 'localtime') AS modifiedTime
             FROM record r LEFT JOIN dirname d ON r.dirname_id = d.id
@@ -48,7 +77,7 @@ class RecordDao {
             authorId?: number,
             seriesId?: number
         },
-    ): Dao.Page<Omit<Domain.Record, 'releaseDate'>> {
+    ): DAO.AllQueryResult<Omit<Domain.Record, 'releaseDate'>> {
         const rowsSQL = new DynamicSqlBuilder()
         const sortRule: SortRule[] = []
         const whereSubSQL = []
@@ -58,7 +87,7 @@ class RecordDao {
 			FROM (SELECT COUNT(r.id) OVER () AS total_count, r.id`)
         if (keyword !== '') {
             this.libEnv.db.registerSQLFnRegexp(keyword)
-            rowsSQL.append(', REGEXP(r.title) + CASE WHEN r.tag_author_sum IS NULL THEN 0 ELSE REGEXP(r.tag_author_sum) END AS sore')
+            rowsSQL.append(`, REGEXP(r.title) + REGEXP(r.search_text) + CASE WHEN r.tag_author_sum IS NULL THEN 0 ELSE REGEXP(r.tag_author_sum) END AS sore`)
             sortRule.push({ field: 'sore', order: 'DESC' })
             whereSubSQL.push('sore > 0')
         }
@@ -111,16 +140,26 @@ class RecordDao {
             authorId, rowCount)
     }
 
-    public queryRecordIdsByRecycled(recycled: 0 | 1, offset: number, rowCount: number): number[] {
-        return this.libEnv.db.prepare('SELECT id FROM record WHERE recycled = ? LIMIT ?,?;').pluck().all(recycled, offset, rowCount) as number[]
+    public queryRecordIdsByRecycled(recycled: 0 | 1, offset: number, rowCount: number) {
+        return this.libEnv.db.prepare<any[], number>('SELECT id FROM record WHERE recycled = ? LIMIT ?,?;')
+            .pluck()
+            .all(recycled, offset, rowCount)
     }
 
-    public queryRecordIdsByDirnameId(dirnameId: PrimaryKey, offset: number, rowCount: number): number[] {
-        return this.libEnv.db.prepare('SELECT id FROM record WHERE dirname_id = ? LIMIT ?,?;').pluck().all(dirnameId, offset, rowCount) as number[]
+    public queryRecordIdsByDirnameId(dirnameId: PrimaryKey, offset: number = 0, rowCount: number = 30) {
+        return this.libEnv.db.prepare<any[], number>('SELECT id FROM record WHERE dirname_id = ? LIMIT ?,?;')
+            .pluck()
+            .all(dirnameId, offset, rowCount)
+    }
+
+    public queryRecordIdByDirnameIdAndBasename(dirnameId: PrimaryKey, basename: string) {
+        return this.libEnv.db.prepare<any[], number>('SELECT id FROM record WHERE dirname_id = ? AND basename = ?;')
+            .pluck().get(dirnameId, basename)
     }
 
     public updateRecordDirnameIdByDirnameId(dirnameId: PrimaryKey, newDirnameId: PrimaryKey): number {
-        return this.libEnv.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', newDirnameId, dirnameId).changes
+        return this.libEnv.db.run('UPDATE record SET dirname_id = ? WHERE dirname_id = ?;', newDirnameId, dirnameId)
+            .changes
     }
 
     public updateRecordRecycledByIds(ids: PrimaryKey[], recycled: 0 | 1): void {
@@ -128,19 +167,20 @@ class RecordDao {
         ids.forEach(id => stmt.run(recycled, id))
     }
 
-    public updateRecordTagAuthorSumById(recordId: PrimaryKey, tagAuthorSum: string): number {
-        return this.libEnv.db.run('UPDATE record SET tag_author_sum=? WHERE id = ?;', tagAuthorSum, recordId).changes
+    public updateRecordTagAuthorSumById(recordId: PrimaryKey, tagAuthorSum: string | null): number {
+        return this.libEnv.db.run('UPDATE record SET tag_author_sum=? WHERE id = ?;', tagAuthorSum, recordId)
+            .changes
     }
 
     public updateRecord(record: Entity.Record): number {
-        return this.libEnv.db.run('UPDATE record SET title=?, rate=?, hyperlink=?, release_date=?, basename=?, info_status=?, dirname_id=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;',
-            record.title, record.rate, record.hyperlink, record.releaseDate, record.basename, record.infoStatus, record.dirnameId, record.id
+        return this.libEnv.db.run('UPDATE record SET title=?, rate=?, hyperlink=?, release_date=?, basename=?, info_status=?, search_text=?, dirname_id=?, gmt_modified=CURRENT_TIMESTAMP WHERE id = ?;',
+            record.title, record.rate, record.hyperlink, record.releaseDate, record.basename, record.infoStatus, record.search_text, record.dirnameId, record.id
         ).changes
     }
 
     public insertRecord(record: Entity.Record): PrimaryKey {
-        return this.libEnv.db.run('INSERT INTO record(title, rate, hyperlink, release_date, basename, info_status, tag_author_sum, dirname_id) VALUES(?,?,?,?,?,?,?,?);',
-            record.title, record.rate, record.hyperlink, record.releaseDate, record.basename, record.infoStatus, record.tagAuthorSum, record.dirnameId
+        return this.libEnv.db.run('INSERT INTO record(title, rate, hyperlink, release_date, basename, info_status, tag_author_sum, search_text, dirname_id) VALUES(?,?,?,?,?,?,?,?,?);',
+            record.title, record.rate, record.hyperlink, record.releaseDate, record.basename, record.infoStatus, record.tagAuthorSum, record.search_text, record.dirnameId
         ).lastInsertRowid
     }
 

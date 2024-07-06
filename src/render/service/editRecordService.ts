@@ -1,4 +1,4 @@
-import { ref, reactive, toRaw } from "vue"
+import { reactive, toRaw } from "vue"
 import Message from "@/util/Message"
 import { $t } from "@/locale"
 
@@ -135,7 +135,6 @@ const useEditRecordService = () => {
         id: 0,
         dirname: '',
         basename: '',
-        batchDir: '',
         title: '',
         hyperlink: '',
         releaseDate: '',
@@ -149,7 +148,9 @@ const useEditRecordService = () => {
         removeAuthors: [],
         addSeries: [],
         removeSeries: [],
-        intro: '',
+        plot: '',
+        searchText: '',
+        reviews: '',
         info: '',
         editSampleImages: [],
         removeSampleImages: []
@@ -160,15 +161,6 @@ const useEditRecordService = () => {
         tagInput: '',
         seriesInput: ''
     })
-
-    const options = reactive<DTO.EditRecordOptions>({
-        batch: false,
-        distinct: true,
-    })
-
-    const switchBatch = () => {
-        options.batch = !options.batch
-    }
 
     // 路径分割函数
     const separatePath = async (path: string): Promise<[dirname: string, basename: string] | undefined> => {
@@ -186,13 +178,6 @@ const useEditRecordService = () => {
         if (sepd) {
             formData.dirname = sepd[0]
             formData.basename = sepd[1]
-        }
-    }
-
-    const selectBatchDir = async () => {
-        const path = (await window.electronAPI.openDialog('dir', false))[0]
-        if (path) {
-            formData.batchDir = path
         }
     }
 
@@ -224,7 +209,9 @@ const useEditRecordService = () => {
         }
         formData.dirname = data.dirname || ''
         formData.basename = data.basename || ''
-        formData.intro = data.intro
+        formData.plot = data.plot
+        formData.searchText = data.search_text
+        formData.reviews = data.reviews
         formData.info = data.info
 
         data.tags.forEach(item => {
@@ -256,7 +243,6 @@ const useEditRecordService = () => {
         formData.removeAuthors = Array.from(removeAuthors)
         formData.addSeries = Array.from(addSeries)
         formData.removeSeries = Array.from(removeSeries)
-        // sampleImages
         const originSampleImagesArray = Array.from(originSampleImages)
         const editSampleImages: DTO.EditSampleImage[] = []
         displaySampleImages.forEach((path, index) => {
@@ -270,32 +256,27 @@ const useEditRecordService = () => {
         formData.editSampleImages = editSampleImages
 
         // 提交数据 
-        return window.electronAPI.editRecord(libraryId, toRaw(formData), toRaw(options))
+        return window.electronAPI.editRecord(libraryId, toRaw(formData))
     }
 
     const resetFormData = () => {
         formData.id = 0
         formData.dirname = ''
         formData.basename = ''
-        formData.batchDir = ''
         formData.title = ''
         formData.hyperlink = ''
         formData.releaseDate = ''
         formData.cover = ''
         formData.originCover = ''
         formData.rate = 0
-        formData.intro = ''
+        formData.plot = ''
+        formData.searchText = ''
+        formData.reviews = ''
         formData.info = ''
         // 提交前会重新赋值的不需要清空
-        // formData.addTags
-        // formData.removeTags
-        // formData.addAuthors
-        // formData.removeAuthors
-        // formData.editAuthorsRole
-        // formData.removeSeries
-        // formData.addSeries
-        // formData.editSampleImages
-        // formData.removeSampleImages
+        //  addTags removeTags removeSeries addSeries
+        // addAuthor removeAuthors editAuthorsRole
+        // editSampleImages removeSampleImages
 
         // 标签
         displayTags.splice(0)
@@ -321,8 +302,6 @@ const useEditRecordService = () => {
         dispalyFormData.authorInput = ''
         dispalyFormData.tagInput = ''
         dispalyFormData.seriesInput = ''
-        options.batch = false
-        options.distinct = true
     }
 
     return {
@@ -346,12 +325,9 @@ const useEditRecordService = () => {
         // 表单数据 
         formData,
         dispalyFormData,
-        options,
-        switchBatch,
         selectCover,
         resetCover,
         selectRecordResource,
-        selectBatchDir,
         // 表单行为
         saveOriginData,
         submit,
