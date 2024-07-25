@@ -1,7 +1,15 @@
-type Result = {
+interface Result<T> {
     code: number
     msg?: string
-    data: any
+    data: T
+}
+
+
+declare interface IDataAPI {
+    getAuthorRoles: (
+        libraryId: number,
+    ) => Promise<Result<string[]>>
+
 }
 
 export interface IElectronAPI {
@@ -10,7 +18,7 @@ export interface IElectronAPI {
         type: 'set' | 'get' | 'all' | 'reset',
         key?: keyof Config,
         value?: string
-    ) => Promise<string | Config | void>,
+    ) => Promise<string | Config | void>
 
 
     relaunch: () => Promise<void>
@@ -331,6 +339,7 @@ export interface IVersionAPI {
 
 declare global {
     interface Window {
+        dataAPI: IDataAPI
         electronAPI: IElectronAPI
         versionAPI: IVersionAPI
         systemAPI: ISystemAPI

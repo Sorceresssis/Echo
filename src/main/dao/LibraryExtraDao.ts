@@ -4,11 +4,9 @@ import GroupDB from "../db/GroupDB"
 
 @injectable()
 class LibraryExtraDao {
-    private db: GroupDB
-
-    public constructor(@inject(InjectType.GroupDB) db: GroupDB) {
-        this.db = db
-    }
+    public constructor(
+        @inject(InjectType.GroupDB) private db: GroupDB
+    ) { }
 
     public queryLibraryExtraById(id: number): Domain.LibraryExtra | undefined {
         return this.db.get('SELECT id, auxiliary_st AS auxiliarySt, use_auxiliary_st AS useAuxiliarySt, intro FROM library_extra WHERE id=?;', id)

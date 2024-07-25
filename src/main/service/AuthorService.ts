@@ -3,11 +3,12 @@ import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import DIContainer, { type LibraryEnv } from "../provider/container"
 import fm from "../util/FileManager"
-import ImageService from "./ImageService"
-import AuthorDao, { QueryAuthorsSortRule } from "../dao/AuthorDao"
-import RecordAuthorDao from "../dao/RecordAuthorDao"
-import RecordService from "./RecordService"
 import { isNotEmptyString } from "../util/common"
+import ImageService from "./ImageService"
+import type AuthorDao from "../dao/AuthorDao"
+import { type QueryAuthorsSortRule } from "../dao/AuthorDao"
+import type RecordAuthorDao from "../dao/RecordAuthorDao"
+import type RecordService from "./RecordService"
 
 @injectable()
 class AuthorService {
@@ -62,6 +63,7 @@ class AuthorService {
         const page = this.authorDao.queryAuthorsByKeyword(
             options.keyword.trim(),
             sortRule,
+            options.role,
             (options.pn - 1) * options.ps,
             options.ps
         ) as DTO.Page<VO.AuthorRecommendation>
@@ -131,14 +133,6 @@ class AuthorService {
                 fs.renameSync(path, authorImagesDirPathConstructor.getNewSampleImageFilePath(idx))
             }
         }
-
-        // formData.editSampleImages.forEach(item => {
-        //     if (item.type === 'add') {
-        //         ImageService.handleNormalImage(item.path, authorImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
-        //     } else if (item.type === 'move') {
-        //         fs.renameSync(item.path, authorImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
-        //     }
-        // })
     }
 
     public deleteAuthor(authorId: number): void {
@@ -147,7 +141,7 @@ class AuthorService {
 
         this.libEnv.db.transactionExec(() => {
             this.authorDao.deleteAuthorById(authorId) // 删除作者
-            this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新冗余字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
+            this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
             this.recordAuthorDao.deleteRecordAuthorByAuthorId(authorId) // 删除关联
 
             // 删除图像 

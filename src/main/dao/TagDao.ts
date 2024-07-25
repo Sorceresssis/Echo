@@ -10,11 +10,9 @@ export type QueryTagsSortRule = {
 
 @injectable()
 class TagDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     public queryTagIdByTitle(title: string): number | undefined {
         return this.libEnv.db.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as number | undefined

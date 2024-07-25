@@ -1,17 +1,18 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
+import appConfig from "../app/config"
+import appPaths from "../app/appPaths"
 import InjectType from "../provider/injectType"
 import DIContainer, { type LibraryEnv } from "../provider/container"
 import { exceptionalHandler } from '../util/common'
 import LibraryDB from "../db/LibraryDB"
 import Result from "../util/Result"
-import AutocompleteService from "../service/AutocompleteService"
-import RecordService from "../service/RecordService"
-import AuthorService from "../service/AuthorService"
-import TagService from "../service/TagService"
-import DirnameService from "../service/DirnameService"
-import SeriesService from "../service/SeriesService"
-import appPaths from "../app/appPaths"
-import appConfig from "../app/config"
+import type AutocompleteService from "../service/AutocompleteService"
+import type RecordService from "../service/RecordService"
+import type AuthorService from "../service/AuthorService"
+import type TagService from "../service/TagService"
+import type DirnameService from "../service/DirnameService"
+import type SeriesService from "../service/SeriesService"
+import type RecordAuthorDao from "../dao/RecordAuthorDao"
 
 
 const { rebindLibrary, closeLibraryDB } = function () {
@@ -135,6 +136,19 @@ function ipcMainLibrary() {
         DIContainer.get<AuthorService>(InjectType.AuthorService).deleteAuthor(authorId)
         return true
     }, generateCatchFn('author:delete'), false, closeLibraryDB))
+
+
+    ipcMain.handle('author:getRoles', (e: IpcMainInvokeEvent, libraryId: number) => {
+        try {
+            rebindLibrary(libraryId)
+            const dao = DIContainer.get<RecordAuthorDao>(InjectType.RecordAuthorDao)
+            return Result.success()
+        } catch (e: any) {
+            return Result.error(e.message)
+        } finally {
+            closeLibraryDB()
+        }
+    })
 
 
     //ANCHOR Tag

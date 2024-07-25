@@ -1,9 +1,9 @@
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import DIContainer from "../provider/container"
-import GroupDB from "../db/GroupDB"
-import GroupDao from "../dao/GroupDao"
-import LibraryService from "./LibraryService"
+import type GroupDB from "../db/GroupDB"
+import type GroupDao from "../dao/GroupDao"
+import type LibraryService from "./LibraryService"
 
 @injectable()
 class GroupService {

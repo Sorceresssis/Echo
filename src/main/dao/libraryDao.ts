@@ -5,11 +5,9 @@ import type GroupDB from "../db/GroupDB"
 
 @injectable()
 class LibraryDao {
-	private db: GroupDB
-
-	public constructor(@inject(InjectType.GroupDB) db: GroupDB) {
-		this.db = db
-	}
+	public constructor(
+		@inject(InjectType.GroupDB) private db: GroupDB
+	) { }
 
 	public queryLibraryById(id: number): Domain.Library | undefined {
 		return this.db.get(`SELECT id, name, DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM library WHERE id=?;`, id)

@@ -7,9 +7,13 @@
 								   class="menu-item search"
 								   :placeholder="$t('layout.search')"
 								   @keyup.enter="handleQueryParamsChange" />
-				<dash-drop-menu v-for="menu in dropdownMenus"
+				<dash-drop-menu v-if="roleDropdownMenu.items.length"
 								class="menu-item"
-								:menu="menu" />
+								:menu="roleDropdownMenu"
+								:loading="authorsDashStore.rolesLoading"
+								@command="handleQueryParamsChange" />
+				<dash-drop-menu class="menu-item"
+								:menu="sortDropdownMenu" />
 			</div>
 		</div>
 		<scrollbar v-loading="loading"
@@ -61,7 +65,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, onMounted, inject, watch, readonly, onActivated, onDeactivated } from 'vue'
+import { ref, Ref, onMounted, inject, watch, readonly, computed, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import hrefGenerator from '@/router/hrefGenerator'
 import { $t } from '@/locale'
@@ -84,7 +88,41 @@ const loading = ref<boolean>(false)
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const authorsDashStore = useAuthorsDashStore()
 
-const dropdownMenus = [{
+const roleDropdownMenu = reactive<DashDropMenu>({
+	HTMLElementTitle: 'role',
+	title: '&#xe60d;',
+	items: computed(() => {
+		if (authorsDashStore.roles.length) {
+			return [
+				{
+					key: 1,
+					title: 'ALL',
+					divided: false,
+					click: () => authorsDashStore.handleRole(1),
+					dot: () => authorsDashStore.role === 1
+				},
+				{
+					key: 0,
+					title: 'None',
+					divided: false,
+					click: () => authorsDashStore.handleRole(0),
+					dot: () => authorsDashStore.role === 0
+				},
+				...authorsDashStore.roles.map(role => ({
+					key: role,
+					title: role,
+					divided: false,
+					click: () => authorsDashStore.handleRole(role),
+					dot: () => authorsDashStore.role === role
+				}))
+			]
+		} else {
+			return []
+		}
+	})
+})
+
+const sortDropdownMenu: DashDropMenu = {
 	HTMLElementTitle: $t('layout.sortBy'),
 	title: '&#xe81f;',
 	items: [
@@ -113,7 +151,7 @@ const dropdownMenus = [{
 			dot: () => authorsDashStore.order === 'DESC'
 		},
 	]
-}]
+}
 
 const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const authorRecmds = ref<VO.AuthorRecommendation[]>([])
@@ -130,6 +168,7 @@ const queryAuthorRecmds = debounce(async () => {
 			keyword: keyword.value,
 			sortField: authorsDashStore.sortField,
 			order: authorsDashStore.order,
+			role: authorsDashStore.role,
 			pn: currentPage.value,
 			ps: pageSize
 		}
@@ -149,7 +188,10 @@ const handlePageChange = function (pn: number) {
 const handleQueryParamsChange = function () {
 	handlePageChange(1)
 }
-const init = function () {
+const init = async function () {
+	authorsDashStore.handleRole(1)
+	authorsDashStore.getRoles(activeLibrary.value)
+
 	keyword.value = ''
 	handleQueryParamsChange()
 }

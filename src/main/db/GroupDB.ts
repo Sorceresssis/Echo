@@ -16,26 +16,29 @@ class GroupDB extends DB {
 		super(path)
 
 		if (isExists) {
-			// 读取数据库信息
-			const db_info: any = {};
-			this.all(`SELECT name, value FROM 'db_info'`).forEach((row) => {
-				db_info[row.name] = row.value
-			})
+			try {
+				// 读取数据库信息
+				const db_info: any = {};
+				this.all(`SELECT name, value FROM 'db_info'`).forEach((row) => {
+					db_info[row.name] = row.value
+				})
 
-			const loadingDBVersion = Number(db_info['version'])
-			// 读取的数据库版本高于当前软件支持的版本，就抛出异常，提示用户更新软件
-			if (loadingDBVersion > this.DB_VERSION) {
-				// '软件版本过低', '请更新软件到最新版本'
-				dialog.showErrorBox('The software version is too low', 'Please update the software to the latest version')
-				app.quit()
+				const loadingDBVersion = Number(db_info['version'])
+				// 读取的数据库版本高于当前软件支持的版本，就抛出异常，提示用户更新软件
+				if (loadingDBVersion > this.DB_VERSION) {
+					// '软件版本过低', '请更新软件到最新版本'
+					dialog.showErrorBox('The software version is too low', 'Please update the software to the latest version')
+					app.quit()
+				}
+
+				// 读取的数据库版本低于当前软件支持的版本，就升级数据库
+				if (loadingDBVersion < this.DB_VERSION) {
+					this.upgrade(loadingDBVersion)
+				}
+				// this.run('VACUUM;')  // 优化数据库 
+			} catch {
+				this.defineData
 			}
-
-			// 读取的数据库版本低于当前软件支持的版本，就升级数据库
-			if (loadingDBVersion < this.DB_VERSION) {
-				this.upgrade(loadingDBVersion)
-			}
-
-			// this.run('VACUUM;')  // 优化数据库 
 		} else {
 			this.defineData()
 		}

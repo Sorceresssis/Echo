@@ -4,11 +4,9 @@ import { type LibraryEnv } from "../provider/container"
 
 @injectable()
 class RecordExtraDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     public recordExtraFactory(id: PrimaryKey, plot: string, reviews: string, info: string): Entity.RecordExtra {
         return { id, plot, reviews, info }

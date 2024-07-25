@@ -10,7 +10,7 @@
         </keep-alive>
     </div>
 </template>
-  
+
 <script lang="ts" setup>
 import { shallowReactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -52,4 +52,4 @@ const components = [
     { component: Recycled, props: { type: 'recycled' } },
     { component: About, props: {} },
 ]
-</script> 
+</script>

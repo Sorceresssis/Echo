@@ -1,5 +1,3 @@
-import path from "path"
-import appConfig from "../app/config"
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"

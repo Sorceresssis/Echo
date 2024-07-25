@@ -17,22 +17,23 @@ VALUES ('version', '1');
 DROP TABLE IF EXISTS 'record';
 CREATE TABLE 'record'
 (
-    'id'             INTEGER PRIMARY KEY AUTOINCREMENT,             -- 主键
-    'title'          VARCHAR(255)                         NOT NULL, -- 标题
-    'rate'           TINYINT    DEFAULT 0                 NOT NULL, -- 等级评分，1~5
-    'hyperlink'      TEXT       DEFAULT NULL              NULL,     -- 在浏览器打开的url，长度控制在2000个字符以内
-    'release_date'   DATE       DEFAULT NULL              NULL,     -- 发布日期
+    'id'               INTEGER PRIMARY KEY AUTOINCREMENT,               -- 主键
+    'title'            VARCHAR(255)                           NOT NULL, -- 标题
+    'translated_title' VARCHAR(255) DEFAULT ''                NOT NULL, -- 翻译后的标题
+    'rate'             TINYINT      DEFAULT 0                 NOT NULL, -- 等级评分，1~5
+    'hyperlink'        TEXT         DEFAULT NULL              NULL,     -- 在浏览器打开的url，长度控制在2000个字符以内
+    'release_date'     DATE         DEFAULT NULL              NULL,     -- 发布日期
 
-    'dirname_id'     INTEGER    DEFAULT 0                 NOT NULL, -- 所在目录的id
-    'basename'       TEXT       DEFAULT NULL              NULL,     -- 文件名
+    'dirname_id'       INTEGER      DEFAULT 0                 NOT NULL, -- 所在目录的id
+    'basename'         TEXT         DEFAULT NULL              NULL,     -- 文件名
 
-    'recycled'       BOOLEAN    DEFAULT 0                 NOT NULL, -- 是否放入回收站,0 false,1 true
-    'info_status'    VARCHAR(3) DEFAULT '000'             NOT NULL, -- 表示hyperlink、basename、cover三个字段是否为空，0 空 1 不为空
-    'tag_author_sum' TEXT       DEFAULT NULL              NULL,     -- 用于快速查询的冗余字段
-    'search_text'    TEXT       DEFAULT ''                NOT NULL, -- 不想显示但是需要被搜索命中的文本
+    'recycled'         BOOLEAN      DEFAULT 0                 NOT NULL, -- 是否放入回收站,0 false,1 true
+    'info_status'      VARCHAR(3)   DEFAULT '000'             NOT NULL, -- 表示hyperlink、basename、cover三个字段是否为空，0 空 1 不为空
+    'tag_author_sum'   TEXT         DEFAULT NULL              NULL,     -- 用于快速查询的冗余字段
+    'search_text'      TEXT         DEFAULT ''                NOT NULL, -- 不想显示但是需要被搜索命中的文本
 
-    'gmt_create'     DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间 utc
-    'gmt_modified'   DATETIME   DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 修改时间  utc
+    'gmt_create'       DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间 utc
+    'gmt_modified'     DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 修改时间  utc
 );
 CREATE INDEX 'idx_record(rate)' ON record (rate);
 CREATE INDEX 'idx_record(info_status)' ON record (info_status);
@@ -93,21 +94,34 @@ CREATE UNIQUE INDEX 'uk_author(name)' ON author (name);
 -- ----------------------------
 --        record_author
 -- ----------------------------
+DROP TABLE IF EXISTS 'role';
+CREATE TABLE 'role'
+(
+    'id'   INTEGER PRIMARY KEY AUTOINCREMENT,
+    'name' VARCHAR(50) NOT NULL
+);
+CREATE UNIQUE INDEX 'uk_role(name)' ON role (name);
+
+
+-- ----------------------------
+--        record_author
+-- ----------------------------
 DROP TABLE IF EXISTS 'record_author';
 CREATE TABLE 'record_author'
 (
     'id'        INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
-    'record_id' INTEGER NOT NULL,                  -- 记录的id
-    'author_id' INTEGER NOT NULL,                  -- 作者的id
-    'role'      VARCHAR(50) DEFAULT NULL           -- 角色
+    'record_id' INTEGER           NOT NULL,        -- 记录id
+    'author_id' INTEGER           NOT NULL,        -- 作者id
+    'role_id'   INTEGER DEFAULT 0 NOT NULL         -- 角色id
 );
-CREATE UNIQUE INDEX 'uk_record_author(record_id,author_id)' ON record_author (record_id, author_id);
 CREATE INDEX 'idx_record_author(record_id)' ON record_author (record_id);
 CREATE INDEX 'idx_record_author(author_id)' ON record_author (author_id);
+CREATE INDEX 'idx_record_author(role_id)' ON record_author (role_id); -- 根据role 来分类作者
+CREATE UNIQUE INDEX 'uk_record_author(record_id,author_id,role_id)' ON record_author (record_id, author_id, role_id);
 
 
 -- ----------------------------
---          tag
+--           tag
 -- ----------------------------
 DROP TABLE IF EXISTS 'tag';
 CREATE TABLE 'tag'
@@ -128,9 +142,9 @@ CREATE TABLE 'record_tag'
     'record_id' INTEGER NOT NULL,                  -- 记录的id
     'tag_id'    INTEGER NOT NULL                   -- tag的id
 );
-CREATE UNIQUE INDEX 'uk_record_tag(record_id,tag_id)' ON record_tag (record_id, tag_id);
 CREATE INDEX 'idx_record_tag(record_id)' ON record_tag (record_id);
 CREATE INDEX 'idx_record_tag(tag_id)' ON record_tag (tag_id);
+CREATE UNIQUE INDEX 'uk_record_tag(record_id,tag_id)' ON record_tag (record_id, tag_id);
 
 
 -- ----------------------------
@@ -155,6 +169,6 @@ CREATE TABLE 'record_series'
     'record_id' INTEGER NOT NULL,                  -- 记录id
     'series_id' INTEGER NOT NULL                   -- 系列id
 );
-CREATE UNIQUE INDEX 'uk_record_series(record_id,series_id)' ON record_series (record_id, series_id);
 CREATE INDEX 'idx_record_series(record_id)' ON record_series (record_id);
 CREATE INDEX 'idx_record_series(series_id)' ON record_series (series_id);
+CREATE UNIQUE INDEX 'uk_record_series(record_id,series_id)' ON record_series (record_id, series_id);

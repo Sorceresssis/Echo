@@ -11,7 +11,7 @@ class Message {
         })
     }
 
-    public static error(message: string, duration?: number) {
+    public static error(message?: string, duration?: number) {
         ElMessage.closeAll()
         ElMessage.error({
             message: message,

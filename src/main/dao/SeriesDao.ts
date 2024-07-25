@@ -4,11 +4,9 @@ import { type LibraryEnv } from "../provider/container"
 
 @injectable()
 class SeriesDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     public querySeriesIdByName(name: string): number | undefined {
         return this.libEnv.db.prepare('SELECT id FROM series WHERE name = ?;').pluck().get(name) as number | undefined

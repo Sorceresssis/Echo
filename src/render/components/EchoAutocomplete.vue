@@ -122,6 +122,7 @@ const handleKeyupEnter = () => {
     white-space: normal;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     text-overflow: ellipsis;
 }
 

@@ -23,6 +23,7 @@ body,
     height: 100%;
     display: flex;
     background-color: #f6f6f8;
+    user-select: none;
 }
 
 *::selection {
@@ -322,7 +323,7 @@ img {
     object-fit: cover;
 }
 
-.select-none {
+.noneselect- {
     user-select: none;
 }
 
@@ -400,6 +401,7 @@ img {
     user-select: text;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     /* 允许单词内的换行 */
     /* overflow-wrap: break-word; */
     text-overflow: ellipsis;

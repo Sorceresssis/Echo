@@ -4,11 +4,9 @@ import { type LibraryEnv } from "../provider/container"
 
 @injectable()
 class RecordAuthorDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     public queryCountOfRecordsByAuthorId(authorId: number): number {
         const sql = "SELECT COUNT(record_id) FROM record_author WHERE author_id = ?;"

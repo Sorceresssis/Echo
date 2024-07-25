@@ -109,6 +109,7 @@ namespace DTO {
         keyword: string,
         sortField: 'time' | 'name'
         order: 'ASC' | 'DESC'
+        role: 1 | 0 | string
         pn: number,
         ps: number,
     }

@@ -34,14 +34,15 @@ namespace VO {
     }
 
     type Record = {
-        id: number,
-        title: string,
+        id: number
+        title: string
+        translated_title: string
         rate: number,
-        cover: string | undefined,
-        hyperlink: string,
-        resourcePath: string,
-        createTime?: string,
-        modifiedTime?: string,
+        cover: string | undefined
+        hyperlink: string
+        resourcePath: string
+        createTime?: string
+        modifiedTime?: string
     }
 
     /**

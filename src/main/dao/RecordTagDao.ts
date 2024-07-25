@@ -4,11 +4,9 @@ import { type LibraryEnv } from "../provider/container"
 
 @injectable()
 class RecordTagDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     public queryCountOfRecordsByTagId(tagId: PrimaryKey): number {
         return this.libEnv.db.prepare('SELECT COUNT(record_id) FROM record_tag WHERE tag_id = ?;').pluck().get(tagId) as number

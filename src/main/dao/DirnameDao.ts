@@ -10,11 +10,9 @@ export type QueryDirnamesSortRule = {
 
 @injectable()
 class DirnameDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     public queryDirnameIdByPath(path: string): number | undefined {
         return this.libEnv.db.prepare('SELECT id FROM dirname WHERE path = ?;').pluck().get(path) as number | undefined

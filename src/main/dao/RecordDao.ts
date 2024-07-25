@@ -10,11 +10,9 @@ export type QueryRecordsSortRule = {
 
 @injectable()
 class RecordDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     /**
      * 请提前进行 trim 操作

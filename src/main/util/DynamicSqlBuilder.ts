@@ -14,7 +14,8 @@ export default class DynamicSqlBuilder {
     }
 
     public getSql(): string {
-        return this.sqlBuffer.join(' ')
+        const sql = this.sqlBuffer.join(' ')
+        return sql[-1] === ';' ? sql : sql + ';'
     }
 
     public getParams(): any[] {

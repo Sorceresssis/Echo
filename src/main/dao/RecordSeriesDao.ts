@@ -4,11 +4,9 @@ import { type LibraryEnv } from "../provider/container"
 
 @injectable()
 class RecordSeriesDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     public queryRecordIdsBySeriesId(seriesId: PrimaryKey, offset: number, rowCount: number): number[] {
         return this.libEnv.db.prepare('SELECT record_id FROM record_series WHERE series_id = ? LIMIT ?,?;').pluck().all(seriesId, offset, rowCount) as number[]

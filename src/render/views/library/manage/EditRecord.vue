@@ -46,6 +46,13 @@
                                    show-word-limit
                                    :placeholder="$t('layout.editRecordTitlePlaceholder')" />
             </el-form-item>
+            <el-form-item :label="$t('layout.title')"
+                          prop="title">
+                <echo-autocomplete v-model="formData.title"
+                                   type="record"
+                                   show-word-limit
+                                   :placeholder="$t('layout.editRecordTitlePlaceholder')" />
+            </el-form-item>
             <el-form-item :label="$t('layout.hyperlink')">
                 <el-input v-model="formData.hyperlink"
                           :placeholder="$t('layout.editRecordHyperlinkPlaceholder')"
@@ -215,6 +222,7 @@ import { useRoute } from 'vue-router'
 import { type FormInstance, type FormRules, ElInput, ElForm, ElFormItem, } from 'element-plus'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
+import useAuthorsDashStore from '@/store/authorsDashStore'
 import Message from '@/util/Message'
 import MessageBox from '@/util/MessageBox'
 import useEditRecordService from '@/service/editRecordService'
@@ -232,6 +240,7 @@ const submitBtnText = ref<string>($t('layout.create'))
 
 const route = useRoute()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+const authorsDashStore = useAuthorsDashStore()
 const winowLoading = inject<Ref<boolean>>('winowLoading')
 const openLoading = function () {
     if (winowLoading) winowLoading.value = true
@@ -314,6 +323,8 @@ const submitForm = (formEl: FormInstance | undefined) => {
                     ? Message.success(isAdd.value ? $t('msg.createSuccess') : $t('msg.editSuccess'))
                     : Message.error((isAdd.value ? $t('msg.createFailed') : $t('msg.editFailed')) + ', ' + result.msg, 2000)
             }).catch(() => { })
+            // NOTE 跟新role
+            authorsDashStore.updateRoles(activeLibrary.value)
 
             if (isAdd.value) {
                 resetFormData()
@@ -359,7 +370,6 @@ onMounted(init)
 
 .attribute-container {
     min-height: 38px;
-    max-height: 178px;
     display: flex;
     margin-top: 15px;
     margin-bottom: 5px;

@@ -4,11 +4,9 @@ import type GroupDB from "../db/GroupDB"
 
 @injectable()
 class GroupDao {
-    private db: GroupDB
-
-    public constructor(@inject(InjectType.GroupDB) db: GroupDB) {
-        this.db = db
-    }
+    public constructor(
+        @inject(InjectType.GroupDB) private db: GroupDB
+    ) { }
 
     public queryGroupById(id: PrimaryKey): Domain.GroupProfile | undefined {
         return this.db.prepare(`SELECT id, name FROM 'group' WHERE id = ?;`).get(id) as Domain.GroupProfile | undefined

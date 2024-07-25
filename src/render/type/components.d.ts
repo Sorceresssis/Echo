@@ -1,12 +1,15 @@
-type DashDropMenu = {
+declare type DashDropMenu = {
     HTMLElementTitle: string,
     title: string,
-    items: {
-        title: string,
-        divided: boolean,
-        click: (...args: any[]) => any,
-        dot: (...args: any[]) => boolean
-    }[]
+    items: DashDropMenuItem[] | Ref<DashDropMenuItem[]>
+}
+
+type DashDropMenuItem = {
+    key?: any
+    title: string
+    divided: boolean
+    click: (...args: any[]) => any
+    dot: (...args: any[]) => boolean
 }
 
 type Tabs = {
