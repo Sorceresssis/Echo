@@ -8,17 +8,34 @@ class GroupDao {
         @inject(InjectType.GroupDB) private db: GroupDB
     ) { }
 
-    public queryGroupById(id: PrimaryKey): Domain.GroupProfile | undefined {
-        return this.db.prepare(`SELECT id, name FROM 'group' WHERE id = ?;`).get(id) as Domain.GroupProfile | undefined
+    public getGroupById(id: Entity.PK): BO.Group | undefined {
+        const sql = `
+            SELECT id, name,
+                DATETIME(create_time, 'localtime') as create_time,
+                DATETIME(update_time, 'localtime') as update_time
+            FROM 'group' WHERE id = ?;`
+        return this.db.prepare<[Entity.PK], BO.Group>(sql).get(id)
     }
 
-    public querySortedGroupAll(): Domain.GroupProfile[] {
-        return this.db.all(`
-            WITH RECURSIVE group_list AS (
-                SELECT id, name, prev_id, next_id FROM 'group' WHERE prev_id = 0
-                UNION ALL
-                SELECT g.id, g.name, g.prev_id, g.next_id FROM 'group' g JOIN group_list gl ON g.id = gl.next_id WHERE gl.next_id != 0
-            ) SELECT id, name FROM group_list;`)
+    public getGroupsSorted(): BO.Group[] {
+        const sql = `
+            WITH RECURSIVE list AS (
+                SELECT id, name,
+                    DATETIME(create_time, 'localtime') as create_time,
+                    DATETIME(update_time, 'localtime') as update_time,
+                    prev_id, next_id
+                FROM 'group' WHERE prev_id = 0
+            UNION ALL
+                SELECT g.id, g.name,
+                    DATETIME(g.create_time, 'localtime') as create_time,
+                    DATETIME(g.update_time, 'localtime') as update_time,
+                    g.prev_id, g.next_id
+                FROM 'group' g
+                    JOIN list l ON g.id = l.next_id
+                WHERE l.next_id != 0
+            ) SELECT id, name, create_time, update_time FROM list;
+        `
+        return this.db.prepare<[], BO.Group>(sql).all()
     }
 
     /**
@@ -27,53 +44,64 @@ class GroupDao {
      * 优点:用0这个标记可以很方便的查询到[头|尾]节点.
      * 缺点:由于没有把[尾|头]节点作为[前驱|后继]的记录，所以通过[尾|头]节点的id作为参数查询时，返回undefined.
      */
-    public queryGroupIdByPrevId(prevId: PrimaryKey): number | undefined {
-        return this.db.prepare(`SELECT id FROM 'group' WHERE prev_id = ?;`).pluck().get(prevId) as number | undefined
+    public getIdByPrevId(prevId: Entity.PK): Entity.PK | undefined {
+        const sql = "SELECT id FROM 'group' WHERE prev_id = ?;"
+        return this.db.prepare<[Entity.PK], Entity.PK>(sql).pluck().get(prevId)
     }
 
-    public queryGroupIdByNextId(nextId: PrimaryKey): number | undefined {
-        return this.db.prepare(`SELECT id FROM 'group' WHERE next_id = ?;`).pluck().get(nextId) as number | undefined
+    public getIdByNextId(nextId: Entity.PK): Entity.PK | undefined {
+        const sql = "SELECT id FROM 'group' WHERE next_id = ?;"
+        return this.db.prepare<[Entity.PK], Entity.PK>(sql).pluck().get(nextId)
     }
 
     /**
-     * query[PrevId|NextId]ById : 查询主键为id的记录的 [前驱|后驱].
+     * get[PrevId|NextId]ById : 查询主键为id的记录的 [前驱|后驱].
      * 优点:可以很方便的查询到每一个节点的[前驱|后驱]节点.
      * 缺点:无法一步到位的查询到[头|尾]节点.
      */
-    public queryGroupPrevIdById(id: PrimaryKey): number | undefined {
-        return this.db.prepare(`SELECT prev_id FROM 'group' WHERE id = ?;`).pluck().get(id) as number | undefined
+    public getPrevIdById(id: Entity.PK): Entity.PK | undefined {
+        const sql = "SELECT prev_id FROM 'group' WHERE id = ?;"
+        return this.db.prepare<[Entity.PK], Entity.PK>(sql).pluck().get(id)
     }
 
-    public queryGroupNextIdById(id: PrimaryKey): number | undefined {
-        return this.db.prepare(`SELECT next_id FROM 'group' WHERE id = ?;`).pluck().get(id) as number | undefined
+    public getNextIdById(id: Entity.PK): Entity.PK | undefined {
+        const sql = "SELECT next_id FROM 'group' WHERE id = ?;"
+        return this.db.prepare<[Entity.PK], Entity.PK>(sql).pluck().get(id)
     }
 
-    public queryGroupPrevIdNextIdById(id: PrimaryKey): [number, number] | undefined {
-        return this.db.prepare(`SELECT prev_id, next_id FROM 'group' WHERE id = ?;`).raw().get(id) as [number, number] | undefined
+    public getPrevIdNextIdById(id: Entity.PK): [Entity.PK, Entity.PK] | undefined {
+        const sql = "SELECT prev_id, next_id FROM 'group' WHERE id = ?;"
+        return this.db.prepare<[Entity.PK], [Entity.PK, Entity.PK]>(sql).raw().get(id)
     }
 
-    public updateGroupName(id: PrimaryKey, name: string): number {
-        return this.db.run(`UPDATE 'group' SET name = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, name, id).changes
+    public updateNameById(id: Entity.PK, name: string): number {
+        const sql = "UPDATE 'group' SET name = ?, update_time = CURRENT_TIMESTAMP WHERE id = ?;"
+        return this.db.run(sql, name, id).changes
     }
 
-    public updateGroupNextId(id: PrimaryKey, nextId: PrimaryKey): number {
-        return this.db.run(`UPDATE 'group' SET next_id = ? WHERE id = ?;`, nextId, id).changes
+    public updateNextIdById(id: Entity.PK, nextId: Entity.PK): number {
+        const sql = "UPDATE 'group' SET next_id = ? WHERE id = ?;"
+        return this.db.run(sql, nextId, id).changes
     }
 
-    public updateGroupPrevId(id: PrimaryKey, prevId: PrimaryKey): number {
-        return this.db.run(`UPDATE 'group' SET prev_id = ? WHERE id = ?;`, prevId, id).changes
+    public updatePrevIdById(id: Entity.PK, prevId: Entity.PK): number {
+        const sql = "UPDATE 'group' SET prev_id = ? WHERE id = ?;"
+        return this.db.run(sql, prevId, id).changes
     }
 
-    public updateGroupPrevIdNextId(id: PrimaryKey, prevId: PrimaryKey, nextId: PrimaryKey): number {
-        return this.db.run(`UPDATE 'group' SET prev_id = ?, next_id = ? WHERE id = ?;`, prevId, nextId, id).changes
+    public updatePrevIdNextIdById(id: Entity.PK, prevId: Entity.PK, nextId: Entity.PK): number {
+        const sql = "UPDATE 'group' SET prev_id = ?, next_id = ? WHERE id = ?;"
+        return this.db.run(sql, prevId, nextId, id).changes
     }
 
-    public insertGroup(name: string): PrimaryKey {
-        return this.db.run(`INSERT INTO 'group'(name) VALUES(?);`, name).lastInsertRowid
+    public insert(name: string): Entity.PK {
+        const sql = "INSERT INTO 'group'(name) VALUES(?);"
+        return this.db.run(sql, name).lastInsertRowid as Entity.PK
     }
 
-    public deleteGroupById(id: PrimaryKey): number {
-        return this.db.run(`DELETE FROM 'group' WHERE id = ?;`, id).changes
+    public deleteById(id: Entity.PK): number {
+        const sql = "DELETE FROM 'group' WHERE id = ?;"
+        return this.db.run(sql, id).changes
     }
 }
 

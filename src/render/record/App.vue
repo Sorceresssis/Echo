@@ -12,8 +12,9 @@
 </template>
 
 <script setup lang='ts'>
-import InitialValue from '@/constant/Initial_value';
 import { provide, reactive, ref } from 'vue'
+import InitialValue from '@/constant/Initial_value';
+import { VueInjectKey } from '@/constant/channel_key';
 import Titlebar from './views/Titlebar.vue'
 
 const winowLoading = ref<boolean>(false)

@@ -2,7 +2,7 @@ import { app } from "electron"
 import n_path from 'path'
 import n_fs from 'fs'
 import appConfig from './config'
-import generateUid from "../util/uid"
+import generateUid from "../utils/uid"
 
 // 用户数据目录
 // userDataPath

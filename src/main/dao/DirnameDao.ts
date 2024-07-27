@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
-import DynamicSqlBuilder, { SortRule } from "../util/DynamicSqlBuilder"
+import DynamicSqlBuilder, { SortRule } from "../utils/DynamicSqlBuilder"
 
 export type QueryDirnamesSortRule = {
     field: 'path' | 'id',
@@ -51,7 +51,7 @@ class DirnameDao {
     }
 
     public insertDirname(path: string): PrimaryKey {
-        return this.libEnv.db.run("INSERT INTO dirname(path) VALUES(?);", path).lastInsertRowid
+        return this.libEnv.db.run("INSERT INTO dirname(path) VALUES(?);", path).lastInsertRowid as Entity.PK
     }
 
     public deleteDirnameById(id: PrimaryKey): number {

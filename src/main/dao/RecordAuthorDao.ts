@@ -43,7 +43,7 @@ class RecordAuthorDao {
 
     public insert(recordId: PrimaryKey, authorId: PrimaryKey, role: string): PrimaryKey {
         const stmt = this.libEnv.db.prepare("INSERT INTO record_author(record_id, author_id, role) VALUES(?, ?, ?);")
-        return stmt.run(recordId, authorId, role).lastInsertRowid
+        return stmt.run(recordId, authorId, role).lastInsertRowid as Entity.PK
     }
 
     public insertByRecordIdAuthorIds(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {

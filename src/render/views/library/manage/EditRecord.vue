@@ -232,6 +232,7 @@ import { onMounted, reactive, ref, Ref, watch, inject, readonly } from 'vue'
 import { useRoute } from 'vue-router'
 import { type FormInstance, type FormRules, ElInput, ElForm, ElFormItem, ElSelect, ElOption } from 'element-plus'
 import { $t } from '@/locale'
+import { VueInjectKey } from '@/constant/channel_key'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useAuthorsDashStore from '@/store/authorsDashStore'
 import Message from '@/util/Message'
@@ -252,15 +253,9 @@ const submitBtnText = ref<string>($t('layout.create'))
 const route = useRoute()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const authorsDashStore = useAuthorsDashStore()
-const winowLoading = inject<Ref<boolean>>('winowLoading')
-const openLoading = function () {
-    if (winowLoading) winowLoading.value = true
-}
-const closeLoading = function () {
-    if (winowLoading) winowLoading.value = false
-}
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
-const managePathPattern = inject<RegExp>('managePathPattern')!
+const winowLoading = inject<Ref<boolean>>(VueInjectKey.WINDOW_LOADING)!
+const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
+const managePathPattern = inject<RegExp>(VueInjectKey.MANAGE_PAGE_PATH_PATTERN)!
 
 const formRef = ref()
 // TODO temp start
@@ -341,7 +336,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
             viewsTaskAfterRoutingStore.setBashboardTags('refresh')      // 可能会新增tag
             viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')  // 可能会新增文件夹
             viewsTaskAfterRoutingStore.setAuthorRecords('refresh')      // record 展示
-            openLoading()
+            winowLoading.value = true
             // 等待后台处理完毕后才重新加载新的数据
             await submit(activeLibrary.value).then((result) => {
                 // 如果result是undefined，表示后台出错，有弹框警告 
@@ -361,7 +356,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
                 resetFormData()
                 saveOriginData(activeLibrary.value, id)
             }
-            closeLoading()
+            winowLoading.value = false
         }
 
         isAdd.value ? MessageBox.addConfirm().then(cb) : MessageBox.editConfirm().then(cb)

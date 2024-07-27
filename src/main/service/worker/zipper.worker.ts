@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'node:path'
 import archiver from 'archiver'
 import type internal from 'node:stream'
-import Result from '../../util/Result'
+import Result from '../../utils/Result'
 
 export type zipperOperation = ({
     type: "Buffer" | "String" | "Stream",

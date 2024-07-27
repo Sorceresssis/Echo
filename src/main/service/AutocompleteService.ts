@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
-import DynamicSqlBuilder from "../util/DynamicSqlBuilder"
+import DynamicSqlBuilder from "../utils/DynamicSqlBuilder"
 
 @injectable()
 class AutocompleteService {

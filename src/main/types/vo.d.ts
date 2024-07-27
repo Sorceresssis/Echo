@@ -1,37 +1,18 @@
+// 展示层对象
 namespace VO {
-    type GroupProfile = {
-        id: number,
-        name: string,
+    type Group = BO.Group & {
+        librarys: VO.Library[]
     }
 
-    type Group = {
-        id: number,
-        name: string,
-        librarys: LibraryProfile[]
+    type Library = BO.Library & {
+        dataPath: string
     }
 
-    type LibraryProfile = {
-        id: number,
-        name: string,
-        dataPath: string,
-    }
+    type LibraryDetail = BO.Library & Entity.LibraryExtra
 
-    type Library = {
-        id: number,
-        name: string,
-        createTime?: string,
-        modifiedTime?: string,
-    }
 
-    type LibraryDetail = {
-        id: number,
-        name: string,
-        auxiliarySt: string,
-        useAuxiliarySt: boolean,
-        intro: string,
-        createTime: string,
-        modifiedTime: string,
-    }
+
+
 
     type Record = {
         id: number

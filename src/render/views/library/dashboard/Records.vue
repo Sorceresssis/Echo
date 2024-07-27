@@ -81,7 +81,7 @@
                                 + '  ' + recordRecmds[idxFocusRecord].authors.map(author => author.name).join(', '))" />
             <context-menu-item v-if="props.type !== 'series'"
                                :label="$t('layout.edit')"
-                               @click="router.push(hrefGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
+                               @click="router.push(RouterPathGenerator.libraryEditRecord(activeLibrary, recordRecmds[idxFocusRecord].id))">
                 <template #icon> <span class="iconfont"> &#xe722; </span> </template>
             </context-menu-item>
             <context-menu-item v-if="props.type === 'series'"
@@ -110,18 +110,18 @@
 import { onMounted, ref, Ref, inject, watch, toRaw, reactive, onActivated, readonly } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
-import hrefGenerator from '@/router/hrefGenerator'
+import RouterPathGenerator from '@/router/router_path_generator';
 import { $t } from '@/locale'
 import { debounce } from '@/util/common'
 import { writeClibboard } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
+import { VueInjectKey } from '@/constant/channel_key';
 import useRecordsDashStore from '@/store/recordsDashStore'
 import Empty from '@/components/Empty.vue'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
 import RecordCard from '@/components/RecordCard.vue'
-
 const props = withDefaults(defineProps<{
     type?: 'common' | 'recycled' | 'author' | 'series'
 }>(), {
@@ -140,6 +140,9 @@ const enum FilterKey {
     hyperlink,
     basename,
 }
+
+
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const recordsDashStore = useRecordsDashStore()
@@ -211,8 +214,6 @@ const dropdownMenus: DashDropMenu[] = [
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
-
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const recordRecmds = ref<VO.RecordRecommendation[]>([])
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)

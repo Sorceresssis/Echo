@@ -61,6 +61,7 @@ import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
+import { VueInjectKey } from '@/constant/channel_key'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import LocalImage from '@/components/LocalImage.vue'
@@ -73,15 +74,9 @@ const route = useRoute()
 const submitBtnText = ref<string>($t('layout.create'))
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
-const winowLoading = inject<Ref<boolean>>('winowLoading')
-const openLoading = function () {
-    if (winowLoading) winowLoading.value = true
-}
-const closeLoading = function () {
-    if (winowLoading) winowLoading.value = false
-}
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
-const managePathPattern = inject<RegExp>('managePathPattern')!
+const winowLoading = inject<Ref<boolean>>(VueInjectKey.WINDOW_LOADING)!
+const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
+const managePagePathPattern = inject<RegExp>(VueInjectKey.MANAGE_PAGE_PATH_PATTERN)!
 
 const authorFormRef = ref()
 const formData = reactive<DTO.EditAuthorForm>({
@@ -177,7 +172,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
             formData.editSampleImages = editSampleImages
             formData.removeSampleImages = Array.from(removeSampleImages)
 
-            openLoading()
+            winowLoading.value = true
             window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
                 if (formData.id) {
                     Message.success($t('msg.editSuccess'))
@@ -192,7 +187,9 @@ const submitForm = (formEl: FormInstance | undefined) => {
                 }
             }).catch(() => {
                 Message.error($t('msg.duplicateAuthorName'))
-            }).finally(closeLoading)
+            }).finally(() => {
+                winowLoading.value = false
+            })
         }
 
         formData.id ? MessageBox.editConfirm().then(cb) : MessageBox.addConfirm().then(cb)
@@ -213,7 +210,7 @@ const resetFormData = function () {
 }
 
 const init = () => {
-    if (!managePathPattern.test(route.fullPath)) return
+    if (!managePagePathPattern.test(route.fullPath)) return
 
     const id = route.query.author_id as string | undefined
 

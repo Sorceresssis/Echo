@@ -55,23 +55,26 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, onMounted, watch, readonly } from 'vue'
+import { ref, Ref, inject, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
 import { debounce } from '@/util/common'
+import Message from '@/util/Message'
+import { VueInjectKey } from '@/constant/channel_key'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useDirnamesDashStore from '@/store/dirnamesDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Empty from '@/components/Empty.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
-import Message from '@/util/Message'
 
 const route = useRoute()
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
+
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const dirnamesDashStore = useDirnamesDashStore()
@@ -107,7 +110,6 @@ const dropdownMenus = [{
     ]
 }]
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const dirnames = ref<VO.DirnameDetail[]>([])
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)

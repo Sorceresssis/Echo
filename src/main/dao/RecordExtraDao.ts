@@ -23,7 +23,7 @@ class RecordExtraDao {
 
     public insetRecordExtra(recordExtra: Entity.RecordExtra): PrimaryKey {
         return this.libEnv.db.run('INSERT INTO record_extra(id, plot, reviews, info) VALUES(?,?,?,?);',
-            recordExtra.id, recordExtra.plot, recordExtra.reviews, recordExtra.info).lastInsertRowid
+            recordExtra.id, recordExtra.plot, recordExtra.reviews, recordExtra.info).lastInsertRowid as Entity.PK
     }
 
     public deleteRecordExtraById(id: PrimaryKey): number {

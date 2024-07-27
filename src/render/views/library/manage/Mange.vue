@@ -19,6 +19,7 @@
 import { ref, shallowReactive, onMounted, watch, provide } from 'vue'
 import { useRoute, } from 'vue-router'
 import { $t } from '@/locale'
+import { VueInjectKey } from '@/constant/channel_key'
 import Tabs from '@/components/Tabs.vue'
 import EditRecord from './EditRecord.vue'
 import AddRecordFromMetadata from './AddRecordFromMetadata.vue'
@@ -27,6 +28,8 @@ import EditAuthor from './EditAuthor.vue'
 import EditRoles from './EditRoles.vue'
 import EditDirname from './EditDirname.vue'
 
+const route = useRoute()
+
 const props = defineProps({
     pathPattern: {
         type: RegExp,
@@ -34,9 +37,7 @@ const props = defineProps({
     },
 })
 
-provide('managePathPattern', props.pathPattern)
-
-const route = useRoute()
+provide(VueInjectKey.MANAGE_PAGE_PATH_PATTERN, props.pathPattern)
 
 const tabsKey = ref<number>(0)
 const activeLabelIdx = ref<number>(0)

@@ -18,7 +18,6 @@
     },
     "dependencies": {
         "@imengyu/vue3-context-menu": "^1.4.1",
-        "@types/fs-extra": "^11.0.4",
         "adm-zip": "^0.5.14",
         "ajv": "^6.12.6",
         "archiver": "^7.0.1",
@@ -43,6 +42,7 @@
         "@types/adm-zip": "^0.5.5",
         "@types/archiver": "^6.0.2",
         "@types/better-sqlite3": "^7.6.10",
+        "@types/fs-extra": "^11.0.4",
         "@types/node": "^20.14.5",
         "@types/sharp": "^0.32.0",
         "@vitejs/plugin-vue": "^5.0.4",

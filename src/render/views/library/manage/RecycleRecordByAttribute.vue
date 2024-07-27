@@ -45,19 +45,20 @@
         </el-form>
     </div>
 </template>
-  
+
 <script lang="ts" setup>
 import { ref, Ref, reactive, inject, toRaw, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
-import type { FormInstance, FormRules, } from 'element-plus'
-import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
+import { VueInjectKey } from '@/constant/channel_key'
+import type { FormInstance, FormRules, } from 'element-plus'
+import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 
 const route = useRoute()
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const btnLoading = ref(false)
 const formRef = ref<FormInstance>()

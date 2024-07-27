@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
-import DynamicSqlBuilder, { SortRule } from "../util/DynamicSqlBuilder"
+import DynamicSqlBuilder, { SortRule } from "../utils/DynamicSqlBuilder"
 
 export type QueryTagsSortRule = {
     field: 'title' | 'id',
@@ -55,7 +55,7 @@ class TagDao {
     }
 
     public insertTag(title: string): PrimaryKey {
-        return this.libEnv.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid
+        return this.libEnv.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid as Entity.PK
     }
 
     public deleteTagById(id: PrimaryKey): number {

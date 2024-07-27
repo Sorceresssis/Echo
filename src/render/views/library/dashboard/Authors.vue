@@ -27,11 +27,11 @@
 					class="author-recommendation-item divider">
 					<local-image :src="recmd.avatar"
 								 class="author-icon avatar-icon"
-								 @click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))" />
+								 @click="router.push(RouterPathGenerator.libraryAuthor(activeLibrary, recmd.id))" />
 					<div class="author-info">
 						<h1 :title="recmd.name"
 							class="name cursor--pointer"
-							@click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))">
+							@click="router.push(RouterPathGenerator.libraryAuthor(activeLibrary, recmd.id))">
 							{{ recmd.name }}
 						</h1>
 						<p class="meta fz-12">
@@ -65,11 +65,12 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, onMounted, inject, watch, readonly, computed, reactive } from 'vue'
+import { ref, Ref, onMounted, inject, watch, computed, reactive } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import hrefGenerator from '@/router/hrefGenerator'
+import RouterPathGenerator from '@/router/router_path_generator';
 import { $t } from '@/locale'
 import { debounce } from '@/util/common'
+import { VueInjectKey } from '@/constant/channel_key';
 import useLibraryStore from '@/store/libraryStore'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useAuthorsDashStore from '@/store/authorsDashStore'
@@ -86,6 +87,7 @@ const router = useRouter()
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
@@ -156,7 +158,6 @@ const sortDropdownMenu: DashDropMenu = {
 	]
 }
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const authorRecmds = ref<VO.AuthorRecommendation[]>([])
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)

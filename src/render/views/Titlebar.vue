@@ -14,7 +14,7 @@
         <div class="flex">
             <span :title="$t('layout.settings')"
                   class="iconfont no-drag"
-                  @click="router.push(hrefGenerator.settings())">&#xe657;</span>
+                  @click="router.push(RouterPathGenerator.settings())">&#xe657;</span>
             <span class="iconfont no-drag"
                   @click="windowMinmize">&#xe67a;</span>
             <span v-if="isMaxmize"
@@ -31,9 +31,10 @@
 
 <script setup lang='ts'>
 import { Ref, ref, inject, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import hrefGenerator from '@/router/hrefGenerator'
 import { $t } from '@/locale'
+import { useRoute, useRouter } from 'vue-router'
+import RouterPathGenerator from '@/router/router_path_generator';
+import { VueInjectKey } from '@/constant/channel_key';
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useLibraryStore from '@/store/libraryStore'
 import Message from '@/util/Message'
@@ -47,8 +48,8 @@ const windowClose = () => window.electronAPI.windowClose()
 const router = useRouter()
 const route = useRoute()
 
-const activeLibrary = inject<Ref<number>>('activeLibrary')!
-const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
+const activeLibraryDetail = inject<VO.LibraryDetail>(VueInjectKey.ACTIVE_LIBRARY_DETAIL)!;
 
 const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
@@ -84,7 +85,7 @@ watch(route, async () => {
             lastAuthorId = 0
 
             // Roles 数据
-            libraryStore.setIsLoadingRoles(true)
+            libraryStore.setLoadingRoles(true)
             libraryStore.setRoles([])
             window.dataAPI.getRoles(newlibraryId).then((res) => {
                 if (res.code) {
@@ -93,7 +94,7 @@ watch(route, async () => {
                     Message.error(res.msg)
                 }
             }).finally(() => {
-                libraryStore.setIsLoadingRoles(false)
+                libraryStore.setLoadingRoles(false)
             })
 
             // 必要事件完成开始改变 activeLibrary 来驱动其他组件
@@ -107,15 +108,15 @@ watch(route, async () => {
             lastAuthorId = authorId
         }
 
-        window.electronAPI.queryLibraryDetail(newlibraryId).then(libDetail => {
+        window.dataAPI.queryLibraryDetail(newlibraryId).then(libDetail => {
             if (libDetail !== void 0) {
                 document.title = `${titleBarTitle.value = libDetail.name} - Echo`
                 Object.assign(activeLibraryDetail, libDetail)
             } else {
-                router.push(hrefGenerator.welcome()) // 数据库查不到这个库，跳转到欢迎页
+                router.push(RouterPathGenerator.welcome()) // 数据库查不到这个库，跳转到欢迎页
             }
         }).catch(() => {
-            router.push(hrefGenerator.welcome())
+            router.push(RouterPathGenerator.welcome())
         })
     } else {
         activeLibrary.value = 0

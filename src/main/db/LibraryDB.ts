@@ -3,7 +3,7 @@ import fs from "fs"
 import appPaths from "../app/appPaths"
 import DB from "./DB"
 import { oncePerObject } from '../decorator/method.decorator'
-import tokenizer from "../util/tokenizer"
+import tokenizer from "../utils/tokenizer"
 
 class LibraryDB extends DB {
     private readonly DB_VERSION = 1;

@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
-import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
+import LocalStorage from '@/util/LocalStorage'
 import { isSameType } from '@/util/common'
 
 type RecordsDashState = {
@@ -21,30 +21,30 @@ const useRecordsDashStore = defineStore(StoreId.RECORDS_DASH, {
             order: 'ASC',
         }
         // 读取本地存储
-        const saved = getLocalStorage(StoreId.RECORDS_DASH)
+        const saved = LocalStorage.get<RecordsDashState>(StoreId.RECORDS_DASH)
         if (saved && isSameType(saved, defaultState)) {
             return saved
         } else {
-            setLocalStorage(StoreId.RECORDS_DASH, defaultState)
+            LocalStorage.set(StoreId.RECORDS_DASH, defaultState)
             return defaultState
         }
     },
     actions: {
         handleView(view: RecordsDashState['view']) {
             this.view = view
-            setLocalStorage(StoreId.RECORDS_DASH, this.$state)
+            LocalStorage.set(StoreId.RECORDS_DASH, this.$state)
         },
         handleFilter(key: number) {
             this.filter[key] = !this.filter[key]
-            setLocalStorage(StoreId.RECORDS_DASH, this.$state)
+            LocalStorage.set(StoreId.RECORDS_DASH, this.$state)
         },
         handleSortField(field: RecordsDashState['sortField']) {
             this.sortField = field
-            setLocalStorage(StoreId.RECORDS_DASH, this.$state)
+            LocalStorage.set(StoreId.RECORDS_DASH, this.$state)
         },
         handleOrder(order: RecordsDashState['order']) {
             this.order = order
-            setLocalStorage(StoreId.RECORDS_DASH, this.$state)
+            LocalStorage.set(StoreId.RECORDS_DASH, this.$state)
         },
     }
 })

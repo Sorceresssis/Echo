@@ -1,13 +1,50 @@
-namespace Entity {
-    type LibraryExtra = {
-        id: PrimaryKey
-        auxiliarySt: string,
-        useAuxiliarySt: 0 | 1,
-        intro: string,
+declare namespace Entity {
+    type PK = number
+
+    type GroupDBInfo = {
+        name: string
+        value: string
     }
 
+    type Group = {
+        id: Entity.PK
+        name: string
+        prev_id: Entity.PK
+        next_id: Entity.PK
+        create_time: string
+        update_time: string
+    }
+
+    type Library = {
+        id: Entity.PK
+        name: string
+        prev_id: Entity.PK
+        next_id: Entity.PK
+        create_time: string
+        update_time: string
+        group_id: Entity.PK
+    }
+
+    type LibraryExtra = {
+        id: Entity.PK
+        use_auxiliary_st: 0 | 1
+        auxiliary_st: string
+        intro: string
+    }
+
+
+
+
+
+
+
+
+
+
+
+
     type Record = {
-        id: PrimaryKey
+        id: Entity.PK
         title: string
         rate: number
         hyperlink: string | null
@@ -16,18 +53,52 @@ namespace Entity {
         infoStatus: string
         tagAuthorSum: string | null
         search_text: string
-        dirnameId: PrimaryKey
+        dirnameId: Entity.PK
     }
 
     type RecordExtra = {
-        id: PrimaryKey
+        id: Entity.PK
+        plot: string
+        reviews: string
+        info: string
+
+    }
+
+    type LibraryDBInfo = GroupDBInfo
+
+
+
+
+
+    type LibraryExtra = {
+        id: Entity.PK
+        auxiliarySt: string,
+        useAuxiliarySt: 0 | 1,
+        intro: string,
+    }
+
+    type Record = {
+        id: Entity.PK
+        title: string
+        rate: number
+        hyperlink: string | null
+        basename: string | null
+        releaseDate: string | null
+        infoStatus: string
+        tagAuthorSum: string | null
+        search_text: string
+        dirnameId: PK
+    }
+
+    type RecordExtra = {
+        id: Entity.PK
         plot: string
         reviews: string
         info: string
     }
 
     type Author = {
-        id: PrimaryKey
+        id: Entity.PK
         name: string
         intro: string
     }
@@ -38,17 +109,17 @@ namespace Entity {
     }
 
     type Tag = {
-        id: PrimaryKey
+        id: Entity.PK
         title: string
     }
 
     type Series = {
-        id: PrimaryKey
+        id: Entity.PK
         name: string
     }
 
     type Dirname = {
-        id: PrimaryKey
+        id: Entity.PK
         path: string
     }
 

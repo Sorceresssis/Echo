@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="deleteInfo.isVis"
+    <el-dialog v-model="deleteInfo.show"
                class="dialog-confirm"
                :title="$t('tips.dangerousOperation')"
                width="420px"
@@ -26,7 +26,7 @@
 
 defineProps<{
     deleteInfo: {
-        isVis: boolean,
+        show: boolean,
         confirmName: string,
         confirmInput: string
     }

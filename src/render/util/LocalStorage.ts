@@ -1,10 +1,12 @@
-export const getLocalStorage = (key: string): any => {
-    const v = window.localStorage.getItem(key)
-    return v ? JSON.parse(v) : void 0
+class LocalStorage {
+    public static get<T>(key: string): T | undefined {
+        const v = window.localStorage.getItem(key)
+        return v ? JSON.parse(v) as T : void 0
+    }
+
+    public static set(key: string, value: any): void {
+        window.localStorage.setItem(key, JSON.stringify(value))
+    }
 }
 
-export const setLocalStorage = (key: string, value: any) => {
-    window.localStorage.setItem(key, JSON.stringify(value))
-}
-
-export default { setLocalStorage, getLocalStorage }
+export default LocalStorage

@@ -3,9 +3,9 @@ import appConfig from "../app/config"
 import appPaths from "../app/appPaths"
 import InjectType from "../provider/injectType"
 import DIContainer, { type LibraryEnv } from "../provider/container"
-import { exceptionalHandler } from '../util/common'
+import { exceptionalHandler } from '../utils/common'
 import LibraryDB from "../db/LibraryDB"
-import Result from "../util/Result"
+import Result from "../utils/Result"
 import type RoleDao from "../dao/RoleDao"
 import type AutocompleteService from "../service/AutocompleteService"
 import type RecordService from "../service/RecordService"

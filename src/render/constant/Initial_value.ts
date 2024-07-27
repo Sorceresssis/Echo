@@ -8,11 +8,11 @@ class InitialValue {
         const defaultValue: VO.LibraryDetail = {
             id: 0,
             name: '',
-            auxiliarySt: '',
-            useAuxiliarySt: false,
+            auxiliary_st: '',
+            use_auxiliary_st: 0,
             intro: '',
-            createTime: '',
-            modifiedTime: '',
+            create_time: '',
+            update_time: '',
         }
 
         return InitialValue.deepCopy(defaultValue)
@@ -22,6 +22,7 @@ class InitialValue {
         const defaultValue: VO.RecordDetail = {
             id: 0,
             title: '',
+            translated_title: '',
             rate: 0,
             hyperlink: null,
             releaseDate: null,
@@ -39,6 +40,21 @@ class InitialValue {
             info: '',
             createTime: '',
             modifiedTime: '',
+        }
+
+        return InitialValue.deepCopy(defaultValue)
+    }
+
+    public static getAuthorDetail(): VO.AuthorDetail {
+        const defaultValue: VO.AuthorDetail = {
+            id: 0,
+            name: '',
+            avatar: '',
+            intro: '',
+            sampleImages: [],
+            createTime: '',
+            modifiedTime: '',
+            recordCount: 0,
         }
 
         return InitialValue.deepCopy(defaultValue)

@@ -1,6 +1,76 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
 contextBridge.exposeInMainWorld('dataAPI', {
+    getPrimaryOpenLibrary: (
+        callback: (e: IpcRendererEvent, libraryId: number) => void
+    ) => ipcRenderer.on('library:primaryOpenLibrary', callback),
+
+    // ANCHOR group
+    getGroups: (
+    ) => ipcRenderer.invoke('group:getGroups'),
+
+    renameGroup: (
+        id: number, name: string
+    ) => ipcRenderer.invoke('group:rename', id, name),
+
+    createGroup: (
+        name: string
+    ) => ipcRenderer.invoke('group:create', name),
+
+    deleteGroup: (
+        id: number
+    ) => ipcRenderer.invoke('group:delete', id),
+
+    changeGroupOrder: (
+        currId: number,
+        tarNextId: number
+    ) => ipcRenderer.invoke('group:changeOrder', currId, tarNextId),
+
+
+    // ANCHOR library
+    queryLibraryDetail: (
+        id: number,
+    ) => ipcRenderer.invoke('library:queryDetail', id),
+
+    renameLibrary: (
+        id: number,
+        name: string
+    ) => ipcRenderer.invoke('library:rename', id, name),
+
+    createLibrary: (
+        groupId: number,
+        name: string
+    ) => ipcRenderer.invoke('library:create', groupId, name),
+
+    deleteLibrary: (
+        id: number
+    ) => ipcRenderer.invoke('library:delete', id),
+
+    changeLibraryOrder: (
+        currId: number,
+        tarNextId: number,
+        moveToGroupId: number
+    ) => ipcRenderer.invoke('library:changeOrder', currId, tarNextId, moveToGroupId),
+
+    editLibraryExtra: (
+        data: RP.LibraryExtraFormData
+    ) => ipcRenderer.invoke('library:editExtra', data),
+
+    exportLibrary: (
+        libraryId: number,
+        exportDir: string
+    ) => ipcRenderer.invoke('library:export', libraryId, exportDir),
+
+    importLibrary: (
+        groupId: number,
+        importFiles: string[]
+    ) => ipcRenderer.invoke('library:import', groupId, importFiles),
+
+
+
+    // -------------------------------
+
+
     getRoles: (
         libraryId: number,
     ) => ipcRenderer.invoke('role:get', libraryId),
@@ -19,72 +89,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     relaunch: () => ipcRenderer.invoke('app:relaunch'),
 
-    // ANCHOR group
 
-    getGroups: () => ipcRenderer.invoke('group:getGroups'),
-
-    renameGroup: (
-        id: number,
-        name: string
-    ) => ipcRenderer.invoke('group:rename', id, name),
-
-    addGroup: (
-        name: string
-    ) => ipcRenderer.invoke('group:add', name),
-
-    deleteGroup: (
-        id: number
-    ) => ipcRenderer.invoke('group:delete', id),
-
-    sortGroup: (
-        currId: number,
-        tarNextId: number
-    ) => ipcRenderer.invoke('group:sort', currId, tarNextId),
-
-
-    // ANCHOR library
-
-    getPrimaryOpenLibrary: (
-        callback: (e: IpcRendererEvent, libraryId: number) => void
-    ) => ipcRenderer.on('library:primaryOpenLibrary', callback),
-
-    queryLibraryDetail: (
-        id: number,
-    ) => ipcRenderer.invoke('library:queryDetail', id),
-
-    renameLibrary: (
-        id: number,
-        name: string
-    ) => ipcRenderer.invoke('library:rename', id, name),
-
-    addLibrary: (
-        groupId: number,
-        name: string
-    ) => ipcRenderer.invoke('library:add', groupId, name),
-
-    deleteLibrary: (
-        id: number
-    ) => ipcRenderer.invoke('library:delete', id),
-
-    sortLibrary: (
-        currId: number,
-        tarNextId: number,
-        moveToGroupId: number
-    ) => ipcRenderer.invoke('library:sort', currId, tarNextId, moveToGroupId),
-
-    editLibraryExtra: (
-        data: DTO.LibraryExtraForm
-    ) => ipcRenderer.invoke('library:editExtra', data),
-
-    exportLibrary: (
-        libraryId: number,
-        exportDir: string
-    ) => ipcRenderer.invoke('library:export', libraryId, exportDir),
-
-    importLibrary: (
-        groupId: number,
-        importFiles: string[]
-    ) => ipcRenderer.invoke('library:import', groupId, importFiles),
 
 
     // ANCHOR record

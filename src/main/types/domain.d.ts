@@ -1,27 +1,4 @@
 namespace Domain {
-    type GroupProfile = {
-        id: number;
-        name: string;
-    }
-
-    type LibraryProfile = {
-        id: number,
-        name: string
-    }
-
-    type Library = {
-        id: number;
-        name: string;
-        createTime?: string | undefined;
-        modifiedTime?: string | undefined;
-    }
-
-    type LibraryExtra = {
-        id: number;
-        auxiliarySt: string;
-        useAuxiliarySt: 0 | 1;
-        intro: string;
-    }
 
     type RecordProfile = {
         id: number
@@ -29,18 +6,6 @@ namespace Domain {
         cover: string | undefined
     }
 
-    type Record = {
-        id: number
-        title: string
-        rate: number
-        hyperlink: string | null
-        releaseDate: string | null
-        dirname: string | null
-        basename: string | null
-        search_text: string
-        createTime: string
-        modifiedTime: string
-    }
 
     type RecordExtra = {
         id: number;
@@ -48,15 +13,6 @@ namespace Domain {
         reviews: string
         info: string
     }
-
-
-
-
-
-
-
-
-
 
     type Author = {
         id: number;

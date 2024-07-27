@@ -21,7 +21,7 @@ class RoleDao {
 
     public insert(name: string): PrimaryKey {
         const sql = "INSERT INTO role(name) VALUES (?);"
-        return this.libEnv.db.prepare(sql).run(name).lastInsertRowid
+        return this.libEnv.db.prepare(sql).run(name).lastInsertRowid as Entity.PK
     }
 
     public update(id: number, name: string): PrimaryKey {

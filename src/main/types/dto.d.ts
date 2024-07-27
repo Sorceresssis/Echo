@@ -1,10 +1,11 @@
 namespace DTO {
-    type LibraryExtraForm = {
-        id: number
-        auxiliarySt: string,
-        useAuxiliarySt: 0 | 1,
-        intro: string,
-    }
+
+
+
+
+
+
+
 
     /**
      * 分页数据
@@ -41,7 +42,7 @@ namespace DTO {
      * 编辑作者的表单
      */
     type EditAuthorForm = {
-        id: number | bigint,
+        id: number,
         name: string,
         newAvatar: string | undefined,
         intro: string,

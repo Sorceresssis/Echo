@@ -31,7 +31,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, watch, onMounted, inject } from 'vue'
+import { ref, inject } from 'vue'
 import { $t } from '@/locale'
 import { writeClibboard } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'

@@ -6,6 +6,76 @@ interface Result<T> {
 
 
 declare interface IDataAPI {
+    getPrimaryOpenLibrary: (
+        callback: (e: IpcRendererEvent, libraryId: number) => void
+    ) => void,
+
+    // ANCHOR group
+    getGroups: (
+    ) => Promise<VO.Group[]>
+
+    renameGroup: (
+        id: number,
+        name: string
+    ) => Promise<boolean>
+
+    createGroup: (
+        name: string
+    ) => Promise<void>
+
+    deleteGroup: (
+        id: number
+    ) => Promise<void>
+
+    changeGroupOrder: (
+        currId: number,
+        tarNextId: number
+    ) => Promise<void>
+
+    // ANCHOR library
+    queryLibraryDetail: (
+        id: number,
+    ) => Promise<VO.LibraryDetail | undefined>
+
+    renameLibrary: (
+        id: number,
+        name: string
+    ) => Promise<boolean>
+
+    createLibrary: (
+        groupId: number,
+        name: string
+    ) => Promise<void>
+
+    deleteLibrary: (
+        id: number
+    ) => Promise<void>
+
+    changeLibraryOrder: (
+        currId: number,
+        tarNextId: number,
+        moveToGroupId: number
+    ) => Promise<void>
+
+    editLibraryExtra: (
+        data: RP.LibraryExtraFormData
+    ) => Promise<boolean>
+
+    exportLibrary: (
+        libraryId: number,
+        exportDir: string
+    ) => Promise<void>,
+
+    importLibrary: (
+        groupId: number,
+        importFiles: string[]
+    ) => Promise<void>,
+
+
+
+
+
+
     getRoles: (
         libraryId: number,
     ) => Promise<Result<Entity.Role[]>>
@@ -22,111 +92,6 @@ export interface IElectronAPI {
 
 
     relaunch: () => Promise<void>
-
-    // ANCHOR group
-
-    /**
-     * 获取所有的group和library
-     * @returns Groups
-     */
-    getGroups: () => Promise<VO.Group[]>
-
-    /**
-     * 重命名group
-     * @param id group的id
-     * @param newName 新的名字
-     * @returns 是否修改成功
-     */
-    renameGroup: (
-        id: number,
-        name: string
-    ) => Promise<boolean>
-
-    /** 
-     * 添加group
-     */
-    addGroup: (
-        name: string
-    ) => Promise<void>
-
-    /** 
-     * 删除group
-     */
-    deleteGroup: (
-        id: number
-    ) => Promise<void>
-
-    /** 
-     * 排序group
-     */
-    sortGroup: (
-        currId: number,
-        tarNextId: number
-    ) => Promise<void>
-
-    // ANCHOR library
-
-    /** 
-     * 获取后台发送要打开的library
-     */
-    getPrimaryOpenLibrary: (
-        callback: (e: IpcRendererEvent, libraryId: number) => void
-    ) => void,
-
-    /**
-     * 获取library的详细信息
-     * @param id library的id
-     * @returns library的详细信息
-     */
-    queryLibraryDetail: (
-        id: number,
-    ) => Promise<VO.LibraryDetail | undefined>
-
-    /** 
-     * 重命名library
-     */
-    renameLibrary: (
-        id: number,
-        name: string
-    ) => Promise<boolean>
-
-    /** 
-     * 添加library
-     */
-    addLibrary: (
-        groupId: number,
-        name: string
-    ) => Promise<void>
-
-    /** 
-     * 删除library
-     */
-    deleteLibrary: (
-        id: number
-    ) => Promise<void>
-
-    /** 
-     * 排序library
-     */
-    sortLibrary: (
-        currId: number,
-        tarNextId: number,
-        moveToGroupId: number
-    ) => Promise<void>
-
-    editLibraryExtra: (
-        data: DTO.LibraryExtraForm
-    ) => Promise<boolean>
-
-    exportLibrary: (
-        libraryId: number,
-        exportDir: string
-    ) => Promise<void>,
-
-    importLibrary: (
-        groupId: number,
-        importFiles: string[]
-    ) => Promise<void>,
 
 
     //ANCHOR Record

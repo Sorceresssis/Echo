@@ -1,3 +1,22 @@
+export const exceptionHandleWrapper = <T extends (...args: any[]) => any>(
+    action: T,
+    errorHandler: (e: any) => void,
+    defaultReturn: ReturnType<T>,
+    finallyFn?: () => void
+): (...args: Parameters<T>) => ReturnType<T> => {
+    return (...args: Parameters<T>): ReturnType<T> => {
+        try {
+            return action(...args)
+        } catch (e: any) {
+            errorHandler(e)
+            return defaultReturn
+        } finally {
+            finallyFn && finallyFn()
+        }
+    }
+}
+
+
 export function exceptionalHandler<T extends (...args: any[]) => any>
     (tryFn: T, catchFn: (e: any) => void, catchReturn: ReturnType<T>, finallyFn?: () => void) {
     return function (...args: any[]) {

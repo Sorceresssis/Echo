@@ -39,7 +39,7 @@
             <span class="iconfont no-drag"
                   @click="windowClose">&#xe685;</span>
         </div>
-        <el-drawer v-model="similarDrawerVisible"
+        <el-drawer v-model="showSimilarDrawer"
                    direction="btt"
                    size="380px"
                    class="similar-record-drawer">
@@ -84,23 +84,27 @@
 import { ref, Ref, inject, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locale'
-import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
+import MessageBox from '@/util/MessageBox'
 import { openInBrowser, openInExplorer, internetSearch, writeClibboard } from '@/util/systemUtil'
+import CrosTabBroadcast, { type CrosTabBroadcastMsg } from "@/util/CrosTabBroadcast";
+import { CrosTabBroadcastKey } from '@/constant/channel_key'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { useDragScroll } from '@/util/common'
-import { listenCrosTabMsg } from '@/util/CrosTabMsg'
 import RecordCard from '@/components/RecordCard.vue'
 import Empty from '@/components/Empty.vue'
-import MessageBox from '@/util/MessageBox'
 
 const router = useRouter()
 const route = useRoute()
 
-const { startScroll } = useDragScroll()
+const recordTabBroadcast = new CrosTabBroadcast(CrosTabBroadcastKey.CHANNEL.recordTab)
 
-const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const activeLibrary = inject<Ref<number>>('activeLibrary')!
 const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
 const record = inject<VO.RecordDetail>('record')!
+
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+const { startScroll } = useDragScroll()
+
 
 const isMaxmize = ref<boolean>()
 window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
@@ -109,21 +113,21 @@ const windowMaxmize = () => window.electronAPI.windowMaxmize()
 const windowClose = () => window.electronAPI.windowClose()
 
 const searchTitle = function () {
-    window.electronAPI.queryLibraryDetail(activeLibrary.value).then(libDetail => {
+    window.dataAPI.queryLibraryDetail(activeLibrary.value).then(libDetail => {
         if (!libDetail) return
-        const t = record.title + (libDetail.useAuxiliarySt ? `  ${libDetail.auxiliarySt}` : '')
+        const t = record.title + (libDetail.use_auxiliary_st ? `  ${libDetail.auxiliary_st}` : '')
         internetSearch(t)
     })
 }
 
 // 展示相似的record的抽屉
-const similarDrawerVisible = ref(false)
+const showSimilarDrawer = ref(false)
 const similarRecords = ref<VO.RecordRecommendation[]>([])
 const similarLoading = ref(false)
 const openSimilarDrawer = (function () {
     let queryed = false
     return () => {
-        similarDrawerVisible.value = true
+        showSimilarDrawer.value = true
 
         if (queryed) return
 
@@ -145,7 +149,7 @@ const queryRecordDetail = function () {
     })
 }
 const queryLibraryDetail = function () {
-    window.electronAPI.queryLibraryDetail(activeLibrary.value).then(libraryDetail => {
+    window.dataAPI.queryLibraryDetail(activeLibrary.value).then(libraryDetail => {
         Object.assign(activeLibraryDetail, libraryDetail)
     })
 }
@@ -181,13 +185,11 @@ watch(route, () => {
     }
 })
 
-const bc = new BroadcastChannel('updateLibraryDetail')
 
 onMounted(() => {
-    listenCrosTabMsg(bc, (e: MessageEvent) => {
-        if (e.data === activeLibrary.value.toString()) {
-            queryLibraryDetail()
-        }
+    recordTabBroadcast.onMessage((e: MessageEvent<CrosTabBroadcastMsg<VO.LibraryDetail>>) => {
+        if (e.data.type !== CrosTabBroadcastKey.MSG_TYPE.reloadLibraryDetail) return
+        Object.assign(activeLibraryDetail, e.data.payload)
     })
 
     window.electronAPI.getRecordWindowParams((e: any, libraryId: number, recordId: number) => {

@@ -1,7 +1,7 @@
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
-import DynamicSqlBuilder, { SortRule } from "../util/DynamicSqlBuilder"
+import DynamicSqlBuilder, { SortRule } from "../utils/DynamicSqlBuilder"
 
 export type QueryAuthorsSortRule = {
     field: 'name' | 'id',
@@ -70,7 +70,7 @@ class AuthorDao {
     }
 
     public insertAuthor(author: Entity.Author): PrimaryKey {
-        return this.libEnv.db.run("INSERT INTO author(name, intro) VALUES(?,?);", author.name, author.intro).lastInsertRowid
+        return this.libEnv.db.run("INSERT INTO author(name, intro) VALUES(?,?);", author.name, author.intro).lastInsertRowid as Entity.PK
     }
 
     public deleteAuthorById(id: PrimaryKey): number {

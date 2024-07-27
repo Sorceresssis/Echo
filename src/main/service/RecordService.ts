@@ -6,11 +6,11 @@ import { type OutputInfo } from "sharp"
 import ECHO_METADATA_SCHEMA from "../constant/echo_metadata_schema"
 import DIContainer, { type LibraryEnv } from "../provider/container"
 import InjectType from "../provider/injectType"
-import fm from "../util/FileManager"
+import fm from "../utils/FileManager"
 import appPaths from "../app/appPaths"
-import { isNotEmptyString, diffArray } from "../util/common"
+import { isNotEmptyString, diffArray } from "../utils/common"
 import i18n from "../locale"
-import Result from "../util/Result"
+import Result from "../utils/Result"
 import ImageService from "./ImageService"
 import RecordDao, { type QueryRecordsSortRule } from "../dao/RecordDao"
 import type RecordExtraDao from "../dao/RecordExtraDao"
@@ -43,7 +43,7 @@ class RecordService {
     }
 
     public queryRecordDetail(id: number): VO.RecordDetail | undefined {
-        const record = this.recordDao.queryRecordById(id) as VO.RecordDetail | undefined
+        const record = this.recordDao.queryById(id) as VO.RecordDetail | undefined
         if (!record) return
 
         record.resourcePath = record.dirname && record.basename ? n_path.join(record.dirname, record.basename) : null
@@ -153,7 +153,7 @@ class RecordService {
         const similar: any[] = Array.from(similarMap)
             .sort((a, b) => b[1] - a[1])
             .slice(0, count)
-            .map(item => this.recordDao.queryRecordById(item[0]))
+            .map(item => this.recordDao.queryById(item[0]))
             .filter(record => record)
 
         similar.forEach(record => {
@@ -223,8 +223,8 @@ class RecordService {
                 if (dirnameId) {
                     pn = 0
                     do {
-                        recordIds = this.recordDao.queryRecordIdsByDirnameId(dirnameId, pn++ * rowCount, rowCount)
-                        this.recordDao.updateRecordRecycledByIds(recordIds, 1)
+                        recordIds = this.recordDao.queryIdsByDirnameId(dirnameId, pn++ * rowCount, rowCount)
+                        this.recordDao.updateRecycledByIds(recordIds, 1)
                     } while (recordIds.length === rowCount)
                 }
             }
@@ -235,7 +235,7 @@ class RecordService {
                     pn = 0
                     do {
                         recordIds = this.recordTagDao.queryRecordIdsByTagId(tagId, pn++ * rowCount, rowCount)
-                        this.recordDao.updateRecordRecycledByIds(recordIds, 1)
+                        this.recordDao.updateRecycledByIds(recordIds, 1)
                     } while (recordIds.length === rowCount)
                 }
             }
@@ -246,7 +246,7 @@ class RecordService {
                     pn = 0
                     do {
                         recordIds = this.recordSeriesDao.queryRecordIdsBySeriesId(seriesId, pn++ * rowCount, rowCount)
-                        this.recordDao.updateRecordRecycledByIds(recordIds, 1)
+                        this.recordDao.updateRecycledByIds(recordIds, 1)
                     } while (recordIds.length === rowCount)
                 }
             }
@@ -273,17 +273,17 @@ class RecordService {
     }
 
     public recycleRecord(recordIds: number[]): void {
-        this.recordDao.updateRecordRecycledByIds(recordIds, 1)
+        this.recordDao.updateRecycledByIds(recordIds, 1)
     }
 
     public recoverRecycledRecord(recordIds: number[]): void {
-        this.recordDao.updateRecordRecycledByIds(recordIds, 0)
+        this.recordDao.updateRecycledByIds(recordIds, 0)
     }
 
     public deleteRecycledRecord(recordIds: number[]): void {
         recordIds.forEach(id => this.libEnv.db.transactionExec(() => {
-            const record = this.recordDao.queryRecordById(id)
-            if (record && this.recordDao.deleteRecordOfRecycledById(id) > 0) {
+            const record = this.recordDao.queryById(id)
+            if (record && this.recordDao.deleteRecycledById(id) > 0) {
                 // 如果删除record不成功，说明不存在或者没有被回收
                 this.recordExtraDao.deleteRecordExtraById(id) // 删除extra
                 this.recordAuthorDao.deleteByRecordId(id) // author链接
@@ -299,14 +299,14 @@ class RecordService {
         const rowCount = 200
         let recordIds: number[]
         do {
-            recordIds = this.recordDao.queryRecordIdsByRecycled(1, 0, rowCount)
+            recordIds = this.recordDao.queryIdsByRecycled(1, 0, rowCount)
             this.deleteRecycledRecord(recordIds)
         } while (rowCount === recordIds.length)
     }
 
     public updateRecordTagAuthorSum(id: PrimaryKey, value?: string): void {
         if (value === void 0) { value = this.getTagAuthorSum(id) }
-        this.recordDao.updateRecordTagAuthorSumById(id, value)
+        this.recordDao.updateTagAuthorSumById(id, value)
     }
 
     private getTagAuthorSum(id: PrimaryKey): string {
@@ -393,10 +393,10 @@ class RecordService {
                     srcFileIsBound = true
                     return
                 }
-                recordExtra.id = record.id = this.recordDao.insertRecord(record)
+                recordExtra.id = record.id = this.recordDao.insert(record)
                 this.recordExtraDao.insetRecordExtra(recordExtra)
             } else {
-                this.recordDao.updateRecord(record)
+                this.recordDao.update(record)
                 this.recordExtraDao.updateRecordExtra(recordExtra)
             }
 
@@ -426,7 +426,7 @@ class RecordService {
             updatedSeries.push(...this.seriesDao.querySeriesByRecordId(record.id))
 
             const tagAuthorSum = updatedAuthors.map(author => author.name).concat(updatedTags.map(tag => tag.title)).join(' ')
-            this.recordDao.updateRecordTagAuthorSumById(record.id, tagAuthorSum || null)
+            this.recordDao.updateTagAuthorSumById(record.id, tagAuthorSum || null)
         })
 
         // 直接退出
@@ -574,7 +574,7 @@ class RecordService {
                 metadata.search_text,
                 dirnameId
             )
-            recordId = record.id = this.recordDao.insertRecord(record)
+            recordId = record.id = this.recordDao.insert(record)
 
             const recordExtra = {} as Entity.RecordExtra
             recordExtra.id = record.id
@@ -638,7 +638,7 @@ class RecordService {
         )
 
         this.libEnv.db.transactionExec(() => {
-            this.recordDao.updateRecord(record)
+            this.recordDao.update(record)
 
             const recordExtra = this.recordExtraDao.recordExtraFactory(
                 recordId,

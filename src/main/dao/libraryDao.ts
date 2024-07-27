@@ -9,76 +9,108 @@ class LibraryDao {
 		@inject(InjectType.GroupDB) private db: GroupDB
 	) { }
 
-	public queryLibraryById(id: number): Domain.Library | undefined {
-		return this.db.get(`SELECT id, name, DATETIME(gmt_create, 'localtime') AS createTime, DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM library WHERE id=?;`, id)
+	public getLibraryById(id: Entity.PK): BO.Library | undefined {
+		const sql = `
+			SELECT id, name,
+				DATETIME(create_time, 'localtime') AS create_time,
+				DATETIME(update_time, 'localtime') AS update_time
+			FROM library WHERE id = ?;
+		`
+		return this.db.prepare<[Entity.PK], BO.Library>(sql).get(id)
 	}
 
-	public querySortedLibrarysByGroupId(groupId: number): Domain.LibraryProfile[] {
-		return this.db.all(`
-        	WITH RECURSIVE library_list AS (
-            	SELECT id, name, prev_id, next_id FROM 'library' WHERE group_id = ? AND prev_id = 0
-                UNION ALL
-                SELECT l.id, l.name, l.prev_id, l.next_id FROM 'library' l JOIN library_list ll ON l.id = ll.next_id WHERE l.group_id = ? AND ll.next_id != 0
-            ) SELECT id, name FROM library_list;`, groupId, groupId)
+	public getLibrarysSortedByGroupId(groupId: Entity.PK): BO.Library[] {
+		const sql = `
+        	WITH RECURSIVE list AS (
+            	SELECT id, name,
+                    DATETIME(create_time, 'localtime') as create_time,
+                    DATETIME(update_time, 'localtime') as update_time,
+					prev_id, next_id
+				FROM 'library'
+				WHERE group_id = ? AND prev_id = 0
+            UNION ALL
+                SELECT l.id, l.name,
+                    DATETIME(l.create_time, 'localtime') as create_time,
+                    DATETIME(l.update_time, 'localtime') as update_time,
+					l.prev_id, l.next_id
+				FROM 'library' l
+					JOIN list ls ON l.id = ls.next_id
+				WHERE l.group_id = ? AND ls.next_id != 0
+            ) SELECT id, name, create_time, update_time FROM list;`
+		return this.db.prepare<[Entity.PK, Entity.PK], BO.Library>(sql).all(groupId, groupId)
 	}
 
-	public queryLibraryIdsByGroupId(groupId: number): number[] {
-		return this.db.prepare(`SELECT id FROM library WHERE group_id = ?;`).pluck().all(groupId) as number[]
+	public getIdsByGroupId(groupId: Entity.PK): Entity.PK[] {
+		const sql = "SELECT id FROM library WHERE group_id = ?;"
+		return this.db.prepare<[Entity.PK], Entity.PK>(sql).pluck().all(groupId)
 	}
 
-	public queryLibraryGroupIdById(id: PrimaryKey): number | undefined {
-		return this.db.prepare('SELECT group_id FROM library WHERE id = ?;').pluck().get(id) as number | undefined
+	public getGroupIdById(id: Entity.PK): Entity.PK | undefined {
+		const sql = "SELECT group_id FROM library WHERE id = ?;"
+		return this.db.prepare<[Entity.PK], Entity.PK>(sql).pluck().get(id)
 	}
 
 	/**
 	 * 由于每一个Group都有一个prevId为0的节点表示头节点，所以要带上groupId
 	 */
-	public queryLibraryIdByGroupIdPrevId(groupId: PrimaryKey, prevId: PrimaryKey): number | undefined {
-		return this.db.prepare('SELECT id FROM library WHERE group_id = ? AND prev_id = ?;').pluck().get(groupId, prevId) as number | undefined
+	public getIdByGroupIdPrevId(groupId: Entity.PK, prevId: Entity.PK): Entity.PK | undefined {
+		const sql = "SELECT id FROM library WHERE group_id = ? AND prev_id = ?;"
+		return this.db.prepare<any, Entity.PK>(sql).pluck().get(groupId, prevId)
 	}
 
-	public queryLibraryIdByGroupIdNextId(groupId: PrimaryKey, nextId: PrimaryKey): number | undefined {
-		return this.db.prepare('SELECT id FROM library WHERE group_id = ? AND next_id = ?;').pluck().get(groupId, nextId) as number | undefined
+	public getIdByGroupIdNextId(groupId: Entity.PK, nextId: Entity.PK): Entity.PK | undefined {
+		const sql = "SELECT id FROM library WHERE group_id = ? AND next_id = ?;"
+		return this.db.prepare<any, Entity.PK>(sql).pluck().get(groupId, nextId)
 	}
 
-	public queryLibraryPrevIdById(id: PrimaryKey): number | undefined {
-		return this.db.prepare(`SELECT prev_id FROM library WHERE id = ?;`).pluck().get(id) as number | undefined
+	public getPrevIdById(id: Entity.PK): Entity.PK | undefined {
+		const sql = "SELECT prev_id FROM library WHERE id = ?;"
+		return this.db.prepare<any, Entity.PK>(sql).pluck().get(id)
 	}
 
-	public queryLibraryNextIdById(id: PrimaryKey): number | undefined {
-		return this.db.prepare(`SELECT next_id FROM library WHERE id = ?;`).pluck().get(id) as number | undefined
+	public getNextIdById(id: Entity.PK): Entity.PK | undefined {
+		const sql = "SELECT next_id FROM library WHERE id = ?;"
+		return this.db.prepare<any, Entity.PK>(sql).pluck().get(id)
 	}
 
-	public queryLibraryPrevIdNextIdById(id: PrimaryKey): [number, number] | undefined {
-		return this.db.prepare(`SELECT prev_id, next_id FROM library WHERE id = ?;`).raw().get(id) as [number, number] | undefined
+	public getPrevIdNextIdById(id: Entity.PK): [Entity.PK, Entity.PK] | undefined {
+		const sql = "SELECT prev_id, next_id FROM library WHERE id = ?;"
+		return this.db.prepare<any, [Entity.PK, Entity.PK]>(sql).raw().get(id)
 	}
 
-	public updateLibraryName(id: PrimaryKey, name: string): number {
-		return this.db.run(`UPDATE library SET name = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;`, name, id).changes
+	public updateNameById(id: Entity.PK, name: string): number {
+		const sql = "UPDATE library SET name = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;"
+		return this.db.run(sql, name, id).changes
 	}
 
-	public updateLibraryGroupId(id: PrimaryKey, groupId: PrimaryKey): number {
-		return this.db.run(`UPDATE library SET group_id = ? WHERE id = ?;`, groupId, id).changes
+	public updateGroupIdById(id: Entity.PK, groupId: Entity.PK): number {
+		const sql = "UPDATE library SET group_id = ? WHERE id = ?;"
+		return this.db.run(sql, groupId, id).changes
 	}
 
-	public updateLibraryNextId(id: PrimaryKey, nextId: PrimaryKey): number {
-		return this.db.run(`UPDATE library SET next_id = ? WHERE id = ?;`, nextId, id).changes
+	public updateNextIdById(id: Entity.PK, nextId: Entity.PK): number {
+		const sql = "UPDATE library SET next_id = ? WHERE id = ?;"
+		return this.db.run(sql, nextId, id).changes
 	}
 
-	public updateLibraryPrevId(id: PrimaryKey, prevId: PrimaryKey): number {
-		return this.db.run(`UPDATE library SET prev_id = ? WHERE id = ?;`, prevId, id).changes
+	public updatePrevIdById(id: Entity.PK, prevId: Entity.PK): number {
+		const sql = "UPDATE library SET prev_id = ? WHERE id = ?;"
+		return this.db.run(sql, prevId, id).changes
 	}
 
-	public updateLibraryPrevIdNextId(id: PrimaryKey, prevId: PrimaryKey, nextId: PrimaryKey): number {
-		return this.db.run(`UPDATE library SET prev_id = ?, next_id = ? WHERE id = ?;`, prevId, nextId, id).changes
+	public updatePrevIdNextIdById(id: Entity.PK, prevId: Entity.PK, nextId: Entity.PK): number {
+		const sql = "UPDATE library SET prev_id = ?, next_id = ? WHERE id = ?;"
+		return this.db.run(sql, prevId, nextId, id).changes
 	}
 
-	public insertLibrary(name: string, groupId: number): PrimaryKey {
-		return this.db.run(`INSERT INTO library(name, group_id) VALUES(?, ?);`, name, groupId).lastInsertRowid
+	public insert(name: string, groupId: number): Entity.PK {
+		const sql = "INSERT INTO library(name, group_id) VALUES(?, ?);"
+		return this.db.run(sql, name, groupId).lastInsertRowid as Entity.PK
 	}
 
-	public deleteLibraryById(id: PrimaryKey): number {
-		return this.db.run(`DELETE FROM library WHERE id = ?;`, id).changes
+	public deleteById(id: Entity.PK): number {
+		const sql = "DELETE FROM library WHERE id = ?;"
+		return this.db.run(sql, id).changes
 	}
 }
 

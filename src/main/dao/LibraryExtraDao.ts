@@ -8,21 +8,22 @@ class LibraryExtraDao {
         @inject(InjectType.GroupDB) private db: GroupDB
     ) { }
 
-    public queryLibraryExtraById(id: number): Domain.LibraryExtra | undefined {
-        return this.db.get('SELECT id, auxiliary_st AS auxiliarySt, use_auxiliary_st AS useAuxiliarySt, intro FROM library_extra WHERE id=?;', id)
+    public getLibraryExtraById(id: Entity.PK): Entity.LibraryExtra | undefined {
+        const sql = "SELECT id, use_auxiliary_st, auxiliary_st, intro FROM library_extra WHERE id=?;"
+        return this.db.get(sql, id)
     }
 
-    public updateLibraryExtra(data: Entity.LibraryExtra): number {
-        return this.db.run(`UPDATE library_extra SET auxiliary_st=?, use_auxiliary_st=?, intro=? WHERE id=?;`,
-            data.auxiliarySt, data.useAuxiliarySt, data.intro, data.id).changes
+    public update(data: Entity.LibraryExtra): number {
+        const sql = "UPDATE library_extra SET auxiliary_st=?, use_auxiliary_st=?, intro=? WHERE id=?;"
+        return this.db.run(sql, data.auxiliary_st, data.use_auxiliary_st, data.intro, data.id).changes
     }
 
-    public insertLibraryExtra(data: Entity.LibraryExtra): number {
-        return this.db.run('INSERT INTO library_extra(id, auxiliary_st, use_auxiliary_st, intro) VALUES(?, ?, ?, ?);',
-            data.id, data.auxiliarySt, data.useAuxiliarySt, data.intro).changes
+    public insert(data: Entity.LibraryExtra): Entity.PK {
+        const sql = "INSERT INTO library_extra(id, auxiliary_st, use_auxiliary_st, intro) VALUES(?, ?, ?, ?);"
+        return this.db.run(sql, data.id, data.auxiliary_st, data.use_auxiliary_st, data.intro).changes
     }
 
-    public deleteLibraryExtraById(id: number): number {
+    public deleteById(id: Entity.PK): number {
         return this.db.run('DELETE FROM library_extra WHERE id=?;', id).changes
     }
 }

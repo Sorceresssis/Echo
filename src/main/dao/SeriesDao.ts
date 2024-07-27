@@ -21,7 +21,7 @@ class SeriesDao {
     }
 
     public insertSeries(name: string): PrimaryKey {
-        return this.libEnv.db.run("INSERT INTO series(name) VALUES(?);", name).lastInsertRowid
+        return this.libEnv.db.run("INSERT INTO series(name) VALUES(?);", name).lastInsertRowid as Entity.PK
     }
 
     public deleteSeries(id: PrimaryKey): number {

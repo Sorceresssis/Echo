@@ -2,8 +2,8 @@ import { clipboard, ipcMain, IpcMainInvokeEvent, shell, dialog } from "electron"
 import { exec } from "child_process"
 import nodePath from "path"
 import fs from "fs"
-import fm from "../util/FileManager"
-import Result from "../util/Result"
+import fm from "../utils/FileManager"
+import Result from "../utils/Result"
 import i18n from "../locale"
 
 export default function ipcMainSystem() {

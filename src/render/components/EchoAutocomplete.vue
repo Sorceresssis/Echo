@@ -35,6 +35,7 @@
 
 <script setup lang='ts'>
 import { ref, Ref, inject, toRaw, readonly } from 'vue'
+import { VueInjectKey } from '@/constant/channel_key';
 import { ElAutocomplete } from 'element-plus';
 import LocalImage from '@/components/LocalImage.vue'
 
@@ -60,7 +61,7 @@ const emit = defineEmits<{
     (e: 'btnSelect', item: VO.AcSuggestion): void // 点击一个固定的按钮，将item.value传出去
 }>()
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)// 正在打开的Library
+const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
 
 const querySearch = (queryWord: string, cb: any) => {
     window.electronAPI.autoCompleteRecord(

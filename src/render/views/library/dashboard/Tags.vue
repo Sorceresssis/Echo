@@ -59,6 +59,7 @@ import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { debounce } from '@/util/common'
 import { writeClibboard } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
+import { VueInjectKey } from '@/constant/channel_key'
 import useTagsDashStore from '@/store/tagsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
@@ -66,6 +67,8 @@ import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 
 const route = useRoute()
+
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const tagsDashStore = useTagsDashStore()
@@ -104,7 +107,6 @@ const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
 const tags = ref<VO.TagDetail[]>([])
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
 const pageSize = 50

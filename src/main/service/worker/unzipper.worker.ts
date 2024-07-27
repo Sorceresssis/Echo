@@ -1,6 +1,6 @@
 import { parentPort } from 'node:worker_threads'
 import AdmZip from 'adm-zip'
-import Result from '../../util/Result'
+import Result from '../../utils/Result'
 
 
 export type unzipperOperation = {
