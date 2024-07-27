@@ -62,9 +62,10 @@ class TagService {
             // id !== existId 的判断是为了防止修改的值和原值一样，导致被删除
             if (existId && id !== existId) {
                 // 如果已经存在，就把record_tag中的tag_id重定向到existId
+                // 如果 existId 和 编辑的 id。 绑定了相同的 record， 需要删除掉记录即可， 实现再内部。
                 this.recordTagDao.updateTagIdByTagId(id, existId)
                 this.tagDao.deleteTagById(id)
-                this.updateRecordTagAuthorSumOfTag(existId) // 更新冗余字段
+                // title 相同, 不需要跟新 TagAuthorSum 
             } else {
                 this.tagDao.updateTagTitle(id, title) // 如果不存在，就直接更新
                 this.updateRecordTagAuthorSumOfTag(id) // 更新冗余字段
@@ -75,6 +76,7 @@ class TagService {
     public deleteTag(id: number): void {
         this.libEnv.db.transactionExec(() => {
             this.tagDao.deleteTagById(id)
+            // TODO 为什么  要先 updata 再删除
             this.updateRecordTagAuthorSumOfTag(id)
             this.recordTagDao.deleteRecordTagByTagId(id)
         })

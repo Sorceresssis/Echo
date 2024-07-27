@@ -70,7 +70,8 @@ namespace DTO {
         id: number,
         dirname: string
         basename: string
-        title: string,
+        title: string
+        translated_title: string
         hyperlink: string,
         releaseDate: string
         cover: string | undefined
@@ -106,12 +107,13 @@ namespace DTO {
     type RecordBatchProcessingType = 'recycle' | 'recover' | 'delete_recycled' | 'delete_recycled_all'
 
     type QueryAuthorRecommendationsOptions = {
-        keyword: string,
+        keyword: string
         sortField: 'time' | 'name'
         order: 'ASC' | 'DESC'
-        role: 1 | 0 | string
-        pn: number,
-        ps: number,
+        roleFilterMode: "None" | "DEFAULT" | "KEY"
+        role: number
+        pn: number
+        ps: number
     }
 
     type QueryTagDetailsOptions = {

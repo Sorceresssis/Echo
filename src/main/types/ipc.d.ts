@@ -6,9 +6,9 @@ interface Result<T> {
 
 
 declare interface IDataAPI {
-    getAuthorRoles: (
+    getRoles: (
         libraryId: number,
-    ) => Promise<Result<string[]>>
+    ) => Promise<Result<Entity.Role[]>>
 
 }
 

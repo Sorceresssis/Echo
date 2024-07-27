@@ -19,17 +19,22 @@ namespace Entity {
         dirnameId: PrimaryKey
     }
 
+    type RecordExtra = {
+        id: PrimaryKey
+        plot: string
+        reviews: string
+        info: string
+    }
+
     type Author = {
         id: PrimaryKey
         name: string
         intro: string
     }
 
-    type RecordExtra = {
-        id: PrimaryKey
-        plot: string
-        reviews: string
-        info: string
+    interface Role {
+        id: number
+        name: string
     }
 
     type Tag = {

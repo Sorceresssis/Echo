@@ -1,9 +1,9 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
 contextBridge.exposeInMainWorld('dataAPI', {
-    getAuthorRoles: (
+    getRoles: (
         libraryId: number,
-    ) => ipcRenderer.invoke('author:getRoles', libraryId),
+    ) => ipcRenderer.invoke('role:get', libraryId),
 
 
 })

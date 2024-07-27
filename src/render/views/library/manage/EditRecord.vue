@@ -46,12 +46,14 @@
                                    show-word-limit
                                    :placeholder="$t('layout.editRecordTitlePlaceholder')" />
             </el-form-item>
-            <el-form-item :label="$t('layout.title')"
-                          prop="title">
-                <echo-autocomplete v-model="formData.title"
-                                   type="record"
-                                   show-word-limit
-                                   :placeholder="$t('layout.editRecordTitlePlaceholder')" />
+            <el-form-item :label="$t('layout.translated_title')"
+                          prop="translated_title">
+                <el-input v-model="formData.translated_title"
+                          :placeholder="$t('layout.editRecordHyperlinkPlaceholder')"
+                          maxlength="255"
+                          show-word-limit
+                          spellcheck="false"
+                          clearable />
             </el-form-item>
             <el-form-item :label="$t('layout.hyperlink')">
                 <el-input v-model="formData.hyperlink"
@@ -108,6 +110,15 @@
                                      class="avatar-icon" />
                         <p>
                             <span class="author_name textover--ellopsis"> {{ author.name }} </span>
+                            <el-select v-model="value"
+                                       multiple
+                                       placeholder="Select"
+                                       style="width: 240px">
+                                <el-option v-for="item in options"
+                                           :key="item.value"
+                                           :label="item.label"
+                                           :value="item.value" />
+                            </el-select>
                             <span v-if="author.role">({{ author.role }})</span>
                         </p>
                         <div class="op">
@@ -219,7 +230,7 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, Ref, watch, inject, readonly } from 'vue'
 import { useRoute } from 'vue-router'
-import { type FormInstance, type FormRules, ElInput, ElForm, ElFormItem, } from 'element-plus'
+import { type FormInstance, type FormRules, ElInput, ElForm, ElFormItem, ElSelect, ElOption } from 'element-plus'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useAuthorsDashStore from '@/store/authorsDashStore'
@@ -252,7 +263,23 @@ const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const managePathPattern = inject<RegExp>('managePathPattern')!
 
 const formRef = ref()
-
+// TODO temp start
+const value = ref<string[]>([])
+const options = [
+    {
+        value: 'HTML',
+        label: 'HTML',
+    },
+    {
+        value: 'CSS',
+        label: 'CSS',
+    },
+    {
+        value: 'JavaScript',
+        label: 'JavaScript',
+    },
+]
+// TODO temp end
 const {
     displayTags,
     tagAdder,

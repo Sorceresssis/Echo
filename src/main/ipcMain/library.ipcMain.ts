@@ -6,13 +6,13 @@ import DIContainer, { type LibraryEnv } from "../provider/container"
 import { exceptionalHandler } from '../util/common'
 import LibraryDB from "../db/LibraryDB"
 import Result from "../util/Result"
+import type RoleDao from "../dao/RoleDao"
 import type AutocompleteService from "../service/AutocompleteService"
 import type RecordService from "../service/RecordService"
 import type AuthorService from "../service/AuthorService"
 import type TagService from "../service/TagService"
 import type DirnameService from "../service/DirnameService"
 import type SeriesService from "../service/SeriesService"
-import type RecordAuthorDao from "../dao/RecordAuthorDao"
 
 
 const { rebindLibrary, closeLibraryDB } = function () {
@@ -138,13 +138,13 @@ function ipcMainLibrary() {
     }, generateCatchFn('author:delete'), false, closeLibraryDB))
 
 
-    ipcMain.handle('author:getRoles', (e: IpcMainInvokeEvent, libraryId: number) => {
+    ipcMain.handle('role:get', (e: IpcMainInvokeEvent, libraryId: number): Result => {
         try {
             rebindLibrary(libraryId)
-            const dao = DIContainer.get<RecordAuthorDao>(InjectType.RecordAuthorDao)
-            return Result.success()
+            const data = DIContainer.get<RoleDao>(InjectType.RoleDao).query()
+            return Result.success(data)
         } catch (e: any) {
-            return Result.error(e.message)
+            return Result.error()
         } finally {
             closeLibraryDB()
         }

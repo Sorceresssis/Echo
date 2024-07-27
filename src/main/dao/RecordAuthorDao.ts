@@ -8,6 +8,7 @@ class RecordAuthorDao {
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
     ) { }
 
+    // TODO GRoup BY record_id. role.
     public queryCountOfRecordsByAuthorId(authorId: number): number {
         const sql = "SELECT COUNT(record_id) FROM record_author WHERE author_id = ?;"
         return this.libEnv.db.prepare(sql).pluck().get(authorId) as number
@@ -31,8 +32,13 @@ class RecordAuthorDao {
 
     public updateRoleByRecordIdAuthorId(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {
         const stmt = this.libEnv.db.prepare("UPDATE record_author SET role = ? WHERE record_id = ? AND author_id = ?;")
-        // 如果role为空，插入null，节省储存空间
+        // 如果role为空，插入null
         authors.forEach(author => stmt.run(author.role === '' ? null : author.role, recordId, author.id))
+    }
+
+    public updateRoleIdbyRoleId(newRoleId: number, oldRoleId: number): number {
+        const sql = "UPDATE record_author SET role_id = ? WHERE role_id = ?;"
+        return this.libEnv.db.prepare(sql).run(newRoleId, oldRoleId).changes
     }
 
     public insert(recordId: PrimaryKey, authorId: PrimaryKey, role: string): PrimaryKey {
@@ -40,21 +46,21 @@ class RecordAuthorDao {
         return stmt.run(recordId, authorId, role).lastInsertRowid
     }
 
-    public insertRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {
+    public insertByRecordIdAuthorIds(recordId: PrimaryKey, authors: PO.AuthorIdAndRole[]): void {
         const stmt = this.libEnv.db.prepare("INSERT INTO record_author(record_id, author_id, role) VALUES(?, ?, ?);")
         authors.forEach(author => stmt.run(recordId, author.id, author.role === '' ? null : author.role))
     }
 
-    public deleteRecordAuthorByRecordIdAuthorIds(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
+    public deleteByRecordIdAuthorIds(recordId: PrimaryKey, authorIds: PrimaryKey[]): void {
         const stmt = this.libEnv.db.prepare("DELETE FROM record_author WHERE record_id = ? AND author_id = ?;")
         authorIds.forEach(authorId => stmt.run(recordId, authorId))
     }
 
-    public deleteRecordAuthorByAuthorId(authorId: PrimaryKey): number {
+    public deleteByAuthorId(authorId: PrimaryKey): number {
         return this.libEnv.db.run("DELETE FROM record_author WHERE author_id = ?;", authorId).changes
     }
 
-    public deleteRecordAuthorByRecordId(recordId: PrimaryKey): number {
+    public deleteByRecordId(recordId: PrimaryKey): number {
         return this.libEnv.db.run("DELETE FROM record_author WHERE record_id = ?;", recordId).changes
     }
 }

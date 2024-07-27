@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang='ts'>
-import { provide, reactive, ref } from 'vue'
+import { onMounted, provide, reactive, ref } from 'vue'
 import { getElLang } from '@/locale';
 import InitialValue from '@/constant/Initial_value';
 import Sidebar from './Sidebar.vue'

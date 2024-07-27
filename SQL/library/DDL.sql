@@ -92,7 +92,7 @@ CREATE UNIQUE INDEX 'uk_author(name)' ON author (name);
 
 
 -- ----------------------------
---        record_author
+--        role
 -- ----------------------------
 DROP TABLE IF EXISTS 'role';
 CREATE TABLE 'role'

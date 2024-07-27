@@ -12,6 +12,7 @@ const InjectType = {
     AuthorDao: Symbol('AuthorDao'),
     DirnameDao: Symbol('DirnameDao'),
     RecordDao: Symbol('RecordDao'),
+    RoleDao: Symbol('RoleDao'),
     RecordAuthorDao: Symbol('RecordAuthorDao'),
     RecordExtraDao: Symbol('RecordExtraDao'),
     RecordSeriesDao: Symbol('RecordSeriesDao'),

@@ -10,7 +10,7 @@ class Result {
     }
 
     static success(data?: any) {
-        return new Result(1, undefined, data)
+        return new Result(1, 'ok', data)
     }
 
     static error(msg?: string) {

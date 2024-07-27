@@ -142,7 +142,7 @@ class AuthorService {
         this.libEnv.db.transactionExec(() => {
             this.authorDao.deleteAuthorById(authorId) // 删除作者
             this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
-            this.recordAuthorDao.deleteRecordAuthorByAuthorId(authorId) // 删除关联
+            this.recordAuthorDao.deleteByAuthorId(authorId) // 删除关联
 
             // 删除图像 
             fm.rmdirRecursive(this.libEnv.genAuthorImagesDirPathConstructor(authorId).getImagesDirPath())

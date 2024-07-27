@@ -34,7 +34,7 @@ class AuthorDao {
     public queryAuthorsByKeyword(
         keyword: string,
         sort: QueryAuthorsSortRule[],
-        role: 1 | 0 | string,
+        role: number,
         offset: number,
         rowCount: number,
     ): DAO.AllQueryResult<Domain.Author> {
@@ -49,10 +49,6 @@ class AuthorDao {
         }
         sortRule.push(...sort)
         sql.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
-        // TODO
-        console.log(role);
-
-        console.log(sql.getSql(), sql.getParams());
 
         const rows = this.libEnv.db.all(sql.getSql(), ...sql.getParams())
         const total = rows.length > 0 ? rows[0].total_count : 0

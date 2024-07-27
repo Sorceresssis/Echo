@@ -1,4 +1,5 @@
 const enum StoreId {
+    LIBRARY = 'LIBRARY',
     VIEWS_TASK_AFTER_ROUTING = 'Views_Task_After_Routing',
     RECORDS_DASH = 'Records_Dash',
     AUTHORS_DASH = 'Authors_Dash',

@@ -468,9 +468,6 @@ img {
     font-size: 13px;
     overflow: hidden;
     box-sizing: border-box;
-}
-
-.dashboard-text-card:hover {
     background-color: #fff;
     box-shadow:
         0px 0px 0.3px rgba(0, 0, 0, 0.033),
@@ -491,6 +488,7 @@ img {
 
 .dashboard-text-card .operate {
     display: none;
+    cursor: pointer;
 }
 
 .dashboard-text-card:hover .operate {

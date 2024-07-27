@@ -10,7 +10,7 @@
 				<dash-drop-menu v-if="roleDropdownMenu.items.length"
 								class="menu-item"
 								:menu="roleDropdownMenu"
-								:loading="authorsDashStore.rolesLoading"
+								:loading="libraryStore.isLoadingRoles"
 								@command="handleQueryParamsChange" />
 				<dash-drop-menu class="menu-item"
 								:menu="sortDropdownMenu" />
@@ -70,6 +70,7 @@ import { useRouter, useRoute } from 'vue-router'
 import hrefGenerator from '@/router/hrefGenerator'
 import { $t } from '@/locale'
 import { debounce } from '@/util/common'
+import useLibraryStore from '@/store/libraryStore'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useAuthorsDashStore from '@/store/authorsDashStore'
 import { ElPagination } from 'element-plus'
@@ -85,6 +86,8 @@ const router = useRouter()
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
+
+const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const authorsDashStore = useAuthorsDashStore()
 
@@ -92,28 +95,28 @@ const roleDropdownMenu = reactive<DashDropMenu>({
 	HTMLElementTitle: 'role',
 	title: '&#xe60d;',
 	items: computed(() => {
-		if (authorsDashStore.roles.length) {
+		if (libraryStore.roles.length) {
 			return [
 				{
 					key: 1,
 					title: 'ALL',
 					divided: false,
-					click: () => authorsDashStore.handleRole(1),
-					dot: () => authorsDashStore.role === 1
+					click: () => authorsDashStore.setRole('None'),
+					dot: () => authorsDashStore.roleFilterMode === 'None'
 				},
 				{
 					key: 0,
 					title: 'None',
 					divided: false,
-					click: () => authorsDashStore.handleRole(0),
-					dot: () => authorsDashStore.role === 0
+					click: () => authorsDashStore.setRole('DEFAULT'),
+					dot: () => authorsDashStore.roleFilterMode === 'DEFAULT'
 				},
-				...authorsDashStore.roles.map(role => ({
-					key: role,
-					title: role,
-					divided: false,
-					click: () => authorsDashStore.handleRole(role),
-					dot: () => authorsDashStore.role === role
+				...libraryStore.roles.map((role, idx) => ({
+					key: role.id,
+					title: role.name,
+					divided: idx === 0,
+					click: () => authorsDashStore.setRole('KEY', role.id),
+					dot: () => authorsDashStore.role === role.id
 				}))
 			]
 		} else {
@@ -168,6 +171,7 @@ const queryAuthorRecmds = debounce(async () => {
 			keyword: keyword.value,
 			sortField: authorsDashStore.sortField,
 			order: authorsDashStore.order,
+			roleFilterMode: authorsDashStore.roleFilterMode,
 			role: authorsDashStore.role,
 			pn: currentPage.value,
 			ps: pageSize
@@ -189,8 +193,7 @@ const handleQueryParamsChange = function () {
 	handlePageChange(1)
 }
 const init = async function () {
-	authorsDashStore.handleRole(1)
-	authorsDashStore.getRoles(activeLibrary.value)
+	authorsDashStore.setRole('None')
 
 	keyword.value = ''
 	handleQueryParamsChange()

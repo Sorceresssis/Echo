@@ -65,6 +65,7 @@ export default {
         sortBy: '並べ替え',
         time: '時間',
         title: 'タイトル',
+        translated_title: '翻訳タイトル',
         name: '名前',
         path: 'パス',
         rate: '評価',

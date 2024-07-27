@@ -136,6 +136,7 @@ const useEditRecordService = () => {
         dirname: '',
         basename: '',
         title: '',
+        translated_title: '',
         hyperlink: '',
         releaseDate: '',
         cover: '',
@@ -200,6 +201,7 @@ const useEditRecordService = () => {
 
         formData.id = data.id
         formData.title = data.title
+        formData.translated_title = data.translated_title
         formData.rate = data.rate
         if (data.hyperlink) {
             formData.hyperlink = data.hyperlink
@@ -264,6 +266,7 @@ const useEditRecordService = () => {
         formData.dirname = ''
         formData.basename = ''
         formData.title = ''
+        formData.translated_title = ''
         formData.hyperlink = ''
         formData.releaseDate = ''
         formData.cover = ''

@@ -51,6 +51,7 @@ namespace VO {
     type RecordDetail = {
         id: number
         title: string
+        translated_title: string
         rate: number
         hyperlink: string | null
         releaseDate: string | null
@@ -73,6 +74,7 @@ namespace VO {
     type RecordRecommendation = {
         id: number
         title: string
+        translated_title: string
         rate: number
         cover: string | undefined
         hyperlink: string | null
@@ -91,6 +93,12 @@ namespace VO {
         name: string,
         avatar: string | undefined,
         role: string | null,
+    }
+
+    type AuthorProfile = {
+        id: number,
+        name: string,
+        avatar: string | undefined
     }
 
     type AuthorDetail = {

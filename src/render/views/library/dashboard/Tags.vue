@@ -109,6 +109,7 @@ const keyword = ref<string>('')
 const currentPage = ref<number>(1)
 const pageSize = 50
 const total = ref<number>(0)
+const tagTitleMaxLen = 255
 
 const deleteTag = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
@@ -117,14 +118,13 @@ const deleteTag = (id: number) => {
     })
 }
 const editTag = (id: number, oldValue: string) => {
-    MessageBox.editPrompt(
-        (value: string) => {
-            const reg = /\S/
-            if (!reg.test(value)) return $t('tips.inputValueNotEmpty')
-            const maxLen = 255
-            if (value.length > maxLen) return $t('tips.lengthLimitExceeded', { count: maxLen })
-            return true
-        }, oldValue
+    MessageBox.editPrompt((value: string) => {
+        const reg = /\S/
+        if (!reg.test(value)) return $t('tips.inputValueNotEmpty')
+        const maxLen = tagTitleMaxLen
+        if (value.length > maxLen) return $t('tips.lengthLimitExceeded', { count: maxLen })
+        return true
+    }, oldValue
     ).then(({ value }) => {
         MessageBox.editConfirm().then(async () => {
             const trimValue = value.trim()
@@ -182,6 +182,6 @@ onMounted(init)
 <style scoped>
 .adaptive-grid {
     row-gap: 8px;
-    grid-template-columns: repeat(auto-fill, 350px);
+    grid-template-columns: repeat(auto-fill, 400px);
 }
 </style>

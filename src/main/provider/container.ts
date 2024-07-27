@@ -28,6 +28,7 @@ import SeriesService from "../service/SeriesService"
 import TagService from "../service/TagService"
 
 import type LibraryDB from "../db/LibraryDB"
+import RoleDao from '../dao/RoleDao'
 
 const container = new Container()
 
@@ -60,15 +61,16 @@ container.bind<LibraryEnv>(InjectType.LibraryEnv).toConstantValue({
 } as any)
 
 // 依赖的LibraryDB是动态的，所以不能使用inSingletonScope
-container.bind<AuthorDao>(InjectType.AuthorDao).to(AuthorDao).inSingletonScope()
-container.bind<DirnameDao>(InjectType.DirnameDao).to(DirnameDao).inSingletonScope()
 container.bind<RecordDao>(InjectType.RecordDao).to(RecordDao).inSingletonScope()
-container.bind<RecordAuthorDao>(InjectType.RecordAuthorDao).to(RecordAuthorDao).inSingletonScope()
 container.bind<RecordExtraDao>(InjectType.RecordExtraDao).to(RecordExtraDao).inSingletonScope()
-container.bind<RecordSeriesDao>(InjectType.RecordSeriesDao).to(RecordSeriesDao).inSingletonScope()
+container.bind<AuthorDao>(InjectType.AuthorDao).to(AuthorDao).inSingletonScope()
+container.bind<RoleDao>(InjectType.RoleDao).to(RoleDao).inSingletonScope()
+container.bind<RecordAuthorDao>(InjectType.RecordAuthorDao).to(RecordAuthorDao).inSingletonScope()
+container.bind<DirnameDao>(InjectType.DirnameDao).to(DirnameDao).inSingletonScope()
+container.bind<TagDao>(InjectType.TagDao).to(TagDao).inSingletonScope()
 container.bind<RecordTagDao>(InjectType.RecordTagDao).to(RecordTagDao).inSingletonScope()
 container.bind<SeriesDao>(InjectType.SeriesDao).to(SeriesDao).inSingletonScope()
-container.bind<TagDao>(InjectType.TagDao).to(TagDao).inSingletonScope()
+container.bind<RecordSeriesDao>(InjectType.RecordSeriesDao).to(RecordSeriesDao).inSingletonScope()
 
 // Service
 container.bind<AutocompleteService>(InjectType.AutocompleteService).to(AutocompleteService).inSingletonScope()

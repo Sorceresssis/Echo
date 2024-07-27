@@ -286,7 +286,7 @@ class RecordService {
             if (record && this.recordDao.deleteRecordOfRecycledById(id) > 0) {
                 // 如果删除record不成功，说明不存在或者没有被回收
                 this.recordExtraDao.deleteRecordExtraById(id) // 删除extra
-                this.recordAuthorDao.deleteRecordAuthorByRecordId(id) // author链接
+                this.recordAuthorDao.deleteByRecordId(id) // author链接
                 this.recordTagDao.deleteRecordTagByRecordId(id) // tag链接
                 this.recordSeriesDao.deleteRecordSeriesByRecordId(id) // series链接
 
@@ -325,9 +325,9 @@ class RecordService {
         addSeriesIds: PrimaryKey[],
         removeSeriesIds: PrimaryKey[],
     ) {
-        this.recordAuthorDao.insertRecordAuthorByRecordIdAuthorIds(recordId, addAuthors)
+        this.recordAuthorDao.insertByRecordIdAuthorIds(recordId, addAuthors)
         this.recordAuthorDao.updateRoleByRecordIdAuthorId(recordId, editAuthorsRole)
-        this.recordAuthorDao.deleteRecordAuthorByRecordIdAuthorIds(recordId, removeAuthorIds)
+        this.recordAuthorDao.deleteByRecordIdAuthorIds(recordId, removeAuthorIds)
 
         this.recordTagDao.insertRecordTagByRecordIdTagIds(recordId, addTagIds)
         this.recordTagDao.deleteRecordTagByRecordIdTagIds(recordId, removeTagIds)
@@ -594,7 +594,7 @@ class RecordService {
             })
             this.recordTagDao.insertRecordTagByRecordIdTagIds(record.id, addTagIds)
             this.recordSeriesDao.insertRecordSeriesByRecordIdSeriesIds(record.id, addSeriesIds)
-            this.recordAuthorDao.insertRecordAuthorByRecordIdAuthorIds(record.id, authorIdAndRoles)
+            this.recordAuthorDao.insertByRecordIdAuthorIds(record.id, authorIdAndRoles)
         })
 
         // 图片操作

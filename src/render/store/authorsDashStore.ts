@@ -1,25 +1,21 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
-import Message from '@/util/Message'
 
 type AuthorsDashState = {
     sortField: DTO.QueryAuthorRecommendationsOptions['sortField']
     order: 'ASC' | 'DESC',
-    role: string | 0 | 1 // 1: all. 0: none  切换lib要重置
-    rolesLoading: boolean
-    roles: string[]
+    roleFilterMode: DTO.QueryAuthorRecommendationsOptions['roleFilterMode']
+    role: number
 }
 
-const rolesMap = new Map<number, string[]>()
 
 const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
     state: (): AuthorsDashState => {
         const defaultState: AuthorsDashState = {
             sortField: 'name',
             order: 'ASC',
-            role: 1,
-            rolesLoading: true,
-            roles: []
+            roleFilterMode: 'None',
+            role: 0,
         }
 
         return defaultState
@@ -31,33 +27,14 @@ const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
         handleOrder(order: 'ASC' | 'DESC') {
             this.order = order
         },
-        handleRole(role: string | 0 | 1) {
-            this.role = role
-        },
-        getRoles(libraryId: number) {
-            const saved = rolesMap.get(libraryId)
-            if (saved) {
-                this.rolesLoading = false
-                this.roles = saved
-            } else {
-                this.updateRoles(libraryId)
+        setRole(mode: DTO.QueryAuthorRecommendationsOptions['roleFilterMode'], role?: number) {
+            if (mode === 'None' || mode === 'DEFAULT') {
+                this.roleFilterMode = mode
+                this.role = 0
+            } else if (role && role > 0) {
+                this.roleFilterMode = mode
+                this.role = role
             }
-        },
-        updateRoles(libraryId: number) {
-            this.rolesLoading = true
-            window.dataAPI.getAuthorRoles(libraryId).then(res => {
-                if (res.code === 0) {
-                    Message.error(res.msg)
-                    return
-                }
-
-                rolesMap.set(libraryId, res.data)
-                this.roles = res.data
-            }).catch(() => {
-                this.roles = []
-            }).finally(() => {
-                this.rolesLoading = false
-            })
         }
     }
 })
