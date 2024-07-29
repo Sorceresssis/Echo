@@ -2,9 +2,9 @@ import { defineStore } from 'pinia'
 import StoreId from './storeId'
 
 type AuthorsDashState = {
-    sortField: DTO.QueryAuthorRecommendationsOptions['sortField']
+    sortField: RP.QueryAuthorRecommendationsOptions['sortField']
     order: 'ASC' | 'DESC',
-    roleFilterMode: DTO.QueryAuthorRecommendationsOptions['roleFilterMode']
+    roleFilterMode: RP.QueryAuthorRecommendationsOptions['roleFilterMode']
     role: number
 }
 
@@ -27,7 +27,7 @@ const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
         handleOrder(order: 'ASC' | 'DESC') {
             this.order = order
         },
-        setRole(mode: DTO.QueryAuthorRecommendationsOptions['roleFilterMode'], role?: number) {
+        setRole(mode: RP.QueryAuthorRecommendationsOptions['roleFilterMode'], role?: number) {
             if (mode === 'None' || mode === 'DEFAULT') {
                 this.roleFilterMode = mode
                 this.role = 0

@@ -24,7 +24,7 @@
                     <div class="content">
                         <span :title="tag.title"
                               class="textover--ellopsis">{{ tag.title }}</span>
-                        <span class="count">{{ tag.recordCount }}</span>
+                        <span class="count">{{ tag.record_count }}</span>
                     </div>
                     <div class="operate">
                         <span class="iconfont"

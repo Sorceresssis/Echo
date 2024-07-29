@@ -4,7 +4,7 @@ import LocalStorage from '@/util/LocalStorage'
 import { isSameType } from '@/util/common'
 
 type DirnameDashState = {
-    sortField: DTO.QueryDirnameDetailsOptions['sortField'],
+    sortField: RP.QueryDirnameDetailsOptions['sortField'],
     order: 'ASC' | 'DESC'
 }
 

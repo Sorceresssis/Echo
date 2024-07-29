@@ -1,6 +1,6 @@
 import { parentPort } from 'node:worker_threads'
 import AdmZip from 'adm-zip'
-import Result from '../../utils/Result'
+import ResponseResult from '../../pojo/ResponseResult'
 
 
 export type unzipperOperation = {
@@ -14,7 +14,7 @@ parentPort?.on('message', (wData: {
     ops: unzipperOperation[]
 }) => {
     try {
-        const opResults: Result[] = Array.from({ length: wData.ops.length })
+        const opResults: ResponseResult<any>[] = Array.from({ length: wData.ops.length })
 
         const zip = new AdmZip(wData.zipFilePath)
         const zipEntries = zip.getEntries()
@@ -26,13 +26,13 @@ parentPort?.on('message', (wData: {
                         if (opResults[opIdx]) return
                         if (entry.entryName === op.entryName) {
                             zip.extractEntryTo(entry.entryName, op.tragetPath!, true, true)
-                            opResults[opIdx] = Result.success()
+                            opResults[opIdx] = ResponseResult.success()
                         }
                         break
                     case 'read':
                         if (opResults[opIdx]) return
                         if (entry.entryName === op.entryName) {
-                            opResults[opIdx] = Result.success(entry.getData())
+                            opResults[opIdx] = ResponseResult.success(entry.getData())
                         }
                         break
                     case 'extractAll':
@@ -40,7 +40,7 @@ parentPort?.on('message', (wData: {
                         zip.extractAllToAsync(op.tragetPath!, true, false, (err) => {
                             if (err) throw err
                         })
-                        opResults[opIdx] = Result.success()
+                        opResults[opIdx] = ResponseResult.success()
                         break
                 }
             })
@@ -51,10 +51,10 @@ parentPort?.on('message', (wData: {
 
         // 把undefined的结果改成error
         opResults.forEach((r, idx) => {
-            if (!r) opResults[idx] = Result.error('no such entry')
+            if (!r) opResults[idx] = ResponseResult.error('no such entry')
         })
-        parentPort?.postMessage(Result.success(opResults))
+        parentPort?.postMessage(ResponseResult.success(opResults))
     } catch (err: any) {
-        parentPort?.postMessage(Result.error(err.message))
+        parentPort?.postMessage(ResponseResult.error(err.message))
     }
 })

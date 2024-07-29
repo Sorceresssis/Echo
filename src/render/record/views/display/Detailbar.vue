@@ -39,10 +39,10 @@
                               class="tag">{{ tag.title }}</span>
                     </div>
                 </div>
-                <div v-if="record.releaseDate"
+                <div v-if="record.release_date"
                      class="meta">
                     <div class="inline-list-title">{{ $t('layout.releaseDate') }}</div>
-                    <div class="meta-content"> {{ record.releaseDate }} </div>
+                    <div class="meta-content"> {{ record.release_date }} </div>
                 </div>
                 <div v-if="record.plot"
                      class="meta">
@@ -65,11 +65,11 @@
                 </div>
                 <div class="meta">
                     <div class="inline-list-title"> {{ $t('layout.createdTime') }} </div>
-                    <div class="meta-comtent"> {{ record.createTime }} </div>
+                    <div class="meta-comtent"> {{ record.create_time }} </div>
                 </div>
                 <div class="meta">
                     <div class="inline-list-title"> {{ $t('layout.lastModifiedTime') }} </div>
-                    <div class="meta-comtent"> {{ record.modifiedTime }} </div>
+                    <div class="meta-comtent"> {{ record.update_time }} </div>
                 </div>
                 <div v-if="slickCarouselImages.length"
                      class="meta">
@@ -144,7 +144,7 @@ const record = inject<VO.RecordDetail>('record')!
 const activeSeriesId = ref<number>(0)
 const slickCarouselImages = ref<string[]>([])
 const genSlickCarouselImages = function () {
-    slickCarouselImages.value = record.cover ? [record.cover, ...record.sampleImages] : record.sampleImages
+    slickCarouselImages.value = record.cover ? [record.cover, ...record.sample_images] : record.sample_images
 }
 watch(record, genSlickCarouselImages)
 

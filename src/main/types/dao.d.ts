@@ -32,7 +32,11 @@ declare namespace DAO {
 
     type RecordExtra_W = Entity.RecordExtra
 
+    type Author_R = Entity.Author
 
+    type AuthorProfile_R = Omit<Entity.Author, 'intro' | 'create_time' | 'update_time'>
+
+    type Author_W = Omit<Entity.Author, 'create_time' | 'update_time'>
 
 
 

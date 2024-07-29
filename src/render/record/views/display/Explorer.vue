@@ -1,5 +1,5 @@
 <template>
-    <div v-if="record.resourcePath"
+    <div v-if="record.source_fullpath"
          class="file-explorer">
         <header class="file-explorer__header">
             <div class="operate">
@@ -137,23 +137,23 @@ const openCtm = (
 }
 
 
-watch(() => record.resourcePath, () => {
+watch(() => record.source_fullpath, () => {
     if (realFolders.value.length === 0) {
-        if (record.resourcePath) {
-            explorer.init(record.resourcePath)
+        if (record.source_fullpath) {
+            explorer.init(record.source_fullpath)
         }
     } else {
-        if (!record.resourcePath) {
+        if (!record.source_fullpath) {
             explorer.reset()
-        } else if (record.resourcePath !== realFolders.value[0]) {
-            explorer.init(record.resourcePath)
+        } else if (record.source_fullpath !== realFolders.value[0]) {
+            explorer.init(record.source_fullpath)
         }
     }
 })
 
 onMounted(() => {
-    if (record.resourcePath) {
-        explorer.init(record.resourcePath)
+    if (record.source_fullpath) {
+        explorer.init(record.source_fullpath)
     }
 })
 

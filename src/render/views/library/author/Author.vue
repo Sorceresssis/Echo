@@ -8,7 +8,7 @@
                     class="name"> {{ authorDetail.name }} </h1>
                 <p class="meta fz-12">
                     <span class="inline-list-title"> {{ $t('layout.numberOfWorks') }} </span>
-                    <a class="count">{{ authorDetail.recordCount }}</a>
+                    <a class="count">{{ authorDetail.record_count }}</a>
                 </p>
                 <p class="caption"
                    style="font-size: 12px;"> {{ authorDetail.intro }} </p>
@@ -34,11 +34,12 @@
 </template>
 
 <script lang="ts" setup>
-import { shallowReactive, ref, Ref, onMounted, inject, reactive, readonly, watch, onActivated } from 'vue'
+import { shallowReactive, ref, Ref, onMounted, inject, reactive, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import RouterPathGenerator from '@/router/router_path_generator';
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { VueInjectKey } from '@/constant/channel_key';
-import RouterPathGenerator from '@/router/router_path_generator';
+import InitialValue from '@/constant/Initial_value';
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
 import { $t } from '@/locale'
@@ -46,7 +47,6 @@ import Tabs from '@/components/Tabs.vue'
 import LocalImage from '@/components/LocalImage.vue'
 import Records from '../dashboard/Records.vue'
 import About from './About.vue'
-import InitialValue from '@/constant/Initial_value';
 
 const router = useRouter()
 const route = useRoute()

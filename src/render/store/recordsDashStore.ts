@@ -5,9 +5,9 @@ import { isSameType } from '@/util/common'
 
 type RecordsDashState = {
     view: 'thumbnail' | 'extended',
-    filter: DTO.QueryRecordRecommendationsOptions['filters'],
-    sortField: DTO.QueryRecordRecommendationsOptions['sortField'],
-    order: DTO.QueryRecordRecommendationsOptions['order'],
+    filter: RP.QueryRecordRecommendationsOptions['filters'],
+    sortField: RP.QueryRecordRecommendationsOptions['sortField'],
+    order: RP.QueryRecordRecommendationsOptions['order'],
 }
 
 

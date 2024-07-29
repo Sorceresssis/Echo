@@ -10,8 +10,8 @@
                   @click="openInBrowser(record.hyperlink)">&#xe612;</span>
             <span :title="$t('layout.openInFileExplorer')"
                   class="iconfont no-drag"
-                  :class="record.resourcePath ? '' : 'disabled'"
-                  @click="openInExplorer(record.resourcePath)">&#xe73e;</span>
+                  :class="record.source_fullpath ? '' : 'disabled'"
+                  @click="openInExplorer(record.source_fullpath)">&#xe73e;</span>
             <span :title="$t('layout.similarRecommendation')"
                   class="iconfont no-drag"
                   @click="openSimilarDrawer">&#xe620;</span>

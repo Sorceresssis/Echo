@@ -36,7 +36,7 @@
 						</h1>
 						<p class="meta fz-12">
 							<span class="inline-list-title"> {{ $t('layout.numberOfWorks') }}</span>
-							<a class="count">{{ recmd.worksCount }}</a>
+							<a class="count">{{ recmd.record_count }}</a>
 						</p>
 						<p class="caption"> {{ recmd.intro }} </p>
 					</div>

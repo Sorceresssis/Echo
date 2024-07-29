@@ -9,7 +9,7 @@ class AutocompleteService {
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
     ) { }
 
-    public query(type: AcType, queryWord: string, ps: number): VO.AcSuggestion[] {
+    public query(type: AcType, queryWord: string, ps: number): VO.AutoCompleteSuggestion[] {
         const table = [
             "SELECT 'record' AS type, id, title AS value, REGEXP(title) + REGEXP(translated_title) + REGEXP(search_text) AS sore FROM record WHERE sore > 0",
             "SELECT 'author' AS type, id, name AS value, REGEXP(name) AS sore FROM author WHERE sore > 0",
@@ -38,11 +38,17 @@ class AutocompleteService {
         })
         sqlBuilder.append(') ORDER BY sore DESC LIMIT 0, ?;', ps)
 
-        const rows: VO.AcSuggestion[] = this.libEnv.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
+        const rows: VO.AutoCompleteSuggestion[] = this.libEnv.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
 
         rows.forEach(row => {
-            if (row.type === 'record') row.image = this.libEnv.genRecordImagesDirPathConstructor(row.id).findMainImageFilePath()
-            if (row.type === 'author') row.image = this.libEnv.genAuthorImagesDirPathConstructor(row.id).findAvatarImageFilePath()
+            if (row.type === 'record') {
+                row.image = this.libEnv.genRecordImagesDirPathConstructor(row.id).findMainImageFilePath()
+                return
+            }
+            if (row.type === 'author') {
+                row.image = this.libEnv.genAuthorImagesDirPathConstructor(row.id).findAvatarImageFilePath()
+                return
+            }
         })
         return rows
     }

@@ -1,19 +1,16 @@
 import { ipcMain, IpcMainInvokeEvent, dialog } from "electron"
-import appConfig from "../app/config"
 import appPaths from "../app/appPaths"
 import InjectType from "../provider/injectType"
 import DIContainer, { type LibraryEnv } from "../provider/container"
-import { exceptionalHandler } from '../utils/common'
+import { exceptionHandleWrap, exceptionHandleWrapAsync } from '../utils/common'
 import LibraryDB from "../db/LibraryDB"
-import Result from "../utils/Result"
-import type RoleDao from "../dao/RoleDao"
+import ResponseResult from "../pojo/ResponseResult"
 import type AutocompleteService from "../service/AutocompleteService"
 import type RecordService from "../service/RecordService"
 import type AuthorService from "../service/AuthorService"
 import type TagService from "../service/TagService"
 import type DirnameService from "../service/DirnameService"
 import type SeriesService from "../service/SeriesService"
-import { type PagedResult } from "../pojo/page"
 
 
 const { rebindLibrary, closeLibraryDB } = function () {
@@ -37,49 +34,54 @@ const { rebindLibrary, closeLibraryDB } = function () {
 }()
 
 function generateCatchFn(title: string, suggest?: string) {
-    return function (e: any) {
-        // 弹出错误提示
-        dialog.showErrorBox(title, suggest ? `${suggest}\n${e.message}` : e.message)
-        appConfig.reset('dataPath')
+    return function showErrorBox(error: any) {
+        const content: string[] = [String(error)]
+        if (suggest) {
+            content.push('\n\n')
+            content.push('Suggest:\n')
+            content.push(suggest)
+        }
+
+        dialog.showErrorBox(title, content.join(''))
     }
 }
 
 function ipcMainLibrary() {
-    ipcMain.handle('record:autoComplete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.AcOptions): VO.AcSuggestion[] => {
+    ipcMain.handle('record:autoComplete', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.AutoCompleteOptions): VO.AutoCompleteSuggestion[] => {
         rebindLibrary(libraryId)
         return DIContainer.get<AutocompleteService>(InjectType.AutocompleteService).query(options.type, options.queryWord, options.ps)
-    }, generateCatchFn('record:autoComplete'), [], closeLibraryDB))
+    }, generateCatchFn('record:autoComplete'), true, closeLibraryDB))
 
 
-    ipcMain.handle('record:queryRecmds', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryRecordRecommendationsOptions): DTO.Page<VO.RecordRecommendation> => {
+    ipcMain.handle('record:queryRecmds', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.QueryRecordRecommendationsOptions): DTO.PagedResult<VO.RecordRecommendation> => {
         rebindLibrary(libraryId)
         return DIContainer.get<RecordService>(InjectType.RecordService).queryRecordRecmds(options)
-    }, generateCatchFn('record:queryRecmds'), { total: 0, rows: [] }, closeLibraryDB))
+    }, generateCatchFn('record:queryRecmds'), true, closeLibraryDB))
 
 
-    ipcMain.handle('record:queryDetail', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, recordId: number): VO.RecordDetail | undefined => {
+    ipcMain.handle('record:queryDetail', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, recordId: number): VO.RecordDetail | undefined => {
         rebindLibrary(libraryId)
         return DIContainer.get<RecordService>(InjectType.RecordService).queryRecordDetail(recordId)
-    }, generateCatchFn('record:queryDetail'), void 0, closeLibraryDB))
+    }, generateCatchFn('record:queryDetail'), true, closeLibraryDB))
 
 
-    ipcMain.handle('record:querySimilarRecmds', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, recordId: number, count?: number): VO.RecordRecommendation[] => {
+    ipcMain.handle('record:querySimilarRecmds', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, recordId: number, count?: number): VO.RecordRecommendation[] => {
         rebindLibrary(libraryId)
         return DIContainer.get<RecordService>(InjectType.RecordService).querySimilarRecordRecmds(recordId, count)
-    }, generateCatchFn('record:querySimilarRecmds'), [], closeLibraryDB))
+    }, generateCatchFn('record:querySimilarRecmds'), true, closeLibraryDB))
 
 
-    ipcMain.handle('record:edit', exceptionalHandler(async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditRecordForm): Promise<Result> => {
+    ipcMain.handle('record:edit', exceptionHandleWrapAsync(async (e: IpcMainInvokeEvent, libraryId: number, formData: RP.EditRecordFormData): Promise<ResponseResult<void>> => {
         rebindLibrary(libraryId)
         const recordService = DIContainer.get<RecordService>(InjectType.RecordService)
         return await recordService.editRecord(formData)
-    }, generateCatchFn('record:edit'), new Promise((resolve) => { resolve(Result.error('runtime error')) }), closeLibraryDB))
+    }, generateCatchFn('record:edit'), true, closeLibraryDB))
 
     ipcMain.handle('record:addRecordFromMetadata', async (
         e: IpcMainInvokeEvent,
         libraryId: number,
         param: RP.AddRecordFromMetadataParam
-    ): Promise<Result> => {
+    ): Promise<ResponseResult<void>> => {
         try {
             rebindLibrary(libraryId)
             const recordService = DIContainer.get<RecordService>(InjectType.RecordService)
@@ -91,61 +93,61 @@ function ipcMainLibrary() {
             } else {
                 throw new Error('参数 type 错误')
             }
-            return Result.success()
+            return ResponseResult.success()
         } catch (e: any) {
-            return Result.error(e.message)
+            return ResponseResult.error(e.message)
         } finally {
             closeLibraryDB()
         }
     })
 
-    ipcMain.handle('record:batchProcessing', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, type: DTO.RecordBatchProcessingType, recordIds: number[]): void => {
+    ipcMain.handle('record:batchProcessing', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, type: RP.RecordBatchProcessingType, recordIds: number[]): void => {
         rebindLibrary(libraryId)
         DIContainer.get<RecordService>(InjectType.RecordService).batchProcessing(type, recordIds)
-    }, generateCatchFn('record:batchProcessing'), void 0, closeLibraryDB))
+    }, generateCatchFn('record:batchProcessing'), true, closeLibraryDB))
 
 
-    ipcMain.handle('record:deleteByAttribute', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.DeleteRecordByAttributeForm) => {
+    ipcMain.handle('record:deleteByAttribute', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.DeleteRecordByAttributeForm) => {
         rebindLibrary(libraryId)
         DIContainer.get<RecordService>(InjectType.RecordService).recycleRecordByAttribute(formData)
-    }, generateCatchFn('record:batchDelete'), void 0, closeLibraryDB))
+    }, generateCatchFn('record:batchDelete'), true, closeLibraryDB))
 
 
     //ANCHOR Author
 
-    ipcMain.handle('author:queryRecmds', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> => {
+    ipcMain.handle('author:queryRecmds', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.QueryAuthorRecommendationsOptions): DTO.PagedResult<VO.AuthorRecommendation> => {
         rebindLibrary(libraryId)
         return DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorRecmds(options)
-    }, generateCatchFn('author:queryRecmds'), { total: 0, rows: [] }, closeLibraryDB))
+    }, generateCatchFn('author:queryRecmds'), true, closeLibraryDB))
 
 
-    ipcMain.handle('author:queryDetail', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, authorId: number): VO.AuthorDetail | undefined => {
+    ipcMain.handle('author:queryDetail', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, authorId: number): VO.AuthorDetail | undefined => {
         rebindLibrary(libraryId)
         return DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorDetail(authorId)
-    }, generateCatchFn('author:queryDetail'), void 0, closeLibraryDB))
+    }, generateCatchFn('author:queryDetail'), true, closeLibraryDB))
 
 
-    ipcMain.handle('author:edit', exceptionalHandler(async (e: IpcMainInvokeEvent, libraryId: number, formData: DTO.EditAuthorForm) => {
+    ipcMain.handle('author:edit', exceptionHandleWrapAsync(async (e: IpcMainInvokeEvent, libraryId: number, formData: RP.EditAuthorFormData) => {
         rebindLibrary(libraryId)
         await DIContainer.get<AuthorService>(InjectType.AuthorService).editAuthor(formData)
         return true
-    }, generateCatchFn('author:edit'), new Promise((resolve => resolve(false))), closeLibraryDB))
+    }, generateCatchFn('author:edit'), true, closeLibraryDB))
 
 
-    ipcMain.handle('author:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, authorId: number): boolean => {
+    ipcMain.handle('author:delete', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, authorId: number): boolean => {
         rebindLibrary(libraryId)
         DIContainer.get<AuthorService>(InjectType.AuthorService).deleteAuthor(authorId)
         return true
     }, generateCatchFn('author:delete'), false, closeLibraryDB))
 
 
-    ipcMain.handle('role:get', (e: IpcMainInvokeEvent, libraryId: number): Result => {
+    ipcMain.handle('role:get', (e: IpcMainInvokeEvent, libraryId: number): ResponseResult<void> => {
         try {
             rebindLibrary(libraryId)
-            const data = DIContainer.get<RoleDao>(InjectType.RoleDao).query()
-            return Result.success(data)
+            // const data = DIContainer.get<RoleDao>(InjectType.RoleDao).query()
+            return ResponseResult.success()
         } catch (e: any) {
-            return Result.error()
+            return ResponseResult.error()
         } finally {
             closeLibraryDB()
         }
@@ -153,71 +155,74 @@ function ipcMainLibrary() {
 
 
     //ANCHOR Tag
-
-    ipcMain.handle('tag:queryDetails', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryTagDetailsOptions): PagedResult<VO.TagDetail> => {
+    ipcMain.handle('tag:queryDetails', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.QueryTagDetailsOptions): DTO.PagedResult<VO.TagDetail> => {
         rebindLibrary(libraryId)
         return DIContainer.get<TagService>(InjectType.TagService).queryTagDetails(options)
-    }, generateCatchFn('tag:queryDetails'), { total: 0, rows: [] }, closeLibraryDB))
+    }, generateCatchFn('tag:queryDetails'), true, closeLibraryDB))
 
 
-    ipcMain.handle('tag:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string): void => {
+    ipcMain.handle('tag:edit', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, tagId: number, newValue: string): void => {
         rebindLibrary(libraryId)
         DIContainer.get<TagService>(InjectType.TagService).editTag(tagId, newValue)
-    }, generateCatchFn('tag:edit'), void 0, closeLibraryDB))
+    }, generateCatchFn('tag:edit'), true, closeLibraryDB))
 
 
-    ipcMain.handle('tag:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, tagId: number): void => {
+    ipcMain.handle('tag:delete', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, tagId: number): void => {
         rebindLibrary(libraryId)
         DIContainer.get<TagService>(InjectType.TagService).deleteTag(tagId)
-    }, generateCatchFn('tag:delete'), void 0, closeLibraryDB))
-
+    }, generateCatchFn('tag:delete'), true, closeLibraryDB))
 
     //ANCHOR Dirname
-
-    ipcMain.handle('dirname:queryDetails', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryDirnameDetailsOptions): DTO.Page<VO.DirnameDetail> | undefined => {
+    ipcMain.handle('dirname:queryDetails', exceptionHandleWrap((
+        e: IpcMainInvokeEvent,
+        libraryId: number, options: RP.QueryDirnameDetailsOptions
+    ): DTO.PagedResult<VO.DirnameDetail> => {
         rebindLibrary(libraryId)
         return DIContainer.get<DirnameService>(InjectType.DirnameService).queryDirnameDetails(options)
-    }, generateCatchFn('dirname:queryDetails'), { total: 0, rows: [] }, closeLibraryDB))
+    }, generateCatchFn('dirname:queryDetails'), true, closeLibraryDB))
 
 
-    ipcMain.handle('dirname:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, dirnameId: number, newValue: string): Result => {
+    ipcMain.handle('dirname:edit', exceptionHandleWrap((e: IpcMainInvokeEvent,
+        libraryId: number, dirnameId: number, newValue: string
+    ): ResponseResult<void> => {
         rebindLibrary(libraryId)
         return DIContainer.get<DirnameService>(InjectType.DirnameService).editDirname(dirnameId, newValue)
-    }, generateCatchFn('dirname:edit'), Result.error('runtime error'), closeLibraryDB))
+    }, generateCatchFn('dirname:edit'), true, closeLibraryDB))
 
 
-    ipcMain.handle('dirname:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, dirnameId: number): void => {
+    ipcMain.handle('dirname:delete', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, dirnameId: number): void => {
         rebindLibrary(libraryId)
         DIContainer.get<DirnameService>(InjectType.DirnameService).deleteDirname(dirnameId)
-    }, generateCatchFn('dirname:delete'), void 0, closeLibraryDB))
+    }, generateCatchFn('dirname:delete'), true, closeLibraryDB))
 
-
-    ipcMain.handle('dirname:startsWithReplace', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, target: string, replace: string): Result => {
+    ipcMain.handle('dirname:startsWithReplace', exceptionHandleWrap((
+        e: IpcMainInvokeEvent,
+        libraryId: number, target: string, replace: string
+    ): ResponseResult<void> => {
         rebindLibrary(libraryId)
         return DIContainer.get<DirnameService>(InjectType.DirnameService).startsWithReplacePath(target, replace)
-    }, generateCatchFn('dirname:startsWithReplace'), Result.error('runtime error'), closeLibraryDB))
+    }, generateCatchFn('dirname:startsWithReplace'), true, closeLibraryDB))
 
 
     //ANCHOR Series
-
-    ipcMain.handle('series:edit', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number, newValue: string): Result => {
+    ipcMain.handle('series:edit', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, seriesId: number, newValue: string): ResponseResult<void> => {
         rebindLibrary(libraryId)
         DIContainer.get<SeriesService>(InjectType.SeriesService).editSeries(seriesId, newValue)
-        return Result.success()
-    }, generateCatchFn('series:edit'), Result.error(), closeLibraryDB))
+        return ResponseResult.success()
+    }, generateCatchFn('series:edit'), true, closeLibraryDB))
 
 
-    ipcMain.handle('series:delete', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, seriesId: number): Result => {
+    ipcMain.handle('series:delete', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, seriesId: number): ResponseResult<void> => {
         rebindLibrary(libraryId)
         DIContainer.get<SeriesService>(InjectType.SeriesService).deleteSeries(seriesId)
-        return Result.success()
-    }, generateCatchFn('series:delete'), Result.error(), closeLibraryDB))
+        return ResponseResult.success()
+    }, generateCatchFn('series:delete'), true, closeLibraryDB))
 
 
-    ipcMain.handle('series:removeRecord', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, recordId: number, seriesId: number): void => {
+    ipcMain.handle('series:removeRecord', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, recordId: number, seriesId: number): void => {
         rebindLibrary(libraryId)
         DIContainer.get<SeriesService>(InjectType.SeriesService).removeRecordFromSeries(recordId, seriesId)
-    }, generateCatchFn('series:removeRecord'), void 0, closeLibraryDB))
+    }, generateCatchFn('series:removeRecord'), true, closeLibraryDB))
 }
 
 

@@ -4,7 +4,7 @@ import LocalStorage from '@/util/LocalStorage'
 import { isSameType } from '@/util/common'
 
 type TagsDashState = {
-    sortField: DTO.QueryTagDetailsOptions['sortField'],
+    sortField: RP.QueryTagDetailsOptions['sortField'],
     order: 'ASC' | 'DESC'
 }
 

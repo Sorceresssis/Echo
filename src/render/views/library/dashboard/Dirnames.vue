@@ -24,7 +24,7 @@
                     <div class="content">
                         <span :title="dirname.path"
                               class="textover--ellopsis">{{ dirname.path }}</span>
-                        <span class="count">{{ dirname.recordCount }}</span>
+                        <span class="count">{{ dirname.record_count }}</span>
                     </div>
                     <div class="operate">
                         <span class="iconfont"

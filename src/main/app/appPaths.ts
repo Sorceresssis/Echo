@@ -43,16 +43,16 @@ class AppPaths {
         return n_path.join(this.userDataPath, 'group.db')
     }
 
-    public getLibraryDirPath(libId: PrimaryKey): string {
+    public getLibraryDirPath(libId: Entity.PK): string {
         return n_path.join(this.userDataPath, 'library', `${libId}`)
     }
 
-    public getLibraryDBFilePath(libId: PrimaryKey): string {
+    public getLibraryDBFilePath(libId: Entity.PK): string {
         return n_path.join(this.userDataPath, 'library', `${libId}`, 'library.db')
     }
 
     // 生成image构造器
-    public genLibraryImagesDirPathConstructor(libId: PrimaryKey) {
+    public genLibraryImagesDirPathConstructor(libId: Entity.PK) {
         const libraryDirPath = this.getLibraryDirPath(libId)
 
 

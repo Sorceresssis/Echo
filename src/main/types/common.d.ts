@@ -1,3 +1,4 @@
+type PrimitiveTypes = string | number | boolean | null | undefined
 
 type Config = {
     dataPath: string,
@@ -13,8 +14,6 @@ type OpenDialogType = 'dir' | 'file' | 'image' | 'video'
 
 // record的属性排序字段
 type AttributeSortField = 'date' | 'text'
-
-type QueryRecordFilter = 'image' | 'fafa' | 'dirname'
 
 type DirContentItem = {
     name: string,

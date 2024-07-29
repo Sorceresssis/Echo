@@ -8,7 +8,7 @@ import tokenizer from "../utils/tokenizer"
 class LibraryDB extends SQLiteDatabase {
     private readonly DB_VERSION = 1;
 
-    public constructor(libraryId: PrimaryKey) {
+    public constructor(libraryId: Entity.PK) {
         fs.mkdirSync(appPaths.getLibraryDirPath(libraryId), { recursive: true })
         const path = appPaths.getLibraryDBFilePath(libraryId)
         const isExists = fs.existsSync(path)

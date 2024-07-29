@@ -58,7 +58,7 @@ const props = withDefaults(defineProps<{
 
 const emit = defineEmits<{
     (e: 'update:modelValue', value: string): void
-    (e: 'btnSelect', item: VO.AcSuggestion): void // 点击一个固定的按钮，将item.value传出去
+    (e: 'btnSelect', item: VO.AutoCompleteSuggestion): void // 点击一个固定的按钮，将item.value传出去
 }>()
 
 const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)

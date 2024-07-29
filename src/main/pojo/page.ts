@@ -7,12 +7,13 @@ export class DBPageQueryOptions {
 }
 
 export class Page {
+    public total_page: number;
     public constructor(
         public pn: number,
         public ps: number,
         public total_count: number,
-        public total_page: number = this.total_count ? Math.ceil(this.total_count / this.ps) : 0
     ) {
+        this.total_page = this.total_count ? Math.ceil(this.total_count / this.ps) : 0
     }
 }
 

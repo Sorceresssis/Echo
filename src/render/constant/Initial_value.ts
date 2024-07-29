@@ -25,12 +25,12 @@ class InitialValue {
             translated_title: '',
             rate: 0,
             hyperlink: null,
-            releaseDate: null,
+            release_date: null,
             cover: undefined,
-            sampleImages: [],
+            sample_images: [],
             dirname: null,
             basename: null,
-            resourcePath: null,
+            source_fullpath: undefined,
             authors: [],
             tags: [],
             series: [],
@@ -38,8 +38,8 @@ class InitialValue {
             plot: '',
             reviews: '',
             info: '',
-            createTime: '',
-            modifiedTime: '',
+            create_time: '',
+            update_time: '',
         }
 
         return InitialValue.deepCopy(defaultValue)
@@ -51,10 +51,10 @@ class InitialValue {
             name: '',
             avatar: '',
             intro: '',
-            sampleImages: [],
-            createTime: '',
-            modifiedTime: '',
-            recordCount: 0,
+            sample_images: [],
+            create_time: '',
+            update_time: '',
+            record_count: 0,
         }
 
         return InitialValue.deepCopy(defaultValue)

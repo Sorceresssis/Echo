@@ -97,8 +97,7 @@
                                        class="flex-1"
                                        @btn-select="authorAdder" />
                 </div>
-                <div class="attribute-container scrollbar-y-w4"
-                     :data-enable="false">
+                <div class="attribute-container scrollbar-y-w4">
                     <div v-if="displayAuthors.length === 0"
                          class="attribute-container__empty">
                         {{ $t('layout.noAuthors') }}
@@ -229,8 +228,8 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, Ref, watch, inject, readonly } from 'vue'
-import { useRoute } from 'vue-router'
-import { type FormInstance, type FormRules, ElInput, ElForm, ElFormItem, ElSelect, ElOption } from 'element-plus'
+import { useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { type FormInstance, type FormRules, ElInput, ElForm, ElFormItem, ElSelect, ElOption, ElPopover } from 'element-plus'
 import { $t } from '@/locale'
 import { VueInjectKey } from '@/constant/channel_key'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
@@ -345,7 +344,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
                     ? Message.success(isAdd.value ? $t('msg.createSuccess') : $t('msg.editSuccess'))
                     : Message.error((isAdd.value ? $t('msg.createFailed') : $t('msg.editFailed')) + ', ' + result.msg, 2000)
             }).catch(() => { })
-            // NOTE 跟新role
+            // NOTE 更新role
             authorsDashStore.updateRoles(activeLibrary.value)
 
             if (isAdd.value) {
@@ -380,7 +379,10 @@ const init = async function () {
         submitBtnText.value = $t('layout.create')
     }
 }
-
+onBeforeRouteUpdate((to, from, next) => {
+    // TODO 
+    console.log("edit record", to.fullPath, from.fullPath);
+})
 watch(route, init)
 onMounted(init)
 </script>

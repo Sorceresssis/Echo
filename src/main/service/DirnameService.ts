@@ -5,7 +5,7 @@ import { type LibraryEnv } from "../provider/container"
 import fm, { isLegalAbsolutePath } from "../utils/FileManager"
 import i18n from "../locale"
 import { QueryDirnamesSortRule } from "../dao/DirnameDao"
-import Result from "../utils/Result"
+import ResponseResult from "../pojo/ResponseResult"
 import type DirnameDao from "../dao/DirnameDao"
 import type RecordDao from "../dao/RecordDao"
 import { DBPageQueryOptions, PagedResult } from "../pojo/page"
@@ -18,7 +18,7 @@ class DirnameService {
         @inject(InjectType.RecordDao) private recordDao: RecordDao
     ) { }
 
-    public queryDirnameDetails(options: DTO.QueryDirnameDetailsOptions): PagedResult<VO.DirnameDetail> {
+    public queryDirnameDetails(options: RP.QueryDirnameDetailsOptions): PagedResult<VO.DirnameDetail> {
         const defaultSortRule: QueryDirnamesSortRule[] = [
             { field: 'path', order: 'ASC' },
             { field: 'id', order: 'DESC' },
@@ -54,9 +54,9 @@ class DirnameService {
         return pagedResult
     }
 
-    public editDirname(id: number, path: string): Result {
+    public editDirname(id: number, path: string): ResponseResult<void> {
         // 不是一个合法的绝对路径
-        if (!fm.isLegalAbsolutePath(path)) return Result.error(i18n.global.t('invalidAbsolutePath'))
+        if (!fm.isLegalAbsolutePath(path)) return ResponseResult.error(i18n.global.t('invalidAbsolutePath'))
 
         path = nodePath.resolve(path)
         const existId = this.dirnameDao.queryDirnameIdByPath(path) // 查询是否已经存在
@@ -69,7 +69,7 @@ class DirnameService {
                 this.dirnameDao.updateDirnamePathById(id, path)
             }
         })
-        return Result.success()
+        return ResponseResult.success()
     }
 
     public deleteDirname(id: number): void {
@@ -89,9 +89,9 @@ class DirnameService {
      * @param target
      * @param replace
      */
-    public startsWithReplacePath(target: string, replace: string): Result {
+    public startsWithReplacePath(target: string, replace: string): ResponseResult<void> {
         if (!isLegalAbsolutePath(target) || !isLegalAbsolutePath(replace)) {
-            return Result.error(i18n.global.t('invalidAbsolutePath'))
+            return ResponseResult.error(i18n.global.t('invalidAbsolutePath'))
         }
 
         // path.normalize()会保留尾部的分隔符，path.resolve()不保留尾部的分割符
@@ -112,7 +112,7 @@ class DirnameService {
 
         this.libEnv.db.run('UPDATE dirname SET path = REPLACE_DP(path) WHERE NEED_REPLACE_DP(path);')
 
-        return Result.success()
+        return ResponseResult.success()
     }
 }
 

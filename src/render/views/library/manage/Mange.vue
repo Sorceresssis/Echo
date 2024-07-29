@@ -7,6 +7,7 @@
               :key="tabsKey"
               :tabs="tabs">
         </tabs>
+        <!-- TODO Manage 为什么要keep-alive -->
         <keep-alive>
             <component class="flex-1 overflow-hidden"
                        :is="components[activeLabelIdx]">

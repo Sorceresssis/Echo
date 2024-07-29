@@ -1,4 +1,4 @@
-import { app, Notification, shell } from "electron"
+import { Notification, shell } from "electron"
 import { Worker } from "worker_threads"
 import fs from "fs"
 import path from "path"
@@ -8,7 +8,7 @@ import { formatCurrentTime } from "../utils/common"
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import DIContainer from "../provider/container"
-import Result from "../utils/Result"
+import ResponseResult from "../pojo/ResponseResult"
 import i18n from "../locale"
 import type { zipperOperation } from "./worker/zipper.worker"
 import type { unzipperOperation } from "./worker/unzipper.worker"
@@ -88,18 +88,19 @@ class LibraryService {
     public deleteByGroupId(groupId: Entity.PK): Promise<void> {
         return new Promise<void>((resolve, reject) => {
             DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(async () => {
-                let completed = 0
-                const ids = this.libraryDao.getIdsByGroupId(groupId)
-                for (const id in ids) {
-                    this.delete(ids[id]).then(() => {
+                try {
+                    let completed = 0
+                    const ids = this.libraryDao.getIdsByGroupId(groupId)
+                    for (const id in ids) {
+                        await this.delete(ids[id])
                         completed++
                         if (completed === ids.length) {
                             resolve()
                         }
-                    }).catch(() => {
-                        reject()
-                        throw new Error('')
-                    })
+                    }
+                } catch (e) {
+                    reject(e)
+                    throw e
                 }
             })
         })
@@ -165,7 +166,7 @@ class LibraryService {
 
         const worker = new Worker(path.join(__dirname, "worker/zipper.worker"))
         worker.postMessage({ exportPath: exportPath, ops: ops })
-        worker.on('message', (result: Result) => {
+        worker.on('message', (result: ResponseResult<void>) => {
             const notification = result.code
                 ? new Notification({
                     title: `${libInfo.name} ${i18n.global.t('exportSuccess')}`,
@@ -198,12 +199,12 @@ class LibraryService {
             zipFilePath: importFiles[++importFileIdx],
             ops: ops
         })
-        worker.on('message', (result: Result) => {
+        worker.on('message', (result: ResponseResult<any>) => {
             try {
                 // 解压失败
                 if (result.code === 0) throw Error('unzip error')
 
-                const opResults: Result[] = result.data
+                const opResults: ResponseResult<any>[] = result.data
 
                 // 没有取到desc.json, library.db
                 if (opResults[0].code === 0 || opResults[1].code === 0) throw Error('error import file')

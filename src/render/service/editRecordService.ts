@@ -2,8 +2,17 @@ import { reactive, toRaw } from "vue"
 import Message from "@/util/Message"
 import { $t } from "@/locale"
 
-// 简单类型
-type SimpleType = string | number | boolean | undefined | null | symbol
+export function primitiveTypesArrayEqual<T extends PrimitiveTypes>(arr1: T[], arr2: T[]): boolean {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
 const useEditRecordService = () => {
     /**
@@ -17,7 +26,7 @@ const useEditRecordService = () => {
      * @param value 用户操作的数据
      * @returns 
      */
-    const attributeAdder = <K extends SimpleType, V extends SimpleType>(
+    const attributeAdder = <K extends PrimitiveTypes, V extends PrimitiveTypes>(
         origin: Map<V, K>, display: Array<V>, remove: Set<K>, add: Set<V>, value: V
     ): boolean => {
         if (-1 !== display.indexOf(value)) {
@@ -34,7 +43,7 @@ const useEditRecordService = () => {
     /**
      *  删除属性 其他注释同attributeAdder
      */
-    const attributeRemover = <K extends SimpleType, V extends SimpleType>(
+    const attributeRemover = <K extends PrimitiveTypes, V extends PrimitiveTypes>(
         origin: Map<V, K>, display: Array<V>, remove: Set<K>, add: Set<V>, value: V
     ): boolean => {
         const idx = display.indexOf(value)
@@ -79,13 +88,12 @@ const useEditRecordService = () => {
         attributeRemover(originSeries, displaySeries, removeSeries, addSeries, value)
     }
 
-    const originAuthors = new Map<number, DTO.AuthorIdAndRole['role']>()    // 保存{id: 1, name: 'tag1'}这样的对象
-    const addAuthors = new Map<number, DTO.AuthorIdAndRole['role']>()       // 保存int类型的id
-    const editAuthorsRole = new Map<number, DTO.AuthorIdAndRole['role']>()  // 保存int类型的id
-    const removeAuthors = new Set<number>()                                 // 保存int类型的id
-    const displayAuthors = reactive<Array<VO.RecordAuthorProfile>>([])      // 保存作者详细信息的
-    const authorAdder = (obj: VO.AcSuggestion) => {
-        // 先判断是否已经存在 
+    const originAuthors = new Map<number, RP.RecordAuthorRelation['roles']>()    // 保存{id: 1, name: 'tag1'}这样的对象
+    const addAuthors = new Map<number, RP.RecordAuthorRelation['roles']>()       // 保存int类型的id
+    const editAuthorsRole = new Map<number, RP.RecordAuthorRelation['roles']>()  // 保存int类型的id
+    const removeAuthors = new Set<number>()                                   // 保存int类型的id
+    const displayAuthors = reactive<VO.RecordAuthorRelation[]>([])        // 保存作者详细信息的
+    const authorAdder = (obj: VO.AutoCompleteSuggestion) => {
         if (displayAuthors.findIndex((v) => v.id === obj.id) === -1) {
             displayAuthors.push({
                 id: obj.id,
@@ -107,10 +115,18 @@ const useEditRecordService = () => {
 
         editAuthorsRole.delete(id)
     }
-    const authorEditRole = (id: number, role: string | null) => {
+    const authorEditRole = (id: number, roleIds: number[]) => {
         if (removeAuthors.has(id)) return
         // 可以editRole的只存在于addAuthors和originAuthors中
-        originAuthors.has(id) ? editAuthorsRole.set(id, role) : addAuthors.set(id, role)
+        const originAuthor = originAuthors.get(id)
+        if (originAuthor === void 0) {
+            addAuthors.set(id, roleIds)
+        } else {
+            // TODO
+            // 
+            primitiveTypesArrayEqual(originAuthor, roleIds)
+            editAuthorsRole.set(id, roleIds)
+        }
     }
 
     // ANCHOR Sample Images
@@ -131,7 +147,7 @@ const useEditRecordService = () => {
         originSampleImages.has(path) && removeSampleImages.add(path)
     }
 
-    const formData = reactive<DTO.EditRecordForm>({
+    const formData = reactive<RP.EditRecordFormData>({
         id: 0,
         dirname: '',
         basename: '',
@@ -175,6 +191,7 @@ const useEditRecordService = () => {
 
     const selectRecordResource = async (type: 'dir' | 'file') => {
         const path = (await window.electronAPI.openDialog(type, false))[0]
+        // TODO 根据 /或者 \ 分割。 C:users 只有一层怎么解决。
         const sepd = await separatePath(path)
         if (sepd) {
             formData.dirname = sepd[0]
@@ -206,8 +223,8 @@ const useEditRecordService = () => {
         if (data.hyperlink) {
             formData.hyperlink = data.hyperlink
         }
-        if (data.releaseDate) {
-            formData.releaseDate = data.releaseDate
+        if (data.release_date) {
+            formData.releaseDate = data.release_date
         }
         formData.dirname = data.dirname || ''
         formData.basename = data.basename || ''
@@ -225,15 +242,15 @@ const useEditRecordService = () => {
             displaySeries.push(item.name)
         })
         data.authors.forEach(item => {
-            originAuthors.set(item.id, item.role)
+            originAuthors.set(item.id, item.role.map(role => role.id))
             displayAuthors.push(item)
         })
 
         if (data.cover) {
             formData.cover = formData.originCover = data.cover
         }
-        data.sampleImages.forEach(item => originSampleImages.add(item))
-        displaySampleImages.push(...data.sampleImages)
+        data.sample_images.forEach(item => originSampleImages.add(item))
+        displaySampleImages.push(...data.sample_images)
     }
 
     const submit = (libraryId: number) => {
@@ -246,7 +263,7 @@ const useEditRecordService = () => {
         formData.addSeries = Array.from(addSeries)
         formData.removeSeries = Array.from(removeSeries)
         const originSampleImagesArray = Array.from(originSampleImages)
-        const editSampleImages: DTO.EditSampleImage[] = []
+        const editSampleImages: RP.EditSampleImage[] = []
         displaySampleImages.forEach((path, index) => {
             if (!originSampleImages.has(path)) {
                 editSampleImages.push({ type: 'add', idx: index + 1, path })

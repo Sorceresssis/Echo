@@ -15,7 +15,7 @@ class TagService {
     ) {
     }
 
-    public queryTagDetails(options: DTO.QueryTagDetailsOptions): PagedResult<VO.TagDetail> {
+    public queryTagDetails(options: RP.QueryTagDetailsOptions): PagedResult<VO.TagDetail> {
         const defaultSortRule: QueryTagsSortRule[] = [
             { field: 'title', order: 'ASC' },
             { field: 'id', order: 'DESC' },

@@ -39,16 +39,17 @@ class GroupService {
 
     public delete(id: Entity.PK): Promise<void> {
         return new Promise<void>((resolve, reject) => {
-            DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
-                this.removeNode(id) // 先删除链接关系
-                this.groupDao.deleteById(id) // 删除group记录
-                // 删除group下的所有library
-                this.libraryService.deleteByGroupId(id).then(() => {
+            DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(async () => {
+                try {
+                    // 删除group下的所有library
+                    await this.libraryService.deleteByGroupId(id)
+                    this.removeNode(id) // 先删除链接关系
+                    this.groupDao.deleteById(id) // 删除group记录
                     resolve()
-                }).catch(() => {
-                    reject()
-                    throw new Error()
-                })
+                } catch (e) {
+                    reject(e)
+                    throw e
+                }
             })
         })
     }

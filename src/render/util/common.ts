@@ -109,13 +109,3 @@ export function createRange(start: number, end: number) {
         return [start];
     }
 }
-
-
-export default {
-    debounce,
-    throttle,
-    isSameType,
-    generateUniqueID,
-    useDragScroll,
-    createRange,
-}

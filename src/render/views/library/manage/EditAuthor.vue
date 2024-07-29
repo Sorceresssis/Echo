@@ -79,7 +79,7 @@ const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!
 const managePagePathPattern = inject<RegExp>(VueInjectKey.MANAGE_PAGE_PATH_PATTERN)!
 
 const authorFormRef = ref()
-const formData = reactive<DTO.EditAuthorForm>({
+const formData = reactive<RP.EditAuthorFormData>({
     id: 0,
     name: '',
     newAvatar: '',
@@ -116,8 +116,8 @@ const saveOriginData = async (id: number | bigint) => {
     formData.id = author.id
     formData.name = author.name
     formData.intro = author.intro
-    author.sampleImages.forEach(item => originSampleImages.add(item))
-    displaySampleImages.push(...author.sampleImages)
+    author.sample_images.forEach(item => originSampleImages.add(item))
+    displaySampleImages.push(...author.sample_images)
     if (author.avatar) displayAvatar.value = originAvatar = author.avatar
 }
 const selectAvatar = async () => {
@@ -158,7 +158,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
             }
             // sampleImages
             const originSampleImagesArray = Array.from(originSampleImages)
-            const editSampleImages: DTO.EditSampleImage[] = []
+            const editSampleImages: RP.EditSampleImage[] = []
             displaySampleImages.forEach((path, index) => {
                 if (!originSampleImages.has(path)) {
                     // 不存在就在此位置添加一个图片

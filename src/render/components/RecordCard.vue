@@ -47,8 +47,8 @@
                      :class="recmd.hyperlink ? '' : 'disabled'"
                      @click="openInBrowser(recmd.hyperlink)"> <span class="iconfont">&#xe612;</span> </div>
                 <div :title="$t('layout.openInFileExplorer')"
-                     :class="recmd.resourcePath ? '' : 'disabled'"
-                     @click="openInExplorer(recmd.resourcePath)"> <span class="iconfont">&#xe73e;</span> </div>
+                     :class="recmd.source_fullpath ? '' : 'disabled'"
+                     @click="openInExplorer(recmd.source_fullpath)"> <span class="iconfont">&#xe73e;</span> </div>
                 <div :title="$t('layout.openInNewWindow')"
                      @click="createRecordWindow(activeLibrary, recmd.id)"> <span class="iconfont">&#xe7e9;</span>
                 </div>

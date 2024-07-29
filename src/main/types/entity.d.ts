@@ -69,7 +69,7 @@ declare namespace Entity {
         update_time: string
     }
 
-    interface Role {
+    type Role = {
         id: number
         name: string
     }
@@ -88,8 +88,6 @@ declare namespace Entity {
         id: Entity.PK
         path: string
     }
-
-
 
     // ANCHOR Metadata
 

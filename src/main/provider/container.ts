@@ -1,9 +1,7 @@
 import 'reflect-metadata'
 import { Container } from "inversify"
 import InjectType from "./injectType"
-
 import appPaths from "../app/appPaths"
-
 import GroupDB from "../db/GroupDB"
 import GroupDao from "../dao/GroupDao"
 import LibraryDao from "../dao/LibraryDao"
@@ -13,11 +11,13 @@ import LibraryService from "../service/LibraryService"
 
 import AuthorDao from "../dao/AuthorDao"
 import DirnameDao from "../dao/DirnameDao"
-import RecordDao from "../dao/RecordDao"
 import RecordAuthorDao from "../dao/RecordAuthorDao"
+import RecordAuthorRoleDao from '../dao/RecordAuthorRoleDao'
+import RecordDao from "../dao/RecordDao"
 import RecordExtraDao from "../dao/RecordExtraDao"
 import RecordSeriesDao from "../dao/RecordSeriesDao"
 import RecordTagDao from "../dao/RecordTagDao"
+import RoleDao from '../dao/RoleDao'
 import SeriesDao from "../dao/SeriesDao"
 import TagDao from "../dao/TagDao"
 import AutocompleteService from "../service/AutocompleteService"
@@ -28,7 +28,6 @@ import SeriesService from "../service/SeriesService"
 import TagService from "../service/TagService"
 
 import type LibraryDB from "../db/LibraryDB"
-import RoleDao from '../dao/RoleDao'
 
 const container = new Container()
 
@@ -66,6 +65,8 @@ container.bind<RecordExtraDao>(InjectType.RecordExtraDao).to(RecordExtraDao).inS
 container.bind<AuthorDao>(InjectType.AuthorDao).to(AuthorDao).inSingletonScope()
 container.bind<RoleDao>(InjectType.RoleDao).to(RoleDao).inSingletonScope()
 container.bind<RecordAuthorDao>(InjectType.RecordAuthorDao).to(RecordAuthorDao).inSingletonScope()
+container.bind<RecordAuthorRoleDao>(InjectType.RecordAuthorRoleDao)
+    .to(RecordAuthorRoleDao).inSingletonScope()
 container.bind<DirnameDao>(InjectType.DirnameDao).to(DirnameDao).inSingletonScope()
 container.bind<TagDao>(InjectType.TagDao).to(TagDao).inSingletonScope()
 container.bind<RecordTagDao>(InjectType.RecordTagDao).to(RecordTagDao).inSingletonScope()
@@ -80,6 +81,5 @@ container.bind<DirnameService>(InjectType.DirnameService).to(DirnameService).inS
 container.bind<SeriesService>(InjectType.SeriesService).to(SeriesService).inSingletonScope()
 container.bind<TagService>(InjectType.TagService).to(TagService).inSingletonScope()
 
-// 暴露容器绑定的对象有那些
 
 export default container

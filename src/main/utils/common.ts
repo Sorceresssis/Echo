@@ -47,22 +47,6 @@ export function exceptionHandleWrapAsync<
     };
 }
 
-
-export function exceptionalHandler<T extends (...args: any[]) => any>
-    (tryFn: T, catchFn: (e: any) => void, catchReturn: ReturnType<T>, finallyFn?: () => void) {
-    return function (...args: any[]) {
-        try {
-            return tryFn(...args)
-        } catch (e: any) {
-            catchFn(e)
-            return catchReturn
-        } finally {
-            finallyFn && finallyFn()
-        }
-    }
-}
-
-
 export function formatCurrentTime() {
     const now = new Date()
 
@@ -265,11 +249,4 @@ export function typeEqual(a: any, b: any): boolean {
         return false;
     }
     return true;
-}
-
-export default {
-    exceptionalHandler,
-    formatCurrentTime,
-    isNotEmptyString,
-    diffArray,
 }

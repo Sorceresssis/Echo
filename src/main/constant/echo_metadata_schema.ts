@@ -8,6 +8,12 @@ const ECHO_METADATA_SCHEMA = {
             "minLength": 0,
             "maxLength": 255
         },
+        "translated_title": {
+            "type": "string",
+            "description": "翻译标题",
+            "minLength": 0,
+            "maxLength": 255
+        },
         "plot": {
             "type": "string",
             "description": "情节"
@@ -29,10 +35,13 @@ const ECHO_METADATA_SCHEMA = {
                         "maxLength": 255
                     },
                     "role": {
-                        "type": "string",
-                        "description": "在作品中担任的任务",
-                        "minLength": 0,
-                        "maxLength": 50
+                        "type": "array",
+                        "items": {
+                            "type": "string",
+                            "description": "在作品中担任的任务",
+                            "minLength": 0,
+                            "maxLength": 50
+                        },
                     }
                 },
                 "required": ["name", "role"]
@@ -100,6 +109,7 @@ const ECHO_METADATA_SCHEMA = {
     },
     "required": [
         "title",
+        "translated_title",
         "plot",
         "release_date",
         "authors",

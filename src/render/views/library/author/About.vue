@@ -16,10 +16,10 @@
                     <button2 @click="openInExplorer(authorFistImage)"> {{ $t('layout.showInFileExplorer') }} </button2>
                 </div>
             </div>
-            <div v-if="info.sampleImages.length > 0"
+            <div v-if="info.sample_images.length > 0"
                  class="detail-item">
                 <label class="detail-item__lable"> {{ $t('layout.sampleImages') }} </label>
-                <manage-images :paths="info.sampleImages"
+                <manage-images :paths="info.sample_images"
                                :manage="false"
                                imageHeight="200px" />
             </div>
@@ -37,13 +37,13 @@
             <div class="detail-item">
                 <label class="detail-item__lable"> {{ $t('layout.createdTime') }} </label>
                 <div class="detail-item__content">
-                    {{ info.createTime }}
+                    {{ info.create_time }}
                 </div>
             </div>
             <div class="detail-item">
                 <label class="detail-item__lable"> {{ $t('layout.lastModifiedTime') }} </label>
                 <div class="detail-item__content">
-                    {{ info.modifiedTime }}
+                    {{ info.update_time }}
                 </div>
             </div>
         </div>
@@ -62,7 +62,7 @@ const props = defineProps<{
 
 const authorFistImage = ref<string>('')
 watch(props.info, (newValue) => {
-    authorFistImage.value = newValue.avatar || newValue.sampleImages[0] || ''
+    authorFistImage.value = newValue.avatar || newValue.sample_images[0] || ''
 })
 </script>
 

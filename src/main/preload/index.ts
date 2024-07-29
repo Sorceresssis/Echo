@@ -96,12 +96,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     autoCompleteRecord: (
         libraryId: number,
-        options: DTO.AcOptions
+        options: RP.AutoCompleteOptions
     ) => ipcRenderer.invoke('record:autoComplete', libraryId, options),
 
     queryRecordRecmds: (
         libraryId: number,
-        options: DTO.QueryRecordRecommendationsOptions
+        options: RP.QueryRecordRecommendationsOptions
     ) => ipcRenderer.invoke('record:queryRecmds', libraryId, options),
 
     deleteRecordByAttribute: (
@@ -122,7 +122,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     editRecord: (
         libraryId: number,
-        formData: DTO.EditRecordForm,
+        formData: RP.EditRecordFormData,
     ) => ipcRenderer.invoke('record:edit', libraryId, formData),
 
     addRecordFromMetadata: (
@@ -132,7 +132,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     batchProcessingRecord: (
         libraryId: number,
-        type: DTO.RecordBatchProcessingType,
+        type: RP.RecordBatchProcessingType,
         recordIds?: number[]
     ) => ipcRenderer.invoke('record:batchProcessing', libraryId, type, recordIds),
 
@@ -145,12 +145,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     queryAuthorRecmds: (
         libraryId: number,
-        options: DTO.QueryAuthorRecommendationsOptions
+        options: RP.QueryAuthorRecommendationsOptions
     ) => ipcRenderer.invoke('author:queryRecmds', libraryId, options),
 
     editAuthor: (
         libraryId: number,
-        formData: DTO.EditAuthorForm
+        formData: RP.EditAuthorFormData
     ) => ipcRenderer.invoke('author:edit', libraryId, formData),
 
     deleteAuthor: (
@@ -162,7 +162,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     queryTagDetails: (
         libraryId: number,
-        options: DTO.QueryTagDetailsOptions
+        options: RP.QueryTagDetailsOptions
     ) => ipcRenderer.invoke('tag:queryDetails', libraryId, options),
 
     deleteTag: (
@@ -180,7 +180,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     queryDirnameDetails: (
         libraryId: number,
-        options: DTO.QueryDirnameDetailsOptions
+        options: RP.QueryDirnameDetailsOptions
     ) => ipcRenderer.invoke('dirname:queryDetails', libraryId, options),
 
     deleteDirname: (

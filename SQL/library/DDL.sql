@@ -51,7 +51,7 @@ CREATE UNIQUE INDEX 'uk_record(dirname_id, basename)' ON record (dirname_id, bas
 
 
 -- ----------------------------
---         record_extra
+--        record_extra
 -- ----------------------------
 DROP TABLE IF EXISTS 'record_extra';
 CREATE TABLE 'record_extra'
@@ -65,7 +65,7 @@ CREATE TABLE 'record_extra'
 
 
 -- ----------------------------
---         dirname
+--          dirname
 -- ----------------------------
 DROP TABLE IF EXISTS 'dirname';
 CREATE TABLE 'dirname'
@@ -77,7 +77,7 @@ CREATE UNIQUE INDEX 'uk_dirname(path)' ON dirname (path);
 
 
 -- ----------------------------
---         author
+--          author
 -- ----------------------------
 DROP TABLE IF EXISTS 'author';
 CREATE TABLE 'author'
@@ -119,22 +119,24 @@ CREATE UNIQUE INDEX 'uk_role(name)' ON role (name);
 
 
 -- ----------------------------
---    record_author_role
+--     record_author_role
 -- ----------------------------
 DROP TABLE IF EXISTS 'record_author_role';
 CREATE TABLE 'record_author_role'
 (
-    'id'               INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
-    'record_author_id' INTEGER NOT NULL,                  -- 关系id
-    'role_id'          INTEGER NOT NULL                   -- 角色id
+    'id'        INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
+    'record_id' INTEGER NOT NULL,                  -- 记录id
+    'author_id' INTEGER NOT NULL,                  -- 作者id
+    'role_id'   INTEGER NOT NULL                   -- 角色id
 );
-CREATE INDEX 'idx_record_author_role(record_author_id)' ON record_author_role (record_author_id);
+CREATE INDEX 'idx_record_author_role(record_id)' ON record_author_role (record_id);
+CREATE INDEX 'idx_record_author_role(author_id)' ON record_author_role (author_id);
 CREATE INDEX 'idx_record_author_role(role_id)' ON record_author_role (role_id);
-CREATE UNIQUE INDEX 'uk_record_author_role(record_author_id,role_id)' ON record_author_role (record_author_id, role_id);
+CREATE UNIQUE INDEX 'uk_record_author_role(record_id,author_id,role_id)' ON record_author_role (record_id, author_id, role_id);
 
 
 -- ----------------------------
---           tag
+--            tag
 -- ----------------------------
 DROP TABLE IF EXISTS 'tag';
 CREATE TABLE 'tag'
@@ -146,7 +148,7 @@ CREATE UNIQUE INDEX 'uk_tag(title)' ON tag (title);
 
 
 -- ----------------------------
---        record_tag
+--         record_tag
 -- ----------------------------
 DROP TABLE IF EXISTS 'record_tag';
 CREATE TABLE 'record_tag'
@@ -161,7 +163,7 @@ CREATE UNIQUE INDEX 'uk_record_tag(record_id,tag_id)' ON record_tag (record_id, 
 
 
 -- ----------------------------
---        series
+--          series
 -- ----------------------------
 DROP TABLE IF EXISTS 'series';
 CREATE TABLE 'series'
