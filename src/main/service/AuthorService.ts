@@ -9,6 +9,7 @@ import type AuthorDao from "../dao/AuthorDao"
 import { type QueryAuthorsSortRule } from "../dao/AuthorDao"
 import type RecordAuthorDao from "../dao/RecordAuthorDao"
 import type RecordService from "./RecordService"
+import { DBPageQueryOptions, PagedResult } from "../pojo/page"
 
 @injectable()
 class AuthorService {
@@ -38,7 +39,7 @@ class AuthorService {
         return author
     }
 
-    public queryAuthorRecmds(options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> {
+    public queryAuthorRecmds(options: DTO.QueryAuthorRecommendationsOptions): PagedResult<VO.AuthorRecommendation> {
         const defaultSortRule: QueryAuthorsSortRule[] = [
             { field: 'name', order: 'ASC' },
             { field: 'id', order: 'DESC' },
@@ -60,21 +61,20 @@ class AuthorService {
                 sortRule.push(rule)
             }
         })
-        const page = this.authorDao.queryAuthorsByKeyword(
+        const pagedResult = this.authorDao.queryAuthorsByKeyword(
             options.keyword.trim(),
             sortRule,
             options.role,
-            (options.pn - 1) * options.ps,
-            options.ps
-        ) as DTO.Page<VO.AuthorRecommendation>
+            new DBPageQueryOptions(options.pn, options.ps)
+        ) as PagedResult<VO.AuthorRecommendation>
 
-        page.rows.forEach(row => {
+        pagedResult.results.forEach(row => {
             row.avatar = this.libEnv.genAuthorImagesDirPathConstructor(row.id).findAvatarImageFilePath()
             row.worksCount = this.recordAuthorDao.queryCountOfRecordsByAuthorId(row.id)
             row.masterpieces = DIContainer.get<RecordService>(InjectType.RecordService).queryAuthorMasterpieces(row.id)
         })
 
-        return page
+        return pagedResult
     }
 
     public queryAuthorsByRecordId(recordId: number): VO.RecordAuthorProfile[] {

@@ -1,85 +1,35 @@
 // 展示层对象
 namespace VO {
-    type Group = BO.Group & {
+    interface recordCount {
+        record_count: number
+    }
+
+    // ANCHOR DB Group
+    type Group = Omit<DAO.Group_R & {
         librarys: VO.Library[]
-    }
+    }, ''>
 
-    type Library = BO.Library & {
+    type Library = Omit<DAO.Library_R & {
         dataPath: string
+    }, ''>
+
+    type LibraryDetail = Omit<DAO.Library_R & DAO.LibraryExtra_R, ''>
+
+    // ANCHOR DB Library
+    type Role = Entity.Role
+
+    type RecordAuthorRelation = {
+        id: number,
+        name: string
+        avatar?: string
+        role: VO.Role[]
     }
 
-    type LibraryDetail = BO.Library & Entity.LibraryExtra
-
-
-
-
-
-    type Record = {
-        id: number
-        title: string
-        translated_title: string
-        rate: number,
-        cover: string | undefined
-        hyperlink: string
-        resourcePath: string
-        createTime?: string
-        modifiedTime?: string
-    }
-
-    /**
-     * 记录的详细信息，用于编辑和记录详情页展示
-     */
-    type RecordDetail = {
-        id: number
-        title: string
-        translated_title: string
-        rate: number
-        hyperlink: string | null
-        releaseDate: string | null
-        cover: string | undefined
-        sampleImages: string[]
-        dirname: string | null
-        basename: string | null
-        resourcePath: string | null
-        authors: VO.RecordAuthorProfile[]
-        tags: VO.Tag[]
-        series: VO.Series[]
-        search_text: string
-        plot: string
-        reviews: string
-        info: string
-        createTime: string
-        modifiedTime: string
-    }
-
-    type RecordRecommendation = {
-        id: number
-        title: string
-        translated_title: string
-        rate: number
-        cover: string | undefined
-        hyperlink: string | null
-        resourcePath: string | null
-        authors: VO.RecordAuthorProfile[]
-        tags: VO.Tag[]
-        createTime?: string,
-        modifiedTime?: string,
-    }
-
-    /**
-     * 作者的简单信息，用于列表展示
-     */
     type RecordAuthorProfile = {
         id: number,
         name: string,
         avatar: string | undefined,
         role: string | null,
-    }
-
-    type AuthorProfile = {
-        id: number,
-        name: string,
-        avatar: string | undefined
     }
 
     type AuthorDetail = {
@@ -99,56 +49,51 @@ namespace VO {
     type AuthorRecommendation = {
         id: number,
         name: string,
-        avatar: string | undefined,
+        avatar?: string,
         worksCount: number,
         intro: string,
         masterpieces: {
             id: number,
-            cover: string | undefined,
+            cover?: string,
             title: string,
         }[]
     }
 
-    type Tag = {
-        id: number,
-        title: string,
-    }
 
-    type TagDetail = {
-        id: number,
-        title: string,
-        recordCount: number,
-    }
+    type Tag = Entity.Tag
 
-    type Dirname = {
-        id: number,
-        path: string
-    }
+    type TagDetail = Omit<VO.Tag & recordCount, ''>
 
-    type DirnameDetail = {
-        id: number,
-        path: string,
-        recordCount: number,
-    }
+    type Dirname = Entity.Dirname
 
-    type Series = {
-        id: number,
-        name: string
-    }
+    type DirnameDetail = Omit<VO.Dirname & recordCount, ''>
 
-    type RecordExtra = {
-        id: number,
-        intro: string,
-        info: string,
-    }
+    type Series = Entity.Series
+
+    type RecordDetail = Omit<DAO.Record_R & DAO.RecordExtra_R & {
+        source_fullpath?: string
+        cover?: string
+        sample_images: string[]
+        authors: VO.RecordAuthorRelation[]
+        tags: VO.Tag[]
+        series: VO.Series[]
+    }, ''>
+
+    type RecordRecommendation = Omit<DAO.RecordExhibit_R & {
+        source_fullpath?: string
+        cover?: string
+        authors: VO.RecordAuthorRelation[]
+        tags: VO.Tag[]
+    }, ''>
+
 
     /**
      * 自动补齐的返回值
      */
     type AcSuggestion = {
-        type: 'record' | 'author' | 'tag' | 'series' | 'dirname',
-        id: number,
-        value: string,
-        image: string | undefined,
+        type: 'record' | 'author' | 'tag' | 'series' | 'dirname'
+        id: number
+        value: string
+        image?: string
     }
 }

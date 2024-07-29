@@ -207,9 +207,9 @@ const groups = ref<VO.Group[]>([]);
 const expandedGroups = ref<boolean[]>([]);
 
 // 请求groups
-const getGroups = debounce(async () => {
+const getGroups = async () => {
     groups.value = await window.dataAPI.getGroups();
-}, 300);
+}
 
 // 在本窗口打开library
 const openLibrary = (id: number) => {
@@ -347,20 +347,22 @@ const handleDelete = async () => {
                 router.push(RouterPathGenerator.welcome());
             }
         });
-        await window.dataAPI.deleteGroup(getCurrentCtmGroup(cg).id);
-
-        // 处理展开的问题
-        expandedGroups.value.splice(cg, 1);
+        window.dataAPI.deleteGroup(getCurrentCtmGroup(cg).id).then(() => {
+            expandedGroups.value.splice(cg, 1);
+            getGroups();
+            tabBroadcast.sendMsg(tabBroadcastMsg)
+        })
     } else {
         if (getCurrentCtmLibrary(cg, cl).id === activeLibrary.value) {
             router.push(RouterPathGenerator.welcome());
         }
-        await window.dataAPI.deleteLibrary(getCurrentCtmLibrary(cg, cl).id);
+        window.dataAPI.deleteLibrary(getCurrentCtmLibrary(cg, cl).id).then(() => {
+            getGroups();
+            tabBroadcast.sendMsg(tabBroadcastMsg)
+        })
     }
 
     deleteDialogInfo.show = false;
-    getGroups();
-    tabBroadcast.sendMsg(tabBroadcastMsg)
 };
 
 /******************** 移动和拖动 ********************/
@@ -415,8 +417,7 @@ const handleDragenter = (
     // 把组拖入库，不改变样式
     if (ctmOpIdx.cl === -1 && idxLibrary !== -1) return;
     // 拖入组#409eff，拖入库#f77c7c
-    (e.currentTarget as HTMLElement).style.borderBottom = `2px solid ${idxLibrary === -1 ? "#409eff" : "#f77c7c"
-        }`;
+    (e.currentTarget as HTMLElement).style.borderBottom = `2px solid ${idxLibrary === -1 ? "#409eff" : "#f77c7c"}`;
 };
 const handleDragleave = (e: MouseEvent) => {
     (e.currentTarget as HTMLElement).style.borderBottom = "none";
@@ -424,8 +425,7 @@ const handleDragleave = (e: MouseEvent) => {
 
 /******************** 移动 ********************/
 const moveLibrary = async (idxGroup: number) => {
-    const cg = ctmOpIdx.cg,
-        cl = ctmOpIdx.cl;
+    const cg = ctmOpIdx.cg, cl = ctmOpIdx.cl;
     // 如果是移动到自己的组，不进行操作
     if (cg === idxGroup) return;
     // 把library移动到groupId组的第一个位置
@@ -438,19 +438,9 @@ const moveLibrary = async (idxGroup: number) => {
     tabBroadcast.sendMsg(tabBroadcastMsg)
 };
 
-// 获取优先打开的library
-const getPrimaryOpenLibrary = async (): Promise<number | undefined> => {
-    return new Promise<number | undefined>((resolve) => {
-        window.dataAPI.getPrimaryOpenLibrary((e: any, libraryId: number) => {
-            resolve(libraryId);
-        });
-    });
-};
-
 const importLibrary = () => {
     const groupId = getCurrentCtmGroup().id;
-    window.electronAPI
-        .openDialog("file", true, $t("layout.selectImportData"))
+    window.electronAPI.openDialog("file", true, $t("layout.selectImportData"))
         .then((paths) => {
             if (!paths.length) return;
             window.dataAPI.importLibrary(groupId, paths);
@@ -474,6 +464,15 @@ watch(expandedGroups, debounce((data) => {
 watch(activeLibrary, debounce((n) => {
     LocalStorage.set(LocalStorageKey.PREVIOUS_ACTIVE_LIBRARY, n)
 }, 500));
+
+// 获取优先打开的library
+const getPrimaryOpenLibrary = async (): Promise<number | undefined> => {
+    return new Promise<number | undefined>((resolve) => {
+        window.dataAPI.getPrimaryOpenLibrary((e: any, libraryId: number) => {
+            resolve(libraryId);
+        });
+    });
+};
 
 onMounted(async () => {
     tabBroadcast.onMessage((e: MessageEvent) => {

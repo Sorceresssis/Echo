@@ -32,8 +32,8 @@ CREATE TABLE 'record'
     'tag_author_sum'   TEXT         DEFAULT NULL              NULL,     -- 用于快速查询的冗余字段
     'search_text'      TEXT         DEFAULT ''                NOT NULL, -- 不想显示但是需要被搜索命中的文本
 
-    'gmt_create'       DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间 utc
-    'gmt_modified'     DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 修改时间  utc
+    'create_time'      DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间 utc
+    'update_time'      DATETIME     DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 修改时间  utc
 );
 CREATE INDEX 'idx_record(rate)' ON record (rate);
 CREATE INDEX 'idx_record(info_status)' ON record (info_status);
@@ -82,17 +82,32 @@ CREATE UNIQUE INDEX 'uk_dirname(path)' ON dirname (path);
 DROP TABLE IF EXISTS 'author';
 CREATE TABLE 'author'
 (
-    'id'           INTEGER PRIMARY KEY AUTOINCREMENT,           -- 主键
-    'name'         VARCHAR(255)                       NOT NULL, -- 作者的名字
-    'intro'        TEXT     DEFAULT ''                NOT NULL, -- 作者的介绍
-    'gmt_create'   DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
-    'gmt_modified' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
+    'id'          INTEGER PRIMARY KEY AUTOINCREMENT,           -- 主键
+    'name'        VARCHAR(255)                       NOT NULL, -- 作者的名字
+    'intro'       TEXT     DEFAULT ''                NOT NULL, -- 作者的介绍
+    'create_time' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, -- 创建时间
+    'update_time' DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL  -- 最近一次修改时间
 );
 CREATE UNIQUE INDEX 'uk_author(name)' ON author (name);
 
 
 -- ----------------------------
---        role
+--        record_author
+-- ----------------------------
+DROP TABLE IF EXISTS 'record_author';
+CREATE TABLE 'record_author'
+(
+    'id'        INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
+    'record_id' INTEGER NOT NULL,                  -- 记录id
+    'author_id' INTEGER NOT NULL                   -- 作者id
+);
+CREATE INDEX 'idx_record_author(record_id)' ON record_author (record_id);
+CREATE INDEX 'idx_record_author(author_id)' ON record_author (author_id);
+CREATE UNIQUE INDEX 'uk_record_author(record_id,author_id)' ON record_author (record_id, author_id);
+
+
+-- ----------------------------
+--           role
 -- ----------------------------
 DROP TABLE IF EXISTS 'role';
 CREATE TABLE 'role'
@@ -104,20 +119,18 @@ CREATE UNIQUE INDEX 'uk_role(name)' ON role (name);
 
 
 -- ----------------------------
---        record_author
+--    record_author_role
 -- ----------------------------
-DROP TABLE IF EXISTS 'record_author';
-CREATE TABLE 'record_author'
+DROP TABLE IF EXISTS 'record_author_role';
+CREATE TABLE 'record_author_role'
 (
-    'id'        INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
-    'record_id' INTEGER           NOT NULL,        -- 记录id
-    'author_id' INTEGER           NOT NULL,        -- 作者id
-    'role_id'   INTEGER DEFAULT 0 NOT NULL         -- 角色id
+    'id'               INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键
+    'record_author_id' INTEGER NOT NULL,                  -- 关系id
+    'role_id'          INTEGER NOT NULL                   -- 角色id
 );
-CREATE INDEX 'idx_record_author(record_id)' ON record_author (record_id);
-CREATE INDEX 'idx_record_author(author_id)' ON record_author (author_id);
-CREATE INDEX 'idx_record_author(role_id)' ON record_author (role_id); -- 根据role 来分类作者
-CREATE UNIQUE INDEX 'uk_record_author(record_id,author_id,role_id)' ON record_author (record_id, author_id, role_id);
+CREATE INDEX 'idx_record_author_role(record_author_id)' ON record_author_role (record_author_id);
+CREATE INDEX 'idx_record_author_role(role_id)' ON record_author_role (role_id);
+CREATE UNIQUE INDEX 'uk_record_author_role(record_author_id,role_id)' ON record_author_role (record_author_id, role_id);
 
 
 -- ----------------------------

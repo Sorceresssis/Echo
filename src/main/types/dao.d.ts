@@ -1,22 +1,39 @@
 declare namespace DAO {
+    /**
+     * type R 代表读取（Read），W 代表写入(Create / Update)
+     */
+    // ANCHOR DB group
+    type Group_R = Omit<Entity.Group, 'prev_id' | 'next_id'>
+
+    type Library_R = Omit<Entity.Library, 'prev_id' | 'next_id' | 'group_id'>
+
+    type LibraryExtra_R = Entity.LibraryExtra
+
+    type LibraryExtra_W = Entity.LibraryExtra
 
 
-    interface AllQueryResult<T> {
-        rows: T[]
-        total: number
-    }
-    // 它代表创建（Create）、更新（Update）、读取（Read）和删除（Delete）操作。
+    // ANCHOR DB Library 
+    // 在包裹一层Omit, 编辑器可以直接列出所有字段
+    type Record_R = Omit<
+        Omit<Entity.Record,
+            'dirname_id' | 'recycled' | 'info_status' | 'tag_author_sum'
+        > & { dirname: string | null }, ''
+    >
 
-    interface page {
-        results: T[]
-        has_more: boolean
-        page: {
-            pn: number,
-            ps: number,
-            total_count: number
-            total_page: number
-        }
-    }
+    type RecordExhibit_R = Omit<DAO.Record_R, 'search_text'>
+
+    type RecordProfile_R = Pick<Entity.Record, 'id' | 'title' | 'translated_title'>
+
+    type Record_W = Omit<Entity.Record,
+        'recycled' | 'tag_author_sum' | 'create_time' | 'update_time'
+    >
+
+    type RecordExtra_R = Entity.RecordExtra
+
+    type RecordExtra_W = Entity.RecordExtra
+
+
+
 
 
 

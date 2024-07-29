@@ -31,7 +31,9 @@ class GroupService {
             // 新插入Group的prevId和nextId都默认为0，所以要先查询有没有第一位group。
             const id = this.groupDao.insert(name)
             // 如果headId存在, 把新添加的group的作为新的链表的头
-            if (headId !== void 0) { this.insertNode(id, 0, headId) }
+            if (headId !== void 0) {
+                this.insertNode(id, 0, headId)
+            }
         })
     }
 
@@ -78,9 +80,13 @@ class GroupService {
         // 1. 获取被删除节点的前驱节点和后继节点
         const [prevId, nextId] = this.groupDao.getPrevIdNextIdById(id) ?? [0, 0]
         // 2. 当prevId不为0, 修改前驱节点的nextId 为后继节点的id
-        if (prevId) { this.groupDao.updateNextIdById(prevId, nextId) }
+        if (prevId) {
+            this.groupDao.updateNextIdById(prevId, nextId)
+        }
         // 3. 当nextId不为0, 修改后继节点的prevId 为前驱节点的id
-        if (nextId) { this.groupDao.updatePrevIdById(nextId, prevId) }
+        if (nextId) {
+            this.groupDao.updatePrevIdById(nextId, prevId)
+        }
     }
 }
 

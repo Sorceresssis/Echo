@@ -1,6 +1,6 @@
 // 请求参数
 declare namespace RP {
-    type LibraryExtraFormData = Entity.LibraryExtra
+    type LibraryExtraFormData = DAO.LibraryExtra_W
 
 
 

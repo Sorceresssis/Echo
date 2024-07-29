@@ -8,6 +8,7 @@ import { QueryDirnamesSortRule } from "../dao/DirnameDao"
 import Result from "../utils/Result"
 import type DirnameDao from "../dao/DirnameDao"
 import type RecordDao from "../dao/RecordDao"
+import { DBPageQueryOptions, PagedResult } from "../pojo/page"
 
 @injectable()
 class DirnameService {
@@ -17,7 +18,7 @@ class DirnameService {
         @inject(InjectType.RecordDao) private recordDao: RecordDao
     ) { }
 
-    public queryDirnameDetails(options: DTO.QueryDirnameDetailsOptions): DTO.Page<VO.DirnameDetail> {
+    public queryDirnameDetails(options: DTO.QueryDirnameDetailsOptions): PagedResult<VO.DirnameDetail> {
         const defaultSortRule: QueryDirnamesSortRule[] = [
             { field: 'path', order: 'ASC' },
             { field: 'id', order: 'DESC' },
@@ -40,18 +41,17 @@ class DirnameService {
             }
         })
 
-        const page = this.dirnameDao.queryDirnamesByKeyword(
+        const pagedResult = this.dirnameDao.queryDirnamesByKeyword(
             options.keyword.trim(),
             sortRule,
-            (options.pn - 1) * options.ps,
-            options.ps
-        ) as DTO.Page<VO.DirnameDetail>
+            new DBPageQueryOptions(options.pn, options.ps)
+        ) as PagedResult<VO.DirnameDetail>
 
-        page.rows.forEach(row => {
-            row.recordCount = this.recordDao.queryCountOfRecordsByDirnameId(row.id)
+        pagedResult.results.forEach(row => {
+            row.record_count = this.recordDao.getRecordCountByDirnameId(row.id)
         })
 
-        return page
+        return pagedResult
     }
 
     public editDirname(id: number, path: string): Result {

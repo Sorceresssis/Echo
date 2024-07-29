@@ -95,10 +95,10 @@ watch(route, async () => {
                 }
             }).finally(() => {
                 libraryStore.setLoadingRoles(false)
+                // TODO 必要事件完成开始改变 activeLibrary 来驱动其他组件
+                // dd
+                activeLibrary.value = newlibraryId
             })
-
-            // 必要事件完成开始改变 activeLibrary 来驱动其他组件
-            activeLibrary.value = newlibraryId
         }
 
         // 在同一个lib下切换作者，刷新页面

@@ -1,5 +1,7 @@
 class RouterPathGenerator {
-    public static welcome: () => '/'
+    public static welcome() {
+        return '/'
+    }
 
     public static libraryBashboard(libraryId: number | string) {
         return `/library/${libraryId}`

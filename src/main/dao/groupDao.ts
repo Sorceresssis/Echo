@@ -8,16 +8,16 @@ class GroupDao {
         @inject(InjectType.GroupDB) private db: GroupDB
     ) { }
 
-    public getGroupById(id: Entity.PK): BO.Group | undefined {
+    public getGroupById(id: Entity.PK): DAO.Group_R | undefined {
         const sql = `
             SELECT id, name,
                 DATETIME(create_time, 'localtime') as create_time,
                 DATETIME(update_time, 'localtime') as update_time
             FROM 'group' WHERE id = ?;`
-        return this.db.prepare<[Entity.PK], BO.Group>(sql).get(id)
+        return this.db.prepare<[Entity.PK], DAO.Group_R>(sql).get(id)
     }
 
-    public getGroupsSorted(): BO.Group[] {
+    public getGroupsSorted(): DAO.Group_R[] {
         const sql = `
             WITH RECURSIVE list AS (
                 SELECT id, name,
@@ -35,7 +35,7 @@ class GroupDao {
                 WHERE l.next_id != 0
             ) SELECT id, name, create_time, update_time FROM list;
         `
-        return this.db.prepare<[], BO.Group>(sql).all()
+        return this.db.prepare<[], DAO.Group_R>(sql).all()
     }
 
     /**

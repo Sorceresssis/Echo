@@ -13,6 +13,7 @@ import type AuthorService from "../service/AuthorService"
 import type TagService from "../service/TagService"
 import type DirnameService from "../service/DirnameService"
 import type SeriesService from "../service/SeriesService"
+import { type PagedResult } from "../pojo/page"
 
 
 const { rebindLibrary, closeLibraryDB } = function () {
@@ -153,7 +154,7 @@ function ipcMainLibrary() {
 
     //ANCHOR Tag
 
-    ipcMain.handle('tag:queryDetails', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryTagDetailsOptions): DTO.Page<VO.TagDetail> => {
+    ipcMain.handle('tag:queryDetails', exceptionalHandler((e: IpcMainInvokeEvent, libraryId: number, options: DTO.QueryTagDetailsOptions): PagedResult<VO.TagDetail> => {
         rebindLibrary(libraryId)
         return DIContainer.get<TagService>(InjectType.TagService).queryTagDetails(options)
     }, generateCatchFn('tag:queryDetails'), { total: 0, rows: [] }, closeLibraryDB))

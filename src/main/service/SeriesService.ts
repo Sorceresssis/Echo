@@ -6,13 +6,11 @@ import type RecordSeriesDao from "../dao/RecordSeriesDao"
 
 @injectable()
 class SeriesService {
-
     public constructor(
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
         @inject(InjectType.SeriesDao) private seriesDao: SeriesDao,
         @inject(InjectType.RecordSeriesDao) private recordSeriesDao: RecordSeriesDao,
-    ) {
-    }
+    ) { }
 
     public removeRecordFromSeries(recordId: number, seriesId: number): void {
         this.recordSeriesDao.deleteRecordSeriesByRecordIdSeriesIds(recordId, [seriesId])

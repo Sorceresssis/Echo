@@ -2,7 +2,6 @@ import n_path from "path"
 import n_fs, { promises as n_fsp } from "fs"
 import { injectable, inject } from "inversify"
 import Ajv from "ajv"
-import { type OutputInfo } from "sharp"
 import ECHO_METADATA_SCHEMA from "../constant/echo_metadata_schema"
 import DIContainer, { type LibraryEnv } from "../provider/container"
 import InjectType from "../provider/injectType"
@@ -12,7 +11,9 @@ import { isNotEmptyString, diffArray } from "../utils/common"
 import i18n from "../locale"
 import Result from "../utils/Result"
 import ImageService from "./ImageService"
-import RecordDao, { type QueryRecordsSortRule } from "../dao/RecordDao"
+import { type OutputInfo } from "sharp"
+import { type QueryRecordsSortRule } from "../dao/RecordDao"
+import type RecordDao from "../dao/RecordDao"
 import type RecordExtraDao from "../dao/RecordExtraDao"
 import type DirnameDao from "../dao/DirnameDao"
 import type AuthorDao from "../dao/AuthorDao"
@@ -22,6 +23,7 @@ import type RecordTagDao from "../dao/RecordTagDao"
 import type SeriesDao from "../dao/SeriesDao"
 import type RecordSeriesDao from "../dao/RecordSeriesDao"
 import type AuthorService from "./AuthorService"
+import { DBPageQueryOptions, PagedResult } from "../pojo/page"
 
 
 @injectable()
@@ -43,28 +45,31 @@ class RecordService {
     }
 
     public queryRecordDetail(id: number): VO.RecordDetail | undefined {
-        const record = this.recordDao.queryById(id) as VO.RecordDetail | undefined
+        const record = this.recordDao.getRecordById(id) as VO.RecordDetail | undefined
         if (!record) return
 
-        record.resourcePath = record.dirname && record.basename ? n_path.join(record.dirname, record.basename) : null
+        if (record.dirname && record.basename) {
+            record.source_fullpath = n_path.join(record.dirname, record.basename)
+        }
+
         record.authors = DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorsByRecordId(id)
         record.tags = this.tagDao.queryTagsByRecordId(id)
         record.series = this.seriesDao.querySeriesByRecordId(id)
 
-        const extra = this.recordExtraDao.queryRecordExtraByRecordId(id)
-
+        const extra = this.recordExtraDao.queryRecordExtraById(id)
         if (!extra) return
         record.plot = extra.plot
         record.reviews = extra.reviews
         record.info = extra.info
 
+        // 国际化排序
         const {
             main,
             sampleImages
         } = this.libEnv.genRecordImagesDirPathConstructor(record.id).findMainAndSampleImageFilePaths()
 
         record.cover = main
-        record.sampleImages = sampleImages
+        record.sample_images = sampleImages
 
         return record
     }
@@ -98,23 +103,22 @@ class RecordService {
                 sortRule.push(rule)
             }
         })
-        const page = this.recordDao.queryRecordsByKeyword(
+        const page = this.recordDao.getRecordsByKeyword(
             options.keyword.trim(),
             sortRule,
             this.generateFilters(options.filters),
-            (options.pn - 1) * options.ps,
-            options.ps,
+            new DBPageQueryOptions(options.pn, options.ps, true),
             {
                 type: options.type,
                 authorId: options.authorId,
                 seriesId: options.seriesId
             },
-        ) as DTO.Page<any>
+        ) as PagedResult<VO.RecordRecommendation>
 
         // 添加作者和标签
-        page.rows.forEach(row => {
+        page.results.forEach(row => {
             row.cover = this.libEnv.genRecordImagesDirPathConstructor(row.id).findMainImageFilePath()
-            row.resourcePath = row.dirname && row.basename ? n_path.join(row.dirname, row.basename) : null
+            row.source_fullpath = row.dirname && row.basename ? n_path.join(row.dirname, row.basename) : null
             delete row.dirname
             delete row.basename
             row.authors = DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorsByRecordId(row.id)
@@ -153,7 +157,7 @@ class RecordService {
         const similar: any[] = Array.from(similarMap)
             .sort((a, b) => b[1] - a[1])
             .slice(0, count)
-            .map(item => this.recordDao.queryById(item[0]))
+            .map(item => this.recordDao.getRecordById(item[0]))
             .filter(record => record)
 
         similar.forEach(record => {
@@ -191,8 +195,7 @@ class RecordService {
         if (input[index]) {
             current[index] = '1'
             this.generateFilter(input, index + 1, current, result)
-        }
-        else {
+        } else {
             current[index] = '0'
             this.generateFilter(input, index + 1, current, result)
             current[index] = '1'
@@ -202,7 +205,7 @@ class RecordService {
 
     // 查询作者的作品
     public queryAuthorMasterpieces(authorId: number): { id: number, title: string, cover: string | undefined }[] {
-        const records = this.recordDao.queryRecordProfilesOfOrderRateByAuthor(authorId, 3)
+        const records = this.recordDao.getRecordsOrderRateByAuthor(authorId, 3)
         records.forEach(record => record.cover = this.libEnv.genRecordImagesDirPathConstructor(record.id).findMainImageFilePath())
         return records
     }
@@ -223,7 +226,7 @@ class RecordService {
                 if (dirnameId) {
                     pn = 0
                     do {
-                        recordIds = this.recordDao.queryIdsByDirnameId(dirnameId, pn++ * rowCount, rowCount)
+                        recordIds = this.recordDao.getIdsByDirnameId(dirnameId, pn++ * rowCount, rowCount)
                         this.recordDao.updateRecycledByIds(recordIds, 1)
                     } while (recordIds.length === rowCount)
                 }
@@ -282,10 +285,10 @@ class RecordService {
 
     public deleteRecycledRecord(recordIds: number[]): void {
         recordIds.forEach(id => this.libEnv.db.transactionExec(() => {
-            const record = this.recordDao.queryById(id)
+            const record = this.recordDao.getRecordById(id)
             if (record && this.recordDao.deleteRecycledById(id) > 0) {
                 // 如果删除record不成功，说明不存在或者没有被回收
-                this.recordExtraDao.deleteRecordExtraById(id) // 删除extra
+                this.recordExtraDao.deleteById(id) // 删除extra
                 this.recordAuthorDao.deleteByRecordId(id) // author链接
                 this.recordTagDao.deleteRecordTagByRecordId(id) // tag链接
                 this.recordSeriesDao.deleteRecordSeriesByRecordId(id) // series链接
@@ -305,7 +308,9 @@ class RecordService {
     }
 
     public updateRecordTagAuthorSum(id: PrimaryKey, value?: string): void {
-        if (value === void 0) { value = this.getTagAuthorSum(id) }
+        if (value === void 0) {
+            value = this.getTagAuthorSum(id)
+        }
         this.recordDao.updateTagAuthorSumById(id, value)
     }
 
@@ -356,7 +361,7 @@ class RecordService {
         formData.hyperlink = formData.hyperlink.trim()
         formData.title = formData.title.trim()
         formData.searchText = formData.searchText.trim()
-        const record = this.recordDao.recordEntityFactory(
+        const record = this.recordDao.recordWriteModelFactory(
             formData.title.trim(),
             formData.rate,
             formData.hyperlink,
@@ -368,7 +373,7 @@ class RecordService {
             0,
             formData.id,
         )
-        const recordExtra = this.recordExtraDao.recordExtraFactory(
+        const recordExtra = this.recordExtraDao.recordExtraWriteModelFactory(
             formData.id,
             formData.plot,
             formData.reviews,
@@ -388,16 +393,16 @@ class RecordService {
             if (opType === 'add') {
                 if (record.dirnameId
                     && record.basename
-                    && this.recordDao.queryRecordIdByDirnameIdAndBasename(record.dirnameId, record.basename)
+                    && this.recordDao.getIdByDirnameIdAndBasename(record.dirnameId, record.basename)
                 ) {
                     srcFileIsBound = true
                     return
                 }
                 recordExtra.id = record.id = this.recordDao.insert(record)
-                this.recordExtraDao.insetRecordExtra(recordExtra)
+                this.recordExtraDao.inset(recordExtra)
             } else {
                 this.recordDao.update(record)
-                this.recordExtraDao.updateRecordExtra(recordExtra)
+                this.recordExtraDao.update(recordExtra)
             }
 
             // tag, author, series 表
@@ -422,7 +427,7 @@ class RecordService {
 
             // 等待record的属性都设置完毕,开始更新冗余字段tagAuthorSum
             updatedAuthors.push(...this.authorDao.queryAuthorsAndRoleByRecordId(record.id))
-            updatedTags.push(... this.tagDao.queryTagsByRecordId(record.id))
+            updatedTags.push(...this.tagDao.queryTagsByRecordId(record.id))
             updatedSeries.push(...this.seriesDao.querySeriesByRecordId(record.id))
 
             const tagAuthorSum = updatedAuthors.map(author => author.name).concat(updatedTags.map(tag => tag.title)).join(' ')
@@ -467,13 +472,14 @@ class RecordService {
                     try {
                         const parsedData = JSON.parse(await n_fsp.readFile(metaFilePath, 'utf-8'))
                         oldMetadata = typeof parsedData === 'object' ? parsedData : {}
-                    } catch { }
+                    } catch {
+                    }
                     const newMetadata: Entity.EchoMetadata = {
                         ...oldMetadata,
                         ...{
                             title: record.title,
                             plot: recordExtra.plot,
-                            release_date: record.releaseDate ?? '',
+                            release_date: record.release_date ?? '',
                             authors: updatedAuthors.map(author => ({ name: author.name, role: author.role ?? '' })),
                             series: updatedSeries.map(series => series.name),
                             tags: updatedTags.map(tag => tag.title),
@@ -487,7 +493,8 @@ class RecordService {
                     await n_fsp.mkdir(appPaths.getMetadataDir(srcPath), { recursive: true })
                     await n_fsp.writeFile(metaFilePath, JSON.stringify(newMetadata, null, 4))
                 }
-            } catch { }
+            } catch {
+            }
         }
 
         return Result.success()
@@ -536,7 +543,8 @@ class RecordService {
                 .filter(dirent => dirent.isFile())
                 .sort((a, b) => collator.compare(a.name, b.name))
                 .map(dirent => n_path.join(imagesDir, dirent.name))
-        } catch { }
+        } catch {
+        }
 
         return { metadata, images }
     }
@@ -552,7 +560,7 @@ class RecordService {
         // 传入了dirnameId, 代表是被importRecordFromMetadata调用的, 已经做了可执行检查。所以跳过这一步。
         if (!dirnameId) {
             dirnameId = this.dirnameDao.queryDirnameIdByPath(dirname)
-            if (dirnameId && this.recordDao.queryRecordIdByDirnameIdAndBasename(dirnameId, basename)) {
+            if (dirnameId && this.recordDao.getIdByDirnameIdAndBasename(dirnameId, basename)) {
                 throw Error('Error: 选择的源已经绑定了Record')
             }
         }
@@ -563,7 +571,7 @@ class RecordService {
         this.libEnv.db.transactionExec(() => {
             if (!dirnameId) dirnameId = this.dirnameDao.insertDirname(dirname)
 
-            const record = this.recordDao.recordEntityFactory(
+            const record = this.recordDao.recordWriteModelFactory(
                 metadata.title.trim(),
                 metadata.rate,
                 metadata.hyperlink,
@@ -582,7 +590,7 @@ class RecordService {
             recordExtra.reviews = metadata.reviews
             recordExtra.info = metadata.info
 
-            this.recordExtraDao.insetRecordExtra(recordExtra)
+            this.recordExtraDao.inset(recordExtra)
 
             const addTagIds = metadata.tags.map(title => this.tagDao.queryTagIdByTitle(title) || this.tagDao.insertTag(title))
             const addSeriesIds = metadata.series.map(name => this.seriesDao.querySeriesIdByName(name) || this.seriesDao.insertSeries(name))
@@ -619,12 +627,12 @@ class RecordService {
         if (!dirnameId) dirnameId = this.dirnameDao.queryDirnameIdByPath(dirname)
         if (!dirnameId) throw Error('Error: 选择的源未绑定Record, 无法更新。')
 
-        if (!recordId) recordId = this.recordDao.queryRecordIdByDirnameIdAndBasename(dirnameId, basename)
+        if (!recordId) recordId = this.recordDao.getIdByDirnameIdAndBasename(dirnameId, basename)
         if (!recordId) throw Error('Error: 选择的源未绑定Record, 无法更新。')
 
         const { metadata, images } = await this.getMetadata(srcPath)
 
-        const record = this.recordDao.recordEntityFactory(
+        const record = this.recordDao.recordWriteModelFactory(
             metadata.title.trim(),
             metadata.rate,
             metadata.hyperlink,
@@ -640,14 +648,14 @@ class RecordService {
         this.libEnv.db.transactionExec(() => {
             this.recordDao.update(record)
 
-            const recordExtra = this.recordExtraDao.recordExtraFactory(
+            const recordExtra = this.recordExtraDao.recordExtraWriteModelFactory(
                 recordId,
                 metadata.plot,
                 metadata.reviews,
                 metadata.info
             )
 
-            this.recordExtraDao.updateRecordExtra(recordExtra)
+            this.recordExtraDao.update(recordExtra)
 
             const newTags = metadata.tags.map(title => this.tagDao.queryTagIdByTitle(title) ?? this.tagDao.insertTag(title))
             const newSeries = metadata.series.map(name => this.seriesDao.querySeriesIdByName(name) ?? this.seriesDao.insertSeries(name))
@@ -705,7 +713,7 @@ class RecordService {
 
     /**
      * @param type 0: 添加未添加的, 1: 更新已经添加的, 2: 添加和跟新
-     * @returns 
+     * @returns
      */
     // NOTE 涉及路径的保存
     public async importRecordFromMultipleMetadata(dirPath: string, op: RP.AddRecordFromMetadataParam['operate']) {
@@ -717,7 +725,7 @@ class RecordService {
         // 更新操作，但是绑定的是传入dirname的record一个都没有，就可以直接退出了
         if (op === 1) {
             if (!dirnameId) return
-            if (!this.recordDao.queryCountOfRecordsByDirnameId(dirnameId)) return
+            if (!this.recordDao.getRecordCountByDirnameId(dirnameId)) return
         }
 
         const srcBasenames = (await n_fsp.readdir(dirPath, { withFileTypes: true }))
@@ -730,7 +738,7 @@ class RecordService {
         for (const basename of srcBasenames) {
             try {
                 const srcPath = n_path.join(dirPath, basename)
-                const recordId = this.recordDao.queryRecordIdByDirnameIdAndBasename(dirnameId, basename)
+                const recordId = this.recordDao.getIdByDirnameIdAndBasename(dirnameId, basename)
                 switch (op) {
                     case 0:
                         if (recordId) continue

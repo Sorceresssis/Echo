@@ -9,17 +9,17 @@ class LibraryDao {
 		@inject(InjectType.GroupDB) private db: GroupDB
 	) { }
 
-	public getLibraryById(id: Entity.PK): BO.Library | undefined {
+	public getLibraryById(id: Entity.PK): DAO.Library_R | undefined {
 		const sql = `
 			SELECT id, name,
 				DATETIME(create_time, 'localtime') AS create_time,
 				DATETIME(update_time, 'localtime') AS update_time
 			FROM library WHERE id = ?;
 		`
-		return this.db.prepare<[Entity.PK], BO.Library>(sql).get(id)
+		return this.db.prepare<[Entity.PK], DAO.Library_R>(sql).get(id)
 	}
 
-	public getLibrarysSortedByGroupId(groupId: Entity.PK): BO.Library[] {
+	public getLibrarysSortedByGroupId(groupId: Entity.PK): DAO.Library_R[] {
 		const sql = `
         	WITH RECURSIVE list AS (
             	SELECT id, name,
@@ -37,7 +37,7 @@ class LibraryDao {
 					JOIN list ls ON l.id = ls.next_id
 				WHERE l.group_id = ? AND ls.next_id != 0
             ) SELECT id, name, create_time, update_time FROM list;`
-		return this.db.prepare<[Entity.PK, Entity.PK], BO.Library>(sql).all(groupId, groupId)
+		return this.db.prepare<[Entity.PK, Entity.PK], DAO.Library_R>(sql).all(groupId, groupId)
 	}
 
 	public getIdsByGroupId(groupId: Entity.PK): Entity.PK[] {
@@ -79,7 +79,7 @@ class LibraryDao {
 	}
 
 	public updateNameById(id: Entity.PK, name: string): number {
-		const sql = "UPDATE library SET name = ?, gmt_modified = CURRENT_TIMESTAMP WHERE id = ?;"
+		const sql = "UPDATE library SET name = ?, update_time = CURRENT_TIMESTAMP WHERE id = ?;"
 		return this.db.run(sql, name, id).changes
 	}
 

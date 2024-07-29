@@ -2,6 +2,7 @@ import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
 import DynamicSqlBuilder, { SortRule } from "../utils/DynamicSqlBuilder"
+import { type DBPageQueryOptions, PagedResult } from "../pojo/page"
 
 export type QueryTagsSortRule = {
     field: 'title' | 'id',
@@ -14,20 +15,27 @@ class TagDao {
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
     ) { }
 
-    public queryTagIdByTitle(title: string): number | undefined {
-        return this.libEnv.db.prepare('SELECT id FROM tag WHERE title = ?;').pluck().get(title) as number | undefined
+    public queryTagIdByTitle(title: string): Entity.PK | undefined {
+        const sql = "SELECT id FROM tag WHERE title = ?;"
+        return this.libEnv.db.prepare(sql).pluck().get(title) as Entity.PK
     }
 
-    public queryTagsByRecordId(recordId: PrimaryKey): Domain.Tag[] {
-        return this.libEnv.db.all('SELECT t.id, t.title FROM tag t JOIN record_tag rt ON t.id = rt.tag_id WHERE rt.record_id = ? ORDER BY rt.id;', recordId)
+    public queryTagsByRecordId(recordId: Entity.PK): Entity.Tag[] {
+        const sql = `
+            SELECT t.id, t.title 
+            FROM tag t 
+                JOIN record_tag rt ON t.id = rt.tag_id 
+            WHERE rt.record_id = ? 
+            ORDER BY rt.id;
+        `
+        return this.libEnv.db.all(sql, recordId)
     }
 
     public queryTagsByKeyword(
         keyword: string,
         sort: QueryTagsSortRule[],
-        offset: number,
-        rowCount: number
-    ): DAO.AllQueryResult<Domain.Tag> {
+        pageOptions: DBPageQueryOptions
+    ): PagedResult<Entity.Tag> {
         const sql = new DynamicSqlBuilder()
         const sortRule: SortRule[] = []
 
@@ -38,28 +46,28 @@ class TagDao {
             sortRule.push({ field: 'REGEXP(title)', order: 'DESC' })
         }
         sortRule.push(...sort)
-        sql.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
+        sql.appendOrderSQL(sortRule).appendLimitSQL(pageOptions.pn, pageOptions.ps)
 
-        const rows = this.libEnv.db.all(sql.getSql(), ...sql.getParams())
-        const total = rows.length > 0 ? rows[0].total_count : 0
+        const rows = this.libEnv.db.all<any[], Entity.Tag & { total_count?: number }>(sql.getSql(), ...sql.getParams())
+        const totalCount = rows[0]?.total_count || 0
         rows.forEach(row => { delete row.total_count })
 
-        return {
-            total: total,
-            rows: rows
-        }
+        return new PagedResult(rows, pageOptions.pn, pageOptions.ps, totalCount)
     }
 
-    public updateTagTitle(id: PrimaryKey, title: string): number {
-        return this.libEnv.db.run("UPDATE tag SET title = ? WHERE id = ?;", title, id).changes
+    public update(id: Entity.PK, title: string): number {
+        const sql = "UPDATE tag SET title = ? WHERE id = ?;"
+        return this.libEnv.db.run(sql, title, id).changes
     }
 
-    public insertTag(title: string): PrimaryKey {
-        return this.libEnv.db.run("INSERT INTO tag(title) VALUES(?);", title).lastInsertRowid as Entity.PK
+    public insertTag(title: string): Entity.PK {
+        const sql = "INSERT INTO tag(title) VALUES(?);"
+        return this.libEnv.db.run(sql, title).lastInsertRowid as Entity.PK
     }
 
-    public deleteTagById(id: PrimaryKey): number {
-        return this.libEnv.db.run("DELETE FROM tag WHERE id = ?;", id).changes
+    public deleteTagById(id: Entity.PK): number {
+        const sql = "DELETE FROM tag WHERE id = ?;"
+        return this.libEnv.db.run(sql, id).changes
     }
 }
 

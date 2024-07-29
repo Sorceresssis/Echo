@@ -1,6 +1,7 @@
 declare namespace Entity {
     type PK = number
 
+    // ANCHOR DB Group
     type GroupDBInfo = {
         name: string
         value: string
@@ -33,61 +34,24 @@ declare namespace Entity {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-    type Record = {
-        id: Entity.PK
-        title: string
-        rate: number
-        hyperlink: string | null
-        basename: string | null
-        releaseDate: string | null
-        infoStatus: string
-        tagAuthorSum: string | null
-        search_text: string
-        dirnameId: Entity.PK
-    }
-
-    type RecordExtra = {
-        id: Entity.PK
-        plot: string
-        reviews: string
-        info: string
-
-    }
-
+    // ANCHOR DB Library
     type LibraryDBInfo = GroupDBInfo
 
-
-
-
-
-    type LibraryExtra = {
-        id: Entity.PK
-        auxiliarySt: string,
-        useAuxiliarySt: 0 | 1,
-        intro: string,
-    }
-
     type Record = {
         id: Entity.PK
         title: string
+        translated_title: string
         rate: number
         hyperlink: string | null
+        release_date: string | null
+        dirname_id: Entity.PK
         basename: string | null
-        releaseDate: string | null
-        infoStatus: string
-        tagAuthorSum: string | null
+        recycled: 0 | 1
+        info_status: string
+        tag_author_sum: string | null
         search_text: string
-        dirnameId: PK
+        create_time: string
+        update_time: string
     }
 
     type RecordExtra = {
@@ -101,6 +65,8 @@ declare namespace Entity {
         id: Entity.PK
         name: string
         intro: string
+        create_time: string
+        update_time: string
     }
 
     interface Role {
@@ -122,6 +88,10 @@ declare namespace Entity {
         id: Entity.PK
         path: string
     }
+
+
+
+    // ANCHOR Metadata
 
     interface EchoMetadataAuthor {
         name: string

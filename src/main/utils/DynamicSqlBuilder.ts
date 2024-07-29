@@ -52,8 +52,9 @@ export default class DynamicSqlBuilder {
             : this
     }
 
-    public appendLimitSQL(offset: number, rowCount: number) {
-        return this.append('LIMIT ?,?', offset, rowCount)
+    public appendLimitSQL(pn: number, ps: number) {
+        const offset = (pn - 1) * ps
+        return this.append('LIMIT ?,?', offset, ps)
     }
 
     public generateInSQL(field: string, values: any[]): string {

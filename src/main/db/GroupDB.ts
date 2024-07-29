@@ -3,7 +3,6 @@ import fs from "fs"
 import SQLiteDatabase from "../utils/SQLiteDatabase";
 
 
-
 class GroupDB extends SQLiteDatabase {
 	private readonly DB_VERSION = 1;
 

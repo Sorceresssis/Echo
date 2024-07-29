@@ -5,9 +5,6 @@ type Config = {
     searchEngine: string,
 }
 
-// TODO 删除 数据库主键类型
-type PrimaryKey = number
-
 // autocomplete的类型
 type AcType = 'search' | 'record' | 'author' | 'tag' | 'series' | 'dirname'
 

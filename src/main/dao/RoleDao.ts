@@ -9,7 +9,7 @@ class RoleDao {
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
     ) { }
 
-    public query(): Entity.Role[] {
+    public queryRoles(): Entity.Role[] {
         const sql = "SELECT id, name from role;"
         return this.libEnv.db.prepare<[], Entity.Role>(sql).all()
     }
@@ -19,18 +19,17 @@ class RoleDao {
         return this.libEnv.db.prepare<[string], Entity.Role>(sql).get(name)
     }
 
-    public insert(name: string): PrimaryKey {
+    public insert(name: string): Entity.PK {
         const sql = "INSERT INTO role(name) VALUES (?);"
         return this.libEnv.db.prepare(sql).run(name).lastInsertRowid as Entity.PK
     }
 
-    public update(id: number, name: string): PrimaryKey {
+    public update(id: number, name: string): Entity.PK {
         const sql = "UPDATE role SET name = ? WHERE id = ?"
         return this.libEnv.db.prepare(sql).run(name, id).changes
     }
 
-
-    public delete(id: PrimaryKey): number {
+    public delete(id: Entity.PK): number {
         const sql = "DELETE FROM role WHERE id = ?;"
         return this.libEnv.db.prepare(sql).run(id).changes
     }

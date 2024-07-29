@@ -2,6 +2,7 @@ import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
 import DynamicSqlBuilder, { SortRule } from "../utils/DynamicSqlBuilder"
+import { PagedResult } from "../pojo/page"
 
 export type QueryAuthorsSortRule = {
     field: 'name' | 'id',
@@ -14,7 +15,7 @@ class AuthorDao {
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
     ) { }
 
-    public authorEntityFactory(name: string, id?: PrimaryKey, intro?: string): Entity.Author {
+    public authorEntityFactory(name: string, id?: Entity.PK, intro?: string): Entity.Author {
         return {
             id: id ?? 0,
             name,
@@ -22,7 +23,7 @@ class AuthorDao {
         }
     }
 
-    public queryAuthorById(id: PrimaryKey): Domain.Author | undefined {
+    public queryAuthorById(id: Entity.PK): Domain.Author | undefined {
         return this.libEnv.db.get(`SELECT id, name, intro, DATETIME(gmt_create, 'localtime') AS createTime,
         DATETIME(gmt_modified, 'localtime') AS modifiedTime FROM author WHERE id = ?;` , id)
     }
@@ -37,7 +38,7 @@ class AuthorDao {
         role: number,
         offset: number,
         rowCount: number,
-    ): DAO.AllQueryResult<Domain.Author> {
+    ): PagedResult<Domain.Author> {
         const sql = new DynamicSqlBuilder()
         const sortRule: SortRule[] = []
 
@@ -48,6 +49,7 @@ class AuthorDao {
             sortRule.push({ field: 'REGEXP(name)', order: 'DESC' })
         }
         sortRule.push(...sort)
+        // TODO page
         sql.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
 
         const rows = this.libEnv.db.all(sql.getSql(), ...sql.getParams())
@@ -60,7 +62,7 @@ class AuthorDao {
         }
     }
 
-    public queryAuthorsAndRoleByRecordId(id: PrimaryKey): VO.RecordAuthorProfile[] {
+    public queryAuthorsAndRoleByRecordId(id: Entity.PK): VO.RecordAuthorProfile[] {
         return this.libEnv.db.all(`SELECT a.id, a.name, ra.role FROM author a JOIN record_author ra ON a.id = ra.author_id WHERE ra.record_id = ?`, id)
     }
 
@@ -69,11 +71,11 @@ class AuthorDao {
             author.name, author.intro, author.id).changes
     }
 
-    public insertAuthor(author: Entity.Author): PrimaryKey {
+    public insertAuthor(author: Entity.Author): Entity.PK {
         return this.libEnv.db.run("INSERT INTO author(name, intro) VALUES(?,?);", author.name, author.intro).lastInsertRowid as Entity.PK
     }
 
-    public deleteAuthorById(id: PrimaryKey): number {
+    public deleteAuthorById(id: Entity.PK): number {
         return this.libEnv.db.run(`DELETE FROM author WHERE id = ?; `, id).changes
     }
 }
