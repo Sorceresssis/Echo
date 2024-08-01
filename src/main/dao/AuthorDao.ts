@@ -15,7 +15,7 @@ class AuthorDao {
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
     ) { }
 
-    public recordExtraWriteModelFactory(name: string, id?: Entity.PK, intro?: string): DAO.Author_W {
+    public authorWriteModelFactory(name: string, id?: Entity.PK, intro?: string): DAO.Author_W {
         return {
             id: id ?? 0,
             name,
@@ -64,6 +64,7 @@ class AuthorDao {
                     JOIN record_author ra ON a.id = ra.author_id
 	                JOIN record_author_role rar ON ra.id = rar.record_author_id
                     WHERE rar.id = ?;`, roleId)
+                // TODO group
             } else { // 0
                 sql.append(`
                     JOIN record_author ra ON a.id = ra.author_id

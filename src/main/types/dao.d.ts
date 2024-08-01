@@ -15,9 +15,7 @@ declare namespace DAO {
     // ANCHOR DB Library 
     // 在包裹一层Omit, 编辑器可以直接列出所有字段
     type Record_R = Omit<
-        Omit<Entity.Record,
-            'dirname_id' | 'recycled' | 'info_status' | 'tag_author_sum'
-        > & { dirname: string | null }, ''
+        Omit<Entity.Record, 'dirname_id' | 'recycled' | 'info_status' | 'tag_author_sum'> & { dirname: string | null }, ''
     >
 
     type RecordExhibit_R = Omit<DAO.Record_R, 'search_text'>
@@ -25,7 +23,7 @@ declare namespace DAO {
     type RecordProfile_R = Pick<Entity.Record, 'id' | 'title' | 'translated_title'>
 
     type Record_W = Omit<Entity.Record,
-        'recycled' | 'tag_author_sum' | 'create_time' | 'update_time'
+        'recycled' | 'create_time' | 'update_time'
     >
 
     type RecordExtra_R = Entity.RecordExtra

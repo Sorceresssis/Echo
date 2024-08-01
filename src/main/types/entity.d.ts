@@ -90,24 +90,25 @@ declare namespace Entity {
     }
 
     // ANCHOR Metadata
-
     interface EchoMetadataAuthor {
         name: string
-        role: string // ='' 时 赋值 null
+        roles: string[]
     }
 
     interface EchoMetadataReference {
         name: string
         id: string
     }
+
     interface EchoMetadata {
         title: string
+        translated_title: string
+        rate: number // 0 ~ 5
         plot: string
         release_date: string // ='' 时 赋值 null
         authors: Entity.EchoMetadataAuthor[]
         series: string[]
         tags: string[]
-        rate: number // 0 ~ 5
         reviews: string
         info: string
         hyperlink: string // ='' 时 赋值 null

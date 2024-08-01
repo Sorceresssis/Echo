@@ -26,6 +26,7 @@ class RecordDao {
         basename: string | null,
         release_date: string | null,
         info_status: string,
+        tag_author_sum: string | null,
         search_text: string,
         dirname_id: Entity.PK,
         id: Entity.PK = 0,
@@ -39,6 +40,7 @@ class RecordDao {
             basename: basename || null,
             release_date: release_date || null,
             info_status: info_status,
+            tag_author_sum: tag_author_sum || null,
             search_text,
             dirname_id,
         }

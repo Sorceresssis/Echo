@@ -1,3 +1,6 @@
+import n_assert from 'assert'
+
+
 /**
 * 当 throwException 为 false 时，异常触发才会返回 defaultReturn
 */
@@ -75,6 +78,9 @@ type ArrayDiffResult<K, V> = {
     removed: V[];
 };
 
+/**
+ * a 到 b 的变化
+ */
 export function diffArray<
     T extends unknown,
     U extends unknown,
@@ -188,36 +194,15 @@ export function diffArray<
  * 只支持 Array 和普通对象，其他的Map、 Set、WeakMap、WeakSet、Date、RegExp、Error等不支持
  */
 export function deepEqual(a: any, b: any): boolean {
-    // 基本类型比较
-    if (typeof a !== typeof b) return false;
-
-    // 对象和数组的处理
-    if (typeof a === 'object' && a !== null && b !== null) {
-        // 处理数组
-        if (Array.isArray(a) && Array.isArray(b)) {
-            if (a.length !== b.length) return false;
-            for (let i = 0; i < a.length; i++) {
-                if (!deepEqual(a[i], b[i])) return false;
-            }
-            return true;
+    try {
+        n_assert.deepStrictEqual(a, b)
+        return true
+    } catch (e) {
+        if (e instanceof n_assert.AssertionError) {
+            return false
         }
-
-        // 处理对象
-        if (!Array.isArray(a) && !Array.isArray(b)) {
-            const aKeys = Object.keys(a);
-            const bKeys = Object.keys(b);
-            if (aKeys.length !== bKeys.length) return false;
-
-            for (let key of aKeys) {
-                if (!bKeys.includes(key)) return false;
-                if (!deepEqual(a[key], b[key])) return false;
-            }
-            return true;
-        }
+        throw e
     }
-
-    // 其他基本类型（string, number, boolean, etc.）
-    return a === b;
 }
 
 /**

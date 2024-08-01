@@ -68,6 +68,43 @@ export function isSameType(a: any, b: any) {
 }
 
 
+/**
+ * 前端没有node的assert模块，所以写了一个简单版的深度比较函数
+ * 只支持 Array 和普通对象，其他的Map、 Set、WeakMap、WeakSet、Date、RegExp、Error等不支持
+ */
+export function deepEqual(a: any, b: any): boolean {
+    // 基本类型比较
+    if (typeof a !== typeof b) return false;
+
+    // 对象和数组的处理
+    if (typeof a === 'object' && a !== null && b !== null) {
+        // 处理数组
+        if (Array.isArray(a) && Array.isArray(b)) {
+            if (a.length !== b.length) return false;
+            for (let i = 0; i < a.length; i++) {
+                if (!deepEqual(a[i], b[i])) return false;
+            }
+            return true;
+        }
+
+        // 处理对象
+        if (!Array.isArray(a) && !Array.isArray(b)) {
+            const aKeys = Object.keys(a);
+            const bKeys = Object.keys(b);
+            if (aKeys.length !== bKeys.length) return false;
+
+            for (let key of aKeys) {
+                if (!bKeys.includes(key)) return false;
+                if (!deepEqual(a[key], b[key])) return false;
+            }
+            return true;
+        }
+    }
+
+    // 其他基本类型（string, number, boolean, etc.）
+    return a === b;
+}
+
 export function generateUniqueID() {
     const timestamp = Date.now().toString(36);
     const randomStr = Math.random().toString(36).substring(2, 7); // 取随机数的一部分

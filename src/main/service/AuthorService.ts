@@ -4,11 +4,12 @@ import InjectType from "../provider/injectType"
 import DIContainer, { type LibraryEnv } from "../provider/container"
 import fm from "../utils/FileManager"
 import ImageService from "./ImageService"
+import { DBPageQueryOptions, PagedResult } from "../pojo/page"
 import type AuthorDao from "../dao/AuthorDao"
 import { type QueryAuthorsSortRule } from "../dao/AuthorDao"
 import type RecordAuthorDao from "../dao/RecordAuthorDao"
+import type RecordAuthorRoleDao from "../dao/RecordAuthorRoleDao"
 import type RecordService from "./RecordService"
-import { DBPageQueryOptions, PagedResult } from "../pojo/page"
 
 @injectable()
 class AuthorService {
@@ -16,6 +17,7 @@ class AuthorService {
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
         @inject(InjectType.AuthorDao) private authorDao: AuthorDao,
         @inject(InjectType.RecordAuthorDao) private recordAuthorDao: RecordAuthorDao,
+        @inject(InjectType.RecordAuthorRoleDao) private recordAuthorRoleDao: RecordAuthorRoleDao,
     ) {
     }
 
@@ -93,7 +95,7 @@ class AuthorService {
         }
         const opType = formData.id === 0 ? 'add' : 'edit'
 
-        const author = this.authorDao.recordExtraWriteModelFactory(
+        const author = this.authorDao.authorWriteModelFactory(
             formData.name,
             formData.id,
             formData.intro
@@ -151,8 +153,8 @@ class AuthorService {
         this.libEnv.db.transactionExec(() => {
             this.authorDao.deleteById(authorId) // 删除作者
             this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
-            // TODO  Role 连接 。recordAuthorRoleDao.
-            this.recordAuthorDao.deleteByAuthorId(authorId) // 删除关联
+            this.recordAuthorDao.deleteByAuthorId(authorId)
+            this.recordAuthorRoleDao.deleteByAuthorId(authorId)
             // 删除图像
             fm.rmdirRecursive(this.libEnv.genAuthorImagesDirPathConstructor(authorId).getImagesDirPath())
         })

@@ -323,9 +323,7 @@ const removeRecordFromSeries = function (recordId: number) {
 
 const queryRecords = debounce(async () => {
     loading.value = true
-
-
-    const page = await window.electronAPI.queryRecordRecmds(
+    window.electronAPI.queryRecordRecmds(
         activeLibrary.value,
         {
             type: props.type,
@@ -338,10 +336,13 @@ const queryRecords = debounce(async () => {
             pn: currentPage.value,
             ps: pageSize
         }
-    )
-    recordRecmds.value = page.rows
-    total.value = page.total
-    loading.value = false
+    ).then((page) => {
+        recordRecmds.value = page.rows
+        total.value = page.total
+    }).catch(() => {
+    }).finally(() => {
+        loading.value = false
+    })
 }, 200)
 const handlePageChange = function (pn: number) {
     selectedSet.clear() // 清空选中

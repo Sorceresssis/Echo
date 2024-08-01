@@ -8,10 +8,11 @@ import DIContainer, { type LibraryEnv } from "../provider/container"
 import InjectType from "../provider/injectType"
 import fm from "../utils/FileManager"
 import appPaths from "../app/appPaths"
-import { isNotEmptyString, diffArray } from "../utils/common"
+import { isNotEmptyString, diffArray, deepEqual } from "../utils/common"
 import i18n from "../locale"
 import { DBPageQueryOptions, PagedResult } from "../pojo/page"
 import ImageService from "./ImageService"
+import ResponseResult from "../pojo/ResponseResult"
 import { type OutputInfo } from "sharp"
 import { type QueryRecordsSortRule } from "../dao/RecordDao"
 import type RecordDao from "../dao/RecordDao"
@@ -26,7 +27,6 @@ import type RecordTagDao from "../dao/RecordTagDao"
 import type SeriesDao from "../dao/SeriesDao"
 import type RecordSeriesDao from "../dao/RecordSeriesDao"
 import type AuthorService from "./AuthorService"
-import ResponseResult from "../pojo/ResponseResult"
 
 
 @injectable()
@@ -238,7 +238,7 @@ class RecordService {
                 if (dirnameId) {
                     let pn = 1
                     do {
-                        recordIds = this.recordDao.getIdsByDirnameId(dirnameId, new DBPageQueryOptions(pn, rowCount)).results
+                        recordIds = this.recordDao.getIdsByDirnameId(dirnameId, new DBPageQueryOptions(pn++, rowCount)).results
                         this.recordDao.updateRecycledByIds(recordIds, 1)
                     } while (recordIds.length === rowCount)
                 }
@@ -319,12 +319,12 @@ class RecordService {
         })
     }
 
-    public async deleteAllRecycledRecord(): void {
-        // TODO 先删除
+    public async deleteAllRecycledRecord(): Promise<void> {
         const rowCount = 200
         let recordIds: number[]
         do {
-            recordIds = this.recordDao.queryIdsByRecycled(1, 0, rowCount)
+            // 查出的recycled会被删除，所以pn不需要递增
+            recordIds = this.recordDao.queryIdsByRecycled(1, new DBPageQueryOptions(1, rowCount)).results
             await this.deleteRecycledRecord(recordIds)
         } while (rowCount === recordIds.length)
     }
@@ -356,9 +356,34 @@ class RecordService {
         addSeriesIds: Entity.PK[],
         removeSeriesIds: Entity.PK[],
     ) {
-        this.recordAuthorDao.insertByRecordIdAuthorIds(recordId,)
-        this.recordAuthorDao.updateRoleByRecordIdAuthorId(recordId, editAuthorsRole)
+        // add authors
+        addAuthors.forEach(author => {
+            this.recordAuthorDao.insert(recordId, author.id)
+            author.roles.forEach(role => {
+                this.recordAuthorRoleDao.insert(recordId, author.id, role)
+            })
+        })
+        // edit authors
+        editAuthorsRole.forEach(author => {
+            const oldIds = this.recordAuthorRoleDao.selectIdsByRecordIdAuthorId(recordId, author.id)
+            const newRoles = author.roles
+            let idx = 0
+            while (idx < oldIds.length && idx < newRoles.length) {
+                this.recordAuthorRoleDao.updateRoleIdById(oldIds[idx], newRoles[idx])
+                ++idx
+            }
+            while (idx < oldIds.length) {
+                this.recordAuthorRoleDao.deleteById(oldIds[idx])
+                ++idx
+            }
+            while (idx < newRoles.length) {
+                this.recordAuthorRoleDao.insert(recordId, author.id, newRoles[idx])
+                ++idx
+            }
+        })
+        // remove authors
         this.recordAuthorDao.deleteByRecordIdAuthorIds(recordId, removeAuthorIds)
+        this.recordAuthorRoleDao.deleteByRecordIdAuthorId(recordId, removeAuthorIds)
 
         this.recordTagDao.insertRecordTagByRecordIdTagIds(recordId, addTagIds)
         this.recordTagDao.deleteRecordTagByRecordIdTagIds(recordId, removeTagIds)
@@ -368,14 +393,14 @@ class RecordService {
     }
 
     // NOTE 涉及路径的保存，保存前用 path.resolve 处理一下。把`C:bar\foo\`转化成`C:bar\foo`。
-    public async editRecord(formData: RP.EditRecordFormData): Promise<ResponseResult> {
+    public async editRecord(formData: RP.EditRecordFormData): Promise<ResponseResult<void>> {
         formData.dirname = formData.dirname.trim()
         formData.basename = formData.basename.trim()
 
         // 检查路径是否合法, 不检查是否存在
         if ((formData.dirname !== '' && !fm.isLegalAbsolutePath(formData.dirname))
             || (formData.basename !== '' && !fm.isLegalFileName(formData.basename))) {
-            return Result.error(i18n.global.t('resourcePathIllegal'))
+            return ResponseResult.error(i18n.global.t('resourcePathIllegal'))
         }
 
         const opType = formData.id === 0 ? 'add' : 'edit'
@@ -391,6 +416,7 @@ class RecordService {
             formData.basename,
             formData.releaseDate,
             this.generateInfoStatus(opType === 'add' ? formData.cover : formData.originCover, formData.hyperlink, formData.basename),
+            null,
             formData.searchText.trim(),
             0,
             formData.id,
@@ -403,9 +429,9 @@ class RecordService {
         )
 
         let srcFileIsBound = false
-        const updatedAuthors: VO.RecordAuthorProfile[] = []
-        const updatedTags: VO.Tag[] = []
-        const updatedSeries: VO.Series[] = []
+        const updatedAuthors: DAO.AuthorProfile_R[] = []
+        const updatedTags: Entity.Tag[] = []
+        const updatedSeries: Entity.Series[] = []
         this.libEnv.db.transactionExec(() => {
             if (formData.dirname) {
                 formData.dirname = n_path.resolve(formData.dirname)
@@ -418,7 +444,7 @@ class RecordService {
                     && this.recordDao.getIdByDirnameIdAndBasename(record.dirname_id, record.basename)
                 ) {
                     srcFileIsBound = true
-                    return
+                    throw new Error('srcFileIsBound')
                 }
                 recordExtra.id = record.id = this.recordDao.insert(record)
                 this.recordExtraDao.inset(recordExtra)
@@ -448,7 +474,7 @@ class RecordService {
             )
 
             // 等待record的属性都设置完毕,开始更新冗余字段tagAuthorSum
-            updatedAuthors.push(...this.authorDao.queryAuthorsAndRoleByRecordId(record.id))
+            updatedAuthors.push(...this.authorDao.queryAuthorsProfileByRecordId(record.id))
             updatedTags.push(...this.tagDao.queryTagsByRecordId(record.id))
             updatedSeries.push(...this.seriesDao.querySeriesByRecordId(record.id))
 
@@ -458,7 +484,7 @@ class RecordService {
 
         // 直接退出
         if (srcFileIsBound) {
-            return Result.error('添加的源文件已经被其他记录绑定')
+            return ResponseResult.error('添加的源文件已经被其他记录绑定')
         }
 
         // 图片处理
@@ -500,9 +526,15 @@ class RecordService {
                         ...oldMetadata,
                         ...{
                             title: record.title,
+                            translated_title: record.translated_title,
                             plot: recordExtra.plot,
                             release_date: record.release_date ?? '',
-                            authors: updatedAuthors.map(author => ({ name: author.name, role: author.role ?? '' })),
+                            authors: updatedAuthors.map(author => {
+                                return {
+                                    name: author.name,
+                                    roles: this.roleDao.queryRolesByRecordIdAuthorId(record.id, author.id).map(role => role.name)
+                                }
+                            }),
                             series: updatedSeries.map(series => series.name),
                             tags: updatedTags.map(tag => tag.title),
                             rate: record.rate,
@@ -542,7 +574,12 @@ class RecordService {
             metadata = JSON.parse(rawData)
             // NOTE 过滤掉空值字符串
             metadata.authors = metadata.authors
-                .map(author => ({ name: author.name.trim(), role: author.role.trim() }))
+                .map<Entity.EchoMetadataAuthor>(author => {
+                    return {
+                        name: author.name.trim(),
+                        roles: author.roles.map(role => role.trim()).filter(role => role !== '')
+                    }
+                })
                 .filter(author => author.name !== '')
             metadata.tags = metadata.tags
                 .map(tag => tag.trim())
@@ -595,12 +632,13 @@ class RecordService {
 
             const record = this.recordDao.recordWriteModelFactory(
                 metadata.title.trim(),
+                metadata.translated_title.trim(),
                 metadata.rate,
                 metadata.hyperlink,
                 basename,
                 metadata.release_date,
                 this.generateInfoStatus(images.length > 0, metadata.hyperlink, basename),
-                [...metadata.tags, ...metadata.authors].join(' '),
+                [...metadata.tags, ...metadata.authors.map(author => author.name)].join(' '),
                 metadata.search_text,
                 dirnameId
             )
@@ -616,15 +654,20 @@ class RecordService {
 
             const addTagIds = metadata.tags.map(title => this.tagDao.queryTagIdByTitle(title) || this.tagDao.insertTag(title))
             const addSeriesIds = metadata.series.map(name => this.seriesDao.querySeriesIdByName(name) || this.seriesDao.insertSeries(name))
-            const authorIdAndRoles: DTO.AuthorIdAndRole[] = metadata.authors.map(author => {
+            const authorIdAndRoles: RP.RecordAuthorRelation[] = metadata.authors.map(author => {
                 const id = this.authorDao.queryAuthorByName(author.name)?.id
-                    || this.authorDao.insert(this.authorDao.recordExtraWriteModelFactory(author.name))
-                const role = author.role.trim() || null
-                return { id, role }
+                    || this.authorDao.insert(this.authorDao.authorWriteModelFactory(author.name))
+                const roles = author.roles.map(role => this.roleDao.queryByName(role) || this.roleDao.insert(role))
+                return { id, roles }
             })
             this.recordTagDao.insertRecordTagByRecordIdTagIds(record.id, addTagIds)
             this.recordSeriesDao.insertRecordSeriesByRecordIdSeriesIds(record.id, addSeriesIds)
-            this.recordAuthorDao.insertByRecordIdAuthorIds(record.id, authorIdAndRoles)
+            authorIdAndRoles.forEach(authorIdAndRole => {
+                this.recordAuthorDao.insert(record.id, authorIdAndRole.id)
+                authorIdAndRole.roles.forEach(role => {
+                    this.recordAuthorRoleDao.insert(record.id, authorIdAndRole.id, role)
+                })
+            })
         })
 
         // 图片操作
@@ -656,6 +699,7 @@ class RecordService {
 
         const record = this.recordDao.recordWriteModelFactory(
             metadata.title.trim(),
+            metadata.translated_title.trim(),
             metadata.rate,
             metadata.hyperlink,
             basename,
@@ -669,7 +713,6 @@ class RecordService {
 
         this.libEnv.db.transactionExec(() => {
             this.recordDao.update(record)
-
             const recordExtra = this.recordExtraDao.recordExtraWriteModelFactory(
                 recordId,
                 metadata.plot,
@@ -681,31 +724,44 @@ class RecordService {
 
             const newTags = metadata.tags.map(title => this.tagDao.queryTagIdByTitle(title) ?? this.tagDao.insertTag(title))
             const newSeries = metadata.series.map(name => this.seriesDao.querySeriesIdByName(name) ?? this.seriesDao.insertSeries(name))
-            const newAuthors: DTO.AuthorIdAndRole[] = metadata.authors.map(author => {
-                const id = this.authorDao.queryAuthorByName(author.name)?.id
-                    || this.authorDao.insert(this.authorDao.recordExtraWriteModelFactory(author.name))
-                const role = author.role.trim() || null
-                return { id, role }
+            const newAuthors = metadata.authors.map<RP.RecordAuthorRelation>(author => {
+                const id = this.authorDao.queryAuthorByName(author.name)
+                if (!id) {
+                    const authorWriteModel = this.authorDao.authorWriteModelFactory(author.name)
+                    this.authorDao.insert(authorWriteModel)
+                }
+                const roles = author.roles.map(role => {
+                    return this.roleDao.queryByName(role) || this.roleDao.insert(role)
+                })
+                return { id, roles }
             })
 
             const oldTags = this.tagDao.queryTagsByRecordId(record.id)
-            const oldAuthors = this.authorDao.queryAuthorsAndRoleByRecordId(record.id)
             const oldSeries = this.seriesDao.querySeriesByRecordId(record.id)
+            const oldAuthors = this.authorDao.queryAuthorsProfileByRecordId(recordId).map<RP.RecordAuthorRelation>(author => {
+                return {
+                    id: author.id,
+                    roles: this.roleDao.queryRolesByRecordIdAuthorId(record.id, author.id)
+                }
+            })
 
-            const tagsDiff = diffArray(oldTags, newTags,
+            const tagsDiff = diffArray(
+                oldTags, newTags,
                 'id', void 0,
                 void 0,
                 (item) => item.id,
             )
-            const authorsDiff = diffArray(oldAuthors, newAuthors,
+            const seriesDiff = diffArray(
+                oldSeries, newSeries,
+                'id', void 0,
+                void 0, (item) => item.id,
+            )
+            const authorsDiff = diffArray(
+                oldAuthors, newAuthors,
                 'id', 'id',
                 (item) => item,
                 (item) => item.id,
-                (oldAuthor, newAuthor) => oldAuthor.role === newAuthor.role,
-            )
-            const seriesDiff = diffArray(oldSeries, newSeries,
-                'id', void 0,
-                void 0, (item) => item.id,
+                (oldAuthor, newAuthor) => deepEqual(oldAuthor.roles, newAuthor.roles)
             )
 
             this.editRecordAttribute(

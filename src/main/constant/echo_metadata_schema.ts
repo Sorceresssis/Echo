@@ -14,6 +14,12 @@ const ECHO_METADATA_SCHEMA = {
             "minLength": 0,
             "maxLength": 255
         },
+        "rate": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5,
+            "description": "评分，0到5之间"
+        },
         "plot": {
             "type": "string",
             "description": "情节"
@@ -56,11 +62,14 @@ const ECHO_METADATA_SCHEMA = {
                 "maxLength": 255
             }
         },
-        "rate": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 5,
-            "description": "评分，0到5之间"
+        "tags": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "description": "标签",
+                "minLength": 0,
+                "maxLength": 255
+            }
         },
         "reviews": {
             "type": "string",
@@ -79,15 +88,6 @@ const ECHO_METADATA_SCHEMA = {
         "search_text": {
             "type": "string",
             "description": "暴露给搜索的文本"
-        },
-        "tags": {
-            "type": "array",
-            "items": {
-                "type": "string",
-                "description": "标签",
-                "minLength": 0,
-                "maxLength": 255
-            }
         },
         "references": {
             "type": "array",

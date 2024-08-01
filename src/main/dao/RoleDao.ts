@@ -19,7 +19,8 @@ class RoleDao {
             SELECT r.id, r.name
             FROM record_author_role rar
 	            JOIN role r ON rar.role_id = r.id
-            WHERE rar.record_id = ? AND rar.author_id = ?;`
+            WHERE rar.record_id = ? AND rar.author_id = ?
+            ORDER BY rar.id;`
         return this.libEnv.db.prepare<any[], Entity.Role>(sql).all(recordId, authorId)
     }
 

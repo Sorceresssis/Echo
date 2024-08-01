@@ -89,9 +89,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     relaunch: () => ipcRenderer.invoke('app:relaunch'),
 
-
-
-
     // ANCHOR record
 
     autoCompleteRecord: (
