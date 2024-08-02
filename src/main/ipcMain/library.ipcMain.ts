@@ -47,29 +47,29 @@ function generateCatchFn(title: string, suggest?: string) {
 }
 
 function ipcMainLibrary() {
-    ipcMain.handle('record:autoComplete', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.AutoCompleteOptions): VO.AutoCompleteSuggestion[] => {
+    ipcMain.handle('record:autoComplete', exceptionHandleWrap((
+        e: IpcMainInvokeEvent,
+        libraryId: number,
+        options: RP.AutoCompleteOptions
+    ): VO.AutoCompleteSuggestion[] => {
         rebindLibrary(libraryId)
         return DIContainer.get<AutocompleteService>(InjectType.AutocompleteService).query(options.type, options.queryWord, options.ps)
     }, generateCatchFn('record:autoComplete'), true, closeLibraryDB))
-
 
     ipcMain.handle('record:queryRecmds', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.QueryRecordRecommendationsOptions): DTO.PagedResult<VO.RecordRecommendation> => {
         rebindLibrary(libraryId)
         return DIContainer.get<RecordService>(InjectType.RecordService).queryRecordRecmds(options)
     }, generateCatchFn('record:queryRecmds'), true, closeLibraryDB))
 
-
     ipcMain.handle('record:queryDetail', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, recordId: number): VO.RecordDetail | undefined => {
         rebindLibrary(libraryId)
         return DIContainer.get<RecordService>(InjectType.RecordService).queryRecordDetail(recordId)
     }, generateCatchFn('record:queryDetail'), true, closeLibraryDB))
 
-
     ipcMain.handle('record:querySimilarRecmds', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, recordId: number, count?: number): VO.RecordRecommendation[] => {
         rebindLibrary(libraryId)
         return DIContainer.get<RecordService>(InjectType.RecordService).querySimilarRecordRecmds(recordId, count)
     }, generateCatchFn('record:querySimilarRecmds'), true, closeLibraryDB))
-
 
     ipcMain.handle('record:edit', exceptionHandleWrapAsync(async (e: IpcMainInvokeEvent, libraryId: number, formData: RP.EditRecordFormData): Promise<ResponseResult<void>> => {
         rebindLibrary(libraryId)
@@ -106,15 +106,12 @@ function ipcMainLibrary() {
         DIContainer.get<RecordService>(InjectType.RecordService).batchProcessing(type, recordIds)
     }, generateCatchFn('record:batchProcessing'), true, closeLibraryDB))
 
-
-    ipcMain.handle('record:deleteByAttribute', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, formData: DTO.DeleteRecordByAttributeForm) => {
+    ipcMain.handle('record:deleteByAttribute', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, formData: RP.DeleteRecordByAttributeFormData) => {
         rebindLibrary(libraryId)
         DIContainer.get<RecordService>(InjectType.RecordService).recycleRecordByAttribute(formData)
     }, generateCatchFn('record:batchDelete'), true, closeLibraryDB))
 
-
     //ANCHOR Author
-
     ipcMain.handle('author:queryRecmds', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.QueryAuthorRecommendationsOptions): DTO.PagedResult<VO.AuthorRecommendation> => {
         rebindLibrary(libraryId)
         return DIContainer.get<AuthorService>(InjectType.AuthorService).queryAuthorRecmds(options)
@@ -131,14 +128,14 @@ function ipcMainLibrary() {
         rebindLibrary(libraryId)
         await DIContainer.get<AuthorService>(InjectType.AuthorService).editAuthor(formData)
         return true
-    }, generateCatchFn('author:edit'), true, closeLibraryDB))
+    }, generateCatchFn('author:edit'), false, closeLibraryDB, false))
 
 
     ipcMain.handle('author:delete', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, authorId: number): boolean => {
         rebindLibrary(libraryId)
         DIContainer.get<AuthorService>(InjectType.AuthorService).deleteAuthor(authorId)
         return true
-    }, generateCatchFn('author:delete'), false, closeLibraryDB))
+    }, generateCatchFn('author:delete'), false, closeLibraryDB, false))
 
 
     ipcMain.handle('role:get', (e: IpcMainInvokeEvent, libraryId: number): ResponseResult<void> => {

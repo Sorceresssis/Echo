@@ -298,7 +298,7 @@ const {
     resetFormData,
 } = useEditRecordService()
 
-const handleEditAuthorRole = function (author: VO.RecordAuthorProfile) {
+const handleEditAuthorRole = function (author: VO.RecordAuthorRelation) {
     MessageBox.editPrompt(
         (value: string) => {
             const maxLen = 50
@@ -379,10 +379,7 @@ const init = async function () {
         submitBtnText.value = $t('layout.create')
     }
 }
-onBeforeRouteUpdate((to, from, next) => {
-    // TODO 
-    console.log("edit record", to.fullPath, from.fullPath);
-})
+
 watch(route, init)
 onMounted(init)
 </script>

@@ -8,16 +8,14 @@ type AuthorsDashState = {
     role: number
 }
 
-
 const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
     state: (): AuthorsDashState => {
         const defaultState: AuthorsDashState = {
             sortField: 'name',
             order: 'ASC',
-            roleFilterMode: 'None',
-            role: 0,
+            roleFilterMode: 'ROLE_ID',
+            role: 1,
         }
-
         return defaultState
     },
     actions: {
@@ -31,7 +29,7 @@ const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
             if (mode === 'None' || mode === 'DEFAULT') {
                 this.roleFilterMode = mode
                 this.role = 0
-            } else if (role && role > 0) {
+            } else if (mode === 'ROLE_ID' && role) {
                 this.roleFilterMode = mode
                 this.role = role
             }

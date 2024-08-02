@@ -150,7 +150,7 @@ watch(record, genSlickCarouselImages)
 
 const deleteSeries = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
-        window.electronAPI.deleteSeries(activeLibrary.value, id).then(result => {
+        window.dataAPI.deleteSeries(activeLibrary.value, id).then(result => {
             if (result.code) {
                 record.series = record.series.filter(s => s.id !== id)
             }
@@ -172,7 +172,7 @@ const editSeries = (id: number, oldValue: string) => {
             const trimValue = value.trim()
             if (trimValue === '' || trimValue === oldValue) return
 
-            window.electronAPI.editSeries(activeLibrary.value, id, trimValue).then(result => {
+            window.dataAPI.editSeries(activeLibrary.value, id, trimValue).then(result => {
                 if (result.code) {
                     record.series = record.series.map(s => {
                         if (s.id === id) {

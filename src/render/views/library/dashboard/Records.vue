@@ -48,7 +48,7 @@
         <scrollbar v-loading="loading"
                    ref="scrollbarRef"
                    class="dashboard__content scrollbar-y-w8">
-            <empty v-if="recordRecmds.length == 0" />
+            <empty v-if="recordRecmds.length === 0" />
             <div v-else
                  class="record-recommendations adaptive-grid"
                  :class="[`${recordsDashStore.view}-grid`, `${recordsDashStore.view}-records`, isBatch ? 'is-batch' : '']">
@@ -108,7 +108,7 @@
 
 <script setup lang='ts'>
 import { onMounted, ref, Ref, inject, watch, toRaw, reactive, onActivated, readonly } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import RouterPathGenerator from '@/router/router_path_generator';
 import { $t } from '@/locale'
@@ -122,6 +122,7 @@ import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
 import RecordCard from '@/components/RecordCard.vue'
+
 const props = withDefaults(defineProps<{
     type?: 'common' | 'recycled' | 'author' | 'series'
 }>(), {
@@ -140,7 +141,6 @@ const enum FilterKey {
     hyperlink,
     basename,
 }
-
 
 const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
@@ -278,7 +278,7 @@ const recycleRecord = (...ids: number[]) => {
         // 提醒其他组件刷新
         viewsTaskAfterRoutingStore.setBashboardRecycled('refresh')
 
-        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids)
+        await window.dataAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids)
         handleDataChange()
     })
 }
@@ -286,14 +286,14 @@ const recycleRecord = (...ids: number[]) => {
 const deleteRecord = (...ids: number[]) => {
     if (ids.length === 0) return
     MessageBox.deleteConfirm().then(async () => {
-        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled', ids)
+        await window.dataAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled', ids)
         handleDataChange()
     })
 }
 const deleteAllRecycled = () => {
     if (recordRecmds.value.length === 0) return
     MessageBox.deleteConfirm().then(async () => {
-        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled_all')
+        await window.dataAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled_all')
         handleDataChange()
     })
 }
@@ -305,7 +305,7 @@ const recoverRecord = (...ids: number[]) => {
         viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
         viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
 
-        await window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recover', ids)
+        await window.dataAPI.batchProcessingRecord(activeLibrary.value, 'recover', ids)
         handleDataChange()
     })
 }
@@ -315,15 +315,15 @@ const removeRecordFromSeries = function (recordId: number) {
 
     const seriesId = Number(route.query.seriesId)
     MessageBox.confirm($t('tips.dangerousOperation'), $t('tips.sureRemoveFromSeries'), 'warning').then(() =>
-        window.electronAPI.removeRecordFromSeries(activeLibrary.value, recordId, seriesId
+        window.dataAPI.removeRecordFromSeries(activeLibrary.value, recordId, seriesId
         ).then(handleDataChange)
     )
     emit('removeRecordFromSeries', recordId, seriesId)
 }
 
-const queryRecords = debounce(async () => {
+const queryRecords = debounce(() => {
     loading.value = true
-    window.electronAPI.queryRecordRecmds(
+    window.dataAPI.queryRecordRecmds(
         activeLibrary.value,
         {
             type: props.type,
@@ -336,9 +336,10 @@ const queryRecords = debounce(async () => {
             pn: currentPage.value,
             ps: pageSize
         }
-    ).then((page) => {
-        recordRecmds.value = page.rows
-        total.value = page.total
+    ).then((res) => {
+        recordRecmds.value = res.results
+        total.value = res.page.total_count
+        currentPage.value = res.page.pn
     }).catch(() => {
     }).finally(() => {
         loading.value = false
@@ -364,7 +365,67 @@ const init = function () {
 // 2. 请求参数改变，要跳到第一页
 watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order], handleQueryParamsChange, { deep: true })
 // authorId改变，libraryId改变，seriesId改变，要跳到第一页
-watch(route, () => {
+// watch(route, () => {
+//     if (props.type === 'common') {
+//         switch (viewsTaskAfterRoutingStore.bashboardRecords) {
+//             case 'init':
+//                 init()
+//                 break
+//             case 'refresh':
+//                 queryRecords()
+//                 break
+//         }
+//         viewsTaskAfterRoutingStore.setBashboardRecords('none')
+//     } else if (props.type === 'author') {
+//         switch (viewsTaskAfterRoutingStore.authorRecords) {
+//             case 'init':
+//                 init()
+//                 break
+//             case 'refresh':
+//                 queryRecords()
+//                 break
+//         }
+//         viewsTaskAfterRoutingStore.setAuthorRecords('none')
+//     } else if (props.type === 'recycled') {
+//         switch (viewsTaskAfterRoutingStore.bashboardRecycled) {
+//             case 'init':
+//                 init()
+//                 break
+//             case 'refresh':
+//                 queryRecords()
+//                 break
+//         }
+//         viewsTaskAfterRoutingStore.setBashboardRecycled('none')
+//     } else if (props.type === 'series') {
+//         init()
+//     }
+// })
+// 同路由下刷新需求：回收站跳转需要刷新， 
+onActivated(() => {
+    if (props.type === 'common') {
+        if (viewsTaskAfterRoutingStore.bashboardRecords === 'refresh') {
+            queryRecords()
+            viewsTaskAfterRoutingStore.setBashboardRecords('none')
+        }
+    } else if (props.type === 'author') {
+        if (viewsTaskAfterRoutingStore.authorRecords === 'refresh') {
+            queryRecords()
+            viewsTaskAfterRoutingStore.setAuthorRecords('none')
+        }
+        else if (viewsTaskAfterRoutingStore.authorRecords === 'init') {
+            init()
+        }
+        viewsTaskAfterRoutingStore.setAuthorRecords('none')
+    } else if (props.type === 'recycled') {
+        if (viewsTaskAfterRoutingStore.bashboardRecycled === 'refresh') {
+            queryRecords()
+            viewsTaskAfterRoutingStore.setBashboardRecycled('none')
+        }
+    }
+})
+onMounted(init)
+
+onBeforeRouteUpdate(() => {
     if (props.type === 'common') {
         switch (viewsTaskAfterRoutingStore.bashboardRecords) {
             case 'init':
@@ -399,30 +460,6 @@ watch(route, () => {
         init()
     }
 })
-// 同路由下刷新需求：回收站跳转需要刷新， 
-onActivated(() => {
-    if (props.type === 'common') {
-        if (viewsTaskAfterRoutingStore.bashboardRecords === 'refresh') {
-            queryRecords()
-            viewsTaskAfterRoutingStore.setBashboardRecords('none')
-        }
-    } else if (props.type === 'author') {
-        if (viewsTaskAfterRoutingStore.authorRecords === 'refresh') {
-            queryRecords()
-            viewsTaskAfterRoutingStore.setAuthorRecords('none')
-        }
-        else if (viewsTaskAfterRoutingStore.authorRecords === 'init') {
-            init()
-        }
-        viewsTaskAfterRoutingStore.setAuthorRecords('none')
-    } else if (props.type === 'recycled') {
-        if (viewsTaskAfterRoutingStore.bashboardRecycled === 'refresh') {
-            queryRecords()
-            viewsTaskAfterRoutingStore.setBashboardRecycled('none')
-        }
-    }
-})
-onMounted(init)
 </script>
 
 <style scoped>

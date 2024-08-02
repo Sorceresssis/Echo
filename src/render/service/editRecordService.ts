@@ -210,7 +210,7 @@ const useEditRecordService = () => {
 
     const saveOriginData = async (libraryId: number, recordId: number) => {
         // 保存数据时注意有些值是null, 有些值是undefined, 所以要替换成默认值 
-        const data = await window.electronAPI.queryRecordDetail(libraryId, recordId)
+        const data = await window.dataAPI.queryRecordDetail(libraryId, recordId)
         if (!data) {
             Message.error($t('msg.recordNotExist'))
             return
@@ -275,7 +275,7 @@ const useEditRecordService = () => {
         formData.editSampleImages = editSampleImages
 
         // 提交数据 
-        return window.electronAPI.editRecord(libraryId, toRaw(formData))
+        return window.dataAPI.editRecord(libraryId, toRaw(formData))
     }
 
     const resetFormData = () => {

@@ -108,7 +108,7 @@ const sampleImageRemover = (path: string) => {
 }
 
 const saveOriginData = async (id: number | bigint) => {
-    const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, id)
+    const author = await window.dataAPI.queryAuthorDetail(activeLibrary.value, id)
     if (!author) {
         Message.error($t('msg.authorNotExist'))
         return
@@ -173,7 +173,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
             formData.removeSampleImages = Array.from(removeSampleImages)
 
             winowLoading.value = true
-            window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
+            window.dataAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
                 if (formData.id) {
                     Message.success($t('msg.editSuccess'))
                     // resetFormData 会清空formData.id, 所以要先保存

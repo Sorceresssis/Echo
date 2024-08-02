@@ -5,7 +5,7 @@ contextBridge.exposeInMainWorld('dataAPI', {
         callback: (e: IpcRendererEvent, libraryId: number) => void
     ) => ipcRenderer.on('library:primaryOpenLibrary', callback),
 
-    // ANCHOR group
+    // ANCHOR Group
     getGroups: (
     ) => ipcRenderer.invoke('group:getGroups'),
 
@@ -26,8 +26,7 @@ contextBridge.exposeInMainWorld('dataAPI', {
         tarNextId: number
     ) => ipcRenderer.invoke('group:changeOrder', currId, tarNextId),
 
-
-    // ANCHOR library
+    // ANCHOR Library
     queryLibraryDetail: (
         id: number,
     ) => ipcRenderer.invoke('library:queryDetail', id),
@@ -66,31 +65,7 @@ contextBridge.exposeInMainWorld('dataAPI', {
         importFiles: string[]
     ) => ipcRenderer.invoke('library:import', groupId, importFiles),
 
-
-
-    // -------------------------------
-
-
-    getRoles: (
-        libraryId: number,
-    ) => ipcRenderer.invoke('role:get', libraryId),
-
-
-})
-
-
-contextBridge.exposeInMainWorld('electronAPI', {
-    /******************** app ********************/
-    config: (
-        type: 'set' | 'get' | 'all' | 'reset',
-        key?: keyof Config,
-        value?: string
-    ) => ipcRenderer.invoke('app:config', type, key, value),
-
-    relaunch: () => ipcRenderer.invoke('app:relaunch'),
-
-    // ANCHOR record
-
+    // ANCHOR Record
     autoCompleteRecord: (
         libraryId: number,
         options: RP.AutoCompleteOptions
@@ -100,11 +75,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
         libraryId: number,
         options: RP.QueryRecordRecommendationsOptions
     ) => ipcRenderer.invoke('record:queryRecmds', libraryId, options),
-
-    deleteRecordByAttribute: (
-        libraryId: number,
-        formData: DTO.DeleteRecordByAttributeForm
-    ) => ipcRenderer.invoke('record:deleteByAttribute', libraryId, formData),
 
     queryRecordDetail: (
         libraryId: number,
@@ -133,6 +103,10 @@ contextBridge.exposeInMainWorld('electronAPI', {
         recordIds?: number[]
     ) => ipcRenderer.invoke('record:batchProcessing', libraryId, type, recordIds),
 
+    deleteRecordByAttribute: (
+        libraryId: number,
+        formData: RP.DeleteRecordByAttributeFormData
+    ) => ipcRenderer.invoke('record:deleteByAttribute', libraryId, formData),
 
     /******************** author ********************/
     queryAuthorDetail: (
@@ -216,8 +190,24 @@ contextBridge.exposeInMainWorld('electronAPI', {
         seriesId: number
     ) => ipcRenderer.invoke('series:removeRecord', libraryId, recordId, seriesId),
 
-    // ANCHOR dialog
+    // ANCHOR Role
+    getRoles: (
+        libraryId: number,
+    ) => ipcRenderer.invoke('role:get', libraryId),
+})
 
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    /******************** app ********************/
+    config: (
+        type: 'set' | 'get' | 'all' | 'reset',
+        key?: keyof Config,
+        value?: string
+    ) => ipcRenderer.invoke('app:config', type, key, value),
+
+    relaunch: () => ipcRenderer.invoke('app:relaunch'),
+
+    // ANCHOR Dialog
     openDialog: (
         type: OpenDialogType,
         multiSelect: boolean,

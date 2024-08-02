@@ -132,7 +132,7 @@ const openSimilarDrawer = (function () {
         if (queryed) return
 
         similarLoading.value = true
-        window.electronAPI.querySimilarRecordRecmds(activeLibrary.value, record.id, 8).then(recmds => {
+        window.dataAPI.querySimilarRecordRecmds(activeLibrary.value, record.id, 8).then(recmds => {
             similarRecords.value = recmds
             queryed = true
             similarLoading.value = false
@@ -142,7 +142,7 @@ const openSimilarDrawer = (function () {
 
 
 const queryRecordDetail = function () {
-    window.electronAPI.queryRecordDetail(activeLibrary.value, record.id).then(recordDetail => {
+    window.dataAPI.queryRecordDetail(activeLibrary.value, record.id).then(recordDetail => {
         Object.assign(record, recordDetail)
         // 每一次查询recordDetail 更新document.title
         document.title = record.title
@@ -172,7 +172,7 @@ const openCtm = (e: MouseEvent, idxRecord: number) => {
 const recycleRecord = (...ids: number[]) => {
     if (ids.length === 0) return
     MessageBox.confirm($t('layout.putInRecycleBin'), $t('tips.surePutInRecycleBin')).then(async () => {
-        window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids).then(() => {
+        window.dataAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids).then(() => {
             similarRecords.value = similarRecords.value.filter(recmd => !ids.includes(recmd.id))
         })
     })

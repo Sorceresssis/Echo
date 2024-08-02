@@ -50,37 +50,40 @@ class AuthorDao {
     ): PagedResult<DAO.AuthorProfile_R> {
         const sql = new DynamicSqlBuilder()
         const sortRule: SortRule[] = []
+        const whereRule: string[] = []
+        const groupRule: string[] = []
 
         sql.append('SELECT COUNT(a.id) OVER () AS total_count, a.id, a.name, a.intro FROM author a')
         if (keyword !== '') {
             this.libEnv.db.registerSQLFnRegexp(keyword)
-            sql.append('WHERE REGEXP(a.name) > 0')
+            whereRule.push('REGEXP(a.name) > 0')
             sortRule.push({ field: 'REGEXP(a.name)', order: 'DESC' })
         }
-        // TODO  group
+
         if (roleId !== void 0) {
             if (roleId) {
-                sql.append(`
-                    JOIN record_author ra ON a.id = ra.author_id
-	                JOIN record_author_role rar ON ra.id = rar.record_author_id
-                    WHERE rar.id = ?;`, roleId)
-                // TODO group
+                sql.append("JOIN record_author_role rar ON a.id = rar.author_id")
+                whereRule.push('rar.role_id = ?')
+                groupRule.push('a.id')
             } else { // 0
-                sql.append(`
-                    JOIN record_author ra ON a.id = ra.author_id
-                	LEFT JOIN record_author_role rar ON ra.id = rar.record_author_id
-                    WHERE rar.id IS NULL;`)
+                sql.append("LEFT JOIN record_author_role rar ON a.id = rar.author_id")
+                whereRule.push('rar.role_id IS NULL')
             }
         }
+        sql.appendWhereSQL(whereRule, roleId)
+        sql.appendGroupBySQL(groupRule)
         sort.forEach((rule) => {
             sortRule.push({ field: rule.field, order: rule.order, table: 'a' })
         })
-
         sql.appendOrderSQL(sortRule)
             .appendLimitSQL(pageOptions.pn, pageOptions.ps)
+
+        console.log(sql.getSql());
+
         const rows = this.libEnv.db
             .prepare<any[], DAO.AuthorProfile_R & { total_count?: number }>(sql.getSql())
             .all(...sql.getParams())
+
         const totalCount = rows[0]?.total_count || 0
         rows.forEach(row => { delete row.total_count })
 

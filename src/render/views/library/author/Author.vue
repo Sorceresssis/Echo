@@ -71,14 +71,14 @@ const deleteAuthor = async () => {
     MessageBox.deleteConfirm().then(() => {
         viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
         viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
-        window.electronAPI.deleteAuthor(activeLibrary.value, authorDetail.id).then((res) => {
+        window.dataAPI.deleteAuthor(activeLibrary.value, authorDetail.id).then((res) => {
             res ? router.back() : Message.error($t('msg.deleteFailed'))
         })
     })
 }
 const queryAuthorDetail = async () => {
     const id = route.params.authorId as string
-    const res = await window.electronAPI.queryAuthorDetail(activeLibrary.value, parseInt(id))
+    const res = await window.dataAPI.queryAuthorDetail(activeLibrary.value, parseInt(id))
     Object.assign(authorDetail, res)
 }
 

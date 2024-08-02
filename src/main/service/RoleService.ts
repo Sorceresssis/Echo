@@ -3,6 +3,7 @@ import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
 import type RoleDao from "../dao/RoleDao"
 import type RecordAuthorRoleDao from "../dao/RecordAuthorRoleDao"
+import ResponseResult from "../pojo/ResponseResult"
 
 @injectable()
 class RoleService {
@@ -12,16 +13,31 @@ class RoleService {
         @inject(InjectType.RecordAuthorRoleDao) private recordAuthorRoleDao: RecordAuthorRoleDao
     ) { }
 
+    public queryRoles(): VO.Role[] {
+        return this.roleDao.queryRoles()
+    }
+
+    public createRole(name: string): DTO.ResponseResult<VO.Role> {
+        name = name.trim()
+        if (name === '') {
+            return ResponseResult.error('role name cannot be empty')
+        }
+        const existingRole = this.roleDao.queryIdByName(name)
+        if (existingRole) {
+            return ResponseResult.error('role name already exists')
+        }
+        const id = this.roleDao.insert(name)
+        return ResponseResult.success({ id, name })
+    }
+
     public editRole(id: number, name: string): void {
         name = name.trim()
         if (name === '') throw new Error('role name cannot be empty')
-
-        const existingRole = this.roleDao.queryByName(name)
-
+        const existingRole = this.roleDao.queryIdByName(name)
         this.libEnv.db.transactionExec(() => {
-            if (existingRole && existingRole.id !== id) {
-                // 有相同的 name 的 role
-
+            if (existingRole && existingRole !== id) {
+                this.recordAuthorRoleDao.updateRoleIdByRoleId(0, 0)
+                this.roleDao.delete(existingRole)
             } else {
                 this.roleDao.update(id, name)
             }

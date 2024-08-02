@@ -62,7 +62,7 @@ const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const btnLoading = ref(false)
 const formRef = ref<FormInstance>()
-const formData = reactive<DTO.DeleteRecordByAttributeForm>({
+const formData = reactive<RP.DeleteRecordByAttributeFormData>({
     dirnamePath: '',
     tagTitle: '',
     seriesName: '',
@@ -82,7 +82,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         if (!valid) return
         MessageBox.confirm($t('tips.dangerousOperation'), $t('tips.sureRecycle'), 'warning').then(async () => {
             btnLoading.value = true
-            await window.electronAPI.deleteRecordByAttribute(activeLibrary.value, toRaw(formData))
+            await window.dataAPI.deleteRecordByAttribute(activeLibrary.value, toRaw(formData))
             Message.success($t('msg.recycleSuccess'))
             btnLoading.value = false
         })

@@ -52,6 +52,11 @@ export default class DynamicSqlBuilder {
             : this
     }
 
+    public appendGroupBySQL(field: string[]) {
+        if (!field.length) return this
+        return this.append('GROUP BY').append(field.join(','))
+    }
+
     public appendLimitSQL(pn: number, ps: number) {
         const offset = (pn - 1) * ps
         return this.append('LIMIT ?,?', offset, ps)

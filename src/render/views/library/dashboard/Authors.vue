@@ -7,11 +7,12 @@
 								   class="menu-item search"
 								   :placeholder="$t('layout.search')"
 								   @keyup.enter="handleQueryParamsChange" />
-				<dash-drop-menu v-if="roleDropdownMenu.items.length"
+				<!-- TODO -->
+				<!-- <dash-drop-menu v-if="roleDropdownMenu.items"
 								class="menu-item"
 								:menu="roleDropdownMenu"
 								:loading="libraryStore.isLoadingRoles"
-								@command="handleQueryParamsChange" />
+								@command="handleQueryParamsChange" /> -->
 				<dash-drop-menu class="menu-item"
 								:menu="sortDropdownMenu" />
 			</div>
@@ -96,35 +97,7 @@ const authorsDashStore = useAuthorsDashStore()
 const roleDropdownMenu = reactive<DashDropMenu>({
 	HTMLElementTitle: 'role',
 	title: '&#xe60d;',
-	items: computed(() => {
-		if (libraryStore.roles.length) {
-			return [
-				{
-					key: 1,
-					title: 'ALL',
-					divided: false,
-					click: () => authorsDashStore.setRole('None'),
-					dot: () => authorsDashStore.roleFilterMode === 'None'
-				},
-				{
-					key: 0,
-					title: 'None',
-					divided: false,
-					click: () => authorsDashStore.setRole('DEFAULT'),
-					dot: () => authorsDashStore.roleFilterMode === 'DEFAULT'
-				},
-				...libraryStore.roles.map((role, idx) => ({
-					key: role.id,
-					title: role.name,
-					divided: idx === 0,
-					click: () => authorsDashStore.setRole('KEY', role.id),
-					dot: () => authorsDashStore.role === role.id
-				}))
-			]
-		} else {
-			return []
-		}
-	})
+	items: []
 })
 
 const sortDropdownMenu: DashDropMenu = {
@@ -166,7 +139,7 @@ const total = ref<number>(0)
 
 const queryAuthorRecmds = debounce(async () => {
 	loading.value = true
-	const page = await window.electronAPI.queryAuthorRecmds(
+	const pagedRes = await window.dataAPI.queryAuthorRecmds(
 		activeLibrary.value,
 		{
 			keyword: keyword.value,
@@ -178,8 +151,8 @@ const queryAuthorRecmds = debounce(async () => {
 			ps: pageSize
 		}
 	)
-	total.value = page.total
-	authorRecmds.value = page.rows
+	total.value = pagedRes.page.total_count
+	authorRecmds.value = pagedRes.results
 	loading.value = false
 }, 100)
 
@@ -194,7 +167,7 @@ const handleQueryParamsChange = function () {
 	handlePageChange(1)
 }
 const init = async function () {
-	authorsDashStore.setRole('None')
+	// authorsDashStore.setRole('None')
 
 	keyword.value = ''
 	handleQueryParamsChange()

@@ -118,7 +118,7 @@ const total = ref<number>(0)
 
 const deleteDirname = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
-        await window.electronAPI.deleteDirname(activeLibrary.value, id)
+        await window.dataAPI.deleteDirname(activeLibrary.value, id)
         queryDirnames()
     })
 }
@@ -134,7 +134,7 @@ const editDirname = (id: number, oldValue: string) => {
             const trimValue = value.trim()
             if (trimValue === '' || trimValue === oldValue) return
 
-            const result = await window.electronAPI.editDirname(activeLibrary.value, id, value)
+            const result = await window.dataAPI.editDirname(activeLibrary.value, id, value)
             if (result.code === 0) Message.error(result.msg!)
             queryDirnames()
         })
@@ -142,7 +142,7 @@ const editDirname = (id: number, oldValue: string) => {
 }
 const queryDirnames = debounce(async () => {
     loading.value = true
-    const page = await window.electronAPI.queryDirnameDetails(
+    const pagedRes = await window.dataAPI.queryDirnameDetails(
         activeLibrary.value,
         {
             keyword: keyword.value,
@@ -152,8 +152,8 @@ const queryDirnames = debounce(async () => {
             ps: pageSize
         }
     )
-    total.value = page.total
-    dirnames.value = page.rows
+    total.value = pagedRes.page.total_count
+    dirnames.value = pagedRes.results
     loading.value = false
 }, 100)
 const handlePageChange = function (pn: number) {

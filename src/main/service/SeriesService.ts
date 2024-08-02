@@ -23,7 +23,7 @@ class SeriesService {
         const existId = this.seriesDao.querySeriesIdByName(name)
 
         this.libEnv.db.transactionExec(() => {
-            if (existId !== undefined && existId !== id) {
+            if (existId && existId !== id) {
                 // 如果已经存在，就把原来的记录移到新的标签下
                 this.recordSeriesDao.updateSeriesIdBySeriesId(existId, id)
                 this.seriesDao.deleteSeries(existId)

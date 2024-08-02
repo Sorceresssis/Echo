@@ -64,7 +64,7 @@ const emit = defineEmits<{
 const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
 
 const querySearch = (queryWord: string, cb: any) => {
-    window.electronAPI.autoCompleteRecord(
+    window.dataAPI.autoCompleteRecord(
         activeLibrary.value,
         {
             type: props.type,

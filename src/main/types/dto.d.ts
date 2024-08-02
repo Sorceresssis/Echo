@@ -9,12 +9,9 @@ declare namespace DTO {
         }
     }
 
-    /**
-     * 批量删除record的表单
-     */
-    type DeleteRecordByAttributeForm = {
-        dirnamePath: string
-        tagTitle: string
-        seriesName: string
+    type ResponseResult<T> = {
+        code: number
+        msg: string
+        data?: T
     }
 }

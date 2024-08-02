@@ -114,7 +114,7 @@ const handleAddRecordFromMetadata = (type: 0 | 1, op: 0 | 1 | 2) => {
         viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
         viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
 
-        return window.electronAPI.addRecordFromMetadata(activeLibrary.value, param)
+        return window.dataAPI.addRecordFromMetadata(activeLibrary.value, param)
     }).then(res => {
         if (res.code) Message.success('导入成功')
         else Message.error(res.msg)

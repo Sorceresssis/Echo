@@ -97,7 +97,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
 
             btnLoading.value = true
-            const result = await window.electronAPI.startsWithReplaceDirname(
+            const result = await window.dataAPI.startsWithReplaceDirname(
                 activeLibrary.value,
                 formData.targetPrefix,
                 formData.replacePrefix

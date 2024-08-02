@@ -115,7 +115,7 @@ const tagTitleMaxLen = 255
 
 const deleteTag = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
-        await window.electronAPI.deleteTag(activeLibrary.value, id)
+        await window.dataAPI.deleteTag(activeLibrary.value, id)
         queryTags()
     })
 }
@@ -132,14 +132,14 @@ const editTag = (id: number, oldValue: string) => {
             const trimValue = value.trim()
             if (trimValue === '' || trimValue === oldValue) return
 
-            await window.electronAPI.editTag(activeLibrary.value, id, value)
+            await window.dataAPI.editTag(activeLibrary.value, id, value)
             queryTags()
         })
     })
 }
 const queryTags = debounce(async () => {
     loading.value = true
-    const page = await window.electronAPI.queryTagDetails(
+    const pagedRes = await window.dataAPI.queryTagDetails(
         activeLibrary.value,
         {
             keyword: keyword.value,
@@ -149,8 +149,8 @@ const queryTags = debounce(async () => {
             ps: pageSize
         }
     )
-    total.value = page.total
-    tags.value = page.rows
+    total.value = pagedRes.page.total_count
+    tags.value = pagedRes.results
     loading.value = false
 }, 100)
 const handlePageChange = function (pn: number) {

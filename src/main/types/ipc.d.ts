@@ -1,16 +1,9 @@
-interface Result<T> {
-    code: number
-    msg?: string
-    data: T
-}
-
-
 declare interface IDataAPI {
     getPrimaryOpenLibrary: (
         callback: (e: IpcRendererEvent, libraryId: number) => void
     ) => void,
 
-    // ANCHOR group
+    // ANCHOR Group
     getGroups: (
     ) => Promise<VO.Group[]>
 
@@ -32,7 +25,7 @@ declare interface IDataAPI {
         tarNextId: number
     ) => Promise<void>
 
-    // ANCHOR library
+    // ANCHOR Library
     queryLibraryDetail: (
         id: number,
     ) => Promise<VO.LibraryDetail | undefined>
@@ -71,43 +64,21 @@ declare interface IDataAPI {
         importFiles: string[]
     ) => Promise<void>,
 
-
-
-
-
-
-    getRoles: (
-        libraryId: number,
-    ) => Promise<Result<Entity.Role[]>>
-
-}
-
-export interface IElectronAPI {
-    /******************** app ********************/
-    config: (
-        type: 'set' | 'get' | 'all' | 'reset',
-        key?: keyof Config,
-        value?: string
-    ) => Promise<string | Config | void>
-
-
-    relaunch: () => Promise<void>
-
-
-    //ANCHOR Record
-
-    /** 
-     * 自动补齐
-     */
     autoCompleteRecord: (
         libraryId: number,
-        options: DTO.AcOptions
-    ) => Promise<VO.AcSuggestion>
+        options: RP.AutoCompleteOptions
+    ) => Promise<VO.AutoCompleteSuggestion>
 
+    //ANCHOR Record
     queryRecordRecmds: (
         libraryId: number,
-        options: DTO.QueryRecordRecommendationsOptions
-    ) => Promise<DTO.Page<VO.RecordRecommendation>>
+        options: RP.QueryRecordRecommendationsOptions
+    ) => Promise<DTO.PagedResult<VO.RecordRecommendation>>
+
+    queryRecordDetail: (
+        libraryId: number,
+        recordId: number,
+    ) => Promise<VO.RecordDetail | undefined>
 
     querySimilarRecordRecmds: (
         libraryId: number,
@@ -115,36 +86,25 @@ export interface IElectronAPI {
         count?: number
     ) => Promise<VO.RecordRecommendation[]>
 
-    deleteRecordByAttribute: (
-        libraryId: number,
-        formData: DTO.DeleteRecordByAttributeForm,
-    ) => Promise<void>
-
-    /**
-     * 更具recordId获取record的所有信息
-     */
-    queryRecordDetail: (
-        libraryId: number,
-        recordId: number,
-    ) => Promise<VO.RecordDetail>
-
-    /**
-     * 编辑和添加record 
-     */
     editRecord: (
         libraryId: number,
-        formData: DTO.EditRecordForm,
-    ) => Promise<Result>
+        formData: RP.EditRecordFormData,
+    ) => Promise<DTO.ResponseResult<void>>
 
     addRecordFromMetadata: (
         libraryId: number,
         param: RP.AddRecordFromMetadataParam
-    ) => Promise<Result<void>>
+    ) => Promise<DTO.ResponseResult<void>>
 
     batchProcessingRecord: (
         libraryId: number,
-        type: DTO.RecordBatchProcessingType,
+        type: RP.RecordBatchProcessingType,
         recordIds?: number[]
+    ) => Promise<void>
+
+    deleteRecordByAttribute: (
+        libraryId: number,
+        formData: RP.DeleteRecordByAttributeFormData,
     ) => Promise<void>
 
     //ANCHOR Author
@@ -156,63 +116,63 @@ export interface IElectronAPI {
 
     queryAuthorRecmds: (
         libraryId: number,
-        options: DTO.QueryAuthorRecommendationsOptions
-    ) => Promise<DTO.Page<VO.AuthorRecommendation>>
+        options: RP.QueryAuthorRecommendationsOptions
+    ) => Promise<DTO.PagedResult<VO.AuthorRecommendation>>
 
     /**
      * 编辑作者
      */
     editAuthor: (
         libraryId: number,
-        formData: DTO.EditAuthorForm
+        formData: RP.EditAuthorFormData
     ) => Promise<boolean>
 
     deleteAuthor: (
         libraryId: number,
         authorId: number
-    ) => Promise<boolean>,
+    ) => Promise<boolean>
 
     //ANCHOR Tag
 
     queryTagDetails: (
         libraryId: number,
-        options: DTO.QueryTagDetailsOptions
-    ) => Promise<DTO.Page<VO.TagDetail>>
+        options: RP.QueryTagDetailsOptions
+    ) => Promise<DTO.PagedResult<VO.TagDetail>>
 
     deleteTag: (
         libraryId: number,
         tagId: number
-    ) => Promise<boolean>
+    ) => Promise<void>
 
     editTag: (
         libraryId: number,
         tagId: number,
-        newValue: string
-    ) => Promise<boolean>
+        newValue: string,
+    ) => Promise<void>
 
     //ANCHOR Dirname
 
     queryDirnameDetails: (
         libraryId: number,
-        options: DTO.QueryDirnameDetailsOptions
-    ) => Promise<DTO.Page<VO.DirnameDetail>>
+        options: RP.QueryDirnameDetailsOptions
+    ) => Promise<DTO.PagedResult<VO.DirnameDetail>>
 
     deleteDirname: (
         libraryId: number,
         dirnameId: number
-    ) => Promise<boolean>
+    ) => Promise<void>
 
     editDirname: (
         libraryId: number,
         dirnameId: number,
         newValue: string
-    ) => Promise<Result>
+    ) => Promise<DTO.ResponseResult<void>>
 
     startsWithReplaceDirname: (
         libraryId: number,
         target: string,
         replace: string
-    ) => Promise<Result>,
+    ) => Promise<DTO.ResponseResult<void>>
 
     // ANCHOR Series
 
@@ -220,21 +180,36 @@ export interface IElectronAPI {
         libraryId: number,
         seriesId: number,
         newValue: string
-    ) => Promise<Result>,
+    ) => Promise<DTO.ResponseResult<void>>
 
     deleteSeries: (
         libraryId: number,
         seriesId: number
-    ) => Promise<Result>,
+    ) => Promise<DTO.ResponseResult<void>>
 
     removeRecordFromSeries: (
         libraryId: number,
         recordId: number,
         seriesId: number
-    ) => Promise<void>,
+    ) => Promise<void>
+
+    // ANCHOR Role
+    getRoles: (
+        libraryId: number,
+    ) => Promise<DTO.ResponseResult<VO.Role[]>>
+}
+
+export interface IElectronAPI {
+    /******************** app ********************/
+    config: (
+        type: 'set' | 'get' | 'all' | 'reset',
+        key?: keyof Config,
+        value?: string
+    ) => Promise<string | Config | void>
+
+    relaunch: () => Promise<void>
 
     // ANCHOR dialog 
-
     openDialog: (
         type: OpenDialogType,
         multiSelect: boolean,
@@ -242,7 +217,6 @@ export interface IElectronAPI {
     ) => Promise<string[]>
 
     // ANCHOR system
-
     openInBrowser: (
         hyperlink: string
     ) => Promise<void>

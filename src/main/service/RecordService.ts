@@ -224,7 +224,7 @@ class RecordService {
     }
 
     // 根据属性回收
-    public recycleRecordByAttribute(formData: DTO.DeleteRecordByAttributeForm): void {
+    public recycleRecordByAttribute(formData: RP.DeleteRecordByAttributeFormData): void {
         this.libEnv.db.transactionExec(() => {
             const dirnamePath = formData.dirnamePath.trim()
             const tagTitle = formData.tagTitle.trim()
@@ -657,7 +657,7 @@ class RecordService {
             const authorIdAndRoles: RP.RecordAuthorRelation[] = metadata.authors.map(author => {
                 const id = this.authorDao.queryAuthorByName(author.name)?.id
                     || this.authorDao.insert(this.authorDao.authorWriteModelFactory(author.name))
-                const roles = author.roles.map(role => this.roleDao.queryByName(role) || this.roleDao.insert(role))
+                const roles = author.roles.map(role => this.roleDao.queryIdByName(role) || this.roleDao.insert(role))
                 return { id, roles }
             })
             this.recordTagDao.insertRecordTagByRecordIdTagIds(record.id, addTagIds)
@@ -731,7 +731,7 @@ class RecordService {
                     this.authorDao.insert(authorWriteModel)
                 }
                 const roles = author.roles.map(role => {
-                    return this.roleDao.queryByName(role) || this.roleDao.insert(role)
+                    return this.roleDao.queryIdByName(role) || this.roleDao.insert(role)
                 })
                 return { id, roles }
             })

@@ -15,7 +15,7 @@ export function exceptionHandleWrap<
 ) {
     return (...args: Parameters<T>): ReturnType<T> | undefined => {
         try {
-            return action()
+            return action(...args)
         } catch (e) {
             errorHandle && errorHandle(e)
             if (throwException) throw e

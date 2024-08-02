@@ -24,9 +24,9 @@ class RoleDao {
         return this.libEnv.db.prepare<any[], Entity.Role>(sql).all(recordId, authorId)
     }
 
-    public queryByName(name: string): Entity.Role | undefined {
-        const sql = "SELECT id, name from role WHERE name = ?;"
-        return this.libEnv.db.prepare<[string], Entity.Role>(sql).get(name)
+    public queryIdByName(name: string): Entity.PK | undefined {
+        const sql = "SELECT id from role WHERE name = ?;"
+        return this.libEnv.db.prepare<[string], Entity.PK>(sql).get(name)
     }
 
     public insert(name: string): Entity.PK {

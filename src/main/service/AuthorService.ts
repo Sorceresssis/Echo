@@ -62,12 +62,18 @@ class AuthorService {
                 sortRule.push(rule)
             }
         })
-        sortRule.push(...defaultSortRule.filter(rule => rule.field !== sortRule[0].field))
+        let roleId: number | undefined = void 0
+        if (options.roleFilterMode === 'DEFAULT') {
+            roleId = 0
+        }
+        if (options.roleFilterMode === 'ROLE_ID' && options.role) {
+            roleId = options.role
+        }
         const pagedResult = this.authorDao.queryAuthorsByKeyword(
             options.keyword.trim(),
             sortRule,
             new DBPageQueryOptions(options.pn, options.ps),
-            void 0
+            roleId
         ) as PagedResult<VO.AuthorRecommendation>
 
         pagedResult.results.forEach(row => {
