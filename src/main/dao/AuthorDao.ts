@@ -64,21 +64,20 @@ class AuthorDao {
             if (roleId) {
                 sql.append("JOIN record_author_role rar ON a.id = rar.author_id")
                 whereRule.push('rar.role_id = ?')
+                sql.appendParam(roleId)
                 groupRule.push('a.id')
             } else { // 0
                 sql.append("LEFT JOIN record_author_role rar ON a.id = rar.author_id")
                 whereRule.push('rar.role_id IS NULL')
             }
         }
-        sql.appendWhereSQL(whereRule, roleId)
+        sql.appendWhereSQL(whereRule)
         sql.appendGroupBySQL(groupRule)
         sort.forEach((rule) => {
             sortRule.push({ field: rule.field, order: rule.order, table: 'a' })
         })
         sql.appendOrderSQL(sortRule)
             .appendLimitSQL(pageOptions.pn, pageOptions.ps)
-
-        console.log(sql.getSql());
 
         const rows = this.libEnv.db
             .prepare<any[], DAO.AuthorProfile_R & { total_count?: number }>(sql.getSql())

@@ -97,13 +97,14 @@
 
 <script setup lang='ts'>
 import { inject, ref, readonly, onMounted, watch } from 'vue'
+import { VueInjectKey } from '@/constant/channel_key';
 import useExplorerService from '@/record/service/explorerService'
 import { openInExplorer, openFile } from '@/util/systemUtil'
 import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 import FolderContentItem from '@/components/FolderContentItem.vue'
 
-const record = readonly(inject<VO.RecordDetail>('record')!)
+const record = readonly(inject<VO.RecordDetail>(VueInjectKey.RECORD)!)
 
 const explorer = useExplorerService()
 const {
@@ -135,7 +136,6 @@ const openCtm = (
     focusDirContentItem = item
     isVisCtm.value = true
 }
-
 
 watch(() => record.source_fullpath, () => {
     if (realFolders.value.length === 0) {

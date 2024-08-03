@@ -56,6 +56,7 @@
                              :key="recmd.id"
                              :recmd="recmd"
                              :selected="selectedSet.has(recmd.id)"
+                             :title-display-type="recordsDashStore.recordCardTitleDisplayType"
                              :can-push-to-author-page="props.type !== 'series'"
                              @contextmenu="openCtm($event, idxRecmd)"
                              @select="handleSelect(recmd.id)">
@@ -107,12 +108,13 @@
 </template>
 
 <script setup lang='ts'>
-import { onMounted, ref, Ref, inject, watch, toRaw, reactive, onActivated, readonly } from 'vue'
+import { onMounted, ref, Ref, inject, watch, toRaw, reactive, onActivated } from 'vue'
 import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import RouterPathGenerator from '@/router/router_path_generator';
 import { $t } from '@/locale'
 import { debounce } from '@/util/common'
+import { RecordCardTitleDisplayType } from '@/constant/enum'
 import { writeClibboard } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
 import { VueInjectKey } from '@/constant/channel_key';
@@ -153,16 +155,22 @@ const dropdownMenus: DashDropMenu[] = [
         title: '&#xe7e6;',
         items: [
             {
-                title: $t('layout.hasCover'), divided: false,
-                click: () => recordsDashStore.handleFilter(FilterKey.cover), dot: () => recordsDashStore.filter[FilterKey.cover]
+                title: $t('layout.hasCover'),
+                divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.cover),
+                hit: () => recordsDashStore.filter[FilterKey.cover]
             },
             {
-                title: $t('layout.hasHyperlink'), divided: false,
-                click: () => recordsDashStore.handleFilter(FilterKey.hyperlink), dot: () => recordsDashStore.filter[FilterKey.hyperlink]
+                title: $t('layout.hasHyperlink'),
+                divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.hyperlink),
+                hit: () => recordsDashStore.filter[FilterKey.hyperlink]
             },
             {
-                title: $t('layout.hasFile'), divided: false,
-                click: () => recordsDashStore.handleFilter(FilterKey.basename), dot: () => recordsDashStore.filter[FilterKey.basename]
+                title: $t('layout.hasFile'),
+                divided: false,
+                click: () => recordsDashStore.handleFilter(FilterKey.basename),
+                hit: () => recordsDashStore.filter[FilterKey.basename]
             },
         ]
     },
@@ -171,29 +179,59 @@ const dropdownMenus: DashDropMenu[] = [
         title: '&#xe81f;',
         items: [
             {
-                title: $t('layout.time'), divided: false,
-                click: () => recordsDashStore.handleSortField('time'), dot: () => recordsDashStore.sortField === 'time'
+                title: $t('layout.time'),
+                divided: false,
+                click: () => recordsDashStore.handleSortField('time'),
+                hit: () => recordsDashStore.sortField === 'time'
             },
             {
-                title: $t('layout.title'), divided: false,
-                click: () => recordsDashStore.handleSortField('title'), dot: () => recordsDashStore.sortField === 'title'
+                title: $t('layout.title'),
+                divided: false,
+                click: () => recordsDashStore.handleSortField('title'),
+                hit: () => recordsDashStore.sortField === 'title'
             },
             {
-                title: $t('layout.rate'), divided: false,
-                click: () => recordsDashStore.handleSortField('rate'), dot: () => recordsDashStore.sortField === 'rate'
+                title: $t('layout.rate'),
+                divided: false,
+                click: () => recordsDashStore.handleSortField('rate'),
+                hit: () => recordsDashStore.sortField === 'rate'
             },
             {
-                title: $t('layout.releaseDate'), divided: false,
-                click: () => recordsDashStore.handleSortField('release_date'), dot: () => recordsDashStore.sortField === 'release_date'
+                title: $t('layout.releaseDate'),
+                divided: false,
+                click: () => recordsDashStore.handleSortField('release_date'),
+                hit: () => recordsDashStore.sortField === 'release_date'
             },
             {
-                title: $t('layout.ascending'), divided: true,
-                click: () => recordsDashStore.handleOrder('ASC'), dot: () => recordsDashStore.order === 'ASC'
+                title: $t('layout.ascending'),
+                divided: true,
+                click: () => recordsDashStore.handleOrder('ASC'),
+                hit: () => recordsDashStore.order === 'ASC'
             },
             {
-                title: $t('layout.descending'), divided: false,
-                click: () => recordsDashStore.handleOrder('DESC'), dot: () => recordsDashStore.order === 'DESC'
+                title: $t('layout.descending'),
+                divided: false,
+                click: () => recordsDashStore.handleOrder('DESC'),
+                hit: () => recordsDashStore.order === 'DESC'
             },
+        ]
+    },
+    {
+        HTMLElementTitle: $t('layout.title'),
+        title: '&#xe61d;',
+        items: [
+            {
+                title: $t('layout.title'),
+                divided: false,
+                click: () => recordsDashStore.setRecordCardTitleDisplayType(RecordCardTitleDisplayType.TITLE),
+                hit: () => recordsDashStore.recordCardTitleDisplayType === RecordCardTitleDisplayType.TITLE
+            },
+            {
+                title: $t('layout.translated_title'),
+                divided: false,
+                click: () => recordsDashStore.setRecordCardTitleDisplayType(RecordCardTitleDisplayType.TRANSLATED_TITLE),
+                hit: () => recordsDashStore.recordCardTitleDisplayType === RecordCardTitleDisplayType.TRANSLATED_TITLE
+            }
         ]
     },
     {
@@ -201,15 +239,19 @@ const dropdownMenus: DashDropMenu[] = [
         title: '&#xe6c7;',
         items: [
             {
-                title: $t('layout.thumbnail'), divided: false,
-                click: () => recordsDashStore.handleView('thumbnail'), dot: () => recordsDashStore.view === 'thumbnail'
+                title: $t('layout.thumbnail'),
+                divided: false,
+                click: () => recordsDashStore.handleView('thumbnail'),
+                hit: () => recordsDashStore.view === 'thumbnail'
             },
             {
-                title: $t('layout.extended'), divided: false,
-                click: () => recordsDashStore.handleView('extended'), dot: () => recordsDashStore.view === 'extended'
+                title: $t('layout.extended'),
+                divided: false,
+                click: () => recordsDashStore.handleView('extended'),
+                hit: () => recordsDashStore.view === 'extended'
             },
         ]
-    }
+    },
 ]
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
@@ -218,7 +260,7 @@ const recordRecmds = ref<VO.RecordRecommendation[]>([])
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
 const pageSize = 50
-const total = ref<number>(200)
+const total = ref<number>(0)
 
 // ANCHOR 右键菜单
 const isVisCtm = ref(false)
@@ -292,21 +334,29 @@ const deleteRecord = (...ids: number[]) => {
 }
 const deleteAllRecycled = () => {
     if (recordRecmds.value.length === 0) return
-    MessageBox.deleteConfirm().then(async () => {
-        await window.dataAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled_all')
+    MessageBox.deleteConfirm().then(() => {
+        loading.value = true
+        return window.dataAPI.batchProcessingRecord(activeLibrary.value, 'delete_recycled_all')
+    }).then(() => {
         handleDataChange()
+    }).finally(() => {
+        loading.value = false
     })
 }
 // 恢复
 const recoverRecord = (...ids: number[]) => {
     if (ids.length === 0) return
-    MessageBox.confirm($t('layout.restore'), $t('tips.sureRestore')).then(async () => {
+    MessageBox.confirm($t('layout.restore'), $t('tips.sureRestore')).then(() => {
+        loading.value = true
         // 提醒其他组件刷新
         viewsTaskAfterRoutingStore.setBashboardRecords('refresh')
         viewsTaskAfterRoutingStore.setBashboardAuthors('refresh')
 
-        await window.dataAPI.batchProcessingRecord(activeLibrary.value, 'recover', ids)
+        return window.dataAPI.batchProcessingRecord(activeLibrary.value, 'recover', ids)
+    }).then(() => {
         handleDataChange()
+    }).finally(() => {
+        loading.value = false
     })
 }
 
@@ -322,6 +372,7 @@ const removeRecordFromSeries = function (recordId: number) {
 }
 
 const queryRecords = debounce(() => {
+    if (!activeLibrary.value) return
     loading.value = true
     window.dataAPI.queryRecordRecmds(
         activeLibrary.value,
@@ -363,69 +414,12 @@ const init = function () {
     handleQueryParamsChange()
 }
 // 2. 请求参数改变，要跳到第一页
-watch(() => [recordsDashStore.filter, recordsDashStore.sortField, recordsDashStore.order], handleQueryParamsChange, { deep: true })
-// authorId改变，libraryId改变，seriesId改变，要跳到第一页
-// watch(route, () => {
-//     if (props.type === 'common') {
-//         switch (viewsTaskAfterRoutingStore.bashboardRecords) {
-//             case 'init':
-//                 init()
-//                 break
-//             case 'refresh':
-//                 queryRecords()
-//                 break
-//         }
-//         viewsTaskAfterRoutingStore.setBashboardRecords('none')
-//     } else if (props.type === 'author') {
-//         switch (viewsTaskAfterRoutingStore.authorRecords) {
-//             case 'init':
-//                 init()
-//                 break
-//             case 'refresh':
-//                 queryRecords()
-//                 break
-//         }
-//         viewsTaskAfterRoutingStore.setAuthorRecords('none')
-//     } else if (props.type === 'recycled') {
-//         switch (viewsTaskAfterRoutingStore.bashboardRecycled) {
-//             case 'init':
-//                 init()
-//                 break
-//             case 'refresh':
-//                 queryRecords()
-//                 break
-//         }
-//         viewsTaskAfterRoutingStore.setBashboardRecycled('none')
-//     } else if (props.type === 'series') {
-//         init()
-//     }
-// })
-// 同路由下刷新需求：回收站跳转需要刷新， 
-onActivated(() => {
-    if (props.type === 'common') {
-        if (viewsTaskAfterRoutingStore.bashboardRecords === 'refresh') {
-            queryRecords()
-            viewsTaskAfterRoutingStore.setBashboardRecords('none')
-        }
-    } else if (props.type === 'author') {
-        if (viewsTaskAfterRoutingStore.authorRecords === 'refresh') {
-            queryRecords()
-            viewsTaskAfterRoutingStore.setAuthorRecords('none')
-        }
-        else if (viewsTaskAfterRoutingStore.authorRecords === 'init') {
-            init()
-        }
-        viewsTaskAfterRoutingStore.setAuthorRecords('none')
-    } else if (props.type === 'recycled') {
-        if (viewsTaskAfterRoutingStore.bashboardRecycled === 'refresh') {
-            queryRecords()
-            viewsTaskAfterRoutingStore.setBashboardRecycled('none')
-        }
-    }
-})
-onMounted(init)
-
-onBeforeRouteUpdate(() => {
+watch(() => [
+    recordsDashStore.filter,
+    recordsDashStore.sortField,
+    recordsDashStore.order
+], handleQueryParamsChange, { deep: true })
+const handleViewTask = () => {
     if (props.type === 'common') {
         switch (viewsTaskAfterRoutingStore.bashboardRecords) {
             case 'init':
@@ -459,7 +453,11 @@ onBeforeRouteUpdate(() => {
     } else if (props.type === 'series') {
         init()
     }
-})
+}
+
+onMounted(init)
+onActivated(handleViewTask)
+onBeforeRouteUpdate(handleViewTask)
 </script>
 
 <style scoped>

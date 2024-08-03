@@ -91,7 +91,7 @@ class RecordDao {
 			FROM (SELECT COUNT(r.id) OVER () AS total_count, r.id
         `)
 
-        if (!keyword) {
+        if (keyword) {
             this.libEnv.db.registerSQLFnRegexp(keyword)
             rowsSQL.append(`, (REGEXP(r.title) + REGEXP(translated_title) + REGEXP(r.search_text) +
                 CASE WHEN r.tag_author_sum IS NULL THEN 0 ELSE REGEXP(r.tag_author_sum) END) AS sore`)

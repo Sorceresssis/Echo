@@ -26,14 +26,6 @@ import About from './About.vue'
 
 const route = useRoute()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
-watch(route, () => {
-    switch (viewsTaskAfterRoutingStore.bashboard) {
-        case 'init':
-            activeLabelIdx.value = 0
-            break
-    }
-    viewsTaskAfterRoutingStore.setBashboard('none')
-})
 
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
@@ -52,4 +44,14 @@ const components = [
     { component: Recycled, props: { type: 'recycled' } },
     { component: About, props: {} },
 ]
+
+
+watch(route, () => {
+    switch (viewsTaskAfterRoutingStore.bashboard) {
+        case 'init':
+            activeLabelIdx.value = 0
+            break
+    }
+    viewsTaskAfterRoutingStore.setBashboard('none')
+})
 </script>

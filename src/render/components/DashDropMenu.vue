@@ -2,6 +2,7 @@
     <el-dropdown :title="menu.HTMLElementTitle"
                  trigger="click"
                  popper-class="dashboard__dropdown-menu"
+                 max-height="400px"
                  @command="(command) => emit('command', command)">
         <button-1>
             <span class="iconfont"
@@ -14,11 +15,12 @@
             </el-dropdown-menu>
             <el-dropdown-menu v-else>
                 <el-dropdown-item v-for="item in menu.items"
+                                  :key="item.key"
                                   :divided="item.divided"
                                   :command="item.key"
                                   @click="item.click()">
                     <span class="emptyFonticon"
-                          :class="[item.dot() ? 'dot' : '']">
+                          :class="[item.hit() ? 'dot' : '']">
                         {{ item.title }}
                     </span>
                 </el-dropdown-item>
@@ -28,8 +30,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ElDropdown, vLoading } from 'element-plus';
-import Button1 from '@/components/Button1.vue'
+import { vLoading, ElDropdown, ElDropdownMenu, ElDropdownItem } from 'element-plus';
+import Button1 from '@/components/Button1.vue';
 
 defineProps<{
     menu: DashDropMenu

@@ -52,12 +52,12 @@
 import { ref, Ref, reactive, inject, watch, readonly } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
+import { VueInjectKey } from '@/constant/channel_key'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { ElForm, ElFormItem, ElButton, type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
-import { VueInjectKey } from '@/constant/channel_key'
 
 const route = useRoute()
 const btnLoading = ref(false)
@@ -67,10 +67,8 @@ const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!
 
 const formRef = ref()
 const formData = reactive({
-    // 要更改的值
-    targetPrefix: '',
-    // 要替换成的值 
-    replacePrefix: '',
+    targetPrefix: '', // 要更改的值 
+    replacePrefix: '', // 要替换成的值 
 })
 
 const rules = reactive<FormRules>({

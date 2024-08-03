@@ -4,9 +4,11 @@ export class VueInjectKey {
 
     // component
     public static MANAGE_PAGE_PATH_PATTERN = Symbol('MANAGE_PAGE_PATH_PATTERN')
+
     // Data
     public static ACTIVE_LIBRARY = Symbol('ACTIVE_LIBRARY')
     public static ACTIVE_LIBRARY_DETAIL = Symbol('ACTIVE_LIBRARY_DETAIL')
+    public static RECORD = Symbol('RECORD')
 }
 
 

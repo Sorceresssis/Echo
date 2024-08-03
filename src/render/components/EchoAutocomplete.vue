@@ -4,7 +4,7 @@
                      clearable
                      :trigger-on-focus="false"
                      :fit-input-width="true"
-                     spellcheck="false"
+                     :spellcheck="false"
                      :fetch-suggestions="querySearch"
                      :show-word-limit="showWordLimit"
                      :maxlength="maxlength"

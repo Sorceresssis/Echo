@@ -1,7 +1,7 @@
-declare type DashDropMenu = {
+  type DashDropMenu = {
     HTMLElementTitle: string,
     title: string,
-    items: DashDropMenuItem[] | Ref<DashDropMenuItem[]>
+    items: DashDropMenuItem[]
 }
 
 type DashDropMenuItem = {
@@ -9,7 +9,7 @@ type DashDropMenuItem = {
     title: string
     divided: boolean
     click: (...args: any[]) => any
-    dot: (...args: any[]) => boolean
+    hit: (...args: any[]) => boolean
 }
 
 type Tabs = {

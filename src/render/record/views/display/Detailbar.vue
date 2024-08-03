@@ -127,6 +127,7 @@
 <script setup lang='ts'>
 import { ref, Ref, readonly, inject, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { VueInjectKey } from '@/constant/channel_key';
 import { $t } from '@/locale';
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
@@ -139,8 +140,8 @@ const router = useRouter()
 
 const drawerVisible = ref(false)
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
-const record = inject<VO.RecordDetail>('record')!
+const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
+const record = inject<VO.RecordDetail>(VueInjectKey.RECORD)!
 const activeSeriesId = ref<number>(0)
 const slickCarouselImages = ref<string[]>([])
 const genSlickCarouselImages = function () {

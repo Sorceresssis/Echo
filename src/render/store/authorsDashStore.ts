@@ -13,8 +13,8 @@ const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
         const defaultState: AuthorsDashState = {
             sortField: 'name',
             order: 'ASC',
-            roleFilterMode: 'ROLE_ID',
-            role: 1,
+            roleFilterMode: 'None',
+            role: 0,
         }
         return defaultState
     },

@@ -52,8 +52,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, watch, onMounted, inject } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, Ref, watch, onMounted, inject, onActivated } from 'vue'
+import { onBeforeRouteUpdate } from 'vue-router'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { debounce } from '@/util/common'
@@ -66,14 +66,12 @@ import DashDropMenu from '@/components/DashDropMenu.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 
-const route = useRoute()
-
 const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const tagsDashStore = useTagsDashStore()
 
-const dropdownMenus = [{
+const dropdownMenus: DashDropMenu[] = [{
     HTMLElementTitle: $t('layout.sortBy'),
     title: '&#xe81f;',
     items: [
@@ -81,25 +79,25 @@ const dropdownMenus = [{
             title: $t('layout.title'),
             divided: false,
             click: () => tagsDashStore.handleSortField('title'),
-            dot: () => tagsDashStore.sortField === 'title'
+            hit: () => tagsDashStore.sortField === 'title'
         },
         {
             title: $t('layout.time'),
             divided: false,
             click: () => tagsDashStore.handleSortField('time'),
-            dot: () => tagsDashStore.sortField === 'time'
+            hit: () => tagsDashStore.sortField === 'time'
         },
         {
             title: $t('layout.ascending'),
             divided: true,
             click: () => tagsDashStore.handleOrder('ASC'),
-            dot: () => tagsDashStore.order === 'ASC'
+            hit: () => tagsDashStore.order === 'ASC'
         },
         {
             title: $t('layout.descending'),
             divided: false,
             click: () => tagsDashStore.handleOrder('DESC'),
-            dot: () => tagsDashStore.order === 'DESC'
+            hit: () => tagsDashStore.order === 'DESC'
         },
     ]
 }]
@@ -138,8 +136,9 @@ const editTag = (id: number, oldValue: string) => {
     })
 }
 const queryTags = debounce(async () => {
+    if (!activeLibrary.value) return
     loading.value = true
-    const pagedRes = await window.dataAPI.queryTagDetails(
+    window.dataAPI.queryTagDetails(
         activeLibrary.value,
         {
             keyword: keyword.value,
@@ -148,10 +147,12 @@ const queryTags = debounce(async () => {
             pn: currentPage.value,
             ps: pageSize
         }
-    )
-    total.value = pagedRes.page.total_count
-    tags.value = pagedRes.results
-    loading.value = false
+    ).then((pagedRes) => {
+        total.value = pagedRes.page.total_count
+        tags.value = pagedRes.results
+    }).finally(() => {
+        loading.value = false
+    })
 }, 100)
 const handlePageChange = function (pn: number) {
     scrollbarRef.value?.setScrollPosition(0)
@@ -165,9 +166,7 @@ const init = function () {
     keyword.value = ''
     handleQueryParamsChange()
 }
-
-watch(() => [tagsDashStore.sortField, tagsDashStore.order], handleQueryParamsChange)
-watch(route, () => {
+const handleViewTask = () => {
     switch (viewsTaskAfterRoutingStore.bashboardTags) {
         case 'init':
             init()
@@ -177,8 +176,16 @@ watch(route, () => {
             break
     }
     viewsTaskAfterRoutingStore.setBashboardTags('none')
-})
+}
+
+watch(() => [
+    tagsDashStore.sortField,
+    tagsDashStore.order
+], handleQueryParamsChange)
+
 onMounted(init)
+onActivated(handleViewTask)
+onBeforeRouteUpdate(handleViewTask)
 </script>
 
 <style scoped>

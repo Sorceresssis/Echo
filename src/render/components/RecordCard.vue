@@ -5,7 +5,11 @@
         <div class="record-info">
             <div class="meta scrollbar-x-nodisplay title"
                  :title="recmd.title"
-                 @mousedown="startScroll"> {{ recmd.title }} </div>
+                 @mousedown="startScroll"> {{
+                    titleDisplayType === RecordCardTitleDisplayType.TITLE ?
+                        recmd.title :
+                        recmd.translated_title || recmd.title
+                }} </div>
             <div class="meta">
                 <div class="inline-list-title">{{ $t('layout.rate') }}</div>
                 <div class="meta-content">
@@ -69,17 +73,22 @@
 import { Ref, inject, readonly } from 'vue'
 import { useRouter } from 'vue-router'
 import RouterPathGenerator from '@/router/router_path_generator'
-import { openInExplorer, openInBrowser, internetSearch } from '@/util/systemUtil'
 import { VueInjectKey } from '@/constant/channel_key'
+import { RecordCardTitleDisplayType } from '@/constant/enum'
+import { openInExplorer, openInBrowser, internetSearch } from '@/util/systemUtil'
 import { useDragScroll } from '@/util/common'
-import LocalImage from './LocalImage.vue'
+import LocalImage from '@/components/LocalImage.vue'
+
+
 
 const props = withDefaults(defineProps<{
     recmd: VO.RecordRecommendation,
     selected: boolean,
+    titleDisplayType: RecordCardTitleDisplayType,
     canPushToAuthorPage?: boolean,
 }>(), {
     canPushToAuthorPage: true,
+    titleDisplayType: RecordCardTitleDisplayType.TITLE
 })
 
 const emit = defineEmits<{

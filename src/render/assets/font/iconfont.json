@@ -6,18 +6,18 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "19657932",
+      "name": "标题",
+      "font_class": "title",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
       "icon_id": "6905338",
       "name": "role",
       "font_class": "role",
       "unicode": "e60d",
       "unicode_decimal": 58893
-    },
-    {
-      "icon_id": "26876053",
-      "name": "角色分配",
-      "font_class": "jiaosefenpei",
-      "unicode": "ea45",
-      "unicode_decimal": 59973
     },
     {
       "icon_id": "12439519",

@@ -8,6 +8,7 @@ import ResponseResult from "../pojo/ResponseResult"
 import type AutocompleteService from "../service/AutocompleteService"
 import type RecordService from "../service/RecordService"
 import type AuthorService from "../service/AuthorService"
+import type RoleService from "../service/RoleService"
 import type TagService from "../service/TagService"
 import type DirnameService from "../service/DirnameService"
 import type SeriesService from "../service/SeriesService"
@@ -137,12 +138,12 @@ function ipcMainLibrary() {
         return true
     }, generateCatchFn('author:delete'), false, closeLibraryDB, false))
 
-
-    ipcMain.handle('role:get', (e: IpcMainInvokeEvent, libraryId: number): ResponseResult<void> => {
+    //ANCHOR Role
+    ipcMain.handle('role:get', (e: IpcMainInvokeEvent, libraryId: number): ResponseResult<VO.Role[] | undefined> => {
         try {
             rebindLibrary(libraryId)
-            // const data = DIContainer.get<RoleDao>(InjectType.RoleDao).query()
-            return ResponseResult.success()
+            const roleService = DIContainer.get<RoleService>(InjectType.RoleService)
+            return ResponseResult.success(roleService.queryRoles())
         } catch (e: any) {
             return ResponseResult.error()
         } finally {
@@ -150,6 +151,12 @@ function ipcMainLibrary() {
         }
     })
 
+    ipcMain.handle('role:edit', () => {
+    })
+
+    ipcMain.handle('', () => {
+
+    })
 
     //ANCHOR Tag
     ipcMain.handle('tag:queryDetails', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.QueryTagDetailsOptions): DTO.PagedResult<VO.TagDetail> => {

@@ -24,6 +24,7 @@ const InjectType = {
 
     AutocompleteService: Symbol('AutocompleteService'),
     AuthorService: Symbol('AuthorService'),
+    RoleService: Symbol('RoleService'),
     DirnameService: Symbol('DirnameService'),
     RecordService: Symbol('RecordService'),
     SeriesService: Symbol('SeriesService'),

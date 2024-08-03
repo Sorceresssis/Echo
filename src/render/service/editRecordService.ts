@@ -192,6 +192,7 @@ const useEditRecordService = () => {
     const selectRecordResource = async (type: 'dir' | 'file') => {
         const path = (await window.electronAPI.openDialog(type, false))[0]
         // TODO 根据 /或者 \ 分割。 C:users 只有一层怎么解决。
+        // /root
         const sepd = await separatePath(path)
         if (sepd) {
             formData.dirname = sepd[0]

@@ -7,7 +7,6 @@
               :key="tabsKey"
               :tabs="tabs">
         </tabs>
-        <!-- TODO Manage 为什么要keep-alive -->
         <keep-alive>
             <component class="flex-1 overflow-hidden"
                        :is="components[activeLabelIdx]">
@@ -28,6 +27,7 @@ import RecycleRecordByAttribute from './RecycleRecordByAttribute.vue'
 import EditAuthor from './EditAuthor.vue'
 import EditRoles from './EditRoles.vue'
 import EditDirname from './EditDirname.vue'
+import { generateUniqueID } from '@/util/common'
 
 const route = useRoute()
 
@@ -40,7 +40,7 @@ const props = defineProps({
 
 provide(VueInjectKey.MANAGE_PAGE_PATH_PATTERN, props.pathPattern)
 
-const tabsKey = ref<number>(0)
+const tabsKey = ref<string>('')
 const activeLabelIdx = ref<number>(0)
 const tabs = shallowReactive([
     { id: 1, label: $t('layout.addRecord'), disabled: false },
@@ -48,7 +48,7 @@ const tabs = shallowReactive([
     { id: 3, label: $t('layout.batchRecycleRecord'), disabled: false },
     { id: 4, label: $t('layout.addAuthor'), disabled: false },
     { id: 5, label: $t('layout.authorRoles'), disabled: false },
-    { id: 5, label: $t('layout.editDir'), disabled: false },
+    { id: 6, label: $t('layout.editDir'), disabled: false },
 ])
 const components = [
     EditRecord,
@@ -65,7 +65,6 @@ const init = () => {
     if (route.query.author_id) {
         // 编辑作者操作: 把activeLabelIdx设置为编辑作者页; 禁用管理记录, 批量删除, 编辑目录; 并且
         activeLabelIdx.value = 3
-
         tabs[0].disabled = tabs[1].disabled = true
         tabs[3].label = $t('layout.editAuthor')
     } else {
@@ -76,9 +75,9 @@ const init = () => {
         tabs[3].label = $t('layout.addAuthor')
     }
 
-    tabsKey.value = new Date().getTime()
+    tabsKey.value = generateUniqueID()
 }
 
 watch(route, init)
-onMounted(init) 
+onMounted(init)
 </script>

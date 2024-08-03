@@ -84,6 +84,7 @@
 import { ref, Ref, inject, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locale'
+import { VueInjectKey } from '@/constant/channel_key';
 import MessageBox from '@/util/MessageBox'
 import { openInBrowser, openInExplorer, internetSearch, writeClibboard } from '@/util/systemUtil'
 import CrosTabBroadcast, { type CrosTabBroadcastMsg } from "@/util/CrosTabBroadcast";
@@ -98,9 +99,9 @@ const route = useRoute()
 
 const recordTabBroadcast = new CrosTabBroadcast(CrosTabBroadcastKey.CHANNEL.recordTab)
 
-const activeLibrary = inject<Ref<number>>('activeLibrary')!
-const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
-const record = inject<VO.RecordDetail>('record')!
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!
+const activeLibraryDetail = inject<VO.LibraryDetail>(VueInjectKey.ACTIVE_LIBRARY_DETAIL)!
+const record = inject<VO.RecordDetail>(VueInjectKey.RECORD)!
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const { startScroll } = useDragScroll()

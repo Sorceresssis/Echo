@@ -7,12 +7,9 @@
 								   class="menu-item search"
 								   :placeholder="$t('layout.search')"
 								   @keyup.enter="handleQueryParamsChange" />
-				<!-- TODO -->
-				<!-- <dash-drop-menu v-if="roleDropdownMenu.items"
-								class="menu-item"
+				<dash-drop-menu class="menu-item"
 								:menu="roleDropdownMenu"
-								:loading="libraryStore.isLoadingRoles"
-								@command="handleQueryParamsChange" /> -->
+								:loading="libraryStore.isLoadingRoles" />
 				<dash-drop-menu class="menu-item"
 								:menu="sortDropdownMenu" />
 			</div>
@@ -66,8 +63,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, onMounted, inject, watch, computed, reactive } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { ref, Ref, onMounted, inject, watch, computed, onActivated } from 'vue'
+import { useRouter, onBeforeRouteUpdate } from 'vue-router'
 import RouterPathGenerator from '@/router/router_path_generator';
 import { $t } from '@/locale'
 import { debounce } from '@/util/common'
@@ -82,7 +79,6 @@ import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 import LocalImage from '@/components/LocalImage.vue'
 
-const route = useRoute()
 const router = useRouter()
 
 const scrollbarRef = ref()
@@ -94,12 +90,38 @@ const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const authorsDashStore = useAuthorsDashStore()
 
-const roleDropdownMenu = reactive<DashDropMenu>({
-	HTMLElementTitle: 'role',
-	title: '&#xe60d;',
-	items: []
+// Role dropdown menu 启动没有hit 
+const roleDropdownMenu = computed<DashDropMenu>(() => {
+	return {
+		HTMLElementTitle: 'role',
+		title: '&#xe60d;',
+		items: [
+			{
+				key: void 0,
+				title: 'None',
+				divided: false,
+				click: () => authorsDashStore.setRole('None'),
+				hit: () => authorsDashStore.roleFilterMode === 'None'
+			},
+			{
+				key: 0,
+				title: 'Default',
+				divided: false,
+				click: () => authorsDashStore.setRole('DEFAULT'),
+				hit: () => authorsDashStore.roleFilterMode === 'DEFAULT'
+			},
+			...libraryStore.roles.map((role, idx) => {
+				return {
+					key: role.id,
+					title: role.name,
+					divided: idx === 0,
+					click: () => authorsDashStore.setRole('ROLE_ID', role.id),
+					hit: () => authorsDashStore.roleFilterMode === 'ROLE_ID' && authorsDashStore.role === role.id
+				}
+			})
+		]
+	}
 })
-
 const sortDropdownMenu: DashDropMenu = {
 	HTMLElementTitle: $t('layout.sortBy'),
 	title: '&#xe81f;',
@@ -108,25 +130,25 @@ const sortDropdownMenu: DashDropMenu = {
 			title: $t('layout.name'),
 			divided: false,
 			click: () => authorsDashStore.handleSortField('name'),
-			dot: () => authorsDashStore.sortField === 'name'
+			hit: () => authorsDashStore.sortField === 'name'
 		},
 		{
 			title: $t('layout.time'),
 			divided: false,
 			click: () => authorsDashStore.handleSortField('time'),
-			dot: () => authorsDashStore.sortField === 'time'
+			hit: () => authorsDashStore.sortField === 'time'
 		},
 		{
 			title: $t('layout.ascending'),
 			divided: true,
 			click: () => authorsDashStore.handleOrder('ASC'),
-			dot: () => authorsDashStore.order === 'ASC'
+			hit: () => authorsDashStore.order === 'ASC'
 		},
 		{
 			title: $t('layout.descending'),
 			divided: false,
 			click: () => authorsDashStore.handleOrder('DESC'),
-			dot: () => authorsDashStore.order === 'DESC'
+			hit: () => authorsDashStore.order === 'DESC'
 		},
 	]
 }
@@ -138,8 +160,9 @@ const pageSize = 20
 const total = ref<number>(0)
 
 const queryAuthorRecmds = debounce(async () => {
+	if (!activeLibrary.value) return
 	loading.value = true
-	const pagedRes = await window.dataAPI.queryAuthorRecmds(
+	window.dataAPI.queryAuthorRecmds(
 		activeLibrary.value,
 		{
 			keyword: keyword.value,
@@ -150,32 +173,29 @@ const queryAuthorRecmds = debounce(async () => {
 			pn: currentPage.value,
 			ps: pageSize
 		}
-	)
-	total.value = pagedRes.page.total_count
-	authorRecmds.value = pagedRes.results
-	loading.value = false
+	).then((pagedRes) => {
+		total.value = pagedRes.page.total_count
+		authorRecmds.value = pagedRes.results
+	}).finally(() => {
+		loading.value = false
+	})
 }, 100)
 
-// pageChange 刷新数据, 重置滚动位置
+// 刷新数据, 重置滚动位置
 const handlePageChange = function (pn: number) {
 	scrollbarRef.value?.setScrollPosition(0)
 	currentPage.value = pn
 	queryAuthorRecmds()
 }
-// 请求参数发送改变(activeLibrarykeyword , sortFild, order)	刷新数据, 重置滚动位置, 重置页码
+// 请求参数发送改变, 刷新数据, 重置滚动位置, 重置页码
 const handleQueryParamsChange = function () {
 	handlePageChange(1)
 }
-const init = async function () {
-	// authorsDashStore.setRole('None')
-
+const init = function () {
 	keyword.value = ''
 	handleQueryParamsChange()
 }
-
-// 刷新数据, 保留滚动位置, 保留页码
-watch(() => [authorsDashStore.sortField, authorsDashStore.order], handleQueryParamsChange)
-watch(route, () => {
+const handleViewTask = () => {
 	switch (viewsTaskAfterRoutingStore.bashboardAuthors) {
 		case 'init':
 			init()
@@ -185,8 +205,18 @@ watch(route, () => {
 			break
 	}
 	viewsTaskAfterRoutingStore.setBashboardAuthors('none')
-})
+}
+
+watch(() => [
+	authorsDashStore.sortField,
+	authorsDashStore.order,
+	authorsDashStore.roleFilterMode,
+	authorsDashStore.role,
+], handleQueryParamsChange)
+
 onMounted(init)
+onBeforeRouteUpdate(handleViewTask)
+onActivated(handleViewTask)
 </script>
 
 <style>

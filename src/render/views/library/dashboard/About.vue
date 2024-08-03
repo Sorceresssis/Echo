@@ -13,6 +13,7 @@
             <el-form-item :label="$t('layout.searchAuxiliaryText')">
                 <el-input v-model="activeLibraryDetail.auxiliary_st"
                           placeholder="eg: site:xxx.com"
+                          :spellcheck="false"
                           :maxlength="auxiliarySearchTextMaxLength"
                           :show-word-limit="true"
                           clearable />

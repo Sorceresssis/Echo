@@ -22,6 +22,7 @@ import SeriesDao from "../dao/SeriesDao"
 import TagDao from "../dao/TagDao"
 import AutocompleteService from "../service/AutocompleteService"
 import AuthorService from "../service/AuthorService"
+import RoleService from '../service/RoleService'
 import RecordService from "../service/RecordService"
 import DirnameService from "../service/DirnameService"
 import SeriesService from "../service/SeriesService"
@@ -76,6 +77,7 @@ container.bind<RecordSeriesDao>(InjectType.RecordSeriesDao).to(RecordSeriesDao).
 // Service
 container.bind<AutocompleteService>(InjectType.AutocompleteService).to(AutocompleteService).inSingletonScope()
 container.bind<AuthorService>(InjectType.AuthorService).to(AuthorService).inSingletonScope()
+container.bind<RoleService>(InjectType.RoleService).to(RoleService).inSingletonScope()
 container.bind<RecordService>(InjectType.RecordService).to(RecordService).inSingletonScope()
 container.bind<DirnameService>(InjectType.DirnameService).to(DirnameService).inSingletonScope()
 container.bind<SeriesService>(InjectType.SeriesService).to(SeriesService).inSingletonScope()

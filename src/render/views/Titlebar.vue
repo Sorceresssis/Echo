@@ -89,14 +89,12 @@ watch(route, async () => {
             libraryStore.setRoles([])
             window.dataAPI.getRoles(newlibraryId).then((res) => {
                 if (res.code) {
-                    libraryStore.setRoles(res.data)
+                    libraryStore.setRoles(res.data!)
                 } else {
                     Message.error(res.msg)
                 }
             }).finally(() => {
                 libraryStore.setLoadingRoles(false)
-                // TODO 必要事件完成开始改变 activeLibrary 来驱动其他组件
-                // dd
                 activeLibrary.value = newlibraryId
             })
         }

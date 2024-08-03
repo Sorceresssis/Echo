@@ -65,7 +65,7 @@ export default {
         sortBy: '排序',
         time: '时间',
         title: '标题',
-        translated_title: '翻译标题',
+        translated_title: '译后标题',
         name: '名字',
         path: '路径',
         rate: '评分',

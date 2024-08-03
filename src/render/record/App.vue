@@ -22,10 +22,10 @@ const activeLibrary = ref<number>(0)
 const activeLibraryDetail = reactive<VO.LibraryDetail>(InitialValue.getLibraryDetail())
 const record = reactive<VO.RecordDetail>(InitialValue.getRecordDetail())
 
-provide('winowLoading', winowLoading)
-provide('activeLibrary', activeLibrary)
-provide('activeLibraryDetail', activeLibraryDetail)
-provide('record', record)
+provide(VueInjectKey.WINDOW_LOADING, winowLoading)
+provide(VueInjectKey.ACTIVE_LIBRARY, activeLibrary)
+provide(VueInjectKey.ACTIVE_LIBRARY_DETAIL, activeLibraryDetail)
+provide(VueInjectKey.RECORD, record)
 
 </script>
 

@@ -55,8 +55,8 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, onMounted, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, Ref, inject, onMounted, watch, onActivated } from 'vue'
+import { onBeforeRouteUpdate } from 'vue-router'
 import { $t } from '@/locale'
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
@@ -70,7 +70,6 @@ import DashDropMenu from '@/components/DashDropMenu.vue'
 import Empty from '@/components/Empty.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
 
-const route = useRoute()
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
@@ -79,36 +78,38 @@ const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const dirnamesDashStore = useDirnamesDashStore()
 
-const dropdownMenus = [{
-    HTMLElementTitle: $t('layout.sortBy'),
-    title: '&#xe81f;',
-    items: [
-        {
-            title: $t('layout.time'),
-            divided: false,
-            click: () => dirnamesDashStore.handleSortField('time'),
-            dot: () => dirnamesDashStore.sortField === 'time'
-        },
-        {
-            title: $t('layout.path'),
-            divided: false,
-            click: () => dirnamesDashStore.handleSortField('path'),
-            dot: () => dirnamesDashStore.sortField === 'path'
-        },
-        {
-            title: $t('layout.ascending'),
-            divided: true,
-            click: () => dirnamesDashStore.handleOrder('ASC'),
-            dot: () => dirnamesDashStore.order === 'ASC'
-        },
-        {
-            title: $t('layout.descending'),
-            divided: false,
-            click: () => dirnamesDashStore.handleOrder('DESC'),
-            dot: () => dirnamesDashStore.order === 'DESC'
-        },
-    ]
-}]
+const dropdownMenus: DashDropMenu[] = [
+    {
+        HTMLElementTitle: $t('layout.sortBy'),
+        title: '&#xe81f;',
+        items: [
+            {
+                title: $t('layout.time'),
+                divided: false,
+                click: () => dirnamesDashStore.handleSortField('time'),
+                hit: () => dirnamesDashStore.sortField === 'time'
+            },
+            {
+                title: $t('layout.path'),
+                divided: false,
+                click: () => dirnamesDashStore.handleSortField('path'),
+                hit: () => dirnamesDashStore.sortField === 'path'
+            },
+            {
+                title: $t('layout.ascending'),
+                divided: true,
+                click: () => dirnamesDashStore.handleOrder('ASC'),
+                hit: () => dirnamesDashStore.order === 'ASC'
+            },
+            {
+                title: $t('layout.descending'),
+                divided: false,
+                click: () => dirnamesDashStore.handleOrder('DESC'),
+                hit: () => dirnamesDashStore.order === 'DESC'
+            },
+        ]
+    }
+]
 
 const dirnames = ref<VO.DirnameDetail[]>([])
 const keyword = ref<string>('')
@@ -140,9 +141,10 @@ const editDirname = (id: number, oldValue: string) => {
         })
     },)
 }
-const queryDirnames = debounce(async () => {
+const queryDirnames = debounce(() => {
+    if (!activeLibrary.value) return
     loading.value = true
-    const pagedRes = await window.dataAPI.queryDirnameDetails(
+    window.dataAPI.queryDirnameDetails(
         activeLibrary.value,
         {
             keyword: keyword.value,
@@ -151,10 +153,12 @@ const queryDirnames = debounce(async () => {
             pn: currentPage.value,
             ps: pageSize
         }
-    )
-    total.value = pagedRes.page.total_count
-    dirnames.value = pagedRes.results
-    loading.value = false
+    ).then((pagedRes) => {
+        total.value = pagedRes.page.total_count
+        dirnames.value = pagedRes.results
+    }).finally(() => {
+        loading.value = false
+    })
 }, 100)
 const handlePageChange = function (pn: number) {
     scrollbarRef.value?.setScrollPosition(0)
@@ -168,9 +172,7 @@ const init = function () {
     keyword.value = ''
     handleQueryParamsChange()
 }
-
-watch(() => [dirnamesDashStore.sortField, dirnamesDashStore.order], handleQueryParamsChange)
-watch(route, () => {
+const handleViewTask = () => {
     switch (viewsTaskAfterRoutingStore.bashboardDirnames) {
         case 'init':
             init()
@@ -180,8 +182,16 @@ watch(route, () => {
             break
     }
     viewsTaskAfterRoutingStore.setBashboardDirnames('none')
-})
+}
+
+watch(() => [
+    dirnamesDashStore.sortField,
+    dirnamesDashStore.order
+], handleQueryParamsChange)
+
 onMounted(init)
+onActivated(handleViewTask)
+onBeforeRouteUpdate(handleViewTask)
 </script>
 
 <style scoped>
