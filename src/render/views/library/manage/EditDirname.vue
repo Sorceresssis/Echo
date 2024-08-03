@@ -49,7 +49,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, reactive, inject, watch, readonly } from 'vue'
+import { ref, Ref, reactive, inject, watch, readonly, onMounted, onActivated } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
 import { VueInjectKey } from '@/constant/channel_key'
@@ -109,7 +109,17 @@ const init = () => {
     formData.targetPrefix = ''
     formData.replacePrefix = ''
 }
-watch(route, init)
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
+onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>
 
 <style scoped>

@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, shallowReactive, onMounted, watch, provide } from 'vue'
+import { ref, shallowReactive, onMounted, watch, provide, onActivated } from 'vue'
 import { useRoute, } from 'vue-router'
 import { $t } from '@/locale'
 import { VueInjectKey } from '@/constant/channel_key'
@@ -78,6 +78,15 @@ const init = () => {
     tabsKey.value = generateUniqueID()
 }
 
-watch(route, init)
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
 onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>

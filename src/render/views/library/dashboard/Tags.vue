@@ -163,6 +163,7 @@ const handleQueryParamsChange = function () {
     handlePageChange(1)
 }
 const init = function () {
+    tags.value = []
     keyword.value = ''
     handleQueryParamsChange()
 }
@@ -170,12 +171,13 @@ const handleViewTask = () => {
     switch (viewsTaskAfterRoutingStore.bashboardTags) {
         case 'init':
             init()
+            viewsTaskAfterRoutingStore.setBashboardTags('none')
             break
         case 'refresh':
             queryTags()
+            viewsTaskAfterRoutingStore.setBashboardTags('none')
             break
     }
-    viewsTaskAfterRoutingStore.setBashboardTags('none')
 }
 
 watch(() => [
@@ -185,7 +187,25 @@ watch(() => [
 
 onMounted(init)
 onActivated(handleViewTask)
-onBeforeRouteUpdate(handleViewTask)
+onBeforeRouteUpdate(() => {
+    tags.value = []
+    viewsTaskAfterRoutingStore.setBashboardTags('init')
+})
+
+// NOTE 因为route改变时, 会自动跳转到 records 页，此页面会被 Deactivated
+// 在下一次打开时会触发 Activated,可以在Activated 中执行任务, 不需要每次route变化都
+// 执行一次, 所以废弃下列代码
+// watch(route, () => {
+//     switch (viewsTaskAfterRoutingStore.bashboardTags) {
+//         case 'init':
+//             init()
+//             break
+//         case 'refresh':
+//             queryTags()
+//             break
+//     }
+//     viewsTaskAfterRoutingStore.setBashboardTags('none')
+// })
 </script>
 
 <style scoped>

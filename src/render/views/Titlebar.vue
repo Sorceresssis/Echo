@@ -35,6 +35,7 @@ import { $t } from '@/locale'
 import { useRoute, useRouter } from 'vue-router'
 import RouterPathGenerator from '@/router/router_path_generator';
 import { VueInjectKey } from '@/constant/channel_key';
+import IndexedDB from '@/util/indexed_db';
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useLibraryStore from '@/store/libraryStore'
 import Message from '@/util/Message'
@@ -60,7 +61,7 @@ const routerCanForward = ref<boolean>(false)
 
 let lastAuthorId = 0
 
-watch(route, async () => {
+watch(route, () => {
     /**
      * 读取路由的位置,判断是否可以继续进行前进或者后退.
      */
@@ -78,13 +79,14 @@ watch(route, async () => {
         const newlibraryId = Number.parseInt(route.params.libraryId as string)
         // 如果切换了库，那么就需要重置一些组件的状态，如果是进入设置页面(activeLibrary == 0)，那么就不需要重置
 
-        // lib改变，刷新lib路由下的所有页面
+        // library
         if (activeLibrary.value !== newlibraryId) {
             viewsTaskAfterRoutingStore.setAllViews('init')
             // 很重要，否则切换库后，作者页会显示上一个库的作者
             lastAuthorId = 0
 
             // Roles 数据
+            libraryStore.setLoadingLibrary(true)
             libraryStore.setLoadingRoles(true)
             libraryStore.setRoles([])
             window.dataAPI.getRoles(newlibraryId).then((res) => {
@@ -94,8 +96,21 @@ watch(route, async () => {
                     Message.error(res.msg)
                 }
             }).finally(() => {
+                libraryStore.setLoadingLibrary(false)
                 libraryStore.setLoadingRoles(false)
                 activeLibrary.value = newlibraryId
+            })
+
+            // 加载库详情, 不需要加载完。
+            window.dataAPI.queryLibraryDetail(newlibraryId).then(libDetail => {
+                if (libDetail !== void 0) {
+                    document.title = `${titleBarTitle.value = libDetail.name} - Echo`
+                    Object.assign(activeLibraryDetail, libDetail)
+                    return
+                }
+                router.push(RouterPathGenerator.welcome())
+            }).catch(() => {
+                router.push(RouterPathGenerator.welcome())
             })
         }
 
@@ -105,19 +120,7 @@ watch(route, async () => {
             viewsTaskAfterRoutingStore.setAuthorRecords('init')
             lastAuthorId = authorId
         }
-
-        window.dataAPI.queryLibraryDetail(newlibraryId).then(libDetail => {
-            if (libDetail !== void 0) {
-                document.title = `${titleBarTitle.value = libDetail.name} - Echo`
-                Object.assign(activeLibraryDetail, libDetail)
-            } else {
-                router.push(RouterPathGenerator.welcome()) // 数据库查不到这个库，跳转到欢迎页
-            }
-        }).catch(() => {
-            router.push(RouterPathGenerator.welcome())
-        })
     } else {
-        activeLibrary.value = 0
         const fullPath: string = route.fullPath
         if (fullPath.startsWith('/settings')) {
             titleBarTitle.value = $t('layout.settings')
@@ -127,6 +130,10 @@ watch(route, async () => {
             document.title = 'Echo'
         }
     }
+})
+
+const libraryDB = new IndexedDB('library')
+libraryDB.open((db) => {
 })
 </script>
 

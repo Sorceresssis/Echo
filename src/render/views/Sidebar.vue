@@ -192,7 +192,7 @@ import { VueInjectKey, LocalStorageKey, CrosTabBroadcastKey } from "@/constant/c
 import { openInExplorer } from "@/util/systemUtil";
 import { ElCollapseTransition } from "element-plus";
 import DialogDeleteMenuItem from "./dialog/DialogDeleteMenuItem.vue";
-
+// TODO 显示绑定library 和 真正的library区分。
 const tabBroadcast = new CrosTabBroadcast(CrosTabBroadcastKey.CHANNEL.mainTab)
 const tabBroadcastMsg = {
     type: CrosTabBroadcastKey.MSG_TYPE.reloadGroups,
@@ -213,6 +213,7 @@ const getGroups = async () => {
 
 // 在本窗口打开library
 const openLibrary = (id: number) => {
+    // TODO 换showlib
     if (id !== activeLibrary.value) {
         router.push(RouterPathGenerator.libraryBashboard(id));
     }
@@ -480,7 +481,6 @@ onMounted(async () => {
             getGroups();
         }
     });
-
 
     // 获取groups, 首要打开的library
     const firstOpenLibrary: number =

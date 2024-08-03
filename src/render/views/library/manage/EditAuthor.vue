@@ -55,7 +55,7 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, toRaw, reactive, inject, onMounted, watch, readonly } from 'vue'
+import { ref, Ref, toRaw, reactive, inject, onMounted, watch, readonly, onActivated } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
@@ -223,8 +223,18 @@ const init = () => {
         submitBtnText.value = $t('layout.create')
     }
 }
-watch(route, init)
+
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
 onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>
 
 <style scoped>

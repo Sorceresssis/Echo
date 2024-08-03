@@ -13,7 +13,7 @@
 
 <script lang="ts" setup>
 import { shallowReactive, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import Tabs from '@/components/Tabs.vue'
@@ -45,7 +45,6 @@ const components = [
     { component: About, props: {} },
 ]
 
-
 watch(route, () => {
     switch (viewsTaskAfterRoutingStore.bashboard) {
         case 'init':
@@ -54,4 +53,5 @@ watch(route, () => {
     }
     viewsTaskAfterRoutingStore.setBashboard('none')
 })
+
 </script>

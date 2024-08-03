@@ -48,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { inject, Ref, ref, watch } from 'vue';
+import { inject, onActivated, onMounted, Ref, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore';
 import { $t } from '@/locale';
@@ -128,8 +128,17 @@ const handleAddRecordFromMetadata = (type: 0 | 1, op: 0 | 1 | 2) => {
 const init = function () {
     SingleMetaSrcInputValue.value = MultipleMetaSrcInputValue.value = ''
 }
-
-watch(route, init) 
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
+onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>
 
 <style scoped></style>

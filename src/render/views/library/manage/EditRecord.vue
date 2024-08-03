@@ -227,7 +227,7 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, Ref, watch, inject, readonly } from 'vue'
+import { onMounted, reactive, ref, Ref, watch, inject, readonly, onActivated } from 'vue'
 import { useRoute, onBeforeRouteUpdate } from 'vue-router'
 import { type FormInstance, type FormRules, ElInput, ElForm, ElFormItem, ElSelect, ElOption, ElPopover } from 'element-plus'
 import { $t } from '@/locale'
@@ -362,7 +362,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
     })
 }
 
-const init = async function () {
+const init = function () {
     if (!managePathPattern.test(route.fullPath)) return
 
     const id = route.query.record_id as string | undefined
@@ -379,9 +379,17 @@ const init = async function () {
         submitBtnText.value = $t('layout.create')
     }
 }
-
-watch(route, init)
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
 onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>
 
 <style scoped>

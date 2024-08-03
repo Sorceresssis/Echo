@@ -176,12 +176,13 @@ const handleViewTask = () => {
     switch (viewsTaskAfterRoutingStore.bashboardDirnames) {
         case 'init':
             init()
+            viewsTaskAfterRoutingStore.setBashboardDirnames('none')
             break
         case 'refresh':
             queryDirnames()
+            viewsTaskAfterRoutingStore.setBashboardDirnames('none')
             break
     }
-    viewsTaskAfterRoutingStore.setBashboardDirnames('none')
 }
 
 watch(() => [
@@ -191,7 +192,10 @@ watch(() => [
 
 onMounted(init)
 onActivated(handleViewTask)
-onBeforeRouteUpdate(handleViewTask)
+onBeforeRouteUpdate(() => {
+    dirnames.value = []
+    viewsTaskAfterRoutingStore.setBashboardTags('init')
+})
 </script>
 
 <style scoped>

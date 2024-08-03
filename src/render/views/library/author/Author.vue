@@ -35,7 +35,7 @@
 
 <script lang="ts" setup>
 import { shallowReactive, ref, Ref, onMounted, inject, reactive, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { useRouter, useRoute, onBeforeRouteUpdate } from 'vue-router'
 import RouterPathGenerator from '@/router/router_path_generator';
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { VueInjectKey } from '@/constant/channel_key';
@@ -98,7 +98,9 @@ watch(route, () => {
             break
     }
 })
+// NOTE 要注意 author 页跳 author 页的情况。
 onMounted(init)
+
 </script>
 
 <style scoped>

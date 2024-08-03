@@ -403,34 +403,54 @@ const handlePageChange = function (pn: number) {
     if (pn) {
         currentPage.value = pn // 重置页码
     }
-    queryRecords() // 重新查询
+    queryRecords()
 }
 const handleQueryParamsChange = function () {
     handlePageChange(1)
 }
 const init = function () {
+    recordRecmds.value = []
     keyword.value = ''
     isBatch.value = false
     handleQueryParamsChange()
 }
-// 2. 请求参数改变，要跳到第一页
 watch(() => [
     recordsDashStore.filter,
     recordsDashStore.sortField,
     recordsDashStore.order
 ], handleQueryParamsChange, { deep: true })
-const handleViewTask = () => {
+
+// NOTE records 和 其他的 dash 不一样。是默认的打开的页面，需要watch activelibrary 来刷新数据。
+watch(activeLibrary, init)
+onMounted(init)
+// 同路由下刷新需求：回收站跳转需要刷新
+onActivated(() => {
     if (props.type === 'common') {
-        switch (viewsTaskAfterRoutingStore.bashboardRecords) {
-            case 'init':
-                init()
-                break
-            case 'refresh':
-                queryRecords()
-                break
+        if (viewsTaskAfterRoutingStore.bashboardRecords === 'refresh') {
+            queryRecords()
+            viewsTaskAfterRoutingStore.setBashboardRecords('none')
         }
-        viewsTaskAfterRoutingStore.setBashboardRecords('none')
     } else if (props.type === 'author') {
+        if (viewsTaskAfterRoutingStore.authorRecords === 'refresh') {
+            queryRecords()
+            viewsTaskAfterRoutingStore.setAuthorRecords('none')
+        } else if (viewsTaskAfterRoutingStore.authorRecords === 'init') {
+            init()
+            viewsTaskAfterRoutingStore.setAuthorRecords('none')
+        }
+        viewsTaskAfterRoutingStore.setAuthorRecords('none')
+    } else if (props.type === 'recycled') {
+        if (viewsTaskAfterRoutingStore.bashboardRecycled === 'refresh') {
+            queryRecords()
+            viewsTaskAfterRoutingStore.setBashboardRecycled('none')
+        }
+    }
+})
+onBeforeRouteUpdate(() => {
+    recordRecmds.value = []
+})
+watch(route, () => {
+    if (props.type === 'author') {
         switch (viewsTaskAfterRoutingStore.authorRecords) {
             case 'init':
                 init()
@@ -439,25 +459,8 @@ const handleViewTask = () => {
                 queryRecords()
                 break
         }
-        viewsTaskAfterRoutingStore.setAuthorRecords('none')
-    } else if (props.type === 'recycled') {
-        switch (viewsTaskAfterRoutingStore.bashboardRecycled) {
-            case 'init':
-                init()
-                break
-            case 'refresh':
-                queryRecords()
-                break
-        }
-        viewsTaskAfterRoutingStore.setBashboardRecycled('none')
-    } else if (props.type === 'series') {
-        init()
     }
-}
-
-onMounted(init)
-onActivated(handleViewTask)
-onBeforeRouteUpdate(handleViewTask)
+})
 </script>
 
 <style scoped>

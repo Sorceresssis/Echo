@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, Ref, reactive, inject, toRaw, watch } from 'vue'
+import { ref, Ref, reactive, inject, toRaw, watch, onMounted, onActivated } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
 import MessageBox from '@/util/MessageBox'
@@ -94,5 +94,16 @@ const init = () => {
     formData.tagTitle = ''
     formData.seriesName = ''
 }
-watch(route, init)
+
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
+onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>

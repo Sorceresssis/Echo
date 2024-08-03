@@ -192,6 +192,7 @@ const handleQueryParamsChange = function () {
 	handlePageChange(1)
 }
 const init = function () {
+	authorRecmds.value = [] // NOTE 初始化就要清空 
 	keyword.value = ''
 	handleQueryParamsChange()
 }
@@ -199,12 +200,13 @@ const handleViewTask = () => {
 	switch (viewsTaskAfterRoutingStore.bashboardAuthors) {
 		case 'init':
 			init()
+			viewsTaskAfterRoutingStore.setBashboardAuthors('none')
 			break
 		case 'refresh':
 			queryAuthorRecmds()
+			viewsTaskAfterRoutingStore.setBashboardAuthors('none')
 			break
 	}
-	viewsTaskAfterRoutingStore.setBashboardAuthors('none')
 }
 
 watch(() => [
@@ -215,7 +217,10 @@ watch(() => [
 ], handleQueryParamsChange)
 
 onMounted(init)
-onBeforeRouteUpdate(handleViewTask)
+onBeforeRouteUpdate(() => {
+	authorRecmds.value = []
+	viewsTaskAfterRoutingStore.setBashboardAuthors('init')
+})
 onActivated(handleViewTask)
 </script>
 
