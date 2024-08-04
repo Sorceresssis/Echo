@@ -193,6 +193,7 @@ const handleQueryParamsChange = function () {
 }
 const init = function () {
 	authorRecmds.value = [] // NOTE 初始化就要清空 
+	authorsDashStore.setRole('None')
 	keyword.value = ''
 	handleQueryParamsChange()
 }

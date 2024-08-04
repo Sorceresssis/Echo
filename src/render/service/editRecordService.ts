@@ -99,7 +99,7 @@ const useEditRecordService = () => {
                 id: obj.id,
                 name: obj.value,
                 avatar: obj.image,
-                role: null
+                roles: null
             })
             originAuthors.has(obj.id) ? removeAuthors.delete(obj.id) : addAuthors.set(obj.id, null)
         } else {

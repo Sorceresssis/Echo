@@ -36,8 +36,8 @@ class RoleService {
         const existingRole = this.roleDao.queryIdByName(name)
         this.libEnv.db.transactionExec(() => {
             if (existingRole && existingRole !== id) {
-                this.recordAuthorRoleDao.updateRoleIdByRoleId(0, 0)
-                this.roleDao.delete(existingRole)
+                this.recordAuthorRoleDao.updateRoleIdByRoleId(id, existingRole)
+                this.roleDao.delete(id)
             } else {
                 this.roleDao.update(id, name)
             }

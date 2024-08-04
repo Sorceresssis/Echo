@@ -139,24 +139,33 @@ function ipcMainLibrary() {
     }, generateCatchFn('author:delete'), false, closeLibraryDB, false))
 
     //ANCHOR Role
-    ipcMain.handle('role:get', (e: IpcMainInvokeEvent, libraryId: number): ResponseResult<VO.Role[] | undefined> => {
-        try {
-            rebindLibrary(libraryId)
-            const roleService = DIContainer.get<RoleService>(InjectType.RoleService)
-            return ResponseResult.success(roleService.queryRoles())
-        } catch (e: any) {
-            return ResponseResult.error()
-        } finally {
-            closeLibraryDB()
-        }
-    })
+    ipcMain.handle('role:get', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number): ResponseResult<VO.Role[] | undefined> => {
+        rebindLibrary(libraryId)
+        const roleService = DIContainer.get<RoleService>(InjectType.RoleService)
+        return ResponseResult.success(roleService.queryRoles())
+    }, generateCatchFn('role:get'), false, closeLibraryDB, ResponseResult.error()))
 
-    ipcMain.handle('role:edit', () => {
-    })
+    ipcMain.handle('role:create', exceptionHandleWrap((
+        e: IpcMainInvokeEvent,
+        libraryId: number,
+        roleName: string
+    ): DTO.ResponseResult<VO.Role> => {
+        rebindLibrary(libraryId)
+        const roleService = DIContainer.get<RoleService>(InjectType.RoleService)
+        return roleService.createRole(roleName)
+    }, generateCatchFn('role:create'), false, closeLibraryDB, ResponseResult.error()))
 
-    ipcMain.handle('', () => {
+    ipcMain.handle('role:edit', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, role: VO.Role): void => {
+        rebindLibrary(libraryId)
+        const roleService = DIContainer.get<RoleService>(InjectType.RoleService)
+        roleService.editRole(role.id, role.name)
+    }, generateCatchFn('role:edit'), true, closeLibraryDB))
 
-    })
+    ipcMain.handle('role:delete', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, roleId: number): void => {
+        rebindLibrary(libraryId)
+        const roleService = DIContainer.get<RoleService>(InjectType.RoleService)
+        roleService.deleteRole(roleId)
+    }, generateCatchFn('role:delete'), true, closeLibraryDB))
 
     //ANCHOR Tag
     ipcMain.handle('tag:queryDetails', exceptionHandleWrap((e: IpcMainInvokeEvent, libraryId: number, options: RP.QueryTagDetailsOptions): DTO.PagedResult<VO.TagDetail> => {

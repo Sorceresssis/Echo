@@ -11,7 +11,7 @@ class RecordAuthorRoleDao {
 
     public selectIdsByRecordIdAuthorId(recordId: Entity.PK, authorId: Entity.PK): Entity.PK[] {
         const sql = "SELECT id FROM record_author_role WHERE record_id = ? AND author_id = ? ORDER BY id;"
-        return this.libEnv.db.prepare<any[], Entity.PK>(sql).all(recordId, authorId)
+        return this.libEnv.db.prepare<any[], Entity.PK>(sql).pluck().all(recordId, authorId)
     }
 
     public insert(recordId: Entity.PK, authorId: Entity.PK, roleId: Entity.PK): Entity.PK {

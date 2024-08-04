@@ -26,7 +26,7 @@
                             <local-image :src="author.avatar"
                                          class="avatar-icon" />
                             <span class="author_name"> {{ author.name }} </span>
-                            <span v-if="author.role">({{ author.role }})</span>
+                            <span v-if="author.roles">({{ author.roles.map(role => role.name).join(', ') }})</span>
                         </li>
                     </ul>
                 </div>

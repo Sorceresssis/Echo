@@ -31,6 +31,10 @@ class IndexedDB {
         const transaction = this.db!.transaction([storeName], 'readonly');
 
     }
+
+    public async set<T>(storeName: string, key: string, value: T) {
+
+    }
 }
 
 

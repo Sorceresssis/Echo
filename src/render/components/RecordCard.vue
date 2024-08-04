@@ -30,7 +30,9 @@
                                      class="avatar-icon"
                                      @click="canPushToAuthorPage && router.push(RouterPathGenerator.libraryAuthor(activeLibrary, author.id))" />
                         <span class="author_name"> {{ author.name }} </span>
-                        <span v-if="author.role">({{ author.role }})</span>
+                        <span v-if="author.roles.length">
+                            ({{ author.roles.map(role => role.name).join(', ') }})
+                        </span>
                     </li>
                 </ul>
             </div>
@@ -78,7 +80,6 @@ import { RecordCardTitleDisplayType } from '@/constant/enum'
 import { openInExplorer, openInBrowser, internetSearch } from '@/util/systemUtil'
 import { useDragScroll } from '@/util/common'
 import LocalImage from '@/components/LocalImage.vue'
-
 
 
 const props = withDefaults(defineProps<{

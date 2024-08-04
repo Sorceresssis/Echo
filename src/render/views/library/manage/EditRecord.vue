@@ -118,7 +118,7 @@
                                            :label="item.label"
                                            :value="item.value" />
                             </el-select>
-                            <span v-if="author.role">({{ author.role }})</span>
+                            <span v-if="author.roles.length">({{ author.role }})</span>
                         </p>
                         <div class="op">
                             <span class="iconfont"

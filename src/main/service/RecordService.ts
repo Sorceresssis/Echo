@@ -93,7 +93,7 @@ class RecordService {
         }
         const authorService = DIContainer.get<AuthorService>(InjectType.AuthorService)
         record.authors = authorService.queryAuthorsProfileByRecordId(id) as VO.RecordAuthorRelation[]
-        record.authors.forEach(author => author.role = this.roleDao.queryRolesByRecordIdAuthorId(record.id, author.id))
+        record.authors.forEach(author => author.roles = this.roleDao.queryRolesByRecordIdAuthorId(record.id, author.id))
         record.tags = this.tagDao.queryTagsByRecordId(id)
         record.series = this.seriesDao.querySeriesByRecordId(id)
 
@@ -163,7 +163,7 @@ class RecordService {
             }
             const authorService = DIContainer.get<AuthorService>(InjectType.AuthorService)
             row.authors = authorService.queryAuthorsProfileByRecordId(row.id) as VO.RecordAuthorRelation[]
-            row.authors.forEach(author => author.role = this.roleDao.queryRolesByRecordIdAuthorId(row.id, author.id))
+            row.authors.forEach(author => author.roles = this.roleDao.queryRolesByRecordIdAuthorId(row.id, author.id))
             row.tags = this.tagDao.queryTagsByRecordId(row.id)
         })
 
@@ -208,7 +208,7 @@ class RecordService {
                 }
                 const authorService = DIContainer.get<AuthorService>(InjectType.AuthorService)
                 record.authors = authorService.queryAuthorsProfileByRecordId(record.id) as VO.RecordAuthorRelation[]
-                record.authors.forEach(author => author.role = this.roleDao.queryRolesByRecordIdAuthorId(record.id, author.id))
+                record.authors.forEach(author => author.roles = this.roleDao.queryRolesByRecordIdAuthorId(record.id, author.id))
                 record.tags = this.tagDao.queryTagsByRecordId(record.id)
                 return record
             })

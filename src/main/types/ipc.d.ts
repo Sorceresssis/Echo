@@ -197,6 +197,21 @@ declare interface IDataAPI {
     getRoles: (
         libraryId: number,
     ) => Promise<DTO.ResponseResult<VO.Role[]>>
+
+    createRole: (
+        libraryId: number,
+        roleName: string
+    ) => Promise<DTO.ResponseResult<VO.Role>>,
+
+    editRole: (
+        libraryId: number,
+        role: VO.Role,
+    ) => Promise<void>,
+
+    deleteRole: (
+        libraryId: number,
+        roleId: number,
+    ) => Promise<void>,
 }
 
 export interface IElectronAPI {

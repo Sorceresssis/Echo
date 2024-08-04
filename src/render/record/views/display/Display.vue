@@ -1,6 +1,5 @@
 <template>
     <div class="flex-row">
-        <!-- TODO 把 图片跑马灯从detailbar拆分出来单独显示  -->
         <Detailbar />
         <Explorer />
     </div>

@@ -9,7 +9,7 @@ export function exceptionHandleWrap<
 >(
     action: T,
     errorHandle?: (e: any) => void,
-    throwException = true,
+    throwException = true, // The exception will propagate as usual
     finallyHandle?: () => void,
     defaultReturn?: ReturnType<T>
 ) {

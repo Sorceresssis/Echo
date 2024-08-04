@@ -48,6 +48,21 @@ export function throttle<T extends (...args: any[]) => any>(func: T, delay: numb
 }
 
 
+export function createRefreshCall<T extends (...args: any[]) => any>(func: T, delay: number = 0) {
+    let timeoutId: ReturnType<typeof setTimeout> | undefined
+
+    return function (...args: Parameters<T>) {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+
+        timeoutId = setTimeout(() => {
+            func(...args);
+        }, delay);
+    };
+}
+
+
 /**
  * 判断两个对象类型是否相同, 通过递归，深度检查key和value的类型是否相同
  */

@@ -194,6 +194,21 @@ contextBridge.exposeInMainWorld('dataAPI', {
     getRoles: (
         libraryId: number,
     ) => ipcRenderer.invoke('role:get', libraryId),
+
+    createRole: (
+        libraryId: number,
+        roleName: string
+    ) => ipcRenderer.invoke('role:create', libraryId, roleName),
+
+    editRole: (
+        libraryId: number,
+        role: VO.Role,
+    ) => ipcRenderer.invoke('role:edit', libraryId, role),
+
+    deleteRole: (
+        libraryId: number,
+        roleId: number,
+    ) => ipcRenderer.invoke('role:delete', libraryId, roleId),
 })
 
 

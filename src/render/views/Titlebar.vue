@@ -36,9 +36,10 @@ import { useRoute, useRouter } from 'vue-router'
 import RouterPathGenerator from '@/router/router_path_generator';
 import { VueInjectKey } from '@/constant/channel_key';
 import IndexedDB from '@/util/indexed_db';
+import Message from '@/util/Message'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useLibraryStore from '@/store/libraryStore'
-import Message from '@/util/Message'
+import LibraryIDB from '@/service/libraryIDB'
 
 const isMaxmize = ref<boolean>(false);
 window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
@@ -49,13 +50,15 @@ const windowClose = () => window.electronAPI.windowClose()
 const router = useRouter()
 const route = useRoute()
 
+const titleBarTitle = inject<Ref<string>>(VueInjectKey.TITLEBAR_TITLE)!
+const openingLibrary = inject<Ref<number>>(VueInjectKey.OPENING_LIBRARY)!;
 const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 const activeLibraryDetail = inject<VO.LibraryDetail>(VueInjectKey.ACTIVE_LIBRARY_DETAIL)!;
 
 const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+const libraryIDB = LibraryIDB.getInstance()
 
-const titleBarTitle = ref<string>('')
 const routerCanBack = ref<boolean>(false)
 const routerCanForward = ref<boolean>(false)
 
@@ -70,17 +73,16 @@ watch(route, () => {
     routerCanBack.value = position !== 0   // 当前href的位置是第一个
     routerCanForward.value = position !== length - 1   // 当前href的位置是最后一个
 
-
     /**
      * 如果路由参数中有libraryId,那么就是打开了一个库，需要修改标题为库名, 并且激活这个库.
      * 让其他组件可以读取到这个库的信息.
      */
     if (route.params.libraryId !== void 0) {
         const newlibraryId = Number.parseInt(route.params.libraryId as string)
-        // 如果切换了库，那么就需要重置一些组件的状态，如果是进入设置页面(activeLibrary == 0)，那么就不需要重置
-
+        // 如果切换了库，那么就需要重置一些组件的状态，如果是进入设置页面
         // library
-        if (activeLibrary.value !== newlibraryId) {
+        if (openingLibrary.value !== newlibraryId) {
+            openingLibrary.value = newlibraryId
             viewsTaskAfterRoutingStore.setAllViews('init')
             // 很重要，否则切换库后，作者页会显示上一个库的作者
             lastAuthorId = 0
@@ -121,6 +123,7 @@ watch(route, () => {
             lastAuthorId = authorId
         }
     } else {
+        openingLibrary.value = 0
         const fullPath: string = route.fullPath
         if (fullPath.startsWith('/settings')) {
             titleBarTitle.value = $t('layout.settings')
@@ -132,9 +135,6 @@ watch(route, () => {
     }
 })
 
-const libraryDB = new IndexedDB('library')
-libraryDB.open((db) => {
-})
 </script>
 
 <style scoped>

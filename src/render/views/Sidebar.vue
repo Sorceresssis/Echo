@@ -82,7 +82,7 @@
                                     :key="library.id">
                                     <div class="menu-item-wrap">
                                         <div :class="[
-                                            library.id === activeLibrary ? 'active-library' : '',
+                                            library.id === openingLibrary ? 'active-library' : '',
                                             libraryIdOfRename === library.id
                                                 ? 'input-wrap'
                                                 : 'menu-item']"
@@ -192,7 +192,8 @@ import { VueInjectKey, LocalStorageKey, CrosTabBroadcastKey } from "@/constant/c
 import { openInExplorer } from "@/util/systemUtil";
 import { ElCollapseTransition } from "element-plus";
 import DialogDeleteMenuItem from "./dialog/DialogDeleteMenuItem.vue";
-// TODO 显示绑定library 和 真正的library区分。
+
+
 const tabBroadcast = new CrosTabBroadcast(CrosTabBroadcastKey.CHANNEL.mainTab)
 const tabBroadcastMsg = {
     type: CrosTabBroadcastKey.MSG_TYPE.reloadGroups,
@@ -200,8 +201,13 @@ const tabBroadcastMsg = {
 }
 const router = useRouter();
 
+const titleBarTitle = inject<Ref<string>>(VueInjectKey.TITLEBAR_TITLE)!
+// NOTE
+// openingLibraryId 表示要打开的library的id, activeLibrary 表示已经准备好的，可以请求数据的libraryId。
+// activeLibraryId比openingLibraryId 要慢一步，因为要先把library前置数据处理完才能把openingLibraryId 赋值给 activeLibraryId。
+const openingLibrary = inject<Ref<number>>(VueInjectKey.OPENING_LIBRARY)!;
 const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
-const activeLibraryDetail = inject<VO.LibraryDetail>(VueInjectKey.ACTIVE_LIBRARY_DETAIL)!;
+// const activeLibraryDetail = inject<VO.LibraryDetail>(VueInjectKey.ACTIVE_LIBRARY_DETAIL)!;
 
 const groups = ref<VO.Group[]>([]);
 const expandedGroups = ref<boolean[]>([]);
@@ -213,8 +219,7 @@ const getGroups = async () => {
 
 // 在本窗口打开library
 const openLibrary = (id: number) => {
-    // TODO 换showlib
-    if (id !== activeLibrary.value) {
+    if (id !== openingLibrary.value) {
         router.push(RouterPathGenerator.libraryBashboard(id));
     }
 };
@@ -315,12 +320,15 @@ const handleRename = async () => {
         if (result) groups.value[cg].name = newName.value; // 重命名成功，更新group的名字
         groupIdOfRename.value = 0; // 重置
     } else if (libraryIdOfRename.value) {
-        activeLibraryDetail.name = newName.value;
         const result: boolean = await window.dataAPI.renameLibrary(
             libraryIdOfRename.value,
             newName.value
         );
-        if (result) groups.value[cg].librarys[cl].name = newName.value;
+        const lib = groups.value[cg].librarys[cl]
+        if (result) lib.name = newName.value;
+        if (activeLibrary.value === lib.id) {
+            document.title = `${titleBarTitle.value = lib.name} - Echo`
+        }
         libraryIdOfRename.value = 0;
     }
     tabBroadcast.sendMsg(tabBroadcastMsg)
@@ -344,7 +352,7 @@ const handleDelete = async () => {
     if (cl === -1) {
         // 如果正在打开的library在删除的group中，关闭
         getCurrentCtmGroup(cg).librarys.forEach((l) => {
-            if (l.id === activeLibrary.value) {
+            if (l.id === openingLibrary.value) {
                 router.push(RouterPathGenerator.welcome());
             }
         });
@@ -354,7 +362,7 @@ const handleDelete = async () => {
             tabBroadcast.sendMsg(tabBroadcastMsg)
         })
     } else {
-        if (getCurrentCtmLibrary(cg, cl).id === activeLibrary.value) {
+        if (getCurrentCtmLibrary(cg, cl).id === openingLibrary.value) {
             router.push(RouterPathGenerator.welcome());
         }
         window.dataAPI.deleteLibrary(getCurrentCtmLibrary(cg, cl).id).then(() => {
@@ -462,7 +470,7 @@ const exportLibrary = () => {
 watch(expandedGroups, debounce((data) => {
     LocalStorage.set(LocalStorageKey.EXPANDED_GROUPS, data)
 }, 500), { deep: true });
-watch(activeLibrary, debounce((n) => {
+watch(openingLibrary, debounce((n) => {
     LocalStorage.set(LocalStorageKey.PREVIOUS_ACTIVE_LIBRARY, n)
 }, 500));
 

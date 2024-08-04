@@ -45,7 +45,7 @@ namespace VO {
         id: number,
         name: string
         avatar?: string
-        role: VO.Role[]
+        roles: VO.Role[]
     }
 
     type RecordDetail = Omit<DAO.Record_R & DAO.RecordExtra_R & {
