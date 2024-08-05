@@ -40,7 +40,7 @@ const ECHO_METADATA_SCHEMA = {
                         "minLength": 0,
                         "maxLength": 255
                     },
-                    "role": {
+                    "roles": {
                         "type": "array",
                         "items": {
                             "type": "string",
@@ -50,7 +50,7 @@ const ECHO_METADATA_SCHEMA = {
                         },
                     }
                 },
-                "required": ["name", "role"]
+                "required": ["name", "roles"]
             }
         },
         "series": {

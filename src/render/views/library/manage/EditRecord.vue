@@ -95,7 +95,7 @@
                                        :show-selectbtn="true"
                                        :showWordLimit="true"
                                        class="flex-1"
-                                       @btn-select="authorAdder" />
+                                       @btn-select="addAuthor" />
                 </div>
                 <div class="attribute-container scrollbar-y-w4">
                     <div v-if="displayAuthors.length === 0"
@@ -103,28 +103,22 @@
                         {{ $t('layout.noAuthors') }}
                     </div>
                     <div v-for="author in displayAuthors"
+                         :key="author.id"
                          class="author flex-center">
                         <local-image :src="author.avatar"
                                      :key="author.id"
                                      class="avatar-icon" />
                         <p>
                             <span class="author_name textover--ellopsis"> {{ author.name }} </span>
-                            <el-select v-model="value"
-                                       multiple
-                                       placeholder="Select"
-                                       style="width: 240px">
-                                <el-option v-for="item in options"
-                                           :key="item.value"
-                                           :label="item.label"
-                                           :value="item.value" />
-                            </el-select>
-                            <span v-if="author.roles.length">({{ author.role }})</span>
+                            <span v-if="author.roles.length">
+                                ({{ author.roles.map(role => role.name).join(', ') }})
+                            </span>
                         </p>
                         <div class="op">
                             <span class="iconfont"
-                                  @click="handleEditAuthorRole(author)"> &#xe722; </span>
+                                  @click="showEditAuthorRoleDialog(author)"> &#xe722; </span>
                             <span class="iconfont"
-                                  @click="authorRemover(author.id)"> &#xe685; </span>
+                                  @click="removeAuthor(author.id)"> &#xe685; </span>
                         </div>
                     </div>
                 </div>
@@ -135,7 +129,8 @@
                                        class="flex-1"
                                        type="tag"
                                        :showWordLimit="true"
-                                       :placeholder="$t('layout.editRecordTagsPlaceholder')" />
+                                       :placeholder="$t('layout.editRecordTagsPlaceholder')"
+                                       @keyup.enter="" />
                     <button2 @click="tagAdder"> {{ $t('layout.add') }} </button2>
                 </div>
                 <div class="attribute-container scrollbar-y-w4">
@@ -223,17 +218,34 @@
                 </el-button>
             </el-form-item>
         </el-form>
+        <el-dialog v-model="editAuthorRoleDialogVisible"
+                   title="Roles Select"
+                   width="400px"
+                   align-center
+                   @close="handleEditAuthorRole">
+            <div class="edit-author-role__dialog-content">
+                <el-select v-model="editAuthorRoles"
+                           multiple
+                           placeholder="Select"
+                           size="large">
+                    <el-option v-for="item in libraryStore.roles"
+                               :key="item.id"
+                               :label="item.name"
+                               :value="item.id" />
+                </el-select>
+            </div>
+        </el-dialog>
     </div>
 </template>
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, Ref, watch, inject, readonly, onActivated } from 'vue'
-import { useRoute, onBeforeRouteUpdate } from 'vue-router'
+import { onBeforeRouteUpdate, useRoute } from 'vue-router'
 import { type FormInstance, type FormRules, ElInput, ElForm, ElFormItem, ElSelect, ElOption, ElPopover } from 'element-plus'
 import { $t } from '@/locale'
 import { VueInjectKey } from '@/constant/channel_key'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
-import useAuthorsDashStore from '@/store/authorsDashStore'
+import useLibraryStore from '@/store/libraryStore'
 import Message from '@/util/Message'
 import MessageBox from '@/util/MessageBox'
 import useEditRecordService from '@/service/editRecordService'
@@ -245,35 +257,20 @@ import ManageImages from '@/components/ManageImages.vue'
 const inputAutoSize = {
     minRows: 6
 }
+const route = useRoute()
 const isAdd = ref<boolean>(true)
 const autocompleteKey = ref<number>(0)
 const submitBtnText = ref<string>($t('layout.create'))
 
-const route = useRoute()
-const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
-const authorsDashStore = useAuthorsDashStore()
 const winowLoading = inject<Ref<boolean>>(VueInjectKey.WINDOW_LOADING)!
 const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
 const managePathPattern = inject<RegExp>(VueInjectKey.MANAGE_PAGE_PATH_PATTERN)!
 
+const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
+const libraryStore = useLibraryStore()
+
 const formRef = ref()
-// TODO temp start
-const value = ref<string[]>([])
-const options = [
-    {
-        value: 'HTML',
-        label: 'HTML',
-    },
-    {
-        value: 'CSS',
-        label: 'CSS',
-    },
-    {
-        value: 'JavaScript',
-        label: 'JavaScript',
-    },
-]
-// TODO temp end
+
 const {
     displayTags,
     tagAdder,
@@ -282,9 +279,9 @@ const {
     seriesAdder,
     seriesRemover,
     displayAuthors,
-    authorAdder,
+    addAuthor,
+    removeAuthor,
     authorEditRole,
-    authorRemover,
     displaySampleImages,
     sampleImageAdder,
     sampleImageRemover,
@@ -298,17 +295,22 @@ const {
     resetFormData,
 } = useEditRecordService()
 
-const handleEditAuthorRole = function (author: VO.RecordAuthorRelation) {
-    MessageBox.editPrompt(
-        (value: string) => {
-            const maxLen = 50
-            if (value.length > maxLen) return $t('tips.lengthLimitExceeded', { count: maxLen })
-            return true
-        }, author.role || ''
-    ).then(({ value }) => {
-        author.role = value.trim() === '' ? null : value
-        authorEditRole(author.id, author.role)
+const editAuthorRoleDialogVisible = ref<boolean>(false)
+const editAuthorRoles = ref<number[]>([])
+const editingAuthor = ref(0)
+const showEditAuthorRoleDialog = function (author: VO.RecordAuthorRelation) {
+    editAuthorRoleDialogVisible.value = true
+    editAuthorRoles.value = author.roles.map(role => role.id)
+    editingAuthor.value = author.id
+}
+const handleEditAuthorRole = function () {
+    const roles: VO.Role[] = []
+    editAuthorRoles.value.forEach(roleId => {
+        const role = libraryStore.roles.find(role => role.id === roleId)
+        // NOTE role 是proxy对象，不要直接用 
+        if (role) roles.push({ id: role.id, name: role.name })
     })
+    authorEditRole(editingAuthor.value, roles)
 }
 
 const rules = reactive<FormRules>({
@@ -337,25 +339,26 @@ const submitForm = (formEl: FormInstance | undefined) => {
             viewsTaskAfterRoutingStore.setAuthorRecords('refresh')      // record 展示
             winowLoading.value = true
             // 等待后台处理完毕后才重新加载新的数据
-            await submit(activeLibrary.value).then((result) => {
+            submit(activeLibrary.value).then((result) => {
                 // 如果result是undefined，表示后台出错，有弹框警告 
                 if (!result) return
-                result.code
-                    ? Message.success(isAdd.value ? $t('msg.createSuccess') : $t('msg.editSuccess'))
-                    : Message.error((isAdd.value ? $t('msg.createFailed') : $t('msg.editFailed')) + ', ' + result.msg, 2000)
-            }).catch(() => { })
-            // NOTE 更新role
-            authorsDashStore.updateRoles(activeLibrary.value)
-
-            if (isAdd.value) {
-                resetFormData()
-            } else {
-                // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
-                const id = formData.id
-                resetFormData()
-                saveOriginData(activeLibrary.value, id)
-            }
-            winowLoading.value = false
+                if (result.code) {
+                    Message.success(isAdd.value ? $t('msg.createSuccess') : $t('msg.editSuccess'))
+                } else {
+                    Message.error((isAdd.value ? $t('msg.createFailed') : $t('msg.editFailed')) + ', ' + result.msg, 2000)
+                }
+            }).catch(() => {
+            }).finally(() => {
+                if (isAdd.value) {
+                    resetFormData()
+                } else {
+                    // 如果是编辑一定要重置，因为编辑的时候会保存原始数据，如果不重置，下次编辑就会出错
+                    const id = formData.id
+                    resetFormData()
+                    saveOriginData(activeLibrary.value, id)
+                }
+                winowLoading.value = false
+            })
         }
 
         isAdd.value ? MessageBox.addConfirm().then(cb) : MessageBox.editConfirm().then(cb)
@@ -379,10 +382,17 @@ const init = function () {
         submitBtnText.value = $t('layout.create')
     }
 }
+
+let needInit = false
+let routeUpdate = false
 watch(route, () => {
+    if (routeUpdate) {
+        init()
+        routeUpdate = false
+        return
+    }
     needInit = true
 })
-let needInit = false
 onMounted(init)
 onActivated(() => {
     if (needInit) {
@@ -390,6 +400,10 @@ onActivated(() => {
         needInit = false
     }
 })
+onBeforeRouteUpdate(() => {
+    routeUpdate = true
+})
+
 </script>
 
 <style scoped>
@@ -452,6 +466,12 @@ onActivated(() => {
 
 .attribute-container .author .op>*:hover {
     color: var(--echo-theme-color);
+}
+
+.edit-author-role__dialog-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .attribute-container .tag {

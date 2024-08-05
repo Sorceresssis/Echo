@@ -50,6 +50,7 @@
 <script setup lang="ts">
 import { inject, onActivated, onMounted, Ref, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import useLibraryStore from '@/store/libraryStore';
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore';
 import { $t } from '@/locale';
 import { openInBrowser } from '@/util/systemUtil';
@@ -66,6 +67,7 @@ const route = useRoute()
 const winowLoading = inject<Ref<boolean>>(VueInjectKey.WINDOW_LOADING)!
 const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
+const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 
 const SingleMetaSrcInputValue = ref('')
@@ -118,10 +120,12 @@ const handleAddRecordFromMetadata = (type: 0 | 1, op: 0 | 1 | 2) => {
     }).then(res => {
         if (res.code) Message.success('导入成功')
         else Message.error(res.msg)
+        // Role
     }).catch(() => {
-
     }).finally(() => {
-        winowLoading.value = false
+        libraryStore.getRoles(activeLibrary.value).finally(() => {
+            winowLoading.value = false
+        })
     })
 }
 

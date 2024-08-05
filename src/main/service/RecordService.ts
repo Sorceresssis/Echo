@@ -366,7 +366,8 @@ class RecordService {
         // edit authors
         editAuthorsRole.forEach(author => {
             const oldIds = this.recordAuthorRoleDao.selectIdsByRecordIdAuthorId(recordId, author.id)
-            const newRoles = author.roles
+            // NOTE 没有uniqe约束，所以这里需要手动去重
+            const newRoles = Array.from(new Set(author.roles))
             let idx = 0
             while (idx < oldIds.length && idx < newRoles.length) {
                 this.recordAuthorRoleDao.updateRoleIdById(oldIds[idx], newRoles[idx])
@@ -575,9 +576,12 @@ class RecordService {
             // NOTE 过滤掉空值字符串
             metadata.authors = metadata.authors
                 .map<Entity.EchoMetadataAuthor>(author => {
+                    const roleSet = new Set(author.roles.map(role => role.trim())
+                        .filter(role => role !== '')
+                    )
                     return {
                         name: author.name.trim(),
-                        roles: author.roles.map(role => role.trim()).filter(role => role !== '')
+                        roles: Array.from(roleSet)
                     }
                 })
                 .filter(author => author.name !== '')
@@ -725,10 +729,13 @@ class RecordService {
             const newTags = metadata.tags.map(title => this.tagDao.queryTagIdByTitle(title) ?? this.tagDao.insertTag(title))
             const newSeries = metadata.series.map(name => this.seriesDao.querySeriesIdByName(name) ?? this.seriesDao.insertSeries(name))
             const newAuthors = metadata.authors.map<RP.RecordAuthorRelation>(author => {
-                const id = this.authorDao.queryAuthorByName(author.name)
-                if (!id) {
+                const existedAuthor = this.authorDao.queryAuthorByName(author.name)
+                let id = 0
+                if (existedAuthor) {
+                    id = existedAuthor.id
+                } else {
                     const authorWriteModel = this.authorDao.authorWriteModelFactory(author.name)
-                    this.authorDao.insert(authorWriteModel)
+                    id = this.authorDao.insert(authorWriteModel)
                 }
                 const roles = author.roles.map(role => {
                     return this.roleDao.queryIdByName(role) || this.roleDao.insert(role)
@@ -741,7 +748,7 @@ class RecordService {
             const oldAuthors = this.authorDao.queryAuthorsProfileByRecordId(recordId).map<RP.RecordAuthorRelation>(author => {
                 return {
                     id: author.id,
-                    roles: this.roleDao.queryRolesByRecordIdAuthorId(record.id, author.id)
+                    roles: this.roleDao.queryRolesByRecordIdAuthorId(record.id, author.id).map(role => role.id)
                 }
             })
 

@@ -21,8 +21,8 @@ declare namespace RP {
     }
 
     type RecordAuthorRelation = {
-        id: Entity.Pk,
-        roles: Entity.Pk[],
+        id: Entity.PK,
+        roles: Entity.PK[],
     }
 
     /**

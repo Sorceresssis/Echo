@@ -88,5 +88,5 @@ onActivated(() => {
         init()
         needInit = false
     }
-})
+}) 
 </script>

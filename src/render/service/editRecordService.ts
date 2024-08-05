@@ -1,5 +1,6 @@
-import { reactive, toRaw } from "vue"
+import { reactive, ref, toRaw } from "vue"
 import Message from "@/util/Message"
+import { deepEqual } from "@/util/common";
 import { $t } from "@/locale"
 
 export function primitiveTypesArrayEqual<T extends PrimitiveTypes>(arr1: T[], arr2: T[]): boolean {
@@ -88,62 +89,54 @@ const useEditRecordService = () => {
         attributeRemover(originSeries, displaySeries, removeSeries, addSeries, value)
     }
 
-    const originAuthors = new Map<number, RP.RecordAuthorRelation['roles']>()    // 保存{id: 1, name: 'tag1'}这样的对象
-    const addAuthors = new Map<number, RP.RecordAuthorRelation['roles']>()       // 保存int类型的id
-    const editAuthorsRole = new Map<number, RP.RecordAuthorRelation['roles']>()  // 保存int类型的id
-    const removeAuthors = new Set<number>()                                   // 保存int类型的id
-    const displayAuthors = reactive<VO.RecordAuthorRelation[]>([])        // 保存作者详细信息的
-    const authorAdder = (obj: VO.AutoCompleteSuggestion) => {
-        if (displayAuthors.findIndex((v) => v.id === obj.id) === -1) {
-            displayAuthors.push({
-                id: obj.id,
-                name: obj.value,
-                avatar: obj.image,
-                roles: null
-            })
-            originAuthors.has(obj.id) ? removeAuthors.delete(obj.id) : addAuthors.set(obj.id, null)
+    const originAuthors = new Map<number, VO.RecordAuthorRelation>()    // 保存{id: 1, name: 'tag1'}这样的对象
+    const displayAuthors = reactive<VO.RecordAuthorRelation[]>([])      // 保存作者详细信息的
+    const displayAuthorsRaw: VO.RecordAuthorRelation[] = []
+    const removeAuthors = new Set<number>()            // 保存int类型的id
+    const addAuthor = (author: VO.AutoCompleteSuggestion) => {
+        if (displayAuthors.findIndex(a => a.id === author.id) === -1) {
+            const createdAuthor = {
+                id: author.id,
+                name: author.value,
+                avatar: author.image,
+                roles: []
+            }
+            displayAuthors.push(createdAuthor)
+            displayAuthorsRaw.push(createdAuthor)
+            originAuthors.has(author.id) && removeAuthors.delete(author.id)
         } else {
             Message.error($t('msg.thisAuthorAlreadyExists'))
         }
     }
-    const authorRemover = (id: number) => {
-        const idx = displayAuthors.findIndex((v) => v.id === id)
+    const removeAuthor = (id: number) => {
+        const idx = displayAuthors.findIndex(a => a.id === id)
         if (-1 === idx) return
-
         displayAuthors.splice(idx, 1)
-        originAuthors.has(id) ? removeAuthors.add(id) : addAuthors.delete(id)
-
-        editAuthorsRole.delete(id)
+        displayAuthorsRaw.splice(idx, 1)
+        originAuthors.has(id) && removeAuthors.add(id)
     }
-    const authorEditRole = (id: number, roleIds: number[]) => {
-        if (removeAuthors.has(id)) return
-        // 可以editRole的只存在于addAuthors和originAuthors中
-        const originAuthor = originAuthors.get(id)
-        if (originAuthor === void 0) {
-            addAuthors.set(id, roleIds)
-        } else {
-            // TODO
-            // 
-            primitiveTypesArrayEqual(originAuthor, roleIds)
-            editAuthorsRole.set(id, roleIds)
-        }
+    const authorEditRole = (id: number, roleIds: VO.Role[]) => {
+        const idx = displayAuthors.findIndex(a => a.id === id)
+        if (-1 === idx) return
+        displayAuthors[idx].roles = roleIds
+        displayAuthorsRaw[idx].roles = roleIds
     }
 
     // ANCHOR Sample Images
     const originSampleImages = new Set<string>()
-    const displaySampleImages = reactive<Array<string>>([])
+    const displaySampleImages = ref<Array<string>>([])
     const removeSampleImages = new Set<string>()
     const sampleImageAdder = (paths: string[]) => {
         paths.forEach(path => {
-            if (displaySampleImages.indexOf(path) !== -1) return
-            displaySampleImages.push(path)
+            if (displaySampleImages.value.indexOf(path) !== -1) return
+            displaySampleImages.value.push(path)
             originSampleImages.has(path) && removeSampleImages.delete(path)
         })
     }
     const sampleImageRemover = (path: string) => {
-        const idx = displaySampleImages.indexOf(path)
+        const idx = displaySampleImages.value.indexOf(path)
         if (-1 === idx) return
-        displaySampleImages.splice(idx, 1)
+        displaySampleImages.value.splice(idx, 1)
         originSampleImages.has(path) && removeSampleImages.add(path)
     }
 
@@ -243,29 +236,48 @@ const useEditRecordService = () => {
             displaySeries.push(item.name)
         })
         data.authors.forEach(item => {
-            originAuthors.set(item.id, item.role.map(role => role.id))
+            // 很特殊，深拷贝
+            originAuthors.set(item.id, JSON.parse(JSON.stringify(item)))
             displayAuthors.push(item)
+            displayAuthorsRaw.push(item)
         })
 
         if (data.cover) {
             formData.cover = formData.originCover = data.cover
         }
         data.sample_images.forEach(item => originSampleImages.add(item))
-        displaySampleImages.push(...data.sample_images)
+        displaySampleImages.value.push(...data.sample_images)
     }
 
     const submit = (libraryId: number) => {
-        // tag 
         formData.addTags = Array.from(addTags)
         formData.removeTags = Array.from(removeTags)
-        formData.addAuthors = Array.from(addAuthors.entries()).map(([id, role]) => ({ id, role }))
-        formData.editAuthorsRole = Array.from(editAuthorsRole.entries()).map(([id, role]) => ({ id, role }))
-        formData.removeAuthors = Array.from(removeAuthors)
+
         formData.addSeries = Array.from(addSeries)
         formData.removeSeries = Array.from(removeSeries)
+
+        const addAuthors: RP.RecordAuthorRelation[] = []
+        const editAuthorsRole: RP.RecordAuthorRelation[] = []
+        displayAuthorsRaw.forEach(author => {
+            const existedAuthor = originAuthors.get(author.id)
+            // let isChanged = false
+            if (existedAuthor) {
+                if (!deepEqual(author.roles, existedAuthor.roles)) {
+                    editAuthorsRole.push({ id: author.id, roles: author.roles.map(item => item.id) })
+                }
+            } else {
+                addAuthors.push({ id: author.id, roles: author.roles.map(item => item.id) })
+            }
+        })
+
+        formData.addAuthors = addAuthors
+        formData.editAuthorsRole = editAuthorsRole
+        formData.removeAuthors = Array.from(removeAuthors)
+
+        // Sample Images
         const originSampleImagesArray = Array.from(originSampleImages)
         const editSampleImages: RP.EditSampleImage[] = []
-        displaySampleImages.forEach((path, index) => {
+        displaySampleImages.value.forEach((path, index) => {
             if (!originSampleImages.has(path)) {
                 editSampleImages.push({ type: 'add', idx: index + 1, path })
             } else if (path !== originSampleImagesArray[index]) {
@@ -274,8 +286,6 @@ const useEditRecordService = () => {
         })
         formData.removeSampleImages = Array.from(removeSampleImages)
         formData.editSampleImages = editSampleImages
-
-        // 提交数据 
         return window.dataAPI.editRecord(libraryId, toRaw(formData))
     }
 
@@ -295,9 +305,6 @@ const useEditRecordService = () => {
         formData.reviews = ''
         formData.info = ''
         // 提交前会重新赋值的不需要清空
-        //  addTags removeTags removeSeries addSeries
-        // addAuthor removeAuthors editAuthorsRole
-        // editSampleImages removeSampleImages
 
         // 标签
         displayTags.splice(0)
@@ -310,14 +317,12 @@ const useEditRecordService = () => {
         addSeries.clear()
         removeSeries.clear()
         // 作者
-        displayAuthors.splice(0)
         originAuthors.clear()
-        addAuthors.clear()
-        editAuthorsRole.clear()
-        removeAuthors.clear()
+        displayAuthors.splice(0)
+        displayAuthorsRaw.splice(0)
         // 样例图片
-        displaySampleImages.splice(0)
         originSampleImages.clear()
+        displaySampleImages.value = []
         removeSampleImages.clear()
         // 重置输入框
         dispalyFormData.authorInput = ''
@@ -336,8 +341,8 @@ const useEditRecordService = () => {
         seriesRemover,
         // 作者
         displayAuthors,
-        authorAdder,
-        authorRemover,
+        addAuthor,
+        removeAuthor,
         authorEditRole,
         // 样例图片
         displaySampleImages,

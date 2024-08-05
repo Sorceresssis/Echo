@@ -35,7 +35,6 @@ import { $t } from '@/locale'
 import { useRoute, useRouter } from 'vue-router'
 import RouterPathGenerator from '@/router/router_path_generator';
 import { VueInjectKey } from '@/constant/channel_key';
-import IndexedDB from '@/util/indexed_db';
 import Message from '@/util/Message'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useLibraryStore from '@/store/libraryStore'

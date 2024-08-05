@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
+import Message from '@/util/Message'
 
 
 const useLibraryStore = defineStore(StoreId.LIBRARY, {
@@ -19,6 +20,22 @@ const useLibraryStore = defineStore(StoreId.LIBRARY, {
         },
         setRoles(roles: Entity.Role[]) {
             this.roles = roles
+        },
+        getRoles(libraryId: number) {
+            return new Promise<void>((resolve) => {
+                this.setLoadingRoles(true)
+                this.setRoles([])
+                window.dataAPI.getRoles(libraryId).then((res) => {
+                    if (res.code) {
+                        this.setRoles(res.data!)
+                    } else {
+                        Message.error(res.msg)
+                    }
+                }).finally(() => {
+                    this.setLoadingRoles(false)
+                    resolve()
+                })
+            })
         }
     }
 })

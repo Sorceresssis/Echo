@@ -131,8 +131,8 @@ CREATE TABLE 'record_author_role'
 );
 CREATE INDEX 'idx_record_author_role(record_id)' ON record_author_role (record_id);
 CREATE INDEX 'idx_record_author_role(author_id)' ON record_author_role (author_id);
-CREATE INDEX 'idx_record_author_role(role_id)' ON record_author_role (role_id);
-CREATE UNIQUE INDEX 'uk_record_author_role(record_id,author_id,role_id)' ON record_author_role (record_id, author_id, role_id);
+CREATE INDEX 'idx_record_author_role(role_id)' ON record_author_role (role_id); 
+-- 理论上可以添加一个唯一索引，但是编辑时没有重复的风险，所以就不添加了。
 
 
 -- ----------------------------
