@@ -14,7 +14,6 @@ class LibraryDB extends SQLiteDatabase {
         const isExists = fs.existsSync(path)
 
         super(path)
-        this.run("DROP INDEX IF EXISTS 'uk_record_author_role(record_id,author_id,role_id)';")
 
         if (isExists) {
             this.checkDB()

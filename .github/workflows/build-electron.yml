@@ -1,0 +1,48 @@
+name: Build Electron App
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.12.2'
+
+    - name: Install dependencies
+      run: npm install
+    
+    - name: Rebuild dependencies
+      run: npm run rebuild
+
+    - name: Build
+      run: npm run build
+
+    - name: Release for Win
+      if: matrix.os == 'windows-latest'
+      run: npm run release:win
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    - name: Release for Mac
+      if: matrix.os == 'macos-latest'
+      run: npm run release:mac
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    - name: Upload Release Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ matrix.os }}
+        path: release
+

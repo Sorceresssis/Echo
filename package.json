@@ -1,7 +1,7 @@
 {
     "name": "echo",
     "private": true,
-    "version": "2.1.4",
+    "version": "2.2.0",
     "main": "dist/main/index.js",
     "scripts": {
         "preview:render": "vite preview",
@@ -69,7 +69,7 @@
         ],
         "asar": true,
         "win": {
-            "icon": "build/icon.ico",
+            "icon": "build/icon_256x256.ico",
             "artifactName": "${productName}_${version}.${ext}",
             "target": [
                 {
@@ -88,7 +88,7 @@
             "deleteAppDataOnUninstall": false
         },
         "mac": {
-            "icon": "build/icon.ico",
+            "icon": "build/icon_512x512.ico",
             "target": "dmg",
             "category": "public.app-category.utilities"
         },
@@ -107,7 +107,7 @@
             ]
         },
         "linux": {
-            "icon": "build/icon.ico",
+            "icon": "build/icon_256x256.ico",
             "target": "deb",
             "category": "Utility"
         },
