@@ -2,12 +2,13 @@ import { Notification, shell } from "electron"
 import { Worker } from "worker_threads"
 import fs from "fs"
 import path from "path"
+import fse from "fs-extra"
 import appPaths from "../app/appPaths"
-import { formatCurrentTime } from "../util/common"
+import { formatCurrentTime } from "../utils/common"
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import DIContainer from "../provider/container"
-import Result from "../util/Result"
+import ResponseResult from "../pojo/ResponseResult"
 import i18n from "../locale"
 import type { zipperOperation } from "./worker/zipper.worker"
 import type { unzipperOperation } from "./worker/unzipper.worker"
@@ -25,116 +26,128 @@ class LibraryService {
     ) { }
 
     public queryLibraryDetail(id: number): VO.LibraryDetail | undefined {
-        const lib = this.libraryDao.queryLibraryById(id) as VO.LibraryDetail | undefined
-        if (lib) {
-            const extra = this.libraryExtraDao.queryLibraryExtraById(id) as Entity.LibraryExtra
-            lib.useAuxiliarySt = extra.useAuxiliarySt ? true : false // 把1,0转换为true, false
-            lib.auxiliarySt = extra.auxiliarySt
-            lib.intro = extra.intro
-        }
+        const lib = this.libraryDao.getLibraryById(id) as VO.LibraryDetail | undefined
+        if (lib === void 0) return
+
+        const extra = this.libraryExtraDao.getLibraryExtraById(id)!
+        lib.use_auxiliary_st = extra.use_auxiliary_st
+        lib.auxiliary_st = extra.auxiliary_st
+        lib.intro = extra.intro
         return lib
     }
 
-    public querySortedLibrarysByGroupId(groupId: number): VO.LibraryProfile[] {
-        const librarys = this.libraryDao.querySortedLibrarysByGroupId(groupId) as VO.LibraryProfile[]
-        librarys.forEach(l => l.dataPath = appPaths.getLibraryDirPath(l.id))
+    public querySortedLibrarysByGroupId(groupId: Entity.PK): VO.Library[] {
+        const librarys = this.libraryDao.getLibrarysSortedByGroupId(groupId) as VO.Library[]
+        librarys.forEach(lib => lib.dataPath = appPaths.getLibraryDirPath(lib.id))
         return librarys
     }
 
     public rename(id: number, name: string): boolean {
-        return this.libraryDao.updateLibraryName(id, name) > 0
+        return this.libraryDao.updateNameById(id, name) > 0
     }
 
-    public editLibraryExtra(data: DTO.LibraryExtraForm): boolean {
-        return this.libraryExtraDao.updateLibraryExtra(data) > 0
+    public editLibraryExtra(data: Entity.LibraryExtra): boolean {
+        if (data.id === 0) return false
+        return this.libraryExtraDao.update(data) > 0
     }
 
-    public create(name: string, groupId: number): PrimaryKey {
-        let newId: PrimaryKey = 0
+    public create(name: string, groupId: number): Entity.PK {
+        let newId: Entity.PK = 0
         DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
-            const headId = this.libraryDao.queryLibraryIdByGroupIdPrevId(groupId, 0)
-            const id = newId = this.libraryDao.insertLibrary(name, groupId)
-            if (headId !== void 0) { this.insertNode(id, 0, headId) }
+            const headId = this.libraryDao.getIdByGroupIdPrevId(groupId, 0)
+            newId = this.libraryDao.insert(name, groupId)
+            if (headId !== void 0) { this.insertNode(newId, 0, headId) }
             // 创建library_extra记录
-            this.libraryExtraDao.insertLibraryExtra({
-                id: id,
-                auxiliarySt: '',
-                useAuxiliarySt: 1,
+            this.libraryExtraDao.insert({
+                id: newId,
+                use_auxiliary_st: 1,
+                auxiliary_st: '',
                 intro: '',
             })
         })
         return newId
     }
 
-    public delete(id: number): void {
-        DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
-            this.removeNode(id) // 断开链接
-            this.libraryDao.deleteLibraryById(id) // 删除library记录
-            this.libraryExtraDao.deleteLibraryExtraById(id) // 删除library_extra记录
-            this.deleteFileData(id) // 删除文件数据
+    public delete(id: Entity.PK): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(async () => {
+                this.removeNode(id)
+                this.libraryDao.deleteById(id)
+                this.libraryExtraDao.deleteById(id)
+
+                fse.remove(appPaths.getLibraryDirPath(id)).then(() => {
+                    resolve()
+                }).catch(() => {
+                    reject()
+                    throw new Error()
+                })
+            })
         })
     }
 
-    public deleteByGroupId(groupId: number): void {
-        DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
-            this.libraryDao.queryLibraryIdsByGroupId(groupId).forEach(LibId => {
-                // 由于是全部删除，所以不需要断开链接
-                this.libraryDao.deleteLibraryById(LibId) // 删除library记录
-                this.libraryExtraDao.deleteLibraryExtraById(LibId) // 删除library_extra记录
-                this.deleteFileData(LibId) // 删除文件数据
+    public deleteByGroupId(groupId: Entity.PK): Promise<void> {
+        return new Promise<void>((resolve, reject) => {
+            DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(async () => {
+                try {
+                    let completed = 0
+                    const ids = this.libraryDao.getIdsByGroupId(groupId)
+                    for (const id in ids) {
+                        await this.delete(ids[id])
+                        completed++
+                        if (completed === ids.length) {
+                            resolve()
+                        }
+                    }
+                } catch (e) {
+                    reject(e)
+                    throw e
+                }
             })
         })
     }
 
     /* 注意tarNextId可能为0, 所以groupId是为了再tarNextId为0的情况下找到要插入位置 */
-    public sort(curId: number, tarNextId: number, moveToGroupId: number): void {
+    public changeOrder(curId: number, tarNextId: number, moveToGroupId: number): void {
         DIContainer.get<GroupDB>(InjectType.GroupDB).transactionExec(() => {
-            const curGroupId = this.libraryDao.queryLibraryGroupIdById(curId)
-            const tarGroupId = tarNextId === 0 ? moveToGroupId : this.libraryDao.queryLibraryGroupIdById(tarNextId)
+            const curGroupId = this.libraryDao.getGroupIdById(curId)
+            const tarGroupId = tarNextId === 0 ? moveToGroupId : this.libraryDao.getGroupIdById(tarNextId)
             if (curGroupId === void 0 || tarGroupId === void 0) return // 如果curId或tarNextId不存在, 直接返回
 
-            const curNextId = this.libraryDao.queryLibraryNextIdById(curId)!
+            const curNextId = this.libraryDao.getNextIdById(curId)!
             // 自己移动到自己的位置, 直接返回, tarNextId可能为0, 每一个group都有一个0的library，所以还有验证groupId
             if (curNextId === tarNextId && curGroupId === tarGroupId) return
 
             this.removeNode(curId) // 把curId从原来的位置删除
             // 插入位置前驱的id，注意tarNextId可能为0
-            const tarPrevId = this.libraryDao.queryLibraryIdByGroupIdNextId(tarGroupId, tarNextId) || 0
+            const tarPrevId = this.libraryDao.getIdByGroupIdNextId(tarGroupId, tarNextId) ?? 0
             this.insertNode(curId, tarPrevId, tarNextId) // 把curId插入到新的位置
 
             if (curGroupId !== tarGroupId) {
-                this.libraryDao.updateLibraryGroupId(curId, tarGroupId) // 修改curId的group_id为tarGroupId
+                this.libraryDao.updateGroupIdById(curId, tarGroupId) // 修改curId的group_id为tarGroupId
             }
         })
     }
 
-    private insertNode(id: PrimaryKey, prevId: PrimaryKey, nextId: PrimaryKey): void {
-        this.libraryDao.updateLibraryPrevIdNextId(id, prevId, nextId)
-        this.libraryDao.updateLibraryNextId(prevId, id)
-        this.libraryDao.updateLibraryPrevId(nextId, id)
+    private insertNode(id: Entity.PK, prevId: Entity.PK, nextId: Entity.PK): void {
+        this.libraryDao.updatePrevIdNextIdById(id, prevId, nextId)
+        this.libraryDao.updateNextIdById(prevId, id)
+        this.libraryDao.updatePrevIdById(nextId, id)
     }
 
-    private removeNode(id: PrimaryKey): void {
-        const [prevId, nextId] = this.libraryDao.queryLibraryPrevIdNextIdById(id) || [0, 0]
-        if (prevId) { this.libraryDao.updateLibraryNextId(prevId, nextId) }
-        if (nextId) { this.libraryDao.updateLibraryPrevId(nextId, prevId) }
-    }
-
-    private deleteFileData(id: number): void {
-        const dataPath = appPaths.getLibraryDirPath(id)
-        if (fs.existsSync(dataPath)) {
-            fs.rmSync(dataPath, { recursive: true })
-        }
+    private removeNode(id: Entity.PK): void {
+        const [prevId, nextId] = this.libraryDao.getPrevIdNextIdById(id) ?? [0, 0]
+        if (prevId) { this.libraryDao.updateNextIdById(prevId, nextId) }
+        if (nextId) { this.libraryDao.updatePrevIdById(nextId, prevId) }
     }
 
     public exportLibrary(libraryId: number, exportDir: string): void {
-        const libInfo = this.libraryDao.queryLibraryById(libraryId)
-        const groupId = this.libraryDao.queryLibraryGroupIdById(libraryId)
+        const libInfo = this.libraryDao.getLibraryById(libraryId)
+        const groupId = this.libraryDao.getGroupIdById(libraryId)
         if (!libInfo || !groupId) {
             throw new Error(`Library ${libraryId} not found`)
         }
-        const libExtra = this.libraryExtraDao.queryLibraryExtraById(libraryId)
-        const groupInfo = this.groupDao.queryGroupById(groupId)
+        const libExtra = this.libraryExtraDao.getLibraryExtraById(libraryId)
+        const groupInfo = this.groupDao.getGroupById(groupId)
 
         const exportPath = path.join(exportDir,
             `Echo_${groupInfo?.name}-${libInfo.name}_${formatCurrentTime()}.zip`)
@@ -153,7 +166,7 @@ class LibraryService {
 
         const worker = new Worker(path.join(__dirname, "worker/zipper.worker"))
         worker.postMessage({ exportPath: exportPath, ops: ops })
-        worker.on('message', (result: Result) => {
+        worker.on('message', (result: ResponseResult<void>) => {
             const notification = result.code
                 ? new Notification({
                     title: `${libInfo.name} ${i18n.global.t('exportSuccess')}`,
@@ -167,7 +180,6 @@ class LibraryService {
             notification.show()
             worker.terminate()
         })
-
     }
 
     public importLibrary(GroupId: number, importFiles: string[]): void {
@@ -187,12 +199,12 @@ class LibraryService {
             zipFilePath: importFiles[++importFileIdx],
             ops: ops
         })
-        worker.on('message', (result: Result) => {
+        worker.on('message', (result: ResponseResult<any>) => {
             try {
                 // 解压失败
                 if (result.code === 0) throw Error('unzip error')
 
-                const opResults: Result[] = result.data
+                const opResults: ResponseResult<any>[] = result.data
 
                 // 没有取到desc.json, library.db
                 if (opResults[0].code === 0 || opResults[1].code === 0) throw Error('error import file')
@@ -204,14 +216,14 @@ class LibraryService {
 
                 // 数据提取后，再向数据库中插入数据s
                 const id = this.create(name, GroupId)
-                this.libraryExtraDao.updateLibraryExtra({
+                this.libraryExtraDao.update({
                     id: id,
+                    use_auxiliary_st: 1,
+                    auxiliary_st: '',
                     intro: intro,
-                    useAuxiliarySt: 1,
-                    auxiliarySt: '',
                 })
 
-                // 修改数据库文件名
+                // 移动 
                 fs.renameSync(tmpPath, appPaths.getLibraryDirPath(id))
 
                 new Notification({
@@ -219,10 +231,6 @@ class LibraryService {
                     body: path.basename(importFiles[importFileIdx])
                 }).show()
             } catch (err: any) {
-                // 删除用于保存解压后文件的文件夹
-                if (fs.existsSync(tmpPath)) {
-                    fs.rmdirSync(tmpPath, { recursive: true })
-                }
 
                 new Notification({
                     title: `${i18n.global.t('importFailed')}  (${importFileIdx + 1}/${importFiles.length})`,

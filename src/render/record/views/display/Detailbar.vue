@@ -26,7 +26,7 @@
                             <local-image :src="author.avatar"
                                          class="avatar-icon" />
                             <span class="author_name"> {{ author.name }} </span>
-                            <span v-if="author.role">({{ author.role }})</span>
+                            <span v-if="author.roles">({{ author.roles.map(role => role.name).join(', ') }})</span>
                         </li>
                     </ul>
                 </div>
@@ -39,10 +39,10 @@
                               class="tag">{{ tag.title }}</span>
                     </div>
                 </div>
-                <div v-if="record.releaseDate"
+                <div v-if="record.release_date"
                      class="meta">
                     <div class="inline-list-title">{{ $t('layout.releaseDate') }}</div>
-                    <div class="meta-content"> {{ record.releaseDate }} </div>
+                    <div class="meta-content"> {{ record.release_date }} </div>
                 </div>
                 <div v-if="record.plot"
                      class="meta">
@@ -65,11 +65,11 @@
                 </div>
                 <div class="meta">
                     <div class="inline-list-title"> {{ $t('layout.createdTime') }} </div>
-                    <div class="meta-comtent"> {{ record.createTime }} </div>
+                    <div class="meta-comtent"> {{ record.create_time }} </div>
                 </div>
                 <div class="meta">
                     <div class="inline-list-title"> {{ $t('layout.lastModifiedTime') }} </div>
-                    <div class="meta-comtent"> {{ record.modifiedTime }} </div>
+                    <div class="meta-comtent"> {{ record.update_time }} </div>
                 </div>
                 <div v-if="slickCarouselImages.length"
                      class="meta">
@@ -127,6 +127,7 @@
 <script setup lang='ts'>
 import { ref, Ref, readonly, inject, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { VueInjectKey } from '@/constant/channel_key';
 import { $t } from '@/locale';
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
@@ -139,18 +140,18 @@ const router = useRouter()
 
 const drawerVisible = ref(false)
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
-const record = inject<VO.RecordDetail>('record')!
+const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
+const record = inject<VO.RecordDetail>(VueInjectKey.RECORD)!
 const activeSeriesId = ref<number>(0)
 const slickCarouselImages = ref<string[]>([])
 const genSlickCarouselImages = function () {
-    slickCarouselImages.value = record.cover ? [record.cover, ...record.sampleImages] : record.sampleImages
+    slickCarouselImages.value = record.cover ? [record.cover, ...record.sample_images] : record.sample_images
 }
 watch(record, genSlickCarouselImages)
 
 const deleteSeries = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
-        window.electronAPI.deleteSeries(activeLibrary.value, id).then(result => {
+        window.dataAPI.deleteSeries(activeLibrary.value, id).then(result => {
             if (result.code) {
                 record.series = record.series.filter(s => s.id !== id)
             }
@@ -172,7 +173,7 @@ const editSeries = (id: number, oldValue: string) => {
             const trimValue = value.trim()
             if (trimValue === '' || trimValue === oldValue) return
 
-            window.electronAPI.editSeries(activeLibrary.value, id, trimValue).then(result => {
+            window.dataAPI.editSeries(activeLibrary.value, id, trimValue).then(result => {
                 if (result.code) {
                     record.series = record.series.map(s => {
                         if (s.id === id) {

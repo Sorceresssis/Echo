@@ -12,8 +12,9 @@
 </template>
 
 <script setup lang='ts'>
-import InitialValue from '@/constant/Initial_value';
 import { provide, reactive, ref } from 'vue'
+import InitialValue from '@/constant/Initial_value';
+import { VueInjectKey } from '@/constant/channel_key';
 import Titlebar from './views/Titlebar.vue'
 
 const winowLoading = ref<boolean>(false)
@@ -21,10 +22,10 @@ const activeLibrary = ref<number>(0)
 const activeLibraryDetail = reactive<VO.LibraryDetail>(InitialValue.getLibraryDetail())
 const record = reactive<VO.RecordDetail>(InitialValue.getRecordDetail())
 
-provide('winowLoading', winowLoading)
-provide('activeLibrary', activeLibrary)
-provide('activeLibraryDetail', activeLibraryDetail)
-provide('record', record)
+provide(VueInjectKey.WINDOW_LOADING, winowLoading)
+provide(VueInjectKey.ACTIVE_LIBRARY, activeLibrary)
+provide(VueInjectKey.ACTIVE_LIBRARY_DETAIL, activeLibraryDetail)
+provide(VueInjectKey.RECORD, record)
 
 </script>
 

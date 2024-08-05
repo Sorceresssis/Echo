@@ -45,23 +45,24 @@
         </el-form>
     </div>
 </template>
-  
+
 <script lang="ts" setup>
-import { ref, Ref, reactive, inject, toRaw, watch } from 'vue'
+import { ref, Ref, reactive, inject, toRaw, watch, onMounted, onActivated } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
-import type { FormInstance, FormRules, } from 'element-plus'
-import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
+import { VueInjectKey } from '@/constant/channel_key'
+import type { FormInstance, FormRules, } from 'element-plus'
+import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 
 const route = useRoute()
 
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number> // 正在打开的Library
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const btnLoading = ref(false)
 const formRef = ref<FormInstance>()
-const formData = reactive<DTO.DeleteRecordByAttributeForm>({
+const formData = reactive<RP.DeleteRecordByAttributeFormData>({
     dirnamePath: '',
     tagTitle: '',
     seriesName: '',
@@ -81,7 +82,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         if (!valid) return
         MessageBox.confirm($t('tips.dangerousOperation'), $t('tips.sureRecycle'), 'warning').then(async () => {
             btnLoading.value = true
-            await window.electronAPI.deleteRecordByAttribute(activeLibrary.value, toRaw(formData))
+            await window.dataAPI.deleteRecordByAttribute(activeLibrary.value, toRaw(formData))
             Message.success($t('msg.recycleSuccess'))
             btnLoading.value = false
         })
@@ -93,5 +94,16 @@ const init = () => {
     formData.tagTitle = ''
     formData.seriesName = ''
 }
-watch(route, init)
+
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
+onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>

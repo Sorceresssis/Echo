@@ -1,7 +1,8 @@
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
-import DynamicSqlBuilder, { SortRule } from "../util/DynamicSqlBuilder"
+import DynamicSqlBuilder, { SortRule } from "../utils/DynamicSqlBuilder"
+import { type DBPageQueryOptions, PagedResult } from "../pojo/page"
 
 export type QueryDirnamesSortRule = {
     field: 'path' | 'id',
@@ -10,11 +11,9 @@ export type QueryDirnamesSortRule = {
 
 @injectable()
 class DirnameDao {
-    private libEnv: LibraryEnv
-
-    public constructor(@inject(InjectType.LibraryEnv) libEnv: LibraryEnv) {
-        this.libEnv = libEnv
-    }
+    public constructor(
+        @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv
+    ) { }
 
     public queryDirnameIdByPath(path: string): number | undefined {
         return this.libEnv.db.prepare('SELECT id FROM dirname WHERE path = ?;').pluck().get(path) as number | undefined
@@ -23,9 +22,8 @@ class DirnameDao {
     public queryDirnamesByKeyword(
         keyword: string,
         sort: QueryDirnamesSortRule[],
-        offset: number,
-        rowCount: number
-    ): DAO.AllQueryResult<Domain.Dirname> {
+        pageOptions: DBPageQueryOptions
+    ): PagedResult<Entity.Dirname> {
         const sql = new DynamicSqlBuilder()
         const sortRule: SortRule[] = []
 
@@ -36,27 +34,24 @@ class DirnameDao {
             sortRule.push({ field: 'REGEXP(path)', order: 'DESC' })
         }
         sortRule.push(...sort)
-        sql.appendOrderSQL(sortRule).appendLimitSQL(offset, rowCount)
+        sql.appendOrderSQL(sortRule).appendLimitSQL(pageOptions.pn, pageOptions.ps)
 
-        const rows = this.libEnv.db.all(sql.getSql(), ...sql.getParams())
-        const total = rows.length > 0 ? rows[0].total_count : 0
+        const rows = this.libEnv.db.all<any[], Entity.Dirname & { total_count?: number }>(sql.getSql(), ...sql.getParams())
+        const totalCount = rows[0]?.total_count || 0
         rows.forEach(row => { delete row.total_count })
 
-        return {
-            total: total,
-            rows: rows
-        }
+        return new PagedResult(rows, pageOptions.pn, pageOptions.ps, totalCount)
     }
 
-    public updateDirnamePathById(id: PrimaryKey, path: string): number {
+    public updateDirnamePathById(id: Entity.PK, path: string): number {
         return this.libEnv.db.run("UPDATE dirname SET path = ? WHERE id = ?;", path, id).changes
     }
 
-    public insertDirname(path: string): PrimaryKey {
-        return this.libEnv.db.run("INSERT INTO dirname(path) VALUES(?);", path).lastInsertRowid
+    public insertDirname(path: string): Entity.PK {
+        return this.libEnv.db.run("INSERT INTO dirname(path) VALUES(?);", path).lastInsertRowid as Entity.PK
     }
 
-    public deleteDirnameById(id: PrimaryKey): number {
+    public deleteDirnameById(id: Entity.PK): number {
         return this.libEnv.db.run('DELETE FROM dirname WHERE id = ?;', id).changes
     }
 }

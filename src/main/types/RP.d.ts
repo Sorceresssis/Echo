@@ -1,35 +1,6 @@
-namespace DTO {
-    type LibraryExtraForm = {
-        id: number
-        auxiliarySt: string,
-        useAuxiliarySt: 0 | 1,
-        intro: string,
-    }
-
-    /**
-     * 分页数据
-     */
-    type Page<T> = {
-        total: number,
-        rows: T[]
-    }
-
-    /**
-     * autocomplete的选项,用于搜索
-     */
-    type AcOptions = {
-        type: AcType,
-        queryWord: string,
-        ps: number
-    }
-
-    type QueryAttributesOptions = {
-        queryWork: string
-        sortField: AttributeSortField
-        asc: boolean
-        pn: number
-        ps: number
-    }
+// 请求参数
+declare namespace RP {
+    type LibraryExtraFormData = DAO.LibraryExtra_W
 
     type EditSampleImage = {
         type: 'add' | 'move',
@@ -40,54 +11,46 @@ namespace DTO {
     /**
      * 编辑作者的表单
      */
-    type EditAuthorForm = {
-        id: number | bigint,
+    type EditAuthorFormData = {
+        id: number,
         name: string,
         newAvatar: string | undefined,
         intro: string,
-        editSampleImages: EditSampleImage[],
+        editSampleImages: RP.EditSampleImage[],
         removeSampleImages: string[]
     }
 
-    /**
-     * 批量删除record的表单
-     */
-    type DeleteRecordByAttributeForm = {
-        dirnamePath: string
-        tagTitle: string
-        seriesName: string
-    }
-
-    type AuthorIdAndRole = {
-        id: PrimaryKey,
-        role: string | null,
+    type RecordAuthorRelation = {
+        id: Entity.PK,
+        roles: Entity.PK[],
     }
 
     /**
      * 添加和编辑record的表单数据
      */
-    type EditRecordForm = {
+    type EditRecordFormData = {
         id: number,
+        title: string
+        translated_title: string
+        rate: number
+        hyperlink: string
+        releaseDate: string
         dirname: string
         basename: string
-        title: string,
-        hyperlink: string,
-        releaseDate: string
-        cover: string | undefined
-        originCover: string | undefined
-        rate: number,
+        searchText: string
         addTags: string[]
         removeTags: number[]
-        addAuthors: AuthorIdAndRole[]
-        editAuthorsRole: AuthorIdAndRole[]
+        addAuthors: RP.RecordAuthorRelation[]
+        editAuthorsRole: RP.RecordAuthorRelation[]
         removeAuthors: number[]
         addSeries: string[]
         removeSeries: number[]
         plot: string
-        searchText: string
         reviews: string
         info: string
-        editSampleImages: EditSampleImage[]
+        cover: string | undefined
+        originCover: string | undefined
+        editSampleImages: RP.EditSampleImage[]
         removeSampleImages: string[]
     }
 
@@ -103,14 +66,14 @@ namespace DTO {
         ps: number,
     }
 
-    type RecordBatchProcessingType = 'recycle' | 'recover' | 'delete_recycled' | 'delete_recycled_all'
-
     type QueryAuthorRecommendationsOptions = {
-        keyword: string,
+        keyword: string
         sortField: 'time' | 'name'
         order: 'ASC' | 'DESC'
-        pn: number,
-        ps: number,
+        roleFilterMode: "None" | "DEFAULT" | "ROLE_ID"
+        role: number
+        pn: number
+        ps: number
     }
 
     type QueryTagDetailsOptions = {
@@ -127,5 +90,35 @@ namespace DTO {
         order: 'ASC' | 'DESC'
         pn: number,
         ps: number,
+    }
+
+    /**
+     * autocomplete的选项,用于搜索
+     */
+    type AutoCompleteOptions = {
+        type: AcType,
+        queryWord: string,
+        ps: number
+    }
+
+    type RecordBatchProcessingType = 'recycle' | 'recover' | 'delete_recycled' | 'delete_recycled_all'
+
+    /**
+     * type  0: 单个 1: 批量
+     *  operate 0: 添加 1: 跟新 2: 添加和更新
+     */
+    type AddRecordFromMetadataParam = {
+        type: number        // 0: 单个 1: 批量
+        operate: 0 | 1 | 2
+        dir: string
+    }
+
+    /**
+     * 批量删除record的表单
+     */
+    type DeleteRecordByAttributeFormData = {
+        dirnamePath: string
+        tagTitle: string
+        seriesName: string
     }
 }

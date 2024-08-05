@@ -10,8 +10,8 @@
                   @click="openInBrowser(record.hyperlink)">&#xe612;</span>
             <span :title="$t('layout.openInFileExplorer')"
                   class="iconfont no-drag"
-                  :class="record.resourcePath ? '' : 'disabled'"
-                  @click="openInExplorer(record.resourcePath)">&#xe73e;</span>
+                  :class="record.source_fullpath ? '' : 'disabled'"
+                  @click="openInExplorer(record.source_fullpath)">&#xe73e;</span>
             <span :title="$t('layout.similarRecommendation')"
                   class="iconfont no-drag"
                   @click="openSimilarDrawer">&#xe620;</span>
@@ -39,7 +39,7 @@
             <span class="iconfont no-drag"
                   @click="windowClose">&#xe685;</span>
         </div>
-        <el-drawer v-model="similarDrawerVisible"
+        <el-drawer v-model="showSimilarDrawer"
                    direction="btt"
                    size="380px"
                    class="similar-record-drawer">
@@ -84,23 +84,28 @@
 import { ref, Ref, inject, watch, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { $t } from '@/locale'
-import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
+import { VueInjectKey } from '@/constant/channel_key';
+import MessageBox from '@/util/MessageBox'
 import { openInBrowser, openInExplorer, internetSearch, writeClibboard } from '@/util/systemUtil'
+import CrosTabBroadcast, { type CrosTabBroadcastMsg } from "@/util/CrosTabBroadcast";
+import { CrosTabBroadcastKey } from '@/constant/channel_key'
+import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { useDragScroll } from '@/util/common'
-import { listenCrosTabMsg } from '@/util/CrosTabMsg'
 import RecordCard from '@/components/RecordCard.vue'
 import Empty from '@/components/Empty.vue'
-import MessageBox from '@/util/MessageBox'
 
 const router = useRouter()
 const route = useRoute()
 
-const { startScroll } = useDragScroll()
+const recordTabBroadcast = new CrosTabBroadcast(CrosTabBroadcastKey.CHANNEL.recordTab)
+
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!
+const activeLibraryDetail = inject<VO.LibraryDetail>(VueInjectKey.ACTIVE_LIBRARY_DETAIL)!
+const record = inject<VO.RecordDetail>(VueInjectKey.RECORD)!
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
-const activeLibrary = inject<Ref<number>>('activeLibrary')!
-const activeLibraryDetail = inject<VO.LibraryDetail>('activeLibraryDetail')!
-const record = inject<VO.RecordDetail>('record')!
+const { startScroll } = useDragScroll()
+
 
 const isMaxmize = ref<boolean>()
 window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
@@ -109,26 +114,26 @@ const windowMaxmize = () => window.electronAPI.windowMaxmize()
 const windowClose = () => window.electronAPI.windowClose()
 
 const searchTitle = function () {
-    window.electronAPI.queryLibraryDetail(activeLibrary.value).then(libDetail => {
+    window.dataAPI.queryLibraryDetail(activeLibrary.value).then(libDetail => {
         if (!libDetail) return
-        const t = record.title + (libDetail.useAuxiliarySt ? `  ${libDetail.auxiliarySt}` : '')
+        const t = record.title + (libDetail.use_auxiliary_st ? `  ${libDetail.auxiliary_st}` : '')
         internetSearch(t)
     })
 }
 
 // 展示相似的record的抽屉
-const similarDrawerVisible = ref(false)
+const showSimilarDrawer = ref(false)
 const similarRecords = ref<VO.RecordRecommendation[]>([])
 const similarLoading = ref(false)
 const openSimilarDrawer = (function () {
     let queryed = false
     return () => {
-        similarDrawerVisible.value = true
+        showSimilarDrawer.value = true
 
         if (queryed) return
 
         similarLoading.value = true
-        window.electronAPI.querySimilarRecordRecmds(activeLibrary.value, record.id, 8).then(recmds => {
+        window.dataAPI.querySimilarRecordRecmds(activeLibrary.value, record.id, 8).then(recmds => {
             similarRecords.value = recmds
             queryed = true
             similarLoading.value = false
@@ -138,14 +143,14 @@ const openSimilarDrawer = (function () {
 
 
 const queryRecordDetail = function () {
-    window.electronAPI.queryRecordDetail(activeLibrary.value, record.id).then(recordDetail => {
+    window.dataAPI.queryRecordDetail(activeLibrary.value, record.id).then(recordDetail => {
         Object.assign(record, recordDetail)
         // 每一次查询recordDetail 更新document.title
         document.title = record.title
     })
 }
 const queryLibraryDetail = function () {
-    window.electronAPI.queryLibraryDetail(activeLibrary.value).then(libraryDetail => {
+    window.dataAPI.queryLibraryDetail(activeLibrary.value).then(libraryDetail => {
         Object.assign(activeLibraryDetail, libraryDetail)
     })
 }
@@ -168,7 +173,7 @@ const openCtm = (e: MouseEvent, idxRecord: number) => {
 const recycleRecord = (...ids: number[]) => {
     if (ids.length === 0) return
     MessageBox.confirm($t('layout.putInRecycleBin'), $t('tips.surePutInRecycleBin')).then(async () => {
-        window.electronAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids).then(() => {
+        window.dataAPI.batchProcessingRecord(activeLibrary.value, 'recycle', ids).then(() => {
             similarRecords.value = similarRecords.value.filter(recmd => !ids.includes(recmd.id))
         })
     })
@@ -181,13 +186,11 @@ watch(route, () => {
     }
 })
 
-const bc = new BroadcastChannel('updateLibraryDetail')
 
 onMounted(() => {
-    listenCrosTabMsg(bc, (e: MessageEvent) => {
-        if (e.data === activeLibrary.value.toString()) {
-            queryLibraryDetail()
-        }
+    recordTabBroadcast.onMessage((e: MessageEvent<CrosTabBroadcastMsg<VO.LibraryDetail>>) => {
+        if (e.data.type !== CrosTabBroadcastKey.MSG_TYPE.reloadLibraryDetail) return
+        Object.assign(activeLibraryDetail, e.data.payload)
     })
 
     window.electronAPI.getRecordWindowParams((e: any, libraryId: number, recordId: number) => {

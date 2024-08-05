@@ -4,27 +4,26 @@ import GroupDB from "../db/GroupDB"
 
 @injectable()
 class LibraryExtraDao {
-    private db: GroupDB
+    public constructor(
+        @inject(InjectType.GroupDB) private db: GroupDB
+    ) { }
 
-    public constructor(@inject(InjectType.GroupDB) db: GroupDB) {
-        this.db = db
+    public getLibraryExtraById(id: Entity.PK): DAO.LibraryExtra_R | undefined {
+        const sql = "SELECT id, use_auxiliary_st, auxiliary_st, intro FROM library_extra WHERE id=?;"
+        return this.db.get(sql, id)
     }
 
-    public queryLibraryExtraById(id: number): Domain.LibraryExtra | undefined {
-        return this.db.get('SELECT id, auxiliary_st AS auxiliarySt, use_auxiliary_st AS useAuxiliarySt, intro FROM library_extra WHERE id=?;', id)
+    public update(data: DAO.LibraryExtra_W): number {
+        const sql = "UPDATE library_extra SET auxiliary_st=?, use_auxiliary_st=?, intro=? WHERE id=?;"
+        return this.db.run(sql, data.auxiliary_st, data.use_auxiliary_st, data.intro, data.id).changes
     }
 
-    public updateLibraryExtra(data: Entity.LibraryExtra): number {
-        return this.db.run(`UPDATE library_extra SET auxiliary_st=?, use_auxiliary_st=?, intro=? WHERE id=?;`,
-            data.auxiliarySt, data.useAuxiliarySt, data.intro, data.id).changes
+    public insert(data: DAO.LibraryExtra_W): Entity.PK {
+        const sql = "INSERT INTO library_extra(id, auxiliary_st, use_auxiliary_st, intro) VALUES(?, ?, ?, ?);"
+        return this.db.run(sql, data.id, data.auxiliary_st, data.use_auxiliary_st, data.intro).changes
     }
 
-    public insertLibraryExtra(data: Entity.LibraryExtra): number {
-        return this.db.run('INSERT INTO library_extra(id, auxiliary_st, use_auxiliary_st, intro) VALUES(?, ?, ?, ?);',
-            data.id, data.auxiliarySt, data.useAuxiliarySt, data.intro).changes
-    }
-
-    public deleteLibraryExtraById(id: number): number {
+    public deleteById(id: Entity.PK): number {
         return this.db.run('DELETE FROM library_extra WHERE id=?;', id).changes
     }
 }

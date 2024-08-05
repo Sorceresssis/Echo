@@ -55,12 +55,13 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, toRaw, reactive, inject, onMounted, watch, readonly } from 'vue'
+import { ref, Ref, toRaw, reactive, inject, onMounted, watch, readonly, onActivated } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
+import { VueInjectKey } from '@/constant/channel_key'
 import { type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import LocalImage from '@/components/LocalImage.vue'
@@ -73,18 +74,12 @@ const route = useRoute()
 const submitBtnText = ref<string>($t('layout.create'))
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
-const winowLoading = inject<Ref<boolean>>('winowLoading')
-const openLoading = function () {
-    if (winowLoading) winowLoading.value = true
-}
-const closeLoading = function () {
-    if (winowLoading) winowLoading.value = false
-}
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
-const managePathPattern = inject<RegExp>('managePathPattern')!
+const winowLoading = inject<Ref<boolean>>(VueInjectKey.WINDOW_LOADING)!
+const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
+const managePagePathPattern = inject<RegExp>(VueInjectKey.MANAGE_PAGE_PATH_PATTERN)!
 
 const authorFormRef = ref()
-const formData = reactive<DTO.EditAuthorForm>({
+const formData = reactive<RP.EditAuthorFormData>({
     id: 0,
     name: '',
     newAvatar: '',
@@ -113,7 +108,7 @@ const sampleImageRemover = (path: string) => {
 }
 
 const saveOriginData = async (id: number | bigint) => {
-    const author = await window.electronAPI.queryAuthorDetail(activeLibrary.value, id)
+    const author = await window.dataAPI.queryAuthorDetail(activeLibrary.value, id)
     if (!author) {
         Message.error($t('msg.authorNotExist'))
         return
@@ -121,8 +116,8 @@ const saveOriginData = async (id: number | bigint) => {
     formData.id = author.id
     formData.name = author.name
     formData.intro = author.intro
-    author.sampleImages.forEach(item => originSampleImages.add(item))
-    displaySampleImages.push(...author.sampleImages)
+    author.sample_images.forEach(item => originSampleImages.add(item))
+    displaySampleImages.push(...author.sample_images)
     if (author.avatar) displayAvatar.value = originAvatar = author.avatar
 }
 const selectAvatar = async () => {
@@ -163,7 +158,7 @@ const submitForm = (formEl: FormInstance | undefined) => {
             }
             // sampleImages
             const originSampleImagesArray = Array.from(originSampleImages)
-            const editSampleImages: DTO.EditSampleImage[] = []
+            const editSampleImages: RP.EditSampleImage[] = []
             displaySampleImages.forEach((path, index) => {
                 if (!originSampleImages.has(path)) {
                     // 不存在就在此位置添加一个图片
@@ -177,8 +172,8 @@ const submitForm = (formEl: FormInstance | undefined) => {
             formData.editSampleImages = editSampleImages
             formData.removeSampleImages = Array.from(removeSampleImages)
 
-            openLoading()
-            window.electronAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
+            winowLoading.value = true
+            window.dataAPI.editAuthor(activeLibrary.value, toRaw(formData)).then(result => {
                 if (formData.id) {
                     Message.success($t('msg.editSuccess'))
                     // resetFormData 会清空formData.id, 所以要先保存
@@ -192,7 +187,9 @@ const submitForm = (formEl: FormInstance | undefined) => {
                 }
             }).catch(() => {
                 Message.error($t('msg.duplicateAuthorName'))
-            }).finally(closeLoading)
+            }).finally(() => {
+                winowLoading.value = false
+            })
         }
 
         formData.id ? MessageBox.editConfirm().then(cb) : MessageBox.addConfirm().then(cb)
@@ -213,7 +210,7 @@ const resetFormData = function () {
 }
 
 const init = () => {
-    if (!managePathPattern.test(route.fullPath)) return
+    if (!managePagePathPattern.test(route.fullPath)) return
 
     const id = route.query.author_id as string | undefined
 
@@ -226,8 +223,18 @@ const init = () => {
         submitBtnText.value = $t('layout.create')
     }
 }
-watch(route, init)
+
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
 onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>
 
 <style scoped>

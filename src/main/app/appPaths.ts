@@ -2,7 +2,7 @@ import { app } from "electron"
 import n_path from 'path'
 import n_fs from 'fs'
 import appConfig from './config'
-import generateUid from "../util/uid"
+import generateUid from "../utils/uid"
 
 // 用户数据目录
 // userDataPath
@@ -43,16 +43,16 @@ class AppPaths {
         return n_path.join(this.userDataPath, 'group.db')
     }
 
-    public getLibraryDirPath(libId: PrimaryKey): string {
+    public getLibraryDirPath(libId: Entity.PK): string {
         return n_path.join(this.userDataPath, 'library', `${libId}`)
     }
 
-    public getLibraryDBFilePath(libId: PrimaryKey): string {
+    public getLibraryDBFilePath(libId: Entity.PK): string {
         return n_path.join(this.userDataPath, 'library', `${libId}`, 'library.db')
     }
 
     // 生成image构造器
-    public genLibraryImagesDirPathConstructor(libId: PrimaryKey) {
+    public genLibraryImagesDirPathConstructor(libId: Entity.PK) {
         const libraryDirPath = this.getLibraryDirPath(libId)
 
 

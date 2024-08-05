@@ -6,13 +6,11 @@ import type RecordSeriesDao from "../dao/RecordSeriesDao"
 
 @injectable()
 class SeriesService {
-
     public constructor(
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
         @inject(InjectType.SeriesDao) private seriesDao: SeriesDao,
         @inject(InjectType.RecordSeriesDao) private recordSeriesDao: RecordSeriesDao,
-    ) {
-    }
+    ) { }
 
     public removeRecordFromSeries(recordId: number, seriesId: number): void {
         this.recordSeriesDao.deleteRecordSeriesByRecordIdSeriesIds(recordId, [seriesId])
@@ -25,7 +23,7 @@ class SeriesService {
         const existId = this.seriesDao.querySeriesIdByName(name)
 
         this.libEnv.db.transactionExec(() => {
-            if (existId !== undefined && existId !== id) {
+            if (existId && existId !== id) {
                 // 如果已经存在，就把原来的记录移到新的标签下
                 this.recordSeriesDao.updateSeriesIdBySeriesId(existId, id)
                 this.seriesDao.deleteSeries(existId)

@@ -1,20 +1,17 @@
-import path from "path"
-import appConfig from "../app/config"
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import { type LibraryEnv } from "../provider/container"
-import DynamicSqlBuilder from "../util/DynamicSqlBuilder"
+import DynamicSqlBuilder from "../utils/DynamicSqlBuilder"
 
 @injectable()
 class AutocompleteService {
     public constructor(
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
-    ) {
-    }
+    ) { }
 
-    public query(type: AcType, queryWord: string, ps: number): VO.AcSuggestion[] {
+    public query(type: AcType, queryWord: string, ps: number): VO.AutoCompleteSuggestion[] {
         const table = [
-            "SELECT 'record' AS type, id, title AS value, REGEXP(title) + REGEXP(search_text) AS sore FROM record WHERE sore > 0",
+            "SELECT 'record' AS type, id, title AS value, REGEXP(title) + REGEXP(translated_title) + REGEXP(search_text) AS sore FROM record WHERE sore > 0",
             "SELECT 'author' AS type, id, name AS value, REGEXP(name) AS sore FROM author WHERE sore > 0",
             "SELECT 'tag' AS type, id, title AS value, REGEXP(title) AS sore FROM tag WHERE sore > 0",
             "SELECT 'series' AS type, id, name AS value, REGEXP(name) AS sore FROM  series WHERE sore > 0",
@@ -41,11 +38,17 @@ class AutocompleteService {
         })
         sqlBuilder.append(') ORDER BY sore DESC LIMIT 0, ?;', ps)
 
-        const rows: VO.AcSuggestion[] = this.libEnv.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
+        const rows: VO.AutoCompleteSuggestion[] = this.libEnv.db.all(sqlBuilder.getSql(), ...sqlBuilder.getParams())
 
         rows.forEach(row => {
-            if (row.type === 'record') row.image = this.libEnv.genRecordImagesDirPathConstructor(row.id).findMainImageFilePath()
-            if (row.type === 'author') row.image = this.libEnv.genAuthorImagesDirPathConstructor(row.id).findAvatarImageFilePath()
+            if (row.type === 'record') {
+                row.image = this.libEnv.genRecordImagesDirPathConstructor(row.id).findMainImageFilePath()
+                return
+            }
+            if (row.type === 'author') {
+                row.image = this.libEnv.genAuthorImagesDirPathConstructor(row.id).findAvatarImageFilePath()
+                return
+            }
         })
         return rows
     }

@@ -1,9 +1,9 @@
-import { clipboard, ipcMain, IpcMainInvokeEvent, shell, dialog } from "electron"
+import { clipboard, ipcMain, IpcMainInvokeEvent, shell } from "electron"
 import { exec } from "child_process"
 import nodePath from "path"
 import fs from "fs"
-import fm from "../util/FileManager"
-import Result from "../util/Result"
+import fm from "../utils/FileManager"
+import ResponseResult from "../pojo/ResponseResult"
 import i18n from "../locale"
 
 export default function ipcMainSystem() {
@@ -22,7 +22,7 @@ export default function ipcMainSystem() {
         e: IpcMainInvokeEvent,
         path: string,
         method?: 'showItemInFolder' | 'openPath'
-    ): Promise<Result> => {
+    ): Promise<ResponseResult<void>> => {
         const r = await new Promise<boolean>((resolve) => {
             path = nodePath.normalize(path)
 
@@ -46,11 +46,11 @@ export default function ipcMainSystem() {
                 resolve(true)
             })
         })
-        return r ? Result.success() : Result.error()
+        return r ? ResponseResult.success() : ResponseResult.error()
     })
 
     // 打开路径中的文件(一定是个文件)，如果该文件用户指定了打开软件，用指定的软件打开，否则用系统默认方式打开
-    ipcMain.handle('system:openFile', async (e: IpcMainInvokeEvent, path: string): Promise<Result> => {
+    ipcMain.handle('system:openFile', async (e: IpcMainInvokeEvent, path: string): Promise<ResponseResult<void>> => {
         path = nodePath.normalize(path)
 
         const r = await new Promise<boolean>((resolve) => {
@@ -67,20 +67,20 @@ export default function ipcMainSystem() {
                 resolve(false)
             })
         })
-        return r ? Result.success() : Result.error()
+        return r ? ResponseResult.success() : ResponseResult.error()
     })
 
     ipcMain.handle('system:writeClipboard', (e: IpcMainInvokeEvent, text: string) => {
         clipboard.writeText(text)
     })
 
-    ipcMain.handle('system:readdir', (e: IpcMainInvokeEvent, dirPath: string): Result => {
+    ipcMain.handle('system:readdir', (e: IpcMainInvokeEvent, dirPath: string): ResponseResult<any> => {
         try {
-            if (!fs.existsSync(dirPath)) return Result.error(i18n.global.t('folderNotExists'))
+            if (!fs.existsSync(dirPath)) return ResponseResult.error(i18n.global.t('folderNotExists'))
 
             if (fs.statSync(dirPath).isDirectory()) {
                 // 是文件夹就返回文件夹下所有的文件和文件夹的信息数组 
-                return Result.success(
+                return ResponseResult.success(
                     fm.dirContentsWithType(dirPath).map(item => {
                         return {
                             ...item,
@@ -90,14 +90,14 @@ export default function ipcMainSystem() {
                 )
             } else {
                 // 不是文件夹就返回只包含该文件的信息的数组
-                return Result.success([{
+                return ResponseResult.success([{
                     name: nodePath.basename(dirPath),
                     type: 'file',
                     fullPath: dirPath
                 }])
             }
         } catch (e: any) {
-            return Result.error(e.message)
+            return ResponseResult.error(e.message)
         }
     })
 

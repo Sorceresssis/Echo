@@ -1,37 +1,39 @@
 import { defineStore } from 'pinia'
 import StoreId from './storeId'
-import { getLocalStorage, setLocalStorage } from '@/util/LocalStorage'
-import { isSameType } from '@/util/common'
 
 type AuthorsDashState = {
-    sortField: DTO.QueryAuthorRecommendationsOptions['sortField'],
-    order: 'ASC' | 'DESC'
+    sortField: RP.QueryAuthorRecommendationsOptions['sortField']
+    order: 'ASC' | 'DESC',
+    roleFilterMode: RP.QueryAuthorRecommendationsOptions['roleFilterMode']
+    role: number
 }
 
 const useAuthorsDashStore = defineStore(StoreId.AUTHORS_DASH, {
     state: (): AuthorsDashState => {
         const defaultState: AuthorsDashState = {
             sortField: 'name',
-            order: 'ASC'
+            order: 'ASC',
+            roleFilterMode: 'None',
+            role: 0,
         }
-
-        const saved = getLocalStorage(StoreId.AUTHORS_DASH)
-        if (saved && isSameType(saved, defaultState)) {
-            return saved
-        } else {
-            setLocalStorage(StoreId.AUTHORS_DASH, defaultState)
-            return defaultState
-        }
+        return defaultState
     },
     actions: {
         handleSortField(field: AuthorsDashState['sortField']) {
             this.sortField = field
-            setLocalStorage(StoreId.AUTHORS_DASH, this.$state)
         },
         handleOrder(order: 'ASC' | 'DESC') {
             this.order = order
-            setLocalStorage(StoreId.AUTHORS_DASH, this.$state)
         },
+        setRole(mode: RP.QueryAuthorRecommendationsOptions['roleFilterMode'], role?: number) {
+            if (mode === 'None' || mode === 'DEFAULT') {
+                this.roleFilterMode = mode
+                this.role = 0
+            } else if (mode === 'ROLE_ID' && role) {
+                this.roleFilterMode = mode
+                this.role = role
+            }
+        }
     }
 })
 

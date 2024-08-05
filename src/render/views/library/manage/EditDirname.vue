@@ -49,27 +49,26 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, reactive, inject, watch } from 'vue'
+import { ref, Ref, reactive, inject, watch, readonly, onMounted, onActivated } from 'vue'
 import { useRoute } from 'vue-router'
 import { $t } from '@/locale'
+import { VueInjectKey } from '@/constant/channel_key'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import MessageBox from '@/util/MessageBox'
 import Message from '@/util/Message'
-import { type FormInstance, type FormRules } from 'element-plus'
+import { ElForm, ElFormItem, ElButton, type FormInstance, type FormRules } from 'element-plus'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 
 const route = useRoute()
 const btnLoading = ref(false)
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
+const activeLibrary = readonly(inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!)
 
 const formRef = ref()
 const formData = reactive({
-    // 要更改的值
-    targetPrefix: '',
-    // 要替换成的值 
-    replacePrefix: '',
+    targetPrefix: '', // 要更改的值 
+    replacePrefix: '', // 要替换成的值 
 })
 
 const rules = reactive<FormRules>({
@@ -96,7 +95,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
 
             btnLoading.value = true
-            const result = await window.electronAPI.startsWithReplaceDirname(
+            const result = await window.dataAPI.startsWithReplaceDirname(
                 activeLibrary.value,
                 formData.targetPrefix,
                 formData.replacePrefix
@@ -110,7 +109,17 @@ const init = () => {
     formData.targetPrefix = ''
     formData.replacePrefix = ''
 }
-watch(route, init)
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
+onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>
 
 <style scoped>

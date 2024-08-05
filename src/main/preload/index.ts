@@ -1,44 +1,32 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 
-contextBridge.exposeInMainWorld('electronAPI', {
-    /******************** app ********************/
-    config: (
-        type: 'set' | 'get' | 'all' | 'reset',
-        key?: keyof Config,
-        value?: string
-    ) => ipcRenderer.invoke('app:config', type, key, value),
+contextBridge.exposeInMainWorld('dataAPI', {
+    getPrimaryOpenLibrary: (
+        callback: (e: IpcRendererEvent, libraryId: number) => void
+    ) => ipcRenderer.on('library:primaryOpenLibrary', callback),
 
-    relaunch: () => ipcRenderer.invoke('app:relaunch'),
-
-    // ANCHOR group
-
-    getGroups: () => ipcRenderer.invoke('group:getGroups'),
+    // ANCHOR Group
+    getGroups: (
+    ) => ipcRenderer.invoke('group:getGroups'),
 
     renameGroup: (
-        id: number,
-        name: string
+        id: number, name: string
     ) => ipcRenderer.invoke('group:rename', id, name),
 
-    addGroup: (
+    createGroup: (
         name: string
-    ) => ipcRenderer.invoke('group:add', name),
+    ) => ipcRenderer.invoke('group:create', name),
 
     deleteGroup: (
         id: number
     ) => ipcRenderer.invoke('group:delete', id),
 
-    sortGroup: (
+    changeGroupOrder: (
         currId: number,
         tarNextId: number
-    ) => ipcRenderer.invoke('group:sort', currId, tarNextId),
+    ) => ipcRenderer.invoke('group:changeOrder', currId, tarNextId),
 
-
-    // ANCHOR library
-
-    getPrimaryOpenLibrary: (
-        callback: (e: IpcRendererEvent, libraryId: number) => void
-    ) => ipcRenderer.on('library:primaryOpenLibrary', callback),
-
+    // ANCHOR Library
     queryLibraryDetail: (
         id: number,
     ) => ipcRenderer.invoke('library:queryDetail', id),
@@ -48,23 +36,23 @@ contextBridge.exposeInMainWorld('electronAPI', {
         name: string
     ) => ipcRenderer.invoke('library:rename', id, name),
 
-    addLibrary: (
+    createLibrary: (
         groupId: number,
         name: string
-    ) => ipcRenderer.invoke('library:add', groupId, name),
+    ) => ipcRenderer.invoke('library:create', groupId, name),
 
     deleteLibrary: (
         id: number
     ) => ipcRenderer.invoke('library:delete', id),
 
-    sortLibrary: (
+    changeLibraryOrder: (
         currId: number,
         tarNextId: number,
         moveToGroupId: number
-    ) => ipcRenderer.invoke('library:sort', currId, tarNextId, moveToGroupId),
+    ) => ipcRenderer.invoke('library:changeOrder', currId, tarNextId, moveToGroupId),
 
     editLibraryExtra: (
-        data: DTO.LibraryExtraForm
+        data: RP.LibraryExtraFormData
     ) => ipcRenderer.invoke('library:editExtra', data),
 
     exportLibrary: (
@@ -77,23 +65,16 @@ contextBridge.exposeInMainWorld('electronAPI', {
         importFiles: string[]
     ) => ipcRenderer.invoke('library:import', groupId, importFiles),
 
-
-    // ANCHOR record
-
+    // ANCHOR Record
     autoCompleteRecord: (
         libraryId: number,
-        options: DTO.AcOptions
+        options: RP.AutoCompleteOptions
     ) => ipcRenderer.invoke('record:autoComplete', libraryId, options),
 
     queryRecordRecmds: (
         libraryId: number,
-        options: DTO.QueryRecordRecommendationsOptions
+        options: RP.QueryRecordRecommendationsOptions
     ) => ipcRenderer.invoke('record:queryRecmds', libraryId, options),
-
-    deleteRecordByAttribute: (
-        libraryId: number,
-        formData: DTO.DeleteRecordByAttributeForm
-    ) => ipcRenderer.invoke('record:deleteByAttribute', libraryId, formData),
 
     queryRecordDetail: (
         libraryId: number,
@@ -108,7 +89,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     editRecord: (
         libraryId: number,
-        formData: DTO.EditRecordForm,
+        formData: RP.EditRecordFormData,
     ) => ipcRenderer.invoke('record:edit', libraryId, formData),
 
     addRecordFromMetadata: (
@@ -118,10 +99,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     batchProcessingRecord: (
         libraryId: number,
-        type: DTO.RecordBatchProcessingType,
+        type: RP.RecordBatchProcessingType,
         recordIds?: number[]
     ) => ipcRenderer.invoke('record:batchProcessing', libraryId, type, recordIds),
 
+    deleteRecordByAttribute: (
+        libraryId: number,
+        formData: RP.DeleteRecordByAttributeFormData
+    ) => ipcRenderer.invoke('record:deleteByAttribute', libraryId, formData),
 
     /******************** author ********************/
     queryAuthorDetail: (
@@ -131,12 +116,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     queryAuthorRecmds: (
         libraryId: number,
-        options: DTO.QueryAuthorRecommendationsOptions
+        options: RP.QueryAuthorRecommendationsOptions
     ) => ipcRenderer.invoke('author:queryRecmds', libraryId, options),
 
     editAuthor: (
         libraryId: number,
-        formData: DTO.EditAuthorForm
+        formData: RP.EditAuthorFormData
     ) => ipcRenderer.invoke('author:edit', libraryId, formData),
 
     deleteAuthor: (
@@ -148,7 +133,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     queryTagDetails: (
         libraryId: number,
-        options: DTO.QueryTagDetailsOptions
+        options: RP.QueryTagDetailsOptions
     ) => ipcRenderer.invoke('tag:queryDetails', libraryId, options),
 
     deleteTag: (
@@ -166,7 +151,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 
     queryDirnameDetails: (
         libraryId: number,
-        options: DTO.QueryDirnameDetailsOptions
+        options: RP.QueryDirnameDetailsOptions
     ) => ipcRenderer.invoke('dirname:queryDetails', libraryId, options),
 
     deleteDirname: (
@@ -205,8 +190,39 @@ contextBridge.exposeInMainWorld('electronAPI', {
         seriesId: number
     ) => ipcRenderer.invoke('series:removeRecord', libraryId, recordId, seriesId),
 
-    // ANCHOR dialog
+    // ANCHOR Role
+    getRoles: (
+        libraryId: number,
+    ) => ipcRenderer.invoke('role:get', libraryId),
 
+    createRole: (
+        libraryId: number,
+        roleName: string
+    ) => ipcRenderer.invoke('role:create', libraryId, roleName),
+
+    editRole: (
+        libraryId: number,
+        role: VO.Role,
+    ) => ipcRenderer.invoke('role:edit', libraryId, role),
+
+    deleteRole: (
+        libraryId: number,
+        roleId: number,
+    ) => ipcRenderer.invoke('role:delete', libraryId, roleId),
+})
+
+
+contextBridge.exposeInMainWorld('electronAPI', {
+    /******************** app ********************/
+    config: (
+        type: 'set' | 'get' | 'all' | 'reset',
+        key?: keyof Config,
+        value?: string
+    ) => ipcRenderer.invoke('app:config', type, key, value),
+
+    relaunch: () => ipcRenderer.invoke('app:relaunch'),
+
+    // ANCHOR Dialog
     openDialog: (
         type: OpenDialogType,
         multiSelect: boolean,

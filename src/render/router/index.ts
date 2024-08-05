@@ -4,29 +4,38 @@ import { createRouter, createWebHashHistory, createWebHistory, RouteRecordRaw } 
 const routes: Array<RouteRecordRaw> = [
     {
         path: '/',
-        component: () => import('../views/Welcome.vue'),
+        component: () => import('@/views/Welcome.vue'),
     },
     {
         path: '/library/:libraryId',
-        component: () => import('../views/library/Library.vue'),
+        component: () => import('@/views/library/Library.vue'),
         children: [
             {
                 path: '',
-                component: () => import('../views/library/dashboard/Dashboard.vue'),
+                component: () => import('@/views/library/dashboard/Dashboard.vue'),
+                meta: {
+                    keepAlive: true
+                }
             },
             {
                 path: 'author/:authorId',
-                component: () => import('../views/library/author/Author.vue'),
+                component: () => import('@/views/library/author/Author.vue'),
+                meta: {
+                    keepAlive: true
+                }
             },
             {
                 path: 'manage',
-                component: () => import('../views/library/manage/Mange.vue'),
+                component: () => import('@/views/library/manage/Mange.vue'),
+                meta: {
+                    keepAlive: false
+                }
             },
         ]
     },
     {
         path: '/settings',
-        component: () => import('../views/settings/Settings.vue')
+        component: () => import('@/views/settings/Settings.vue')
     }
 ]
 

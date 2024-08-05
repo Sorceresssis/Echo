@@ -23,6 +23,7 @@ body,
     height: 100%;
     display: flex;
     background-color: #f6f6f8;
+    user-select: none;
 }
 
 *::selection {
@@ -322,7 +323,7 @@ img {
     object-fit: cover;
 }
 
-.select-none {
+.noneselect- {
     user-select: none;
 }
 
@@ -400,6 +401,7 @@ img {
     user-select: text;
     -webkit-box-orient: vertical;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     /* 允许单词内的换行 */
     /* overflow-wrap: break-word; */
     text-overflow: ellipsis;
@@ -466,9 +468,6 @@ img {
     font-size: 13px;
     overflow: hidden;
     box-sizing: border-box;
-}
-
-.dashboard-text-card:hover {
     background-color: #fff;
     box-shadow:
         0px 0px 0.3px rgba(0, 0, 0, 0.033),
@@ -489,6 +488,7 @@ img {
 
 .dashboard-text-card .operate {
     display: none;
+    cursor: pointer;
 }
 
 .dashboard-text-card:hover .operate {

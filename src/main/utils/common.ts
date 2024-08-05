@@ -1,17 +1,54 @@
-export function exceptionalHandler<T extends (...args: any[]) => any>
-    (tryFn: T, catchFn: (e: any) => void, catchReturn: ReturnType<T>, finallyFn?: () => void) {
-    return function (...args: any[]) {
+import n_assert from 'assert'
+
+
+/**
+* 当 throwException 为 false 时，异常触发才会返回 defaultReturn
+*/
+export function exceptionHandleWrap<
+    T extends (...args: any[]) => any
+>(
+    action: T,
+    errorHandle?: (e: any) => void,
+    throwException = true, // The exception will propagate as usual
+    finallyHandle?: () => void,
+    defaultReturn?: ReturnType<T>
+) {
+    return (...args: Parameters<T>): ReturnType<T> | undefined => {
         try {
-            return tryFn(...args)
-        } catch (e: any) {
-            catchFn(e)
-            return catchReturn
+            return action(...args)
+        } catch (e) {
+            errorHandle && errorHandle(e)
+            if (throwException) throw e
+            if (defaultReturn !== void 0) return defaultReturn
         } finally {
-            finallyFn && finallyFn()
+            finallyHandle && finallyHandle()
         }
     }
 }
 
+export function exceptionHandleWrapAsync<
+    T extends (...args: any[]) => Promise<K>,
+    K
+>(
+    action: T,
+    errorHandle?: (e: any) => void,
+    throwException = true,
+    finallyHandle?: () => void,
+    defaultReturn?: K
+) {
+    return async (...args: Parameters<T>): Promise<K | undefined> => {
+        try {
+            return await action(...args);
+        } catch (e) {
+            errorHandle && errorHandle(e)
+            if (throwException) throw e
+            if (defaultReturn !== void 0) return defaultReturn
+            return;
+        } finally {
+            finallyHandle && finallyHandle()
+        }
+    };
+}
 
 export function formatCurrentTime() {
     const now = new Date()
@@ -41,6 +78,9 @@ type ArrayDiffResult<K, V> = {
     removed: V[];
 };
 
+/**
+ * a 到 b 的变化
+ */
 export function diffArray<
     T extends unknown,
     U extends unknown,
@@ -149,10 +189,49 @@ export function diffArray<
 }
 
 
+/**
+ * 类型和值都要相同
+ * 只支持 Array 和普通对象，其他的Map、 Set、WeakMap、WeakSet、Date、RegExp、Error等不支持
+ */
+export function deepEqual(a: any, b: any): boolean {
+    try {
+        n_assert.deepStrictEqual(a, b)
+        return true
+    } catch (e) {
+        if (e instanceof n_assert.AssertionError) {
+            return false
+        }
+        throw e
+    }
+}
 
-export default {
-    exceptionalHandler,
-    formatCurrentTime,
-    isNotEmptyString,
-    diffArray,
+/**
+ * 类型相同
+*/
+export function typeEqual(a: any, b: any): boolean {
+    if (typeof a !== typeof b) return false;
+
+    if (typeof a === 'object' && a !== null && b !== null) {
+        if (Array.isArray(a) && Array.isArray(b)) {
+            if (a.length !== b.length) return false;
+            for (let i = 0; i < a.length; i++) {
+                if (!typeEqual(a[i], b[i])) return false;
+            }
+            return true;
+        }
+
+        if (!Array.isArray(a) && !Array.isArray(b)) {
+            const aKeys = Object.keys(a);
+            const bKeys = Object.keys(b);
+            if (aKeys.length !== bKeys.length) return false;
+
+            for (let key of aKeys) {
+                if (!bKeys.includes(key)) return false;
+                if (!typeEqual(a[key], b[key])) return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    return true;
 }

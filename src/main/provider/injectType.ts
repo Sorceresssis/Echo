@@ -9,17 +9,22 @@ const InjectType = {
     LibraryService: Symbol('LibraryService'),
 
     LibraryEnv: Symbol('LibraryEnv'),
+
     AuthorDao: Symbol('AuthorDao'),
     DirnameDao: Symbol('DirnameDao'),
-    RecordDao: Symbol('RecordDao'),
     RecordAuthorDao: Symbol('RecordAuthorDao'),
+    RecordAuthorRoleDao: Symbol('RecordAuthorRoleDao'),
+    RecordDao: Symbol('RecordDao'),
     RecordExtraDao: Symbol('RecordExtraDao'),
     RecordSeriesDao: Symbol('RecordSeriesDao'),
     RecordTagDao: Symbol('RecordTagDao'),
+    RoleDao: Symbol('RoleDao'),
     SeriesDao: Symbol('SeriesDao'),
     TagDao: Symbol('TagDao'),
+
     AutocompleteService: Symbol('AutocompleteService'),
     AuthorService: Symbol('AuthorService'),
+    RoleService: Symbol('RoleService'),
     DirnameService: Symbol('DirnameService'),
     RecordService: Symbol('RecordService'),
     SeriesService: Symbol('SeriesService'),

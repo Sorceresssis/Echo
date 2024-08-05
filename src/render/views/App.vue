@@ -29,22 +29,25 @@
 import { provide, reactive, ref } from 'vue'
 import { getElLang } from '@/locale';
 import InitialValue from '@/constant/Initial_value';
+import { VueInjectKey } from '@/constant/channel_key';
 import Sidebar from './Sidebar.vue'
 import Titlebar from './Titlebar.vue'
 
 const winowLoading = ref<boolean>(false)
-provide('winowLoading', winowLoading)
+const titleBarTitle = ref<string>('')
+// 正在使用的库, 只能在Titlebar.vue中修改, 其他地方只能读取
+const openingLibrary = ref<number>(0)
+const activeLibrary = ref<number>(0)
+const activeLibraryDetail = reactive<VO.LibraryDetail>(InitialValue.getLibraryDetail())
 
-// 侧边是否展开
+provide(VueInjectKey.WINDOW_LOADING, winowLoading)
+provide(VueInjectKey.TITLEBAR_TITLE, titleBarTitle)
+provide(VueInjectKey.OPENING_LIBRARY, openingLibrary)
+provide(VueInjectKey.ACTIVE_LIBRARY, activeLibrary)
+provide(VueInjectKey.ACTIVE_LIBRARY_DETAIL, activeLibraryDetail)
+
 const isOpenSideBar = ref<boolean>(true)
 
-// 正在使用的库, 只能在Titlebar.vue中修改, 其他地方只能读取
-const activeLibrary = ref<number>(0)
-provide('activeLibrary', activeLibrary)
-
-// 正在使用的库详情
-const activeLibraryDetail = reactive<VO.LibraryDetail>(InitialValue.getLibraryDetail())
-provide('activeLibraryDetail', activeLibraryDetail)
 </script>
 
 <style scoped>

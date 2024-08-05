@@ -14,7 +14,8 @@ export default class DynamicSqlBuilder {
     }
 
     public getSql(): string {
-        return this.sqlBuffer.join(' ')
+        const sql = this.sqlBuffer.join(' ')
+        return sql.endsWith(';') ? sql : sql.concat(';')
     }
 
     public getParams(): any[] {
@@ -51,8 +52,14 @@ export default class DynamicSqlBuilder {
             : this
     }
 
-    public appendLimitSQL(offset: number, rowCount: number) {
-        return this.append('LIMIT ?,?', offset, rowCount)
+    public appendGroupBySQL(field: string[]) {
+        if (!field.length) return this
+        return this.append('GROUP BY').append(field.join(','))
+    }
+
+    public appendLimitSQL(pn: number, ps: number) {
+        const offset = (pn - 1) * ps
+        return this.append('LIMIT ?,?', offset, ps)
     }
 
     public generateInSQL(field: string, values: any[]): string {

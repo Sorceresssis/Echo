@@ -1,9 +1,19 @@
-import { reactive, toRaw } from "vue"
+import { reactive, ref, toRaw } from "vue"
 import Message from "@/util/Message"
+import { deepEqual } from "@/util/common";
 import { $t } from "@/locale"
 
-// 简单类型
-type SimpleType = string | number | boolean | undefined | null | symbol
+export function primitiveTypesArrayEqual<T extends PrimitiveTypes>(arr1: T[], arr2: T[]): boolean {
+    if (arr1.length !== arr2.length) {
+        return false;
+    }
+    for (let i = 0; i < arr1.length; i++) {
+        if (arr1[i] !== arr2[i]) {
+            return false;
+        }
+    }
+    return true;
+}
 
 const useEditRecordService = () => {
     /**
@@ -17,7 +27,7 @@ const useEditRecordService = () => {
      * @param value 用户操作的数据
      * @returns 
      */
-    const attributeAdder = <K extends SimpleType, V extends SimpleType>(
+    const attributeAdder = <K extends PrimitiveTypes, V extends PrimitiveTypes>(
         origin: Map<V, K>, display: Array<V>, remove: Set<K>, add: Set<V>, value: V
     ): boolean => {
         if (-1 !== display.indexOf(value)) {
@@ -34,7 +44,7 @@ const useEditRecordService = () => {
     /**
      *  删除属性 其他注释同attributeAdder
      */
-    const attributeRemover = <K extends SimpleType, V extends SimpleType>(
+    const attributeRemover = <K extends PrimitiveTypes, V extends PrimitiveTypes>(
         origin: Map<V, K>, display: Array<V>, remove: Set<K>, add: Set<V>, value: V
     ): boolean => {
         const idx = display.indexOf(value)
@@ -79,63 +89,63 @@ const useEditRecordService = () => {
         attributeRemover(originSeries, displaySeries, removeSeries, addSeries, value)
     }
 
-    const originAuthors = new Map<number, DTO.AuthorIdAndRole['role']>()    // 保存{id: 1, name: 'tag1'}这样的对象
-    const addAuthors = new Map<number, DTO.AuthorIdAndRole['role']>()       // 保存int类型的id
-    const editAuthorsRole = new Map<number, DTO.AuthorIdAndRole['role']>()  // 保存int类型的id
-    const removeAuthors = new Set<number>()                                 // 保存int类型的id
-    const displayAuthors = reactive<Array<VO.RecordAuthorProfile>>([])      // 保存作者详细信息的
-    const authorAdder = (obj: VO.AcSuggestion) => {
-        // 先判断是否已经存在 
-        if (displayAuthors.findIndex((v) => v.id === obj.id) === -1) {
-            displayAuthors.push({
-                id: obj.id,
-                name: obj.value,
-                avatar: obj.image,
-                role: null
-            })
-            originAuthors.has(obj.id) ? removeAuthors.delete(obj.id) : addAuthors.set(obj.id, null)
+    const originAuthors = new Map<number, VO.RecordAuthorRelation>()    // 保存{id: 1, name: 'tag1'}这样的对象
+    const displayAuthors = reactive<VO.RecordAuthorRelation[]>([])      // 保存作者详细信息的
+    const displayAuthorsRaw: VO.RecordAuthorRelation[] = []
+    const removeAuthors = new Set<number>()            // 保存int类型的id
+    const addAuthor = (author: VO.AutoCompleteSuggestion) => {
+        if (displayAuthors.findIndex(a => a.id === author.id) === -1) {
+            const createdAuthor = {
+                id: author.id,
+                name: author.value,
+                avatar: author.image,
+                roles: []
+            }
+            displayAuthors.push(createdAuthor)
+            displayAuthorsRaw.push(createdAuthor)
+            originAuthors.has(author.id) && removeAuthors.delete(author.id)
         } else {
             Message.error($t('msg.thisAuthorAlreadyExists'))
         }
     }
-    const authorRemover = (id: number) => {
-        const idx = displayAuthors.findIndex((v) => v.id === id)
+    const removeAuthor = (id: number) => {
+        const idx = displayAuthors.findIndex(a => a.id === id)
         if (-1 === idx) return
-
         displayAuthors.splice(idx, 1)
-        originAuthors.has(id) ? removeAuthors.add(id) : addAuthors.delete(id)
-
-        editAuthorsRole.delete(id)
+        displayAuthorsRaw.splice(idx, 1)
+        originAuthors.has(id) && removeAuthors.add(id)
     }
-    const authorEditRole = (id: number, role: string | null) => {
-        if (removeAuthors.has(id)) return
-        // 可以editRole的只存在于addAuthors和originAuthors中
-        originAuthors.has(id) ? editAuthorsRole.set(id, role) : addAuthors.set(id, role)
+    const authorEditRole = (id: number, roleIds: VO.Role[]) => {
+        const idx = displayAuthors.findIndex(a => a.id === id)
+        if (-1 === idx) return
+        displayAuthors[idx].roles = roleIds
+        displayAuthorsRaw[idx].roles = roleIds
     }
 
     // ANCHOR Sample Images
     const originSampleImages = new Set<string>()
-    const displaySampleImages = reactive<Array<string>>([])
+    const displaySampleImages = ref<Array<string>>([])
     const removeSampleImages = new Set<string>()
     const sampleImageAdder = (paths: string[]) => {
         paths.forEach(path => {
-            if (displaySampleImages.indexOf(path) !== -1) return
-            displaySampleImages.push(path)
+            if (displaySampleImages.value.indexOf(path) !== -1) return
+            displaySampleImages.value.push(path)
             originSampleImages.has(path) && removeSampleImages.delete(path)
         })
     }
     const sampleImageRemover = (path: string) => {
-        const idx = displaySampleImages.indexOf(path)
+        const idx = displaySampleImages.value.indexOf(path)
         if (-1 === idx) return
-        displaySampleImages.splice(idx, 1)
+        displaySampleImages.value.splice(idx, 1)
         originSampleImages.has(path) && removeSampleImages.add(path)
     }
 
-    const formData = reactive<DTO.EditRecordForm>({
+    const formData = reactive<RP.EditRecordFormData>({
         id: 0,
         dirname: '',
         basename: '',
         title: '',
+        translated_title: '',
         hyperlink: '',
         releaseDate: '',
         cover: '',
@@ -174,6 +184,8 @@ const useEditRecordService = () => {
 
     const selectRecordResource = async (type: 'dir' | 'file') => {
         const path = (await window.electronAPI.openDialog(type, false))[0]
+        // TODO 根据 /或者 \ 分割。 C:users 只有一层怎么解决。
+        // /root
         const sepd = await separatePath(path)
         if (sepd) {
             formData.dirname = sepd[0]
@@ -192,7 +204,7 @@ const useEditRecordService = () => {
 
     const saveOriginData = async (libraryId: number, recordId: number) => {
         // 保存数据时注意有些值是null, 有些值是undefined, 所以要替换成默认值 
-        const data = await window.electronAPI.queryRecordDetail(libraryId, recordId)
+        const data = await window.dataAPI.queryRecordDetail(libraryId, recordId)
         if (!data) {
             Message.error($t('msg.recordNotExist'))
             return
@@ -200,12 +212,13 @@ const useEditRecordService = () => {
 
         formData.id = data.id
         formData.title = data.title
+        formData.translated_title = data.translated_title
         formData.rate = data.rate
         if (data.hyperlink) {
             formData.hyperlink = data.hyperlink
         }
-        if (data.releaseDate) {
-            formData.releaseDate = data.releaseDate
+        if (data.release_date) {
+            formData.releaseDate = data.release_date
         }
         formData.dirname = data.dirname || ''
         formData.basename = data.basename || ''
@@ -223,29 +236,48 @@ const useEditRecordService = () => {
             displaySeries.push(item.name)
         })
         data.authors.forEach(item => {
-            originAuthors.set(item.id, item.role)
+            // 很特殊，深拷贝
+            originAuthors.set(item.id, JSON.parse(JSON.stringify(item)))
             displayAuthors.push(item)
+            displayAuthorsRaw.push(item)
         })
 
         if (data.cover) {
             formData.cover = formData.originCover = data.cover
         }
-        data.sampleImages.forEach(item => originSampleImages.add(item))
-        displaySampleImages.push(...data.sampleImages)
+        data.sample_images.forEach(item => originSampleImages.add(item))
+        displaySampleImages.value.push(...data.sample_images)
     }
 
     const submit = (libraryId: number) => {
-        // tag 
         formData.addTags = Array.from(addTags)
         formData.removeTags = Array.from(removeTags)
-        formData.addAuthors = Array.from(addAuthors.entries()).map(([id, role]) => ({ id, role }))
-        formData.editAuthorsRole = Array.from(editAuthorsRole.entries()).map(([id, role]) => ({ id, role }))
-        formData.removeAuthors = Array.from(removeAuthors)
+
         formData.addSeries = Array.from(addSeries)
         formData.removeSeries = Array.from(removeSeries)
+
+        const addAuthors: RP.RecordAuthorRelation[] = []
+        const editAuthorsRole: RP.RecordAuthorRelation[] = []
+        displayAuthorsRaw.forEach(author => {
+            const existedAuthor = originAuthors.get(author.id)
+            // let isChanged = false
+            if (existedAuthor) {
+                if (!deepEqual(author.roles, existedAuthor.roles)) {
+                    editAuthorsRole.push({ id: author.id, roles: author.roles.map(item => item.id) })
+                }
+            } else {
+                addAuthors.push({ id: author.id, roles: author.roles.map(item => item.id) })
+            }
+        })
+
+        formData.addAuthors = addAuthors
+        formData.editAuthorsRole = editAuthorsRole
+        formData.removeAuthors = Array.from(removeAuthors)
+
+        // Sample Images
         const originSampleImagesArray = Array.from(originSampleImages)
-        const editSampleImages: DTO.EditSampleImage[] = []
-        displaySampleImages.forEach((path, index) => {
+        const editSampleImages: RP.EditSampleImage[] = []
+        displaySampleImages.value.forEach((path, index) => {
             if (!originSampleImages.has(path)) {
                 editSampleImages.push({ type: 'add', idx: index + 1, path })
             } else if (path !== originSampleImagesArray[index]) {
@@ -254,9 +286,7 @@ const useEditRecordService = () => {
         })
         formData.removeSampleImages = Array.from(removeSampleImages)
         formData.editSampleImages = editSampleImages
-
-        // 提交数据 
-        return window.electronAPI.editRecord(libraryId, toRaw(formData))
+        return window.dataAPI.editRecord(libraryId, toRaw(formData))
     }
 
     const resetFormData = () => {
@@ -264,6 +294,7 @@ const useEditRecordService = () => {
         formData.dirname = ''
         formData.basename = ''
         formData.title = ''
+        formData.translated_title = ''
         formData.hyperlink = ''
         formData.releaseDate = ''
         formData.cover = ''
@@ -274,9 +305,6 @@ const useEditRecordService = () => {
         formData.reviews = ''
         formData.info = ''
         // 提交前会重新赋值的不需要清空
-        //  addTags removeTags removeSeries addSeries
-        // addAuthor removeAuthors editAuthorsRole
-        // editSampleImages removeSampleImages
 
         // 标签
         displayTags.splice(0)
@@ -289,14 +317,12 @@ const useEditRecordService = () => {
         addSeries.clear()
         removeSeries.clear()
         // 作者
-        displayAuthors.splice(0)
         originAuthors.clear()
-        addAuthors.clear()
-        editAuthorsRole.clear()
-        removeAuthors.clear()
+        displayAuthors.splice(0)
+        displayAuthorsRaw.splice(0)
         // 样例图片
-        displaySampleImages.splice(0)
         originSampleImages.clear()
+        displaySampleImages.value = []
         removeSampleImages.clear()
         // 重置输入框
         dispalyFormData.authorInput = ''
@@ -315,8 +341,8 @@ const useEditRecordService = () => {
         seriesRemover,
         // 作者
         displayAuthors,
-        authorAdder,
-        authorRemover,
+        addAuthor,
+        removeAuthor,
         authorEditRole,
         // 样例图片
         displaySampleImages,

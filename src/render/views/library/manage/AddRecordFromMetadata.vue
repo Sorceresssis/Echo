@@ -48,19 +48,26 @@
 </template>
 
 <script setup lang="ts">
-import { readonly, inject, Ref, ref, watch } from 'vue';
+import { inject, onActivated, onMounted, Ref, ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
+import useLibraryStore from '@/store/libraryStore';
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore';
 import { $t } from '@/locale';
 import { openInBrowser } from '@/util/systemUtil';
 import MessageBox from '@/util/MessageBox';
 import Message from '@/util/Message';
 import Links from '@/constant/links';
+import { VueInjectKey } from '@/constant/channel_key';
 import { ElForm, ElFormItem, ElInput, ElButton } from 'element-plus';
 import Button2 from '@/components/Button2.vue';
+
+
 const route = useRoute()
-const winowLoading = inject<Ref<boolean>>('winowLoading')!
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
+
+const winowLoading = inject<Ref<boolean>>(VueInjectKey.WINDOW_LOADING)!
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
+
+const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 
 const SingleMetaSrcInputValue = ref('')
@@ -109,22 +116,33 @@ const handleAddRecordFromMetadata = (type: 0 | 1, op: 0 | 1 | 2) => {
         viewsTaskAfterRoutingStore.setBashboardDirnames('refresh')
         viewsTaskAfterRoutingStore.setAuthorRecords('refresh')
 
-        return window.electronAPI.addRecordFromMetadata(activeLibrary.value, param)
+        return window.dataAPI.addRecordFromMetadata(activeLibrary.value, param)
     }).then(res => {
         if (res.code) Message.success('导入成功')
         else Message.error(res.msg)
+        // Role
     }).catch(() => {
-
     }).finally(() => {
-        winowLoading.value = false
+        libraryStore.getRoles(activeLibrary.value).finally(() => {
+            winowLoading.value = false
+        })
     })
 }
 
 const init = function () {
     SingleMetaSrcInputValue.value = MultipleMetaSrcInputValue.value = ''
 }
-
-watch(route, init) 
+watch(route, () => {
+    needInit = true
+})
+let needInit = false
+onMounted(init)
+onActivated(() => {
+    if (needInit) {
+        init()
+        needInit = false
+    }
+})
 </script>
 
 <style scoped></style>

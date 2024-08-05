@@ -7,9 +7,11 @@
 								   class="menu-item search"
 								   :placeholder="$t('layout.search')"
 								   @keyup.enter="handleQueryParamsChange" />
-				<dash-drop-menu v-for="menu in dropdownMenus"
-								class="menu-item"
-								:menu="menu" />
+				<dash-drop-menu class="menu-item"
+								:menu="roleDropdownMenu"
+								:loading="libraryStore.isLoadingRoles" />
+				<dash-drop-menu class="menu-item"
+								:menu="sortDropdownMenu" />
 			</div>
 		</div>
 		<scrollbar v-loading="loading"
@@ -23,16 +25,16 @@
 					class="author-recommendation-item divider">
 					<local-image :src="recmd.avatar"
 								 class="author-icon avatar-icon"
-								 @click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))" />
+								 @click="router.push(RouterPathGenerator.libraryAuthor(activeLibrary, recmd.id))" />
 					<div class="author-info">
 						<h1 :title="recmd.name"
 							class="name cursor--pointer"
-							@click="router.push(hrefGenerator.libraryAuthor(activeLibrary, recmd.id))">
+							@click="router.push(RouterPathGenerator.libraryAuthor(activeLibrary, recmd.id))">
 							{{ recmd.name }}
 						</h1>
 						<p class="meta fz-12">
 							<span class="inline-list-title"> {{ $t('layout.numberOfWorks') }}</span>
-							<a class="count">{{ recmd.worksCount }}</a>
+							<a class="count">{{ recmd.record_count }}</a>
 						</p>
 						<p class="caption"> {{ recmd.intro }} </p>
 					</div>
@@ -61,11 +63,13 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, onMounted, inject, watch, readonly, onActivated, onDeactivated } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import hrefGenerator from '@/router/hrefGenerator'
+import { ref, Ref, onMounted, inject, watch, computed, onActivated } from 'vue'
+import { useRouter, onBeforeRouteUpdate } from 'vue-router'
+import RouterPathGenerator from '@/router/router_path_generator';
 import { $t } from '@/locale'
 import { debounce } from '@/util/common'
+import { VueInjectKey } from '@/constant/channel_key';
+import useLibraryStore from '@/store/libraryStore'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useAuthorsDashStore from '@/store/authorsDashStore'
 import { ElPagination } from 'element-plus'
@@ -75,16 +79,50 @@ import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 import LocalImage from '@/components/LocalImage.vue'
 
-const route = useRoute()
 const router = useRouter()
 
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
+
+const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const authorsDashStore = useAuthorsDashStore()
 
-const dropdownMenus = [{
+// Role dropdown menu 启动没有hit 
+const roleDropdownMenu = computed<DashDropMenu>(() => {
+	return {
+		HTMLElementTitle: 'role',
+		title: '&#xe60d;',
+		items: [
+			{
+				key: void 0,
+				title: 'None',
+				divided: false,
+				click: () => authorsDashStore.setRole('None'),
+				hit: () => authorsDashStore.roleFilterMode === 'None'
+			},
+			{
+				key: 0,
+				title: 'Default',
+				divided: false,
+				click: () => authorsDashStore.setRole('DEFAULT'),
+				hit: () => authorsDashStore.roleFilterMode === 'DEFAULT'
+			},
+			...libraryStore.roles.map((role, idx) => {
+				return {
+					key: role.id,
+					title: role.name,
+					divided: idx === 0,
+					click: () => authorsDashStore.setRole('ROLE_ID', role.id),
+					hit: () => authorsDashStore.roleFilterMode === 'ROLE_ID' && authorsDashStore.role === role.id
+				}
+			})
+		]
+	}
+})
+const sortDropdownMenu: DashDropMenu = {
 	HTMLElementTitle: $t('layout.sortBy'),
 	title: '&#xe81f;',
 	items: [
@@ -92,30 +130,29 @@ const dropdownMenus = [{
 			title: $t('layout.name'),
 			divided: false,
 			click: () => authorsDashStore.handleSortField('name'),
-			dot: () => authorsDashStore.sortField === 'name'
+			hit: () => authorsDashStore.sortField === 'name'
 		},
 		{
 			title: $t('layout.time'),
 			divided: false,
 			click: () => authorsDashStore.handleSortField('time'),
-			dot: () => authorsDashStore.sortField === 'time'
+			hit: () => authorsDashStore.sortField === 'time'
 		},
 		{
 			title: $t('layout.ascending'),
 			divided: true,
 			click: () => authorsDashStore.handleOrder('ASC'),
-			dot: () => authorsDashStore.order === 'ASC'
+			hit: () => authorsDashStore.order === 'ASC'
 		},
 		{
 			title: $t('layout.descending'),
 			divided: false,
 			click: () => authorsDashStore.handleOrder('DESC'),
-			dot: () => authorsDashStore.order === 'DESC'
+			hit: () => authorsDashStore.order === 'DESC'
 		},
 	]
-}]
+}
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const authorRecmds = ref<VO.AuthorRecommendation[]>([])
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
@@ -123,51 +160,69 @@ const pageSize = 20
 const total = ref<number>(0)
 
 const queryAuthorRecmds = debounce(async () => {
+	if (!activeLibrary.value) return
 	loading.value = true
-	const page = await window.electronAPI.queryAuthorRecmds(
+	window.dataAPI.queryAuthorRecmds(
 		activeLibrary.value,
 		{
 			keyword: keyword.value,
 			sortField: authorsDashStore.sortField,
 			order: authorsDashStore.order,
+			roleFilterMode: authorsDashStore.roleFilterMode,
+			role: authorsDashStore.role,
 			pn: currentPage.value,
 			ps: pageSize
 		}
-	)
-	total.value = page.total
-	authorRecmds.value = page.rows
-	loading.value = false
+	).then((pagedRes) => {
+		total.value = pagedRes.page.total_count
+		authorRecmds.value = pagedRes.results
+	}).finally(() => {
+		loading.value = false
+	})
 }, 100)
 
-// pageChange 刷新数据, 重置滚动位置
+// 刷新数据, 重置滚动位置
 const handlePageChange = function (pn: number) {
 	scrollbarRef.value?.setScrollPosition(0)
 	currentPage.value = pn
 	queryAuthorRecmds()
 }
-// 请求参数发送改变(activeLibrarykeyword , sortFild, order)	刷新数据, 重置滚动位置, 重置页码
+// 请求参数发送改变, 刷新数据, 重置滚动位置, 重置页码
 const handleQueryParamsChange = function () {
 	handlePageChange(1)
 }
 const init = function () {
+	authorRecmds.value = [] // NOTE 初始化就要清空 
+	authorsDashStore.setRole('None')
 	keyword.value = ''
 	handleQueryParamsChange()
 }
-
-// 刷新数据, 保留滚动位置, 保留页码
-watch(() => [authorsDashStore.sortField, authorsDashStore.order], handleQueryParamsChange)
-watch(route, () => {
+const handleViewTask = () => {
 	switch (viewsTaskAfterRoutingStore.bashboardAuthors) {
 		case 'init':
 			init()
+			viewsTaskAfterRoutingStore.setBashboardAuthors('none')
 			break
 		case 'refresh':
 			queryAuthorRecmds()
+			viewsTaskAfterRoutingStore.setBashboardAuthors('none')
 			break
 	}
-	viewsTaskAfterRoutingStore.setBashboardAuthors('none')
-})
+}
+
+watch(() => [
+	authorsDashStore.sortField,
+	authorsDashStore.order,
+	authorsDashStore.roleFilterMode,
+	authorsDashStore.role,
+], handleQueryParamsChange)
+
 onMounted(init)
+onBeforeRouteUpdate(() => {
+	authorRecmds.value = []
+	viewsTaskAfterRoutingStore.setBashboardAuthors('init')
+})
+onActivated(handleViewTask)
 </script>
 
 <style>

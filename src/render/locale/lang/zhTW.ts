@@ -49,6 +49,7 @@ export default {
         sortBy: '排序',
         time: '時間',
         title: '標題',
+        translated_title: '翻譯標題',
         name: '名字',
         path: '路徑',
         rate: '評分',

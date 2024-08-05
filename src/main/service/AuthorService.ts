@@ -2,12 +2,14 @@ import fs from "fs"
 import { injectable, inject } from "inversify"
 import InjectType from "../provider/injectType"
 import DIContainer, { type LibraryEnv } from "../provider/container"
-import fm from "../util/FileManager"
+import fm from "../utils/FileManager"
 import ImageService from "./ImageService"
-import AuthorDao, { QueryAuthorsSortRule } from "../dao/AuthorDao"
-import RecordAuthorDao from "../dao/RecordAuthorDao"
-import RecordService from "./RecordService"
-import { isNotEmptyString } from "../util/common"
+import { DBPageQueryOptions, PagedResult } from "../pojo/page"
+import type AuthorDao from "../dao/AuthorDao"
+import { type QueryAuthorsSortRule } from "../dao/AuthorDao"
+import type RecordAuthorDao from "../dao/RecordAuthorDao"
+import type RecordAuthorRoleDao from "../dao/RecordAuthorRoleDao"
+import type RecordService from "./RecordService"
 
 @injectable()
 class AuthorService {
@@ -15,6 +17,7 @@ class AuthorService {
         @inject(InjectType.LibraryEnv) private libEnv: LibraryEnv,
         @inject(InjectType.AuthorDao) private authorDao: AuthorDao,
         @inject(InjectType.RecordAuthorDao) private recordAuthorDao: RecordAuthorDao,
+        @inject(InjectType.RecordAuthorRoleDao) private recordAuthorRoleDao: RecordAuthorRoleDao,
     ) {
     }
 
@@ -22,7 +25,7 @@ class AuthorService {
         const author = this.authorDao.queryAuthorById(authorId) as VO.AuthorDetail | undefined
         if (author === void 0) return author
 
-        author.recordCount = this.recordAuthorDao.queryCountOfRecordsByAuthorId(authorId)
+        author.record_count = this.recordAuthorDao.queryCountOfRecordsByAuthorId(authorId)
 
         // 获得完整的头像路径
         const authorImagesDirPathConstructor = this.libEnv.genAuthorImagesDirPathConstructor(author.id)
@@ -32,12 +35,12 @@ class AuthorService {
         } = authorImagesDirPathConstructor.findAvatarAndSampleImageFilePaths()
 
         author.avatar = avatar
-        author.sampleImages = sampleImages
+        author.sample_images = sampleImages
 
         return author
     }
 
-    public queryAuthorRecmds(options: DTO.QueryAuthorRecommendationsOptions): DTO.Page<VO.AuthorRecommendation> {
+    public queryAuthorRecmds(options: RP.QueryAuthorRecommendationsOptions): PagedResult<VO.AuthorRecommendation> {
         const defaultSortRule: QueryAuthorsSortRule[] = [
             { field: 'name', order: 'ASC' },
             { field: 'id', order: 'DESC' },
@@ -59,46 +62,60 @@ class AuthorService {
                 sortRule.push(rule)
             }
         })
-        const page = this.authorDao.queryAuthorsByKeyword(
+        let roleId: number | undefined = void 0
+        if (options.roleFilterMode === 'DEFAULT') {
+            roleId = 0
+        }
+        if (options.roleFilterMode === 'ROLE_ID' && options.role) {
+            roleId = options.role
+        }
+        const pagedResult = this.authorDao.queryAuthorsByKeyword(
             options.keyword.trim(),
             sortRule,
-            (options.pn - 1) * options.ps,
-            options.ps
-        ) as DTO.Page<VO.AuthorRecommendation>
+            new DBPageQueryOptions(options.pn, options.ps),
+            roleId
+        ) as PagedResult<VO.AuthorRecommendation>
 
-        page.rows.forEach(row => {
+        pagedResult.results.forEach(row => {
             row.avatar = this.libEnv.genAuthorImagesDirPathConstructor(row.id).findAvatarImageFilePath()
-            row.worksCount = this.recordAuthorDao.queryCountOfRecordsByAuthorId(row.id)
+            row.record_count = this.recordAuthorDao.queryCountOfRecordsByAuthorId(row.id)
             row.masterpieces = DIContainer.get<RecordService>(InjectType.RecordService).queryAuthorMasterpieces(row.id)
         })
 
-        return page
+        return pagedResult
     }
 
-    public queryAuthorsByRecordId(recordId: number): VO.RecordAuthorProfile[] {
-        const authors = this.authorDao.queryAuthorsAndRoleByRecordId(recordId)
-        authors.forEach(author => author.avatar = this.libEnv.genAuthorImagesDirPathConstructor(author.id).findAvatarImageFilePath())
+    public queryAuthorsProfileByRecordId(recordId: number): VO.AuthorProfile[] {
+        const authors = this.authorDao.queryAuthorsProfileByRecordId(recordId) as VO.AuthorProfile[]
+        authors.forEach(author => {
+            author.avatar = this.libEnv.genAuthorImagesDirPathConstructor(author.id).findAvatarImageFilePath()
+        })
         return authors
     }
 
-    public async editAuthor(formData: DTO.EditAuthorForm): Promise<void> {
-        // 处理类型
+    public async editAuthor(formData: RP.EditAuthorFormData): Promise<void> {
+        formData.name = formData.name.trim()
+        formData.intro = formData.intro.trim()
+        if (formData.newAvatar) {
+            formData.newAvatar = formData.newAvatar.trim()
+        }
         const opType = formData.id === 0 ? 'add' : 'edit'
 
-        const author: Entity.Author = {
-            id: formData.id,
-            name: formData.name.trim(),
-            intro: formData.intro.trim(),
-        }
+        const author = this.authorDao.authorWriteModelFactory(
+            formData.name,
+            formData.id,
+            formData.intro
+        )
 
         this.libEnv.db.transactionExec(() => {
             if (opType === 'add') {
-                author.id = this.authorDao.insertAuthor(author)
+                author.id = this.authorDao.insert(author)
             } else {
                 const oldAuthor = this.authorDao.queryAuthorById(author.id)
-                this.authorDao.updateAuthor(author)
+                if (oldAuthor === void 0) throw Error('author not found')
 
-                if (oldAuthor?.name !== author.name) {
+                this.authorDao.update(author)
+                if (oldAuthor.name !== author.name) {
                     // 更新冗余字段tagAuthorSum
                     this.updateRecordTagAuthorSumOfAuthor(author.id)
                 }
@@ -108,13 +125,15 @@ class AuthorService {
         // 处理图片
         const authorImagesDirPathConstructor = this.libEnv.genAuthorImagesDirPathConstructor(author.id)
 
-        if (formData.newAvatar && isNotEmptyString(formData.newAvatar)) {
+        if (formData.newAvatar) {
             if (opType === 'edit') {
+                // NOTE newAvatar指向的就是oldAvatar的情况下。所以要先创建新的然后删除旧的
                 const oldAvatar = authorImagesDirPathConstructor.findAvatarImageFilePath()
+                await ImageService.handleAuthorAvatar(formData.newAvatar, authorImagesDirPathConstructor.getNewAvatarImageFilePath())
                 if (oldAvatar) fm.unlinkIfExistsSync(oldAvatar)
+            } else {
+                await ImageService.handleAuthorAvatar(formData.newAvatar, authorImagesDirPathConstructor.getNewAvatarImageFilePath())
             }
-
-            await ImageService.handleAuthorAvatar(formData.newAvatar, authorImagesDirPathConstructor.getNewAvatarImageFilePath())
         }
         formData.removeSampleImages.forEach(image => fm.unlinkIfExistsSync(image))
 
@@ -131,14 +150,6 @@ class AuthorService {
                 fs.renameSync(path, authorImagesDirPathConstructor.getNewSampleImageFilePath(idx))
             }
         }
-
-        // formData.editSampleImages.forEach(item => {
-        //     if (item.type === 'add') {
-        //         ImageService.handleNormalImage(item.path, authorImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
-        //     } else if (item.type === 'move') {
-        //         fs.renameSync(item.path, authorImagesDirPathConstructor.getNewSampleImageFilePath(item.idx))
-        //     }
-        // })
     }
 
     public deleteAuthor(authorId: number): void {
@@ -146,16 +157,16 @@ class AuthorService {
         if (author === void 0) return
 
         this.libEnv.db.transactionExec(() => {
-            this.authorDao.deleteAuthorById(authorId) // 删除作者
-            this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新冗余字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
-            this.recordAuthorDao.deleteRecordAuthorByAuthorId(authorId) // 删除关联
-
-            // 删除图像 
+            this.authorDao.deleteById(authorId) // 删除作者
+            this.updateRecordTagAuthorSumOfAuthor(authorId) // 更新字段tagAuthorSum, 不能先删除关联，否则无法更新冗余字段
+            this.recordAuthorDao.deleteByAuthorId(authorId)
+            this.recordAuthorRoleDao.deleteByAuthorId(authorId)
+            // 删除图像
             fm.rmdirRecursive(this.libEnv.genAuthorImagesDirPathConstructor(authorId).getImagesDirPath())
         })
     }
 
-    private updateRecordTagAuthorSumOfAuthor(authorId: PrimaryKey): void {
+    private updateRecordTagAuthorSumOfAuthor(authorId: Entity.PK): void {
         let pn = 0
         const rowCount = 200
         let recordIds: number[]

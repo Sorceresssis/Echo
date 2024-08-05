@@ -24,7 +24,7 @@
                     <div class="content">
                         <span :title="dirname.path"
                               class="textover--ellopsis">{{ dirname.path }}</span>
-                        <span class="count">{{ dirname.recordCount }}</span>
+                        <span class="count">{{ dirname.record_count }}</span>
                     </div>
                     <div class="operate">
                         <span class="iconfont"
@@ -55,59 +55,62 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, inject, onMounted, watch, readonly } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, Ref, inject, onMounted, watch, onActivated } from 'vue'
+import { onBeforeRouteUpdate } from 'vue-router'
 import { $t } from '@/locale'
 import { writeClibboard, openInExplorer } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
 import { debounce } from '@/util/common'
+import Message from '@/util/Message'
+import { VueInjectKey } from '@/constant/channel_key'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useDirnamesDashStore from '@/store/dirnamesDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Empty from '@/components/Empty.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
-import Message from '@/util/Message'
 
-const route = useRoute()
 const scrollbarRef = ref()
 const loading = ref<boolean>(false)
+
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const dirnamesDashStore = useDirnamesDashStore()
 
-const dropdownMenus = [{
-    HTMLElementTitle: $t('layout.sortBy'),
-    title: '&#xe81f;',
-    items: [
-        {
-            title: $t('layout.time'),
-            divided: false,
-            click: () => dirnamesDashStore.handleSortField('time'),
-            dot: () => dirnamesDashStore.sortField === 'time'
-        },
-        {
-            title: $t('layout.path'),
-            divided: false,
-            click: () => dirnamesDashStore.handleSortField('path'),
-            dot: () => dirnamesDashStore.sortField === 'path'
-        },
-        {
-            title: $t('layout.ascending'),
-            divided: true,
-            click: () => dirnamesDashStore.handleOrder('ASC'),
-            dot: () => dirnamesDashStore.order === 'ASC'
-        },
-        {
-            title: $t('layout.descending'),
-            divided: false,
-            click: () => dirnamesDashStore.handleOrder('DESC'),
-            dot: () => dirnamesDashStore.order === 'DESC'
-        },
-    ]
-}]
+const dropdownMenus: DashDropMenu[] = [
+    {
+        HTMLElementTitle: $t('layout.sortBy'),
+        title: '&#xe81f;',
+        items: [
+            {
+                title: $t('layout.time'),
+                divided: false,
+                click: () => dirnamesDashStore.handleSortField('time'),
+                hit: () => dirnamesDashStore.sortField === 'time'
+            },
+            {
+                title: $t('layout.path'),
+                divided: false,
+                click: () => dirnamesDashStore.handleSortField('path'),
+                hit: () => dirnamesDashStore.sortField === 'path'
+            },
+            {
+                title: $t('layout.ascending'),
+                divided: true,
+                click: () => dirnamesDashStore.handleOrder('ASC'),
+                hit: () => dirnamesDashStore.order === 'ASC'
+            },
+            {
+                title: $t('layout.descending'),
+                divided: false,
+                click: () => dirnamesDashStore.handleOrder('DESC'),
+                hit: () => dirnamesDashStore.order === 'DESC'
+            },
+        ]
+    }
+]
 
-const activeLibrary = readonly(inject<Ref<number>>('activeLibrary')!)
 const dirnames = ref<VO.DirnameDetail[]>([])
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
@@ -116,7 +119,7 @@ const total = ref<number>(0)
 
 const deleteDirname = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
-        await window.electronAPI.deleteDirname(activeLibrary.value, id)
+        await window.dataAPI.deleteDirname(activeLibrary.value, id)
         queryDirnames()
     })
 }
@@ -132,15 +135,16 @@ const editDirname = (id: number, oldValue: string) => {
             const trimValue = value.trim()
             if (trimValue === '' || trimValue === oldValue) return
 
-            const result = await window.electronAPI.editDirname(activeLibrary.value, id, value)
+            const result = await window.dataAPI.editDirname(activeLibrary.value, id, value)
             if (result.code === 0) Message.error(result.msg!)
             queryDirnames()
         })
     },)
 }
-const queryDirnames = debounce(async () => {
+const queryDirnames = debounce(() => {
+    if (!activeLibrary.value) return
     loading.value = true
-    const page = await window.electronAPI.queryDirnameDetails(
+    window.dataAPI.queryDirnameDetails(
         activeLibrary.value,
         {
             keyword: keyword.value,
@@ -149,10 +153,12 @@ const queryDirnames = debounce(async () => {
             pn: currentPage.value,
             ps: pageSize
         }
-    )
-    total.value = page.total
-    dirnames.value = page.rows
-    loading.value = false
+    ).then((pagedRes) => {
+        total.value = pagedRes.page.total_count
+        dirnames.value = pagedRes.results
+    }).finally(() => {
+        loading.value = false
+    })
 }, 100)
 const handlePageChange = function (pn: number) {
     scrollbarRef.value?.setScrollPosition(0)
@@ -166,20 +172,30 @@ const init = function () {
     keyword.value = ''
     handleQueryParamsChange()
 }
-
-watch(() => [dirnamesDashStore.sortField, dirnamesDashStore.order], handleQueryParamsChange)
-watch(route, () => {
+const handleViewTask = () => {
     switch (viewsTaskAfterRoutingStore.bashboardDirnames) {
         case 'init':
             init()
+            viewsTaskAfterRoutingStore.setBashboardDirnames('none')
             break
         case 'refresh':
             queryDirnames()
+            viewsTaskAfterRoutingStore.setBashboardDirnames('none')
             break
     }
-    viewsTaskAfterRoutingStore.setBashboardDirnames('none')
-})
+}
+
+watch(() => [
+    dirnamesDashStore.sortField,
+    dirnamesDashStore.order
+], handleQueryParamsChange)
+
 onMounted(init)
+onActivated(handleViewTask)
+onBeforeRouteUpdate(() => {
+    dirnames.value = []
+    viewsTaskAfterRoutingStore.setBashboardTags('init')
+})
 </script>
 
 <style scoped>

@@ -24,7 +24,7 @@
                     <div class="content">
                         <span :title="tag.title"
                               class="textover--ellopsis">{{ tag.title }}</span>
-                        <span class="count">{{ tag.recordCount }}</span>
+                        <span class="count">{{ tag.record_count }}</span>
                     </div>
                     <div class="operate">
                         <span class="iconfont"
@@ -52,25 +52,26 @@
 </template>
 
 <script setup lang='ts'>
-import { ref, Ref, watch, onMounted, inject } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, Ref, watch, onMounted, inject, onActivated } from 'vue'
+import { onBeforeRouteUpdate } from 'vue-router'
 import { $t } from '@/locale'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import { debounce } from '@/util/common'
 import { writeClibboard } from '@/util/systemUtil'
 import MessageBox from '@/util/MessageBox'
+import { VueInjectKey } from '@/constant/channel_key'
 import useTagsDashStore from '@/store/tagsDashStore'
 import EchoAutocomplete from '@/components/EchoAutocomplete.vue'
 import DashDropMenu from '@/components/DashDropMenu.vue'
 import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 
-const route = useRoute()
+const activeLibrary = inject<Ref<number>>(VueInjectKey.ACTIVE_LIBRARY)!;
 
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
 const tagsDashStore = useTagsDashStore()
 
-const dropdownMenus = [{
+const dropdownMenus: DashDropMenu[] = [{
     HTMLElementTitle: $t('layout.sortBy'),
     title: '&#xe81f;',
     items: [
@@ -78,25 +79,25 @@ const dropdownMenus = [{
             title: $t('layout.title'),
             divided: false,
             click: () => tagsDashStore.handleSortField('title'),
-            dot: () => tagsDashStore.sortField === 'title'
+            hit: () => tagsDashStore.sortField === 'title'
         },
         {
             title: $t('layout.time'),
             divided: false,
             click: () => tagsDashStore.handleSortField('time'),
-            dot: () => tagsDashStore.sortField === 'time'
+            hit: () => tagsDashStore.sortField === 'time'
         },
         {
             title: $t('layout.ascending'),
             divided: true,
             click: () => tagsDashStore.handleOrder('ASC'),
-            dot: () => tagsDashStore.order === 'ASC'
+            hit: () => tagsDashStore.order === 'ASC'
         },
         {
             title: $t('layout.descending'),
             divided: false,
             click: () => tagsDashStore.handleOrder('DESC'),
-            dot: () => tagsDashStore.order === 'DESC'
+            hit: () => tagsDashStore.order === 'DESC'
         },
     ]
 }]
@@ -104,40 +105,40 @@ const scrollbarRef = ref()
 const loading = ref<boolean>(false)
 
 const tags = ref<VO.TagDetail[]>([])
-const activeLibrary = inject<Ref<number>>('activeLibrary') as Ref<number>
 const keyword = ref<string>('')
 const currentPage = ref<number>(1)
 const pageSize = 50
 const total = ref<number>(0)
+const tagTitleMaxLen = 255
 
 const deleteTag = (id: number) => {
     MessageBox.deleteConfirm().then(async () => {
-        await window.electronAPI.deleteTag(activeLibrary.value, id)
+        await window.dataAPI.deleteTag(activeLibrary.value, id)
         queryTags()
     })
 }
 const editTag = (id: number, oldValue: string) => {
-    MessageBox.editPrompt(
-        (value: string) => {
-            const reg = /\S/
-            if (!reg.test(value)) return $t('tips.inputValueNotEmpty')
-            const maxLen = 255
-            if (value.length > maxLen) return $t('tips.lengthLimitExceeded', { count: maxLen })
-            return true
-        }, oldValue
+    MessageBox.editPrompt((value: string) => {
+        const reg = /\S/
+        if (!reg.test(value)) return $t('tips.inputValueNotEmpty')
+        const maxLen = tagTitleMaxLen
+        if (value.length > maxLen) return $t('tips.lengthLimitExceeded', { count: maxLen })
+        return true
+    }, oldValue
     ).then(({ value }) => {
         MessageBox.editConfirm().then(async () => {
             const trimValue = value.trim()
             if (trimValue === '' || trimValue === oldValue) return
 
-            await window.electronAPI.editTag(activeLibrary.value, id, value)
+            await window.dataAPI.editTag(activeLibrary.value, id, value)
             queryTags()
         })
     })
 }
 const queryTags = debounce(async () => {
+    if (!activeLibrary.value) return
     loading.value = true
-    const page = await window.electronAPI.queryTagDetails(
+    window.dataAPI.queryTagDetails(
         activeLibrary.value,
         {
             keyword: keyword.value,
@@ -146,10 +147,12 @@ const queryTags = debounce(async () => {
             pn: currentPage.value,
             ps: pageSize
         }
-    )
-    total.value = page.total
-    tags.value = page.rows
-    loading.value = false
+    ).then((pagedRes) => {
+        total.value = pagedRes.page.total_count
+        tags.value = pagedRes.results
+    }).finally(() => {
+        loading.value = false
+    })
 }, 100)
 const handlePageChange = function (pn: number) {
     scrollbarRef.value?.setScrollPosition(0)
@@ -160,28 +163,54 @@ const handleQueryParamsChange = function () {
     handlePageChange(1)
 }
 const init = function () {
+    tags.value = []
     keyword.value = ''
     handleQueryParamsChange()
 }
-
-watch(() => [tagsDashStore.sortField, tagsDashStore.order], handleQueryParamsChange)
-watch(route, () => {
+const handleViewTask = () => {
     switch (viewsTaskAfterRoutingStore.bashboardTags) {
         case 'init':
             init()
+            viewsTaskAfterRoutingStore.setBashboardTags('none')
             break
         case 'refresh':
             queryTags()
+            viewsTaskAfterRoutingStore.setBashboardTags('none')
             break
     }
-    viewsTaskAfterRoutingStore.setBashboardTags('none')
-})
+}
+
+watch(() => [
+    tagsDashStore.sortField,
+    tagsDashStore.order
+], handleQueryParamsChange)
+
 onMounted(init)
+onActivated(handleViewTask)
+onBeforeRouteUpdate(() => {
+    tags.value = []
+    viewsTaskAfterRoutingStore.setBashboardTags('init')
+})
+
+// NOTE 因为route改变时, 会自动跳转到 records 页，此页面会被 Deactivated
+// 在下一次打开时会触发 Activated,可以在Activated 中执行任务, 不需要每次route变化都
+// 执行一次, 所以废弃下列代码
+// watch(route, () => {
+//     switch (viewsTaskAfterRoutingStore.bashboardTags) {
+//         case 'init':
+//             init()
+//             break
+//         case 'refresh':
+//             queryTags()
+//             break
+//     }
+//     viewsTaskAfterRoutingStore.setBashboardTags('none')
+// })
 </script>
 
 <style scoped>
 .adaptive-grid {
     row-gap: 8px;
-    grid-template-columns: repeat(auto-fill, 350px);
+    grid-template-columns: repeat(auto-fill, 400px);
 }
 </style>

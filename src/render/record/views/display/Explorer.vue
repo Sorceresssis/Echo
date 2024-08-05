@@ -1,5 +1,5 @@
 <template>
-    <div v-if="record.resourcePath"
+    <div v-if="record.source_fullpath"
          class="file-explorer">
         <header class="file-explorer__header">
             <div class="operate">
@@ -97,13 +97,14 @@
 
 <script setup lang='ts'>
 import { inject, ref, readonly, onMounted, watch } from 'vue'
+import { VueInjectKey } from '@/constant/channel_key';
 import useExplorerService from '@/record/service/explorerService'
 import { openInExplorer, openFile } from '@/util/systemUtil'
 import Scrollbar from '@/components/Scrollbar.vue'
 import Empty from '@/components/Empty.vue'
 import FolderContentItem from '@/components/FolderContentItem.vue'
 
-const record = readonly(inject<VO.RecordDetail>('record')!)
+const record = readonly(inject<VO.RecordDetail>(VueInjectKey.RECORD)!)
 
 const explorer = useExplorerService()
 const {
@@ -136,24 +137,23 @@ const openCtm = (
     isVisCtm.value = true
 }
 
-
-watch(() => record.resourcePath, () => {
+watch(() => record.source_fullpath, () => {
     if (realFolders.value.length === 0) {
-        if (record.resourcePath) {
-            explorer.init(record.resourcePath)
+        if (record.source_fullpath) {
+            explorer.init(record.source_fullpath)
         }
     } else {
-        if (!record.resourcePath) {
+        if (!record.source_fullpath) {
             explorer.reset()
-        } else if (record.resourcePath !== realFolders.value[0]) {
-            explorer.init(record.resourcePath)
+        } else if (record.source_fullpath !== realFolders.value[0]) {
+            explorer.init(record.source_fullpath)
         }
     }
 })
 
 onMounted(() => {
-    if (record.resourcePath) {
-        explorer.init(record.resourcePath)
+    if (record.source_fullpath) {
+        explorer.init(record.source_fullpath)
     }
 })
 

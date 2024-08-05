@@ -6,11 +6,25 @@
   "description": "",
   "glyphs": [
     {
-      "icon_id": "645691",
-      "name": "arrow-left",
-      "font_class": "arrowleft",
-      "unicode": "e618",
-      "unicode_decimal": 58904
+      "icon_id": "19657932",
+      "name": "标题",
+      "font_class": "title",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "6905338",
+      "name": "role",
+      "font_class": "role",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "12439519",
+      "name": "advanced search",
+      "font_class": "advancedsearch",
+      "unicode": "e62b",
+      "unicode_decimal": 58923
     },
     {
       "icon_id": "10100612",
@@ -27,20 +41,6 @@
       "unicode_decimal": 58901
     },
     {
-      "icon_id": "10100615",
-      "name": "Arrow-left-double",
-      "font_class": "Arrow-left-double",
-      "unicode": "e616",
-      "unicode_decimal": 58902
-    },
-    {
-      "icon_id": "10100616",
-      "name": "Arrow-right-double",
-      "font_class": "Arrow-right-double",
-      "unicode": "e619",
-      "unicode_decimal": 58905
-    },
-    {
       "icon_id": "15838437",
       "name": "arrow-left-circle",
       "font_class": "arrow-left-circle",
@@ -53,13 +53,6 @@
       "font_class": "anjianfengexian",
       "unicode": "e680",
       "unicode_decimal": 59008
-    },
-    {
-      "icon_id": "7239393",
-      "name": "backward",
-      "font_class": "backward",
-      "unicode": "e6e3",
-      "unicode_decimal": 59107
     },
     {
       "icon_id": "7239406",
@@ -111,13 +104,6 @@
       "unicode_decimal": 58947
     },
     {
-      "icon_id": "22813557",
-      "name": "refresh",
-      "font_class": "refresh",
-      "unicode": "e64f",
-      "unicode_decimal": 58959
-    },
-    {
       "icon_id": "36196880",
       "name": "相似者",
       "font_class": "xiangsizhe",
@@ -165,6 +151,13 @@
       "font_class": "tianjia1",
       "unicode": "e656",
       "unicode_decimal": 58966
+    },
+    {
+      "icon_id": "5387424",
+      "name": "设备搜索",
+      "font_class": "shebeisousuo",
+      "unicode": "ead2",
+      "unicode_decimal": 60114
     },
     {
       "icon_id": "7161768",

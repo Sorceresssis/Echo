@@ -3,7 +3,7 @@ import fs from 'fs'
 import path from 'node:path'
 import archiver from 'archiver'
 import type internal from 'node:stream'
-import Result from '../../util/Result'
+import ResponseResult from '../../pojo/ResponseResult'
 
 export type zipperOperation = ({
     type: "Buffer" | "String" | "Stream",
@@ -35,11 +35,11 @@ parentPort?.on('message', (wData: {
     output.on('error', err => { throw err })
     output.on('close', function () {
         // 输出流关闭后，代表压缩完成
-        parentPort?.postMessage(Result.success())
+        parentPort?.postMessage(ResponseResult.success())
     })
 
     output.on('end', function () {
-        parentPort?.postMessage(Result.error('Data has been drained'))
+        parentPort?.postMessage(ResponseResult.error('Data has been drained'))
     });
 
     const archive = archiver('zip', {
