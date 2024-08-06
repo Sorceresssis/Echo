@@ -67,7 +67,11 @@ const addRole = () => {
             if (trimValue === '') return
             const res = await window.dataAPI.createRole(activeLibrary.value, trimValue)
             if (res.code) {
-                libraryStore.roles.push({ id: 0, name: trimValue })
+                if (res.data) {
+                    libraryStore.roles.push(res.data)
+                } else {
+                    libraryStore.getRoles(activeLibrary.value)
+                }
             } else {
                 Message.error(res.msg)
             }
