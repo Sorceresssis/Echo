@@ -38,7 +38,7 @@ import { VueInjectKey } from '@/constant/channel_key';
 import Message from '@/util/Message'
 import useViewsTaskAfterRoutingStore from '@/store/viewsTaskAfterRoutingStore'
 import useLibraryStore from '@/store/libraryStore'
-import LibraryIDB from '@/service/libraryIDB'
+// import LibraryIDB from '@/service/libraryIDB'
 
 const isMaxmize = ref<boolean>(false);
 window.electronAPI.windowIsMaxmize((e: any, value: boolean) => isMaxmize.value = value)
@@ -56,7 +56,7 @@ const activeLibraryDetail = inject<VO.LibraryDetail>(VueInjectKey.ACTIVE_LIBRARY
 
 const libraryStore = useLibraryStore()
 const viewsTaskAfterRoutingStore = useViewsTaskAfterRoutingStore()
-const libraryIDB = LibraryIDB.getInstance()
+// const libraryIDB = LibraryIDB.getInstance()
 
 const routerCanBack = ref<boolean>(false)
 const routerCanForward = ref<boolean>(false)
